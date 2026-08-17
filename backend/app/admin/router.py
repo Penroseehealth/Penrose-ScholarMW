@@ -111,7 +111,7 @@ async def change_user_role(
     new_role = body.get("role")
     if new_role not in ["student", "lecturer", "researcher", "admin"]:
         raise HTTPException(status_code=400, detail="Invalid role")
-    user.role = new_role
+    user.role = UserRole(new_role)
     await db.commit()
     return {"id": user.id, "role": user.role.value}
 

@@ -1,14 +1,16 @@
 import 'dart:convert';
 import 'api_service.dart';
+import 'cache_service.dart';
 
 export 'api_service.dart';
+export 'cache_service.dart';
 
 class CourseService {
   final ApiService _api = ApiService();
 
   Future<List<dynamic>> listCourses() async {
-    final response = await _api.get('/courses/');
-    if (response.statusCode == 200) {
+    final response = await _api.getWithCache('/courses/');
+    if (response != null && response.statusCode == 200) {
       return jsonDecode(response.body);
     }
     return [];

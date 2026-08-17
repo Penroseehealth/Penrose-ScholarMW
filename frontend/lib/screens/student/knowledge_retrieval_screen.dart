@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
+import '../../services/web_speech_service.dart';
 
 class KnowledgeRetrievalScreen extends StatefulWidget {
   const KnowledgeRetrievalScreen({super.key});
@@ -12,18 +13,27 @@ class KnowledgeRetrievalScreen extends StatefulWidget {
       _KnowledgeRetrievalScreenState();
 }
 
-class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen> {
+class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
+    with TickerProviderStateMixin {
   final ApiService _api = ApiService();
   final TextEditingController _questionCtrl = TextEditingController();
   final ScrollController _scrollCtrl = ScrollController();
+  final WebSpeechService _speech = WebSpeechService();
 
   final List<_ChatMessage> _messages = [];
   bool _loading = false;
-  bool _recording = false;
+  bool _listening = false;
+  int? _speakingIndex;
+  String _previousText = '';
+  late AnimationController _pulseCtrl;
 
   @override
   void initState() {
     super.initState();
+    _pulseCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
     _messages.add(_ChatMessage(
       text:
           'Hello! I am ScholarAI Knowledge Retrieval. Ask me anything '
@@ -37,6 +47,8 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen> {
 
   @override
   void dispose() {
+    _speech.dispose();
+    _pulseCtrl.dispose();
     _questionCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
@@ -57,6 +69,16 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen> {
   Future<void> _sendQuestion() async {
     final question = _questionCtrl.text.trim();
     if (question.isEmpty || _loading) return;
+
+    if (_listening) {
+      _speech.stopListening();
+      setState(() { _listening = false; });
+      _pulseCtrl.stop();
+    }
+    _speech.cancelSpeech();
+    if (_speakingIndex != null) {
+      setState(() { _speakingIndex = null; });
+    }
 
     setState(() {
       _messages.add(_ChatMessage(
@@ -132,32 +154,93 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen> {
     }
   }
 
-  Future<void> _voiceInput() async {
-    if (_recording) return;
+  void _toggleListening() {
+    if (_listening) {
+      _speech.stopListening();
+      setState(() {
+        _listening = false;
+        if (_questionCtrl.text.isEmpty) {
+          _questionCtrl.text = _previousText;
+        }
+      });
+      _pulseCtrl.stop();
+      return;
+    }
 
+    if (_speech.isSupported) {
+      _previousText = _questionCtrl.text;
+      _questionCtrl.clear();
+      setState(() { _listening = true; });
+      _pulseCtrl.repeat(reverse: true);
+
+      _speech.startListening(
+        onResult: (text, isFinal) {
+          if (isFinal && !_loading) {
+            _questionCtrl.text = text;
+            setState(() { _listening = false; });
+            _pulseCtrl.stop();
+            _sendQuestion();
+          } else if (!isFinal) {
+            setState(() { _questionCtrl.text = text; });
+          }
+        },
+        onEnd: () {
+          if (_listening) {
+            setState(() {
+              _listening = false;
+              if (_questionCtrl.text.isEmpty) {
+                _questionCtrl.text = _previousText;
+              }
+            });
+            _pulseCtrl.stop();
+          }
+        },
+        onError: (error) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(error),
+                duration: const Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            );
+          }
+        },
+      );
+    } else {
+      _showFallbackDialog();
+    }
+  }
+
+  Future<void> _showFallbackDialog() async {
     final textCtrl = TextEditingController();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Voice Input (Section 23)'),
+        title: const Text('Voice Input'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.mic,
+            const Icon(
+              Icons.keyboard_voice,
               size: 48,
-              color: _recording ? AppColors.error : AppColors.primary,
+              color: AppColors.primary,
             ),
             const SizedBox(height: 12),
             const Text(
-              'Speak your question, or type below:',
+              'Voice recognition is not supported on this device.\nType your question below:',
+              textAlign: TextAlign.center,
               style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: textCtrl,
+              autofocus: true,
               decoration: InputDecoration(
-                hintText: 'Type what you would say...',
+                hintText: 'Type your question...',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -172,31 +255,16 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () async {
+            onPressed: () {
               if (textCtrl.text.trim().isNotEmpty) {
                 Navigator.pop(ctx, true);
-              } else {
-                try {
-                  final response = await _api.post(
-                    '/api/v1/knowledge/voice-transcribe',
-                    body: {'audio_text': '(simulated voice input)'},
-                  );
-                  if (response.statusCode == 200) {
-                    final decoded = _decodeResponse(response.body);
-                    textCtrl.text =
-                        decoded['text'] ?? decoded['transcription'] ?? '';
-                  }
-                } catch (_) {}
-                if (textCtrl.text.trim().isNotEmpty) {
-                  if (ctx.mounted) Navigator.pop(ctx, true);
-                }
               }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Confirm'),
+            child: const Text('Send'),
           ),
         ],
       ),
@@ -205,6 +273,18 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen> {
     if (confirmed == true && textCtrl.text.trim().isNotEmpty) {
       _questionCtrl.text = textCtrl.text.trim();
       _sendQuestion();
+    }
+  }
+
+  void _toggleTTS(String text, int index) {
+    if (_speakingIndex == index) {
+      _speech.cancelSpeech();
+      setState(() { _speakingIndex = null; });
+    } else {
+      setState(() { _speakingIndex = index; });
+      _speech.speak(text).then((_) {
+        if (mounted) setState(() { _speakingIndex = null; });
+      });
     }
   }
 
@@ -225,7 +305,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen> {
               controller: _scrollCtrl,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               itemCount: _messages.length,
-              itemBuilder: (ctx, i) => _buildMessage(_messages[i]),
+              itemBuilder: (ctx, i) => _buildMessage(_messages[i], i),
             ),
           ),
           _buildInputBar(),
@@ -234,7 +314,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen> {
     );
   }
 
-  Widget _buildMessage(_ChatMessage msg) {
+  Widget _buildMessage(_ChatMessage msg, int index) {
     final isUser = msg.isUser;
 
     return Align(
@@ -307,6 +387,37 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen> {
                 ),
               ),
             ),
+            if (!isUser)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: GestureDetector(
+                  onTap: () => _toggleTTS(msg.text, index),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _speakingIndex == index
+                            ? Icons.volume_up
+                            : Icons.volume_off_outlined,
+                        size: 16,
+                        color: _speakingIndex == index
+                            ? AppColors.primary
+                            : AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        _speakingIndex == index ? 'Speaking...' : 'Listen',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: _speakingIndex == index
+                              ? AppColors.primary
+                              : AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             if (!isUser && msg.confidence != null) ...[
               const SizedBox(height: 6),
               _buildConfidenceBadge(msg.confidence!),
@@ -472,14 +583,39 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen> {
       child: SafeArea(
         child: Row(
           children: [
-            IconButton(
-              onPressed: _recording ? null : _voiceInput,
-              icon: Icon(
-                _recording ? Icons.mic : Icons.mic_none,
-                color: _recording ? AppColors.error : AppColors.primary,
+            ScaleTransition(
+              scale: Tween(begin: 1.0, end: 1.25).animate(
+                CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
               ),
-              tooltip: 'Voice Input',
+              child: Container(
+                decoration: _listening
+                    ? BoxDecoration(
+                        color: AppColors.error.withOpacity(0.12),
+                        shape: BoxShape.circle,
+                      )
+                    : null,
+                child: IconButton(
+                  onPressed: _toggleListening,
+                  icon: Icon(
+                    _listening ? Icons.mic : Icons.mic_none,
+                    color: _listening ? AppColors.error : AppColors.primary,
+                  ),
+                  tooltip: _listening ? 'Stop Listening' : 'Voice Input',
+                ),
+              ),
             ),
+            if (_listening)
+              const Padding(
+                padding: EdgeInsets.only(right: 4),
+                child: SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.error,
+                  ),
+                ),
+              ),
             const SizedBox(width: 4),
             Expanded(
               child: TextField(

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import '../core/constants/api_constants.dart';
+import 'cache_service.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._();
@@ -54,6 +55,28 @@ class ApiService {
       }
     }
     return response;
+  }
+
+  Future<http.Response?> getWithCache(String path, {Duration cacheTtl = const Duration(hours: 1)}) async {
+    try {
+      final response = await get(path);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data is List) {
+          await CacheService().cacheList(
+            path,
+            List<Map<String, dynamic>>.from(data.map((e) => e as Map)),
+            ttl: cacheTtl,
+          );
+        }
+        return response;
+      }
+    } catch (_) {}
+    final cached = await CacheService().getCachedList(path);
+    if (cached != null) {
+      return http.Response(jsonEncode(cached), 200);
+    }
+    return null;
   }
 
   Future<http.Response> post(String path, {Map<String, dynamic>? body}) async {

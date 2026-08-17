@@ -25,8 +25,8 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
   }
 
   Future<void> _loadDocuments() async {
-    final response = await _api.get('/vault/');
-    if (response.statusCode == 200) {
+    final response = await _api.getWithCache('/vault/');
+    if (response != null && response.statusCode == 200) {
       final data = List.from(Map.from({'data': response.body}).values.first);
       setState(() {
         _documents = data;
