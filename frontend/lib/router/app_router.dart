@@ -6,6 +6,7 @@ import '../providers/auth_provider.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
 import '../screens/home/home_shell.dart';
+import '../screens/home/student_dashboard.dart';
 import '../screens/ai_tutor/ai_tutor_screen.dart';
 import '../screens/student/student_hub.dart';
 import '../screens/student/knowledge_vault.dart';
@@ -50,7 +51,8 @@ class AppRouter {
         builder: (_, __, child) => HomeShell(child: child),
         routes: [
           GoRoute(path: '/', builder: (_, __) => const HomeRedirect()),
-          GoRoute(path: '/student', builder: (_, __) => const StudentHub()),
+          GoRoute(path: '/student', builder: (_, __) => const StudentDashboard()),
+          GoRoute(path: '/dashboard', builder: (_, __) => const StudentDashboard()),
           GoRoute(path: '/lecturer', builder: (_, __) => const LecturerCentre()),
           GoRoute(path: '/ai-tutor', builder: (_, __) => const AiTutorScreen()),
           GoRoute(path: '/research', builder: (_, __) => const ResearchLab()),
@@ -67,6 +69,14 @@ class AppRouter {
           GoRoute(path: '/smart-notifications', builder: (_, __) => const SmartNotificationsScreen()),
           GoRoute(path: '/search', builder: (_, __) => const GlobalSearchScreen()),
           GoRoute(path: '/offline-sync', builder: (_, __) => const OfflineSyncScreen()),
+          GoRoute(path: '/classes', builder: (_, __) => const StudentDashboard()),
+          GoRoute(path: '/assignments', builder: (_, __) => const StudentDashboard()),
+          GoRoute(path: '/assessments', builder: (_, __) => const StudentDashboard()),
+          GoRoute(path: '/grades', builder: (_, __) => const AnalyticsDashboard()),
+          GoRoute(path: '/calendar', builder: (_, __) => const StudentDashboard()),
+          GoRoute(path: '/notes', builder: (_, __) => const KnowledgeVaultScreen()),
+          GoRoute(path: '/settings', builder: (_, __) => const ProfileScreen()),
+          GoRoute(path: '/help', builder: (_, __) => const StudentDashboard()),
           GoRoute(
             path: '/smart-marking',
             builder: (_, state) {
@@ -104,7 +114,7 @@ class HomeRedirect extends StatelessWidget {
       case 'researcher':
         return const ResearchLab();
       default:
-        return const StudentHub();
+        return const StudentDashboard();
     }
   }
 }

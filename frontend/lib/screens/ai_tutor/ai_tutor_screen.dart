@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import '../../providers/auth_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
 
@@ -33,14 +31,38 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('ScholarAI ${_agentLabels[_agentType]}'),
+        backgroundColor: AppColors.surface,
+        title: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppColors.primary, AppColors.primaryDark],
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 18),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              _agentLabels[_agentType] ?? 'ScholarAI',
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
         actions: [
           PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
+            icon: const Icon(Icons.more_vert, color: AppColors.textSecondary),
             onSelected: (type) => setState(() => _agentType = type),
             itemBuilder: (ctx) => _agentLabels.entries
-                .map((e) => PopupMenuItem(value: e.key, child: Text(e.value)))
+                .map((e) => PopupMenuItem(
+                      value: e.key,
+                      child: Text(e.value, style: const TextStyle(color: AppColors.textPrimary)),
+                    ))
                 .toList(),
           ),
         ],
@@ -64,47 +86,86 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
           children: [
             const SizedBox(height: 40),
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                gradient: const LinearGradient(
+                  colors: [AppColors.primary, AppColors.primaryDark],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(0.4),
+                    blurRadius: 30,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
-              child: const Icon(
-                Icons.smart_toy,
-                size: 64,
-                color: AppColors.primary,
+              child: const Icon(Icons.auto_awesome_rounded, size: 56, color: Colors.white),
+            ),
+            const SizedBox(height: 28),
+            const Text(
+              'What would you like to learn?',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 24),
-            Text(
-              'What would you like to learn?',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+            const SizedBox(height: 8),
+            const Text(
+              'ScholarAI is your intelligent academic companion',
+              style: TextStyle(fontSize: 14, color: AppColors.textMuted),
             ),
             const SizedBox(height: 32),
-            _buildSuggestionChip('Explain a concept'),
-            _buildSuggestionChip('Quiz me'),
-            _buildSuggestionChip('Give an example'),
-            _buildSuggestionChip('Create flashcards'),
-            _buildSuggestionChip('Study plan'),
-            _buildSuggestionChip('Help with assignment'),
+            _buildSuggestionChip(Icons.lightbulb_outline, 'Explain a concept'),
+            _buildSuggestionChip(Icons.quiz_outlined, 'Quiz me'),
+            _buildSuggestionChip(Icons.lightbulb_outline, 'Give an example'),
+            _buildSuggestionChip(Icons.style_outlined, 'Create flashcards'),
+            _buildSuggestionChip(Icons.calendar_today_outlined, 'Study plan'),
+            _buildSuggestionChip(Icons.edit_note_outlined, 'Help with assignment'),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSuggestionChip(String text) {
+  Widget _buildSuggestionChip(IconData icon, String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: ActionChip(
-        label: Text(text),
-        avatar: const Icon(Icons.lightbulb_outline, size: 18),
-        onPressed: () {
-          _messageCtrl.text = text;
-          _sendMessage();
-        },
+      child: Material(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            _messageCtrl.text = text;
+            _sendMessage();
+          },
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Row(
+              children: [
+                Icon(icon, size: 18, color: AppColors.primary),
+                const SizedBox(width: 12),
+                Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -126,10 +187,13 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
                   SizedBox(
                     width: 16,
                     height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.primary,
+                    ),
                   ),
                   SizedBox(width: 8),
-                  Text('Thinking...', style: TextStyle(color: AppColors.textSecondary)),
+                  Text('Thinking...', style: TextStyle(color: AppColors.textMuted)),
                 ],
               ),
             ),
@@ -146,11 +210,12 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
             ),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: isUser ? AppColors.primary : Colors.grey.shade100,
+              color: isUser ? AppColors.primary : AppColors.surface,
               borderRadius: BorderRadius.circular(16).copyWith(
                 bottomRight: isUser ? const Radius.circular(4) : null,
                 bottomLeft: !isUser ? const Radius.circular(4) : null,
               ),
+              border: isUser ? null : Border.all(color: AppColors.border),
             ),
             child: Text(
               msg['content'] ?? '',
@@ -169,15 +234,9 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
   Widget _buildInputArea() {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        border: Border(top: BorderSide(color: AppColors.border, width: 0.5)),
       ),
       child: SafeArea(
         child: Row(
@@ -185,14 +244,24 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
             Expanded(
               child: TextField(
                 controller: _messageCtrl,
+                style: const TextStyle(color: AppColors.textPrimary),
                 decoration: InputDecoration(
                   hintText: 'Ask ScholarAI...',
+                  hintStyle: const TextStyle(color: AppColors.textMuted),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: const BorderSide(color: AppColors.primary),
                   ),
                   filled: true,
-                  fillColor: Colors.grey.shade50,
+                  fillColor: AppColors.surfaceElevated,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 ),
                 maxLines: null,
@@ -202,12 +271,21 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
             ),
             const SizedBox(width: 8),
             Container(
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppColors.primary, AppColors.primaryDark],
+                ),
                 shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(0.4),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: IconButton(
-                icon: const Icon(Icons.send, color: Colors.white, size: 20),
+                icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
                 onPressed: _sendMessage,
               ),
             ),

@@ -14,53 +14,64 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final user = auth.user ?? {};
+    final name = (user['full_name'] ?? 'User').toString();
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Profile'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await auth.logout();
-              if (context.mounted) {
-                Navigator.of(context).popUntil((route) => route.isFirst);
-              }
-            },
-          ),
-        ],
+        backgroundColor: AppColors.surface,
+        title: const Text('Profile', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            const SizedBox(height: 20),
-            CircleAvatar(
-              radius: 50,
-              backgroundColor: AppColors.primary.withOpacity(0.1),
-              child: Text(
-                (user['full_name'] ?? 'U')[0].toUpperCase(),
-                style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: AppColors.primary),
+            const SizedBox(height: 16),
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppColors.primary, AppColors.primaryDark],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Text(
+                  name.isNotEmpty ? name[0].toUpperCase() : 'U',
+                  style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w700, color: Colors.white),
+                ),
               ),
             ),
             const SizedBox(height: 16),
             Text(
-              user['full_name'] ?? '',
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              name,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(16),
+                color: AppColors.primaryGlow,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.primary.withOpacity(0.3)),
               ),
               child: Text(
                 (user['role'] ?? 'student').toString().toUpperCase(),
                 style: const TextStyle(
                   fontSize: 11,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.primary,
+                  letterSpacing: 1.2,
                 ),
               ),
             ),
@@ -72,7 +83,7 @@ class ProfileScreen extends StatelessWidget {
               _buildInfoRow(Icons.category_outlined, 'Department', user['department'] ?? 'Not set'),
             ]),
             if (user['role'] == 'student') ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               _buildInfoSection([
                 _buildInfoRow(Icons.badge_outlined, 'Student ID', user['student_id'] ?? 'Not set'),
                 _buildInfoRow(Icons.calendar_today, 'Year of Study', '${user['year_of_study'] ?? 'N/A'}'),
@@ -88,9 +99,9 @@ class ProfileScreen extends StatelessWidget {
             ),
             _buildSettingsTile(
               icon: Icons.dark_mode_outlined,
-              title: 'Appearance',
+              title: 'Dark Mode',
               trailing: Switch(
-                value: Theme.of(context).brightness == Brightness.dark,
+                value: true,
                 onChanged: (v) {},
                 activeColor: AppColors.primary,
               ),
@@ -107,7 +118,7 @@ class ProfileScreen extends StatelessWidget {
             _buildSettingsTile(
               icon: Icons.language_outlined,
               title: 'Language',
-              trailing: const Text('English', style: TextStyle(color: AppColors.textSecondary)),
+              trailing: const Text('English', style: TextStyle(color: AppColors.textMuted, fontSize: 14)),
             ),
             _buildSettingsTile(
               icon: Icons.info_outline,
@@ -116,7 +127,7 @@ class ProfileScreen extends StatelessWidget {
                 context: context,
                 applicationName: 'Penrose ScholarMW',
                 applicationVersion: '1.0.0',
-                applicationIcon: const Icon(Icons.school, size: 48, color: AppColors.primary),
+                applicationIcon: const Icon(Icons.school_rounded, size: 48, color: AppColors.primary),
                 children: const [
                   Text('AI-Powered Academic Intelligence & Learning Platform for Malawi'),
                   SizedBox(height: 16),
@@ -124,6 +135,7 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 12),
           ],
         ),
       ),
@@ -131,19 +143,24 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildInfoSection(List<Widget> children) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(4),
-        child: Column(children: children),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
       ),
+      child: Column(children: children),
     );
   }
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return ListTile(
-      leading: Icon(icon, color: AppColors.textSecondary, size: 20),
-      title: Text(label, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
-      subtitle: Text(value.isEmpty ? 'Not set' : value, style: const TextStyle(fontSize: 15)),
+      leading: Icon(icon, color: AppColors.textMuted, size: 20),
+      title: Text(label, style: const TextStyle(fontSize: 13, color: AppColors.textMuted)),
+      subtitle: Text(
+        value.isEmpty ? 'Not set' : value,
+        style: const TextStyle(fontSize: 15, color: AppColors.textPrimary),
+      ),
     );
   }
 
@@ -152,7 +169,11 @@ class ProfileScreen extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Text(
         title,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textPrimary,
+        ),
       ),
     );
   }
@@ -163,11 +184,17 @@ class ProfileScreen extends StatelessWidget {
     Widget? trailing,
     VoidCallback? onTap,
   }) {
-    return Card(
+    return Container(
+      margin: const EdgeInsets.only(bottom: 6),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.borderLight),
+      ),
       child: ListTile(
-        leading: Icon(icon, color: AppColors.textSecondary),
-        title: Text(title),
-        trailing: trailing ?? const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+        leading: Icon(icon, color: AppColors.textMuted),
+        title: Text(title, style: const TextStyle(color: AppColors.textPrimary)),
+        trailing: trailing ?? const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 20),
         onTap: onTap,
       ),
     );
@@ -187,12 +214,14 @@ class ProfileScreen extends StatelessWidget {
             TextField(
               controller: currentCtrl,
               obscureText: true,
+              style: const TextStyle(color: AppColors.textPrimary),
               decoration: const InputDecoration(labelText: 'Current Password'),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: newCtrl,
               obscureText: true,
+              style: const TextStyle(color: AppColors.textPrimary),
               decoration: const InputDecoration(labelText: 'New Password'),
             ),
           ],

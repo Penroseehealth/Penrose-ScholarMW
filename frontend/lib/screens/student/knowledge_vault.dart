@@ -47,11 +47,16 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
     }).toList();
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Academic Knowledge Vault'),
+        backgroundColor: AppColors.surface,
+        title: const Text(
+          'Knowledge Vault',
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.upload_file),
+            icon: const Icon(Icons.upload_file_rounded, color: AppColors.textSecondary),
             onPressed: _uploadDocument,
           ),
         ],
@@ -59,18 +64,18 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: TextField(
+              style: const TextStyle(color: AppColors.textPrimary),
               decoration: InputDecoration(
                 hintText: 'Search vault...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted),
               ),
               onChanged: (v) => setState(() => _searchQuery = v),
             ),
           ),
           SizedBox(
-            height: 40,
+            height: 42,
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -88,11 +93,11 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
           const SizedBox(height: 8),
           Expanded(
             child: _loading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
                 : filtered.isEmpty
                     ? _buildEmptyState()
                     : ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                         itemCount: filtered.length,
                         itemBuilder: (ctx, i) => _buildDocumentCard(filtered[i]),
                       ),
@@ -107,10 +112,19 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: FilterChip(
-        label: Text(label, style: TextStyle(fontSize: 12, color: selected ? Colors.white : AppColors.textPrimary)),
+        label: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: selected ? Colors.white : AppColors.textSecondary,
+          ),
+        ),
         selected: selected,
         selectedColor: AppColors.primary,
-        backgroundColor: Colors.grey.shade100,
+        backgroundColor: AppColors.surfaceElevated,
+        side: BorderSide(color: selected ? AppColors.primary : AppColors.border),
+        checkmarkColor: Colors.white,
         onSelected: (v) => setState(() => _filterType = value),
       ),
     );
@@ -128,35 +142,52 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
     };
     final icon = typeIcons[doc['doc_type']] ?? Icons.insert_drive_file_outlined;
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.borderLight),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: AppColors.primaryGlow,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: AppColors.primary, size: 22),
           ),
-          child: Icon(icon, color: AppColors.primary, size: 22),
-        ),
-        title: Text(
-          doc['title'] ?? '',
-          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
-        ),
-        subtitle: Text(
-          '${doc['doc_type']} ${doc['is_indexed'] == true ? '• Indexed' : ''}',
-          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (doc['is_indexed'] == true)
-              const Icon(Icons.check_circle, color: AppColors.success, size: 16),
-            const SizedBox(width: 4),
-            const Icon(Icons.chevron_right),
-          ],
-        ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  doc['title'] ?? '',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${doc['doc_type'] ?? ''} ${doc['is_indexed'] == true ? '· Indexed' : ''}',
+                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          if (doc['is_indexed'] == true)
+            const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 18),
+          const SizedBox(width: 4),
+          const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 20),
+        ],
       ),
     );
   }
@@ -166,18 +197,21 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.folder_open, size: 64, color: Colors.grey.shade300),
+          Icon(Icons.folder_open_rounded, size: 56, color: AppColors.textMuted.withOpacity(0.3)),
           const SizedBox(height: 16),
-          Text('No documents yet', style: TextStyle(fontSize: 16, color: Colors.grey.shade600)),
-          const SizedBox(height: 8),
-          Text(
-            'Upload lecture notes, textbooks, and research papers',
-            style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+          const Text(
+            'No documents yet',
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 6),
+          const Text(
+            'Upload lecture notes, textbooks, and research papers',
+            style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+          ),
+          const SizedBox(height: 20),
           ElevatedButton.icon(
             onPressed: _uploadDocument,
-            icon: const Icon(Icons.upload),
+            icon: const Icon(Icons.upload_rounded),
             label: const Text('Upload Document'),
           ),
         ],
@@ -207,11 +241,13 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
             children: [
               TextField(
                 controller: titleCtrl,
+                style: const TextStyle(color: AppColors.textPrimary),
                 decoration: const InputDecoration(labelText: 'Title'),
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 value: docType,
+                dropdownColor: AppColors.surfaceHighest,
                 decoration: const InputDecoration(labelText: 'Type'),
                 items: const [
                   DropdownMenuItem(value: 'lecture_notes', child: Text('Lecture Notes')),
@@ -226,7 +262,10 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
             ElevatedButton(
               onPressed: () async {
                 Navigator.pop(ctx);

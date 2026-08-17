@@ -23,6 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final auth = context.watch<AuthProvider>();
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -36,38 +37,45 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        gradient: const LinearGradient(
+                          colors: [AppColors.primary, AppColors.primaryDark],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                         shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withOpacity(0.4),
+                            blurRadius: 30,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                       ),
-                      child: const Icon(
-                        Icons.school,
-                        size: 64,
-                        color: AppColors.primary,
-                      ),
+                      child: const Icon(Icons.school_rounded, size: 56, color: Colors.white),
                     ),
-                    const SizedBox(height: 24),
-                    Text(
+                    const SizedBox(height: 28),
+                    const Text(
                       'Penrose ScholarMW',
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
-                          ),
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
+                    const Text(
                       'Learn. Teach. Research. Advance.',
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                      style: TextStyle(fontSize: 14, color: AppColors.textMuted),
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 44),
                     TextFormField(
                       controller: _emailCtrl,
                       keyboardType: TextInputType.emailAddress,
+                      style: const TextStyle(color: AppColors.textPrimary),
                       decoration: const InputDecoration(
                         labelText: 'Email',
                         prefixIcon: Icon(Icons.email_outlined),
@@ -79,12 +87,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextFormField(
                       controller: _passwordCtrl,
                       obscureText: _obscure,
+                      style: const TextStyle(color: AppColors.textPrimary),
                       decoration: InputDecoration(
                         labelText: 'Password',
                         prefixIcon: const Icon(Icons.lock_outlined),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscure ? Icons.visibility_off : Icons.visibility,
+                            color: AppColors.textMuted,
                           ),
                           onPressed: () => setState(() => _obscure = !_obscure),
                         ),
@@ -100,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         textAlign: TextAlign.center,
                       ),
                     ],
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 28),
                     ElevatedButton(
                       onPressed: auth.isLoading
                           ? null

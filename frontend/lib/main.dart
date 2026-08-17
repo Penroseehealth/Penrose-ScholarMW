@@ -23,9 +23,9 @@ class PenroseScholarApp extends StatelessWidget {
           return MaterialApp.router(
             title: 'Penrose ScholarMW',
             debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme(),
-            darkTheme: AppTheme.darkTheme(),
-            themeMode: ThemeMode.system,
+            theme: AppTheme.dark(),
+            darkTheme: AppTheme.dark(),
+            themeMode: ThemeMode.dark,
             routerConfig: router,
           );
         },

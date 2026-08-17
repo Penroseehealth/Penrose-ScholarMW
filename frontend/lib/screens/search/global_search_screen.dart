@@ -242,20 +242,20 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.search, size: 56, color: Colors.grey.shade300),
+            Icon(Icons.search, size: 56, color: AppColors.textMuted.withOpacity(0.3)),
             const SizedBox(height: 12),
-            Text(
+            const Text(
               'Type to search',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade600,
+                color: AppColors.textSecondary,
               ),
             ),
             const SizedBox(height: 4),
-            Text(
+            const Text(
               'Search across courses, assessments, and resources',
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+              style: TextStyle(fontSize: 13, color: AppColors.textMuted),
               textAlign: TextAlign.center,
             ),
           ],
@@ -271,20 +271,20 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.search_off, size: 56, color: Colors.grey.shade300),
+            Icon(Icons.search_off, size: 56, color: AppColors.textMuted.withOpacity(0.3)),
             const SizedBox(height: 12),
             Text(
               'No results for "$_query"',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade600,
+                color: AppColors.textSecondary,
               ),
             ),
             const SizedBox(height: 4),
-            Text(
+            const Text(
               'Try different keywords or check your spelling',
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+              style: TextStyle(fontSize: 13, color: AppColors.textMuted),
               textAlign: TextAlign.center,
             ),
           ],

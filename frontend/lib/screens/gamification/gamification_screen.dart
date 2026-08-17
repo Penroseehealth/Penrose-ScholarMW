@@ -429,7 +429,7 @@ class _GamificationScreenState extends State<GamificationScreen>
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: isEarned ? null : Colors.grey.shade100,
+      color: isEarned ? null : AppColors.surfaceHighest,
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: Column(
@@ -438,7 +438,7 @@ class _GamificationScreenState extends State<GamificationScreen>
             Icon(
               _badgeIcon(iconStr),
               size: 36,
-              color: isEarned ? AppColors.secondary : Colors.grey.shade400,
+              color: isEarned ? AppColors.secondary : AppColors.textMuted,
             ),
             const SizedBox(height: 8),
             Text(
@@ -629,20 +629,20 @@ class _GamificationScreenState extends State<GamificationScreen>
         child: Column(
           children: [
             Icon(Icons.emoji_events_outlined,
-                size: 56, color: Colors.grey.shade300),
+                size: 56, color: AppColors.textMuted.withOpacity(0.3)),
             const SizedBox(height: 12),
             Text(
               message,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade600,
+                color: AppColors.textSecondary,
               ),
             ),
             const SizedBox(height: 4),
-            Text(
+            const Text(
               'Complete activities to earn points and badges',
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+              style: TextStyle(fontSize: 13, color: AppColors.textMuted),
             ),
           ],
         ),

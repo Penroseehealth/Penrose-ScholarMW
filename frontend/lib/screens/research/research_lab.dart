@@ -39,10 +39,19 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Research Intelligence Lab'),
+        backgroundColor: AppColors.surface,
+        title: const Text(
+          'Research Intelligence Lab',
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+        ),
         bottom: TabBar(
           controller: _tabController,
+          labelColor: AppColors.primary,
+          unselectedLabelColor: AppColors.textMuted,
+          indicatorColor: AppColors.primary,
+          dividerColor: AppColors.border,
           tabs: const [
             Tab(text: 'Projects'),
             Tab(text: 'Literature'),
@@ -64,17 +73,22 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
   Widget _buildProjectsTab() {
     return RefreshIndicator(
       onRefresh: _loadProjects,
+      color: AppColors.primary,
+      backgroundColor: AppColors.surface,
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         children: [
-          ElevatedButton.icon(
-            onPressed: _showNewProjectDialog,
-            icon: const Icon(Icons.add),
-            label: const Text('New Research Project'),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _showNewProjectDialog,
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('New Research Project'),
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           if (_loadingProjects)
-            const Center(child: CircularProgressIndicator())
+            const Center(child: CircularProgressIndicator(color: AppColors.primary))
           else if (_projects.isEmpty)
             _buildEmptyState('No projects yet', 'Start a research project to organize your work')
           else
@@ -86,16 +100,17 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
 
   Widget _buildLiteratureTab() {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       child: Column(
         children: [
           TextField(
             controller: _searchCtrl,
+            style: const TextStyle(color: AppColors.textPrimary),
             decoration: InputDecoration(
               hintText: 'Search literature...',
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted),
               suffixIcon: IconButton(
-                icon: const Icon(Icons.send),
+                icon: const Icon(Icons.send_rounded, color: AppColors.primary),
                 onPressed: _searchLiterature,
               ),
             ),
@@ -103,7 +118,7 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
           ),
           const SizedBox(height: 16),
           if (_searchingLiterature)
-            const Center(child: CircularProgressIndicator())
+            const Center(child: CircularProgressIndicator(color: AppColors.primary))
           else if (_searchResults.isNotEmpty)
             Expanded(
               child: ListView.builder(
@@ -133,82 +148,115 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
   }
 
   Widget _buildProjectCard(dynamic project) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        leading: CircleAvatar(
-          backgroundColor: AppColors.primary.withOpacity(0.1),
-          child: const Icon(Icons.science, color: AppColors.primary),
-        ),
-        title: Text(project['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text(
-          project['description'] ?? 'No description',
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: project['status'] == 'active'
-                ? AppColors.success.withOpacity(0.1)
-                : Colors.grey.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
+    final isActive = project['status'] == 'active';
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: AppColors.primaryGlow,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.science_rounded, color: AppColors.primary, size: 22),
           ),
-          child: Text(
-            project['status'] ?? 'draft',
-            style: TextStyle(
-              fontSize: 11,
-              color: project['status'] == 'active' ? AppColors.success : AppColors.textSecondary,
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  project['title'] ?? '',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  project['description'] ?? 'No description',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 13, color: AppColors.textMuted),
+                ),
+              ],
             ),
           ),
-        ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: isActive ? AppColors.successMuted : AppColors.surfaceHighest,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              project['status'] ?? 'draft',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: isActive ? AppColors.success : AppColors.textMuted,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildLiteratureCard(dynamic paper) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              paper['title'] ?? '',
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              paper['authors'] ?? '',
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                if (paper['year'] != null)
-                  Text(
-                    '${paper['year']}',
-                    style: const TextStyle(fontSize: 12, color: AppColors.info),
-                  ),
-                const SizedBox(width: 8),
-                if (paper['source'] != null && (paper['source'] as String).isNotEmpty)
-                  Text(
-                    paper['source'],
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                  ),
-              ],
-            ),
-            if (paper['doi'] != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                'DOI: ${paper['doi']}',
-                style: const TextStyle(fontSize: 11, color: AppColors.accent),
-              ),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.borderLight),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            paper['title'] ?? '',
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.textPrimary),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            paper['authors'] ?? '',
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              if (paper['year'] != null)
+                Text(
+                  '${paper['year']}',
+                  style: const TextStyle(fontSize: 12, color: AppColors.info),
+                ),
+              const SizedBox(width: 8),
+              if (paper['source'] != null && (paper['source'] as String).isNotEmpty)
+                Text(
+                  paper['source'],
+                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                ),
             ],
+          ),
+          if (paper['doi'] != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              'DOI: ${paper['doi']}',
+              style: const TextStyle(fontSize: 11, color: AppColors.accent),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -218,11 +266,11 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.science_outlined, size: 64, color: Colors.grey.shade300),
+          Icon(Icons.science_outlined, size: 56, color: AppColors.textMuted.withOpacity(0.3)),
           const SizedBox(height: 16),
-          Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey.shade600)),
-          const SizedBox(height: 8),
-          Text(subtitle, style: TextStyle(fontSize: 14, color: Colors.grey.shade500)),
+          Text(title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+          const SizedBox(height: 6),
+          Text(subtitle, style: const TextStyle(fontSize: 13, color: AppColors.textMuted)),
         ],
       ),
     );
@@ -253,23 +301,32 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: titleCtrl, decoration: const InputDecoration(labelText: 'Title')),
+            TextField(
+              controller: titleCtrl,
+              style: const TextStyle(color: AppColors.textPrimary),
+              decoration: const InputDecoration(labelText: 'Title'),
+            ),
             const SizedBox(height: 12),
             TextField(
               controller: descCtrl,
+              style: const TextStyle(color: AppColors.textPrimary),
               decoration: const InputDecoration(labelText: 'Description'),
               maxLines: 2,
             ),
             const SizedBox(height: 12),
             TextField(
               controller: rqCtrl,
+              style: const TextStyle(color: AppColors.textPrimary),
               decoration: const InputDecoration(labelText: 'Research Question'),
               maxLines: 2,
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(ctx);
