@@ -1,7 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants/api_constants.dart';
 
 class ApiService {
@@ -9,14 +9,15 @@ class ApiService {
   factory ApiService() => _instance;
   ApiService._();
 
+  static const _secureStorage = FlutterSecureStorage();
+
   String? _accessToken;
   String? _refreshToken;
 
   Future<Map<String, String>> get headers async {
     if (_accessToken == null) {
-      final prefs = await SharedPreferences.getInstance();
-      _accessToken = prefs.getString('access_token');
-      _refreshToken = prefs.getString('refresh_token');
+      _accessToken = await _secureStorage.read(key: 'access_token');
+      _refreshToken = await _secureStorage.read(key: 'refresh_token');
     }
     return {
       'Content-Type': 'application/json',
@@ -27,22 +28,20 @@ class ApiService {
   Future<void> setTokens(String access, String refresh) async {
     _accessToken = access;
     _refreshToken = refresh;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('access_token', access);
-    await prefs.setString('refresh_token', refresh);
+    await _secureStorage.write(key: 'access_token', value: access);
+    await _secureStorage.write(key: 'refresh_token', value: refresh);
   }
 
   Future<void> clearTokens() async {
     _accessToken = null;
     _refreshToken = null;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('access_token');
-    await prefs.remove('refresh_token');
+    await _secureStorage.delete(key: 'access_token');
+    await _secureStorage.delete(key: 'refresh_token');
   }
 
   Future<bool> hasToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('access_token') != null;
+    final token = await _secureStorage.read(key: 'access_token');
+    return token != null;
   }
 
   Future<http.Response> get(String path) async {

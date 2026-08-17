@@ -107,7 +107,7 @@ class _StudentHubState extends State<StudentHub> {
                     else if (_courses.isEmpty)
                       _buildEmptyState('No courses yet', 'Enroll in courses to get started')
                     else
-                      ...(_courses.map((c) => _buildCourseCard(c))),
+                      _buildResponsiveCourseGrid(),
                     const SizedBox(height: 20),
                     _buildSectionTitle('Notifications'),
                     const SizedBox(height: 8),
@@ -202,6 +202,33 @@ class _StudentHubState extends State<StudentHub> {
         fontWeight: FontWeight.bold,
         color: AppColors.textPrimary,
       ),
+    );
+  }
+
+  Widget _buildResponsiveCourseGrid() {
+    final width = MediaQuery.of(context).size.width;
+    int crossAxisCount;
+    if (width >= 1200) {
+      crossAxisCount = 4;
+    } else if (width >= 900) {
+      crossAxisCount = 3;
+    } else if (width >= 600) {
+      crossAxisCount = 2;
+    } else {
+      crossAxisCount = 1;
+    }
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+        childAspectRatio: 3.0,
+      ),
+      itemCount: _courses.length,
+      itemBuilder: (context, index) => _buildCourseCard(_courses[index]),
     );
   }
 

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../core/theme/app_theme.dart';
 
 class HomeShell extends StatelessWidget {
   final Widget child;
@@ -26,85 +27,11 @@ class HomeShell extends StatelessWidget {
       currentIndex = 0;
     }
 
-    return Scaffold(
-      body: child,
-      drawer: Drawer(
-        child: SafeArea(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              DrawerHeader(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF1B5E20), Color(0xFF388E3C)],
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    const CircleAvatar(
-                      radius: 28,
-                      backgroundColor: Colors.white24,
-                      child: Icon(Icons.person, size: 32, color: Colors.white),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      auth.userName.isNotEmpty ? auth.userName : 'ScholarMW',
-                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
-                    ),
-                    Text(
-                      auth.userRole.toUpperCase(),
-                      style: const TextStyle(color: Colors.white70, fontSize: 12),
-                    ),
-                  ],
-                ),
-              ),
-              _drawerItem(context, Icons.analytics_outlined, 'Analytics', '/analytics'),
-              _drawerItem(context, Icons.psychology_outlined, 'Learning Coach', '/learning-coach'),
-              _drawerItem(context, Icons.school_outlined, 'Examinations', '/examinations'),
-              _drawerItem(context, Icons.edit_note_outlined, 'Writing Studio', '/writing-studio'),
-              _drawerItem(context, Icons.history_edu_outlined, 'Malawi Context', '/malawi-context'),
-              _drawerItem(context, Icons.record_voice_over_outlined, 'Voice Scholar', '/knowledge-retrieval'),
-              _drawerItem(context, Icons.emoji_events_outlined, 'Gamification', '/gamification'),
-              _drawerItem(context, Icons.notifications_active_outlined, 'Smart Notifications', '/smart-notifications'),
-              _drawerItem(context, Icons.search_outlined, 'Global Search', '/search'),
-              _drawerItem(context, Icons.sync_outlined, 'Offline Sync', '/offline-sync'),
-              const Divider(),
-              _drawerItem(context, Icons.smart_toy_outlined, 'ScholarAI Chat', '/ai-tutor'),
-              _drawerItem(context, Icons.science_outlined, 'Research Lab', '/research'),
-              _drawerItem(context, Icons.folder_outlined, 'Knowledge Vault', '/vault'),
-              if (auth.userRole == 'lecturer') ...[
-                const Divider(),
-                _drawerItem(context, Icons.quiz_outlined, 'Assessment Studio', '/assessment-studio'),
-              ],
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: currentIndex,
-        onDestinationSelected: (index) {
-          Navigator.of(context).pop(); // close drawer if open
-          switch (index) {
-            case 0:
-              context.go(auth.userRole == 'lecturer' ? '/lecturer' : '/student');
-              break;
-            case 1:
-              context.go('/ai-tutor');
-              break;
-            case 2:
-              context.go('/research');
-              break;
-            case 3:
-              context.go('/vault');
-              break;
-            case 4:
-              context.go('/profile');
-              break;
-          }
-        },
-        destinations: const [
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktop = constraints.maxWidth >= AppBreakpoints.tablet;
+
+        final destinations = const [
           NavigationDestination(
             icon: Icon(Icons.dashboard_outlined),
             selectedIcon: Icon(Icons.dashboard),
@@ -130,16 +57,164 @@ class HomeShell extends StatelessWidget {
             selectedIcon: Icon(Icons.person),
             label: 'Profile',
           ),
-        ],
+        ];
+
+        void onNavTap(int index) {
+          Navigator.of(context).pop(); // close drawer if open
+          switch (index) {
+            case 0:
+              context.go(auth.userRole == 'lecturer' ? '/lecturer' : '/student');
+              break;
+            case 1:
+              context.go('/ai-tutor');
+              break;
+            case 2:
+              context.go('/research');
+              break;
+            case 3:
+              context.go('/vault');
+              break;
+            case 4:
+              context.go('/profile');
+              break;
+          }
+        }
+
+        if (isDesktop) {
+          return Scaffold(
+            body: Row(
+              children: [
+                NavigationRail(
+                  selectedIndex: currentIndex,
+                  onDestinationSelected: onNavTap,
+                  labelType: NavigationRailLabelType.all,
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                  leading: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: IconButton(
+                      icon: const Icon(Icons.menu),
+                      onPressed: () => Scaffold.of(context).openDrawer(),
+                    ),
+                  ),
+                  destinations: const [
+                    NavigationRailDestination(
+                      icon: Icon(Icons.dashboard_outlined),
+                      selectedIcon: Icon(Icons.dashboard),
+                      label: Text('Hub'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.smart_toy_outlined),
+                      selectedIcon: Icon(Icons.smart_toy),
+                      label: Text('ScholarAI'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.science_outlined),
+                      selectedIcon: Icon(Icons.science),
+                      label: Text('Research'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.folder_outlined),
+                      selectedIcon: Icon(Icons.folder),
+                      label: Text('Vault'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.person_outlined),
+                      selectedIcon: Icon(Icons.person),
+                      label: Text('Profile'),
+                    ),
+                  ],
+                ),
+                const VerticalDivider(width: 1),
+                Expanded(child: child),
+              ],
+            ),
+            drawer: _buildDrawer(context, auth),
+            floatingActionButton: currentIndex == 1
+                ? FloatingActionButton(
+                    onPressed: () => context.go('/knowledge-retrieval'),
+                    backgroundColor: const Color(0xFF1B5E20),
+                    tooltip: 'Voice Scholar',
+                    child: const Icon(Icons.mic, color: Colors.white),
+                  )
+                : null,
+          );
+        }
+
+        return Scaffold(
+          body: child,
+          drawer: _buildDrawer(context, auth),
+          bottomNavigationBar: NavigationBar(
+            selectedIndex: currentIndex,
+            onDestinationSelected: onNavTap,
+            destinations: destinations,
+          ),
+          floatingActionButton: currentIndex == 1
+              ? FloatingActionButton(
+                  onPressed: () => context.go('/knowledge-retrieval'),
+                  backgroundColor: const Color(0xFF1B5E20),
+                  tooltip: 'Voice Scholar',
+                  child: const Icon(Icons.mic, color: Colors.white),
+                )
+              : null,
+        );
+      },
+    );
+  }
+
+  Drawer _buildDrawer(BuildContext context, AuthProvider auth) {
+    return Drawer(
+      child: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF1B5E20), Color(0xFF388E3C)],
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  const CircleAvatar(
+                    radius: 28,
+                    backgroundColor: Colors.white24,
+                    child: Icon(Icons.person, size: 32, color: Colors.white),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    auth.userName.isNotEmpty ? auth.userName : 'ScholarMW',
+                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    auth.userRole.toUpperCase(),
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+            _drawerItem(context, Icons.analytics_outlined, 'Analytics', '/analytics'),
+            _drawerItem(context, Icons.psychology_outlined, 'Learning Coach', '/learning-coach'),
+            _drawerItem(context, Icons.school_outlined, 'Examinations', '/examinations'),
+            _drawerItem(context, Icons.edit_note_outlined, 'Writing Studio', '/writing-studio'),
+            _drawerItem(context, Icons.history_edu_outlined, 'Malawi Context', '/malawi-context'),
+            _drawerItem(context, Icons.record_voice_over_outlined, 'Voice Scholar', '/knowledge-retrieval'),
+            _drawerItem(context, Icons.emoji_events_outlined, 'Gamification', '/gamification'),
+            _drawerItem(context, Icons.notifications_active_outlined, 'Smart Notifications', '/smart-notifications'),
+            _drawerItem(context, Icons.search_outlined, 'Global Search', '/search'),
+            _drawerItem(context, Icons.sync_outlined, 'Offline Sync', '/offline-sync'),
+            const Divider(),
+            _drawerItem(context, Icons.smart_toy_outlined, 'ScholarAI Chat', '/ai-tutor'),
+            _drawerItem(context, Icons.science_outlined, 'Research Lab', '/research'),
+            _drawerItem(context, Icons.folder_outlined, 'Knowledge Vault', '/vault'),
+            if (auth.userRole == 'lecturer') ...[
+              const Divider(),
+              _drawerItem(context, Icons.quiz_outlined, 'Assessment Studio', '/assessment-studio'),
+            ],
+          ],
+        ),
       ),
-      floatingActionButton: currentIndex == 1
-          ? FloatingActionButton(
-              onPressed: () => context.go('/knowledge-retrieval'),
-              backgroundColor: const Color(0xFF1B5E20),
-              tooltip: 'Voice Scholar',
-              child: const Icon(Icons.mic, color: Colors.white),
-            )
-          : null,
     );
   }
 

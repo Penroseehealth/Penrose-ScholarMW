@@ -225,35 +225,48 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
       children: [
         _buildSectionHeader('Class Statistics'),
         const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 600;
+            final stats = [
+              _buildStatCard(
                 label: 'Class Average',
                 value: '${classAverage.toStringAsFixed(1)}%',
                 color: AppColors.primary,
                 icon: Icons.analytics_outlined,
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _buildStatCard(
+              _buildStatCard(
                 label: 'Attendance',
                 value: '${attendanceRate.toStringAsFixed(1)}%',
                 color: AppColors.info,
                 icon: Icons.how_to_reg_outlined,
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _buildStatCard(
+              _buildStatCard(
                 label: 'Assignments',
                 value: '${assignmentCompletion.toStringAsFixed(1)}%',
                 color: AppColors.secondary,
                 icon: Icons.assignment_turned_in_outlined,
               ),
-            ),
-          ],
+            ];
+            if (isWide) {
+              return Row(
+                children: [
+                  for (var i = 0; i < stats.length; i++) ...[
+                    Expanded(child: stats[i]),
+                    if (i < stats.length - 1) const SizedBox(width: 8),
+                  ],
+                ],
+              );
+            }
+            return Column(
+              children: [
+                for (var i = 0; i < stats.length; i++) ...[
+                  stats[i],
+                  if (i < stats.length - 1) const SizedBox(height: 8),
+                ],
+              ],
+            );
+          },
         ),
         const SizedBox(height: 20),
         _buildSectionHeader('Difficult Topics'),

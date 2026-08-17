@@ -79,6 +79,7 @@ class VaultDocumentResponse(BaseModel):
     uploaded_by: int
     is_indexed: bool
     tags: str | None = None
+    content: str | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
