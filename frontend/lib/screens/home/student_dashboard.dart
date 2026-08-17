@@ -112,7 +112,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
 
   Widget _buildHeader(BuildContext context, String greeting, String firstName) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      padding: const EdgeInsets.fromLTRB(20, 6, 20, 0),
       child: Row(
         children: [
           Expanded(
@@ -122,17 +122,9 @@ class _StudentDashboardState extends State<StudentDashboard> {
                 Text(
                   '$greeting, $firstName',
                   style: const TextStyle(
-                    fontSize: 24,
+                    fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Your academic intelligence is ready',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.textMuted,
                   ),
                 ),
               ],
@@ -148,8 +140,8 @@ class _StudentDashboardState extends State<StudentDashboard> {
     return GestureDetector(
       onTap: () => Scaffold.of(context).openEndDrawer(),
       child: Container(
-        width: 44,
-        height: 44,
+        width: 38,
+        height: 38,
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(12),
@@ -158,7 +150,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
         child: const Icon(
           Icons.menu_rounded,
           color: AppColors.textSecondary,
-          size: 22,
+          size: 20,
         ),
       ),
     );
@@ -166,7 +158,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
 
   Widget _buildQuickActions(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
       child: Row(
         children: [
           _buildActionCard(
@@ -216,26 +208,26 @@ class _StudentDashboardState extends State<StudentDashboard> {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 18),
+          padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: gradient,
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
                 color: gradient[0].withOpacity(0.3),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
               ),
             ],
           ),
           child: Column(
             children: [
-              Icon(icon, color: Colors.white, size: 26),
-              const SizedBox(height: 8),
+              Icon(icon, color: Colors.white, size: 20),
+              const SizedBox(height: 4),
               Text(
                 label,
                 style: const TextStyle(
