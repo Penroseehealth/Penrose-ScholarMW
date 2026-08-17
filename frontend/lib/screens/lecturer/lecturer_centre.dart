@@ -38,7 +38,8 @@ class _LecturerCentreState extends State<LecturerCentre> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    final firstName = auth.userName.split(' ').first;
+    final hour = DateTime.now().hour;
+    final greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -76,7 +77,7 @@ class _LecturerCentreState extends State<LecturerCentre> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Good morning, Dr. $firstName',
+                            '$greeting, Dr. Penrose',
                             style: const TextStyle(
           color: AppColors.surface,
                               fontSize: 24,

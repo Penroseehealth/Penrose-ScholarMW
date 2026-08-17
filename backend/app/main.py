@@ -155,8 +155,12 @@ async def health():
 
 WEB_DIR = Path(__file__).resolve().parent.parent.parent / "frontend" / "build" / "web"
 if WEB_DIR.is_dir():
-    app.mount("/assets", StaticFiles(directory=str(WEB_DIR / "assets")), name="assets")
-    app.mount("/icons", StaticFiles(directory=str(WEB_DIR / "icons")), name="icons")
+    assets_dir = WEB_DIR / "assets"
+    if assets_dir.is_dir():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+    icons_dir = WEB_DIR / "icons"
+    if icons_dir.is_dir():
+        app.mount("/icons", StaticFiles(directory=str(icons_dir)), name="icons")
 
     from starlette.responses import FileResponse
 

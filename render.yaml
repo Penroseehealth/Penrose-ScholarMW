@@ -1,24 +1,29 @@
 services:
   - type: web
-    name: penrose-scholar-api
-    runtime: python
+    name: penrose-scholar
+    runtime: docker
     plan: starter
-    buildCommand: cd backend && pip install -r requirements.txt
-    startCommand: cd backend && alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    dockerfilePath: Dockerfile
     envVars:
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: penrose-scholar-db
+          property: connectionString
+      - key: DATABASE_URL_SYNC
+        fromDatabase:
+          name: penrose-scholar-db
+          property: connectionString
       - key: SECRET_KEY
         generateValue: true
       - key: OPENAI_API_KEY
         sync: false
       - key: ENVIRONMENT
         value: production
-      - key: PYTHON_VERSION
-        value: "3.12"
+      - key: PORT
+        value: 8000
 
-  - type: postgres
-    name: penrose-scholar-db
+databases:
+  - name: penrose-scholar-db
     plan: starter
     databaseName: penrose_scholar
     ipAllowList: []

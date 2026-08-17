@@ -273,11 +273,11 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
             ElevatedButton(
               onPressed: () async {
                 Navigator.pop(ctx);
-                final filePath = result.files.first.path;
-                if (filePath == null) return;
-                final response = await _api.uploadFile(
+                final fileBytes = result.files.first.bytes;
+                if (fileBytes == null) return;
+                final response = await _api.uploadFileBytes(
                   '/vault/upload',
-                  filePath,
+                  fileBytes,
                   result.files.first.name,
                   fields: {
                     'title': titleCtrl.text,
@@ -288,9 +288,9 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        response.statusCode == 201
+                        response.statusCode == 200 || response.statusCode == 201
                             ? 'Uploaded: ${titleCtrl.text}'
-                            : 'Upload failed',
+                            : 'Upload failed (${response.statusCode})',
                       ),
                     ),
                   );
