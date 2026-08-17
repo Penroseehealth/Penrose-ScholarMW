@@ -10,6 +10,7 @@ from app.dependencies.auth import get_current_user
 from app.models.models import (
     Assessment,
     Enrollment,
+    Notification,
     NotificationPreference,
     StudentPerformance,
     User,
@@ -140,6 +141,33 @@ async def list_notifications(
     prefs = await _get_or_create_prefs(user.id, db)
     all_notifications = await _generate_dynamic_notifications(user, db)
 
+    today_start = datetime.now(timezone.utc).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
+    existing_result = await db.execute(
+        select(Notification.title).where(
+            Notification.user_id == user.id,
+            Notification.created_at >= today_start,
+        )
+    )
+    existing_titles = {row[0] for row in existing_result.all()}
+
+    persisted = 0
+    for n in all_notifications:
+        if n["title"] not in existing_titles:
+            notification = Notification(
+                user_id=user.id,
+                title=n["title"],
+                message=n["message"],
+                notif_type=n["type"],
+                link=n.get("link"),
+            )
+            db.add(notification)
+            persisted += 1
+
+    if persisted:
+        await db.commit()
+
     filtered = []
     for n in all_notifications:
         if n["type"] == "assessment_reminder" and prefs.assessment_reminders:
@@ -153,7 +181,7 @@ async def list_notifications(
         elif n["type"] == "ai_insight" and prefs.ai_insights:
             filtered.append(n)
 
-    return {"notifications": filtered, "total": len(filtered)}
+    return {"notifications": filtered, "total": len(filtered), "persisted": persisted}
 
 
 @router.get("/preferences")

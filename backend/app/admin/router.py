@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -67,8 +67,6 @@ async def toggle_user_active(
     result = await db.execute(select(User).where(User.id == user_id))
     target = result.scalar_one_or_none()
     if not target:
-        from fastapi import HTTPException
-
         raise HTTPException(status_code=404, detail="User not found")
     target.is_active = not target.is_active
     await db.commit()
@@ -97,3 +95,55 @@ async def lecturer_performance(
             }
         )
     return perf
+
+
+@router.put("/users/{user_id}/role")
+async def change_user_role(
+    user_id: int,
+    body: dict,
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    new_role = body.get("role")
+    if new_role not in ["student", "lecturer", "researcher", "admin"]:
+        raise HTTPException(status_code=400, detail="Invalid role")
+    user.role = new_role
+    await db.commit()
+    return {"id": user.id, "role": user.role.value}
+
+
+@router.get("/courses")
+async def admin_list_courses(
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Course))
+    courses = result.scalars().all()
+    return [
+        {
+            "id": c.id,
+            "code": c.code,
+            "title": c.title,
+            "is_active": c.is_active,
+        }
+        for c in courses
+    ]
+
+
+@router.put("/courses/{course_id}/toggle-active")
+async def toggle_course_active(
+    course_id: int,
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Course).where(Course.id == course_id))
+    course = result.scalar_one_or_none()
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+    course.is_active = not course.is_active
+    await db.commit()
+    return {"id": course.id, "is_active": course.is_active}

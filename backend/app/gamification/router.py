@@ -14,7 +14,6 @@ router = APIRouter(prefix="/gamification", tags=["Gamification"])
 
 class AwardRequest(BaseModel):
     action: str
-    amount: int
 
 
 ACTION_POINTS = {
@@ -70,8 +69,9 @@ async def award_points(
 
     points = await _get_or_create_points(user.id, db)
     now = datetime.now(timezone.utc)
+    amount = ACTION_POINTS[body.action]
 
-    points.total_earned += body.amount
+    points.total_earned += amount
     points.level = (points.total_earned // 100) + 1
 
     if points.last_activity_date:
@@ -95,7 +95,7 @@ async def award_points(
         "total_earned": points.total_earned,
         "level": points.level,
         "streak_days": points.streak_days,
-        "awarded": body.amount,
+        "awarded": amount,
         "action": body.action,
     }
 
