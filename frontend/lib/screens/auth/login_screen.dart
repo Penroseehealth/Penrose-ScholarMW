@@ -136,7 +136,33 @@ class _LoginScreenState extends State<LoginScreen> {
                             )
                           : const Text('Sign In'),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildQuickLogin(
+                            context,
+                            icon: Icons.school_rounded,
+                            label: 'Student',
+                            email: 'student@scholar.mw',
+                            password: 'student123',
+                            isLoading: auth.isLoading,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildQuickLogin(
+                            context,
+                            icon: Icons.psychology_rounded,
+                            label: 'Staff',
+                            email: 'lecturer@scholar.mw',
+                            password: 'lecturer123',
+                            isLoading: auth.isLoading,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
                     TextButton(
                       onPressed: () => context.go('/register'),
                       child: const Text("Don't have an account? Register"),
@@ -145,6 +171,55 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickLogin(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String email,
+    required String password,
+    required bool isLoading,
+  }) {
+    return Material(
+      color: AppColors.surfaceElevated,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: isLoading
+            ? null
+            : () async {
+                _emailCtrl.text = email;
+                _passwordCtrl.text = password;
+                final auth = context.read<AuthProvider>();
+                final success = await auth.login(email, password);
+                if (success && context.mounted) {
+                  context.go('/');
+                }
+              },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            children: [
+              Icon(icon, size: 22, color: AppColors.primary),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
           ),
         ),
       ),
