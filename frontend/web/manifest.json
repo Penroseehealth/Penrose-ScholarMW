@@ -3,8 +3,8 @@
   "short_name": "ScholarMW",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1B5E20",
-  "theme_color": "#1B5E20",
+  "background_color": "#0A0A14",
+  "theme_color": "#8B5CF6",
   "description": "AI-Powered Academic Intelligence & Learning Platform for Malawi",
   "orientation": "portrait-primary",
   "icons": [
