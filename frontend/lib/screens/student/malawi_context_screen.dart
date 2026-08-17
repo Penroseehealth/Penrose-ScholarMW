@@ -170,8 +170,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                       child: Text(
                         'No matching documents found',
                         style: TextStyle(
-                          color: Colors.grey.shade500,
-                          fontSize: 14,
+                          color: AppColors.textMuted,
                         ),
                       ),
                     )
@@ -400,16 +399,16 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.layers_outlined, size: 64, color: Colors.grey.shade300),
+            Icon(Icons.layers_outlined, size: 64, color: AppColors.textMuted.withOpacity(0.3)),
             const SizedBox(height: 16),
             Text(
               'No knowledge layers found',
-              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+              style: const TextStyle(fontSize: 16, color: AppColors.textSecondary),
             ),
             const SizedBox(height: 8),
             Text(
               'Layers are built from your academic context',
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+              style: const TextStyle(fontSize: 13, color: AppColors.textMuted),
             ),
           ],
         ),
@@ -532,11 +531,11 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.folder_open, size: 64, color: Colors.grey.shade300),
+            Icon(Icons.folder_open, size: 64, color: AppColors.textMuted.withOpacity(0.3)),
             const SizedBox(height: 16),
             Text(
               'No documents in this layer',
-              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+              style: const TextStyle(fontSize: 16, color: AppColors.textSecondary),
             ),
           ],
         ),

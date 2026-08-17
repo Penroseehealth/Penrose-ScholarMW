@@ -51,7 +51,7 @@ class _StudentHubState extends State<StudentHub> {
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
-              expandedHeight: 180,
+              expandedHeight: 90,
               pinned: true,
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
@@ -285,17 +285,18 @@ class _StudentHubState extends State<StudentHub> {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
       ),
       child: Center(
         child: Column(
           children: [
-            Icon(Icons.inbox_outlined, size: 48, color: Colors.grey.shade300),
+            Icon(Icons.inbox_outlined, size: 48, color: AppColors.textMuted.withOpacity(0.3)),
             const SizedBox(height: 12),
-            Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey.shade600)),
+            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
             const SizedBox(height: 4),
-            Text(subtitle, style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
+            Text(subtitle, style: const TextStyle(fontSize: 13, color: AppColors.textMuted)),
           ],
         ),
       ),

@@ -85,7 +85,7 @@ class _GamificationScreenState extends State<GamificationScreen>
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
-              expandedHeight: 160,
+              expandedHeight: 80,
               pinned: true,
               bottom: PreferredSize(
                 preferredSize: const Size.fromHeight(48),

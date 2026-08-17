@@ -191,7 +191,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
-              expandedHeight: 140,
+              expandedHeight: 70,
               pinned: true,
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(

@@ -284,7 +284,7 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: completed ? Colors.green.withOpacity(0.05) : Colors.white,
+        color: completed ? AppColors.successMuted : AppColors.surface,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: completed

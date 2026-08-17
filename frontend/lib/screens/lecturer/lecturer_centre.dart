@@ -47,13 +47,13 @@ class _LecturerCentreState extends State<LecturerCentre> {
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
-              expandedHeight: 200,
+              expandedHeight: 100,
               pinned: true,
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Color(0xFF0D47A1), Color(0xFF1565C0)],
+                      colors: [AppColors.primary, AppColors.primaryDark],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -78,7 +78,7 @@ class _LecturerCentreState extends State<LecturerCentre> {
                           Text(
                             'Good morning, Dr. $firstName',
                             style: const TextStyle(
-                              color: Colors.white,
+          color: AppColors.surface,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                             ),
@@ -135,9 +135,9 @@ class _LecturerCentreState extends State<LecturerCentre> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: AppColors.border),
         ),
         child: Column(
           children: [
@@ -192,7 +192,7 @@ class _LecturerCentreState extends State<LecturerCentre> {
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right, color: Colors.grey.shade400),
+                Icon(Icons.chevron_right, color: AppColors.textMuted),
               ],
             ),
             const SizedBox(height: 12),
@@ -200,7 +200,7 @@ class _LecturerCentreState extends State<LecturerCentre> {
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
                 value: 0.75,
-                backgroundColor: Colors.grey.shade200,
+                backgroundColor: AppColors.surfaceHighest,
                 color: AppColors.primary,
                 minHeight: 6,
               ),
@@ -264,9 +264,9 @@ class _LecturerCentreState extends State<LecturerCentre> {
         width: (MediaQuery.of(context).size.width - 40) / 2 - 4,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withOpacity(0.3)),
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.border),
         ),
         child: Row(
           children: [

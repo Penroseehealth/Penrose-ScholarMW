@@ -140,7 +140,7 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
-              expandedHeight: 140,
+              expandedHeight: 70,
               pinned: true,
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(

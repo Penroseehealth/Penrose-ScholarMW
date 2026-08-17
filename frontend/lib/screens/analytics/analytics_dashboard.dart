@@ -77,7 +77,7 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
-              expandedHeight: 140,
+              expandedHeight: 70,
               pinned: true,
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
@@ -657,17 +657,17 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
         child: Column(
           children: [
             Icon(Icons.analytics_outlined,
-                size: 56, color: Colors.grey.shade300),
+                size: 56, color: AppColors.textMuted.withOpacity(0.3)),
             const SizedBox(height: 12),
             Text('No analytics data',
-                style: TextStyle(
+                style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.grey.shade600)),
+                    color: AppColors.textSecondary)),
             const SizedBox(height: 4),
             Text('Data will appear once you start engaging with courses',
                 style:
-                    TextStyle(fontSize: 13, color: Colors.grey.shade500)),
+                    const TextStyle(fontSize: 13, color: AppColors.textMuted)),
           ],
         ),
       ),
