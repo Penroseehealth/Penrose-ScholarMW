@@ -133,6 +133,18 @@ class ApiService {
     }
   }
 
+  Future<http.Response> uploadFile(String path, String filePath, String filename, {Map<String, String>? fields}) async {
+    final h = await headers;
+    final uri = Uri.parse('$apiBaseUrl$path');
+    final request = http.MultipartRequest('POST', uri);
+    request.headers.addAll(h);
+    request.headers.remove('Content-Type');
+    if (fields != null) request.fields.addAll(fields);
+    request.files.add(await http.MultipartFile.fromPath('file', filePath, filename: filename));
+    final streamed = await request.send();
+    return http.Response.fromStream(streamed);
+  }
+
   Future<http.StreamedResponse> postStream(String path, {Map<String, dynamic>? body}) async {
     final h = await headers;
     final request = http.Request('POST', Uri.parse('$apiBaseUrl$path'));

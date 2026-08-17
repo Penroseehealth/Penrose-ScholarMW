@@ -10,8 +10,15 @@ void main() {
   runApp(const PenroseScholarApp());
 }
 
-class PenroseScholarApp extends StatelessWidget {
+class PenroseScholarApp extends StatefulWidget {
   const PenroseScholarApp({super.key});
+
+  @override
+  State<PenroseScholarApp> createState() => _PenroseScholarAppState();
+}
+
+class _PenroseScholarAppState extends State<PenroseScholarApp> {
+  AppRouter? _appRouter;
 
   @override
   Widget build(BuildContext context) {
@@ -19,14 +26,14 @@ class PenroseScholarApp extends StatelessWidget {
       create: (_) => AuthProvider()..init(),
       child: Consumer<AuthProvider>(
         builder: (context, auth, _) {
-          final router = AppRouter(auth).router;
+          _appRouter ??= AppRouter(auth);
           return MaterialApp.router(
             title: 'Penrose ScholarMW',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.dark(),
             darkTheme: AppTheme.dark(),
             themeMode: ThemeMode.dark,
-            routerConfig: router,
+            routerConfig: _appRouter!.router,
           );
         },
       ),

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 
@@ -25,16 +27,18 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
   }
 
   Future<void> _loadDocuments() async {
-    final response = await _api.getWithCache('/vault/');
-    if (response != null && response.statusCode == 200) {
-      final data = List.from(Map.from({'data': response.body}).values.first);
-      setState(() {
-        _documents = data;
-        _loading = false;
-      });
-    } else {
-      setState(() => _loading = false);
-    }
+    try {
+      final response = await _api.get('/vault/');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as List;
+        setState(() {
+          _documents = data;
+          _loading = false;
+        });
+        return;
+      }
+    } catch (_) {}
+    setState(() => _loading = false);
   }
 
   @override
@@ -269,10 +273,17 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
             ElevatedButton(
               onPressed: () async {
                 Navigator.pop(ctx);
-                final response = await _api.post('/vault/upload', body: {
-                  'title': titleCtrl.text,
-                  'doc_type': docType,
-                });
+                final filePath = result.files.first.path;
+                if (filePath == null) return;
+                final response = await _api.uploadFile(
+                  '/vault/upload',
+                  filePath,
+                  result.files.first.name,
+                  fields: {
+                    'title': titleCtrl.text,
+                    'doc_type': docType,
+                  },
+                );
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

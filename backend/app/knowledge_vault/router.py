@@ -1,6 +1,6 @@
 import os
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -59,11 +59,11 @@ async def list_documents(
 
 @router.post("/upload", response_model=VaultDocumentResponse)
 async def upload_document(
-    title: str,
-    doc_type: str,
-    course_id: int | None = None,
-    tags: str | None = None,
-    content: str | None = None,
+    title: str = Form(...),
+    doc_type: str = Form(...),
+    course_id: int | None = Form(None),
+    tags: str | None = Form(None),
+    content: str | None = Form(None),
     file: UploadFile = File(...),
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),

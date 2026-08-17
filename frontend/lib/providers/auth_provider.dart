@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 
 import '../services/auth_service.dart';
@@ -21,16 +19,20 @@ class AuthProvider extends ChangeNotifier {
   Future<void> init() async {
     _isLoading = true;
     notifyListeners();
-    final me = await _authService.getMe();
-    if (me != null) {
-      _user = me;
-      _isLoading = false;
-      notifyListeners();
-      return;
-    }
-    final result = await _authService.login('student@scholar.mw', 'student123');
-    if (result['success']) {
-      _user = result['user'];
+    try {
+      final me = await _authService.getMe();
+      if (me != null) {
+        _user = me;
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+      final result = await _authService.login('student@scholar.mw', 'student123');
+      if (result['success'] == true) {
+        _user = result['user'];
+      }
+    } catch (_) {
+      // Auto-login failed — stay unauthenticated
     }
     _isLoading = false;
     notifyListeners();
