@@ -1,0 +1,3 @@
+from app.modules.biology.prompts import BIOLOGY_AI_TEMPLATES, BIOLOGY_SUBJECT_FEATURES
+
+__all__ = ["BIOLOGY_AI_TEMPLATES", "BIOLOGY_SUBJECT_FEATURES"]

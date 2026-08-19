@@ -5,6 +5,8 @@ import '../../core/theme/app_colors.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
+import '../../modules/subject_module.dart';
+import '../../modules/modules.dart' hide SubjectModule;
 
 class StemHub extends StatefulWidget {
   const StemHub({super.key});
@@ -40,38 +42,17 @@ class _StemHubState extends State<StemHub> {
     }
   }
 
-  IconData _getIcon(String? iconName) {
-    switch (iconName) {
-      case 'calculate':
-        return Icons.calculate_outlined;
-      case 'biotech':
-        return Icons.biotech_outlined;
-      case 'science':
-        return Icons.science_outlined;
-      case 'precision_manufacturing':
-        return Icons.precision_manufacturing_outlined;
-      case 'computer':
-        return Icons.computer_outlined;
-      case 'agriculture':
-        return Icons.agriculture_outlined;
-      case 'eco':
-        return Icons.eco_outlined;
-      case 'bar_chart':
-        return Icons.bar_chart_outlined;
-      case 'public':
-        return Icons.public_outlined;
-      case 'settings':
-        return Icons.settings_outlined;
-      default:
-        return Icons.school_outlined;
-    }
+  IconData _getIcon(String? slug) {
+    final module = SubjectModule.fromSlug(slug ?? '');
+    if (module != null) return module.icon;
+
+    return Icons.school_outlined;
   }
 
-  Color _getAccentColor(String? colorHex) {
-    if (colorHex != null && colorHex.startsWith('#')) {
-      final hex = colorHex.replaceFirst('#', '');
-      return Color(int.parse('FF$hex', radix: 16));
-    }
+  Color _getAccentColor(String? slug) {
+    final module = SubjectModule.fromSlug(slug ?? '');
+    if (module != null) return module.color;
+
     return AppColors.primary;
   }
 
@@ -160,13 +141,14 @@ class _StemHubState extends State<StemHub> {
   }
 
   Widget _buildQuickStats() {
+    final enabledCount = SubjectModule.values.length;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Row(
         children: [
-          _buildStatChip('10 Subjects', AppColors.primary),
+          _buildStatChip('$enabledCount Subjects', AppColors.primary),
           const SizedBox(width: 8),
-          _buildStatChip('Structured Hierarchy', AppColors.teal),
+          _buildStatChip('Independent Modules', AppColors.teal),
           const SizedBox(width: 8),
           _buildStatChip('AI-Powered', AppColors.info),
         ],
@@ -199,8 +181,10 @@ class _StemHubState extends State<StemHub> {
   }
 
   Widget _buildSubjectCard(dynamic subject) {
-    final accentColor = _getAccentColor(subject['color']);
-    final iconData = _getIcon(subject['icon_name']);
+    final slug = subject['slug'] ?? subject['subject_slug'] ?? '';
+    final module = SubjectModule.fromSlug(slug);
+    final accentColor = module?.color ?? _getAccentColor(slug);
+    final iconData = module?.icon ?? _getIcon(slug);
 
     return GestureDetector(
       onTap: () {
@@ -208,8 +192,8 @@ class _StemHubState extends State<StemHub> {
           context,
           MaterialPageRoute(
             builder: (_) => StemSubjectScreen(
-              slug: subject['slug'] ?? '',
-              title: subject['name'] ?? 'Subject',
+              slug: slug,
+              title: subject['name'] ?? subject['title'] ?? module?.title ?? 'Subject',
             ),
           ),
         );

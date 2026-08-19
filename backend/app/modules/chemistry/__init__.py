@@ -1,0 +1,6 @@
+from app.modules.chemistry.prompts import (
+    CHEMISTRY_AI_TEMPLATES,
+    CHEMISTRY_SUBJECT_FEATURES,
+)
+
+__all__ = ["CHEMISTRY_AI_TEMPLATES", "CHEMISTRY_SUBJECT_FEATURES"]

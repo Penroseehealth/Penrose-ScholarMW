@@ -291,6 +291,32 @@ async def list_subjects(db: AsyncSession = Depends(get_db)):
     return responses
 
 
+class SubjectModuleResponse(BaseModel):
+    slug: str
+    title: str
+    description: str | None
+    icon: str | None
+    color: str | None
+    features: list[str]
+
+
+@router.get("/subjects/modules", response_model=list[SubjectModuleResponse])
+async def get_subject_modules():
+    from app.core.subject_registry import get_enabled_subjects
+
+    return [
+        SubjectModuleResponse(
+            slug=m.slug,
+            title=m.title,
+            description=m.description,
+            icon=m.icon,
+            color=m.color,
+            features=m.features,
+        )
+        for m in get_enabled_subjects()
+    ]
+
+
 @router.get("/subjects/{slug}", response_model=SubjectResponse)
 async def get_subject(slug: str, db: AsyncSession = Depends(get_db)):
     result = await db.execute(

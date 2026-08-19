@@ -414,4 +414,13 @@ class StemService {
     if (response.statusCode == 200) return jsonDecode(response.body);
     return {};
   }
+
+  Future<List<Map<String, dynamic>>> getSubjectModules() async {
+    final response = await _api.get('/stem/subjects/modules');
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      return List<Map<String, dynamic>>.from(data);
+    }
+    return [];
+  }
 }

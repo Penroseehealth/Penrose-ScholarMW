@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.config.settings import get_settings
+from app.core.subject_registry import get_subject_module
 from app.database.engine import get_db
 from app.dependencies.auth import get_current_user
 from app.models.models import User
@@ -13,6 +14,9 @@ from app.models.stem import (
     STEMDiscipline,
     STEMTopic,
 )
+from app.modules.chemistry.prompts import CHEMISTRY_AI_TEMPLATES
+from app.modules.computer_science.prompts import CS_AI_TEMPLATES
+from app.modules.mathematics.prompts import MATH_AI_TEMPLATES
 
 router = APIRouter(prefix="/stem", tags=["STEM Intelligence"])
 settings = get_settings()
@@ -123,19 +127,43 @@ async def _get_concept_context(concept_id: int, db: AsyncSession) -> dict:
     }
 
 
-def _build_system_prompt(context: dict, mode: str) -> str:
+SUBJECT_AI_TEMPLATES: dict[str, dict[str, str]] = {
+    "mathematics": MATH_AI_TEMPLATES,
+    "chemistry": CHEMISTRY_AI_TEMPLATES,
+    "computer-science": CS_AI_TEMPLATES,
+}
+
+
+def _get_subject_template(
+    subject_slug: str | None, mode: str, user_message: str
+) -> str | None:
+    if not subject_slug or subject_slug not in SUBJECT_AI_TEMPLATES:
+        return None
+    templates = SUBJECT_AI_TEMPLATES[subject_slug]
+    if mode not in templates:
+        return None
+    return templates[mode].format(problem=user_message)
+
+
+def _build_system_prompt(context: dict, mode: str, user_message: str) -> str:
     concept = context["concept"]
     subject = context["subject"]
     discipline = context["discipline"]
     subtopic = context["subtopic"]
     topic = context["topic"]
 
+    subject_module = get_subject_module(subject.subject_slug) if subject else None
+
     parts = [
-        "You are STEM Tutor, an expert AI tutor specializing in STEM education for university students.",
+        "You are STEM Tutor, an expert AI tutor specializing in STEM education for Malawian students.",
         "",
     ]
 
-    if subject:
+    if subject_module:
+        parts.append(f"Subject: {subject_module.title}")
+        parts.append(f"Subject Icon: {subject_module.icon}")
+        parts.append(f"Subject Features: {', '.join(subject_module.features)}")
+    elif subject:
         parts.append(f"Subject: {subject.title}")
     if discipline:
         parts.append(f"Discipline: {discipline.title}")
@@ -153,6 +181,12 @@ def _build_system_prompt(context: dict, mode: str) -> str:
         parts.append(f"Prerequisites: {concept.prerequisites_text}")
     if concept.difficulty_level:
         parts.append(f"Difficulty Level: {concept.difficulty_level}")
+
+    subject_prompt = _get_subject_template(
+        subject.subject_slug if subject else None, mode, user_message
+    )
+    if subject_prompt:
+        parts.append(f"\nSubject-specific context:\n{subject_prompt}")
 
     mode_instruction = MODE_INSTRUCTIONS.get(
         mode, "Provide a helpful explanation of the concept."
@@ -200,7 +234,7 @@ async def tutor_chat(
         )
 
     context = await _get_concept_context(body.concept_id, db)
-    system_prompt = _build_system_prompt(context, body.mode)
+    system_prompt = _build_system_prompt(context, body.mode, body.message)
     ai_response = await _call_llm(system_prompt, body.message)
 
     return TutorChatResponse(

@@ -1,0 +1,6 @@
+from app.modules.earth_science.prompts import (
+    EARTH_SCIENCE_AI_TEMPLATES,
+    EARTH_SCIENCE_SUBJECT_FEATURES,
+)
+
+__all__ = ["EARTH_SCIENCE_AI_TEMPLATES", "EARTH_SCIENCE_SUBJECT_FEATURES"]

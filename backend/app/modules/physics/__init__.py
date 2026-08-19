@@ -1,0 +1,3 @@
+from app.modules.physics.prompts import PHYSICS_AI_TEMPLATES, PHYSICS_SUBJECT_FEATURES
+
+__all__ = ["PHYSICS_AI_TEMPLATES", "PHYSICS_SUBJECT_FEATURES"]

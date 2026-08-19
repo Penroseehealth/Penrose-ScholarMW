@@ -1,0 +1,6 @@
+from app.modules.statistics.prompts import (
+    STATISTICS_AI_TEMPLATES,
+    STATISTICS_SUBJECT_FEATURES,
+)
+
+__all__ = ["STATISTICS_AI_TEMPLATES", "STATISTICS_SUBJECT_FEATURES"]

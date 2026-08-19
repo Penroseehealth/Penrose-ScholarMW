@@ -1,0 +1,6 @@
+from app.modules.agriculture.prompts import (
+    AGRICULTURE_AI_TEMPLATES,
+    AGRICULTURE_SUBJECT_FEATURES,
+)
+
+__all__ = ["AGRICULTURE_AI_TEMPLATES", "AGRICULTURE_SUBJECT_FEATURES"]
