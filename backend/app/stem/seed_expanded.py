@@ -566,7 +566,7 @@ async def _seed_extra_questions(db: AsyncSession) -> int:
                 concept_id=concept.id,
                 question_text=q["question_text"],
                 question_type=q["question_type"],
-                options=q["options"],
+                options=q.get("options"),
                 answer=q["answer"],
                 explanation=q["explanation"],
                 bloom_level=q["bloom_level"],
