@@ -26,11 +26,61 @@ import '../screens/gamification/gamification_screen.dart';
 import '../screens/notifications/smart_notifications_screen.dart';
 import '../screens/search/global_search_screen.dart';
 import '../screens/sync/offline_sync_screen.dart';
+import '../screens/stem/stem_hub.dart';
+import '../screens/stem/stem_subject_screen.dart';
+import '../screens/stem/stem_topic_screen.dart';
+import '../screens/stem/stem_concept_screen.dart';
+import '../screens/stem/stem_knowledge_graph_screen.dart';
+import '../screens/stem/stem_formula_centre_screen.dart';
+import '../screens/stem/stem_career_explorer_screen.dart';
+import '../screens/stem/stem_lab_screen.dart';
+import '../screens/stem/stem_mastery_dashboard_screen.dart';
+import '../screens/stem/stem_tutor_screen.dart';
+import '../screens/stem/stem_analytics_screen.dart';
+import '../screens/stem/stem_malawi_screen.dart';
+import '../screens/stem/stem_revision_screen.dart';
+import '../screens/stem/stem_gamification_screen.dart';
+import '../screens/stem/stem_groups_screen.dart';
 
 class AppRouter {
   final AuthProvider authProvider;
 
   AppRouter(this.authProvider);
+
+  static Widget _fadeTransition(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation, Widget child) {
+    return FadeTransition(
+      opacity: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+      child: child,
+    );
+  }
+
+  static Widget _slideTransition(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation, Widget child) {
+    final tween = Tween<Offset>(
+      begin: const Offset(0.06, 0),
+      end: Offset.zero,
+    ).chain(CurveTween(curve: Curves.easeOutCubic));
+    final fade = CurvedAnimation(
+      parent: animation,
+      curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
+    );
+    return SlideTransition(
+      position: animation.drive(tween),
+      child: FadeTransition(opacity: fade, child: child),
+    );
+  }
+
+  GoRoute _route(String path, Widget Function(GoRouterState) builder) {
+    return GoRoute(
+      path: path,
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        child: builder(state),
+        transitionsBuilder: _slideTransition,
+      ),
+    );
+  }
 
   late final GoRouter router = GoRouter(
     initialLocation: '/',
@@ -45,53 +95,153 @@ class AppRouter {
       return null;
     },
     routes: [
-      GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
-      GoRoute(path: '/register', builder: (_, __) => const RegisterScreen()),
+      GoRoute(
+        path: '/login',
+        pageBuilder: (context, state) => CustomTransitionPage<void>(
+          key: state.pageKey,
+          child: const LoginScreen(),
+          transitionsBuilder: _fadeTransition,
+        ),
+      ),
+      GoRoute(
+        path: '/register',
+        pageBuilder: (context, state) => CustomTransitionPage<void>(
+          key: state.pageKey,
+          child: const RegisterScreen(),
+          transitionsBuilder: _fadeTransition,
+        ),
+      ),
       ShellRoute(
         builder: (_, __, child) => HomeShell(child: child),
         routes: [
-          GoRoute(path: '/', builder: (_, __) => const HomeRedirect()),
-          GoRoute(path: '/student', builder: (_, __) => const StudentDashboard()),
-          GoRoute(path: '/dashboard', builder: (_, __) => const StudentDashboard()),
-          GoRoute(path: '/lecturer', builder: (_, __) => const LecturerCentre()),
-          GoRoute(path: '/ai-tutor', builder: (_, __) => const AiTutorScreen()),
-          GoRoute(path: '/research', builder: (_, __) => const ResearchLab()),
-          GoRoute(path: '/vault', builder: (_, __) => const KnowledgeVaultScreen()),
-          GoRoute(path: '/assessment-studio', builder: (_, __) => const AssessmentStudio()),
-          GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
-          GoRoute(path: '/analytics', builder: (_, __) => const AnalyticsDashboard()),
-          GoRoute(path: '/learning-coach', builder: (_, __) => const LearningCoachScreen()),
-          GoRoute(path: '/malawi-context', builder: (_, __) => const MalawiContextScreen()),
-          GoRoute(path: '/knowledge-retrieval', builder: (_, __) => const KnowledgeRetrievalScreen()),
-          GoRoute(path: '/examinations', builder: (_, __) => const ExaminationHall()),
-          GoRoute(path: '/writing-studio', builder: (_, __) => const WritingStudio()),
-          GoRoute(path: '/gamification', builder: (_, __) => const GamificationScreen()),
-          GoRoute(path: '/smart-notifications', builder: (_, __) => const SmartNotificationsScreen()),
-          GoRoute(path: '/search', builder: (_, __) => const GlobalSearchScreen()),
-          GoRoute(path: '/offline-sync', builder: (_, __) => const OfflineSyncScreen()),
-          GoRoute(path: '/classes', builder: (_, __) => const StudentDashboard()),
-          GoRoute(path: '/assignments', builder: (_, __) => const StudentDashboard()),
-          GoRoute(path: '/assessments', builder: (_, __) => const StudentDashboard()),
-          GoRoute(path: '/grades', builder: (_, __) => const AnalyticsDashboard()),
-          GoRoute(path: '/calendar', builder: (_, __) => const StudentDashboard()),
-          GoRoute(path: '/notes', builder: (_, __) => const KnowledgeVaultScreen()),
-          GoRoute(path: '/settings', builder: (_, __) => const ProfileScreen()),
-          GoRoute(path: '/help', builder: (_, __) => const StudentDashboard()),
+          _route('/', (_) => const HomeRedirect()),
+          _route('/student', (_) => const StudentDashboard()),
+          _route('/dashboard', (_) => const StudentDashboard()),
+          _route('/lecturer', (_) => const LecturerCentre()),
+          _route('/ai-tutor', (_) => const AiTutorScreen()),
+          _route('/research', (_) => const ResearchLab()),
+          _route('/vault', (_) => const KnowledgeVaultScreen()),
+          _route('/assessment-studio', (_) => const AssessmentStudio()),
+          _route('/profile', (_) => const ProfileScreen()),
+          _route('/analytics', (_) => const AnalyticsDashboard()),
+          _route('/learning-coach', (_) => const LearningCoachScreen()),
+          _route('/malawi-context', (_) => const MalawiContextScreen()),
+          _route('/knowledge-retrieval', (_) => const KnowledgeRetrievalScreen()),
+          _route('/examinations', (_) => const ExaminationHall()),
+          _route('/writing-studio', (_) => const WritingStudio()),
+          _route('/gamification', (_) => const GamificationScreen()),
+          _route('/smart-notifications', (_) => const SmartNotificationsScreen()),
+          _route('/search', (_) => const GlobalSearchScreen()),
+          _route('/offline-sync', (_) => const OfflineSyncScreen()),
+          _route('/stem', (_) => const StemHub()),
+          GoRoute(
+            path: '/stem/:slug',
+            pageBuilder: (_, state) {
+              final slug = state.pathParameters['slug'] ?? 'mathematics';
+              final title = state.uri.queryParameters['title'] ?? '';
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: StemSubjectScreen(slug: slug, title: title),
+                transitionsBuilder: _slideTransition,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/stem-topic/:id',
+            pageBuilder: (_, state) {
+              final id = int.tryParse(state.pathParameters['id'] ?? '0') ?? 0;
+              final title = state.uri.queryParameters['title'] ?? '';
+              final difficulty = state.uri.queryParameters['difficulty'] ?? 'intermediate';
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: StemTopicScreen(topicId: id, title: title, difficulty: difficulty),
+                transitionsBuilder: _slideTransition,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/stem-concept/:id',
+            pageBuilder: (_, state) {
+              final id = int.tryParse(state.pathParameters['id'] ?? '0') ?? 0;
+              final title = state.uri.queryParameters['title'] ?? '';
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: StemConceptScreen(conceptId: id, title: title),
+                transitionsBuilder: _slideTransition,
+              );
+            },
+          ),
+          GoRoute(path: '/stem-knowledge-graph', pageBuilder: (_, state) {
+            final slug = state.uri.queryParameters['subject'] ?? '';
+            return CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: StemKnowledgeGraphScreen(subjectSlug: slug),
+              transitionsBuilder: _slideTransition,
+            );
+          }),
+          _route('/stem-formula-centre', (_) => const StemFormulaCentreScreen()),
+          GoRoute(path: '/stem-careers', pageBuilder: (_, state) {
+            final slug = state.uri.queryParameters['subject'] ?? '';
+            return CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: StemCareerExplorerScreen(subjectSlug: slug),
+              transitionsBuilder: _slideTransition,
+            );
+          }),
+          GoRoute(path: '/stem-labs', pageBuilder: (_, state) {
+            final slug = state.uri.queryParameters['subject'] ?? '';
+            final type = state.uri.queryParameters['type'] ?? '';
+            return CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: StemLabScreen(subjectSlug: slug, labType: type),
+              transitionsBuilder: _slideTransition,
+            );
+          }),
+          _route('/stem-mastery', (_) => const StemMasteryDashboardScreen()),
+          GoRoute(path: '/stem-tutor', pageBuilder: (_, state) {
+            final conceptId = int.tryParse(state.uri.queryParameters['concept'] ?? '0') ?? 0;
+            return CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: StemTutorScreen(conceptId: conceptId),
+              transitionsBuilder: _slideTransition,
+            );
+          }),
+          _route('/stem-analytics', (_) => const StemAnalyticsScreen()),
+          _route('/stem-malawi', (_) => const StemMalawiScreen()),
+          _route('/stem-revision', (_) => const StemRevisionScreen()),
+          _route('/stem-gamification', (_) => const StemGamificationScreen()),
+          _route('/stem-groups', (_) => const StemGroupsScreen()),
+          _route('/classes', (_) => const StudentDashboard()),
+          _route('/assignments', (_) => const StudentDashboard()),
+          _route('/assessments', (_) => const StudentDashboard()),
+          _route('/grades', (_) => const AnalyticsDashboard()),
+          _route('/calendar', (_) => const StudentDashboard()),
+          _route('/notes', (_) => const KnowledgeVaultScreen()),
+          _route('/settings', (_) => const ProfileScreen()),
+          _route('/help', (_) => const StudentDashboard()),
           GoRoute(
             path: '/smart-marking',
-            builder: (_, state) {
+            pageBuilder: (_, state) {
               final extra = state.extra as Map<String, dynamic>? ?? {};
-              return SmartMarkingScreen(
-                assessmentId: extra['assessmentId'] ?? 0,
-                submissions: extra['submissions'] ?? [],
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: SmartMarkingScreen(
+                  assessmentId: extra['assessmentId'] ?? 0,
+                  submissions: extra['submissions'] ?? [],
+                ),
+                transitionsBuilder: _slideTransition,
               );
             },
           ),
           GoRoute(
             path: '/study-plan',
-            builder: (_, state) {
+            pageBuilder: (_, state) {
               final courseId = state.extra as int? ?? 1;
-              return StudyPlanScreen(courseId: courseId);
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: StudyPlanScreen(courseId: courseId),
+                transitionsBuilder: _slideTransition,
+              );
             },
           ),
         ],

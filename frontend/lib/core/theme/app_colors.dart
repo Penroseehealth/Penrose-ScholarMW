@@ -46,6 +46,10 @@ class AppColors {
   static const card = Color(0xFF10101D);
   static const cardHover = Color(0xFF17172A);
 
+  // ── Shimmer ──
+  static const shimmerBase = Color(0xFF17172A);
+  static const shimmerHighlight = Color(0xFF1E1E32);
+
   // ── Legacy aliases (keep existing references compiling) ──
   static const primaryDarkOld = primaryDark;
   static const secondary = Color(0xFFC084FC);

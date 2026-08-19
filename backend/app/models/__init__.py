@@ -17,6 +17,11 @@ from app.models.models import (
     UserRole,
     VaultDocument,
 )
+from app.models.stem import (
+    STEMFlashcard,
+    STEMStudyPlan,
+    STEMStudyPlanItem,
+)
 
 __all__ = [
     "Assessment",
@@ -32,6 +37,9 @@ __all__ = [
     "ResearchNote",
     "ResearchProject",
     "ScheduleItem",
+    "STEMFlashcard",
+    "STEMStudyPlan",
+    "STEMStudyPlanItem",
     "Submission",
     "User",
     "UserRole",

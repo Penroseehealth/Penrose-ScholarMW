@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
 class AppBreakpoints {
@@ -29,7 +28,7 @@ class AppTheme {
         onError: AppColors.textOnPrimary,
         outline: AppColors.border,
       ),
-      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme).apply(
+      textTheme: ThemeData.dark().textTheme.apply(
         bodyColor: AppColors.textPrimary,
         displayColor: AppColors.textPrimary,
       ),
@@ -39,7 +38,8 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.inter(
+        titleTextStyle: const TextStyle(
+          fontFamily: 'Inter',
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
@@ -60,7 +60,7 @@ class AppTheme {
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          textStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -69,7 +69,7 @@ class AppTheme {
           side: const BorderSide(color: AppColors.border),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          textStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -103,13 +103,15 @@ class AppTheme {
         indicatorColor: AppColors.primaryGlow,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return GoogleFonts.inter(
+            return const TextStyle(
+              fontFamily: 'Inter',
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: AppColors.primary,
             );
           }
-          return GoogleFonts.inter(
+          return const TextStyle(
+            fontFamily: 'Inter',
             fontSize: 12,
             fontWeight: FontWeight.w500,
             color: AppColors.textMuted,
@@ -128,12 +130,14 @@ class AppTheme {
         indicatorColor: AppColors.primaryGlow,
         selectedIconTheme: const IconThemeData(color: AppColors.primary, size: 24),
         unselectedIconTheme: const IconThemeData(color: AppColors.textMuted, size: 24),
-        selectedLabelTextStyle: GoogleFonts.inter(
+        selectedLabelTextStyle: const TextStyle(
+          fontFamily: 'Inter',
           fontSize: 12,
           fontWeight: FontWeight.w600,
           color: AppColors.primary,
         ),
-        unselectedLabelTextStyle: GoogleFonts.inter(
+        unselectedLabelTextStyle: const TextStyle(
+          fontFamily: 'Inter',
           fontSize: 12,
           fontWeight: FontWeight.w500,
           color: AppColors.textMuted,
@@ -157,7 +161,7 @@ class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppColors.surfaceHighest,
-        contentTextStyle: GoogleFonts.inter(color: AppColors.textPrimary),
+        contentTextStyle: const TextStyle(fontFamily: 'Inter', color: AppColors.textPrimary),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         behavior: SnackBarBehavior.floating,
       ),
@@ -165,7 +169,7 @@ class AppTheme {
         backgroundColor: AppColors.surfaceElevated,
         side: const BorderSide(color: AppColors.border),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        labelStyle: GoogleFonts.inter(color: AppColors.textSecondary, fontSize: 13),
+        labelStyle: const TextStyle(fontFamily: 'Inter', color: AppColors.textSecondary, fontSize: 13),
       ),
       listTileTheme: const ListTileThemeData(
         iconColor: AppColors.textMuted,

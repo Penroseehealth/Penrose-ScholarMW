@@ -27,6 +27,19 @@ from app.messaging.router import router as messaging_router
 from app.notifications.router import router as notifications_router
 from app.research.router import router as research_router
 from app.smart_notifications.router import router as smart_notifications_router
+from app.stem.ai_stem_tutor_router import router as stem_tutor_router
+from app.stem.analytics_router import router as stem_analytics_router
+from app.stem.assessment_engine_router import router as assessment_engine_router
+from app.stem.careers_router import router as careers_router
+from app.stem.formulas_router import router as formulas_router
+from app.stem.gamification_router import router as stem_gamification_router
+from app.stem.groups_router import router as stem_groups_router
+from app.stem.knowledge_graph_router import router as kg_router
+from app.stem.labs_router import router as labs_router
+from app.stem.malawi_stem_router import router as malawi_stem_router
+from app.stem.mastery_router import router as mastery_router
+from app.stem.revision_router import router as revision_router
+from app.stem.router import router as stem_router
 from app.sync_engine.router import router as sync_engine_router
 from app.users.router import router as users_router
 from app.writing_studio.router import router as writing_studio_router
@@ -39,6 +52,18 @@ async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     await _seed_default_users()
+    from app.stem.seed import seed_stem
+
+    await seed_stem()
+    from app.stem.seed_phase2 import seed_phase2
+
+    await seed_phase2()
+    from app.stem.seed_phase3 import seed_phase3
+
+    await seed_phase3()
+    from app.stem.seed_expanded import seed_expanded
+
+    await seed_expanded()
     yield
 
 
@@ -146,6 +171,19 @@ app.include_router(global_search_router, prefix="/api/v1")
 app.include_router(gamification_router, prefix="/api/v1")
 app.include_router(smart_notifications_router, prefix="/api/v1")
 app.include_router(institutions_router, prefix="/api/v1")
+app.include_router(stem_router, prefix="/api/v1")
+app.include_router(kg_router, prefix="/api/v1")
+app.include_router(formulas_router, prefix="/api/v1")
+app.include_router(careers_router, prefix="/api/v1")
+app.include_router(labs_router, prefix="/api/v1")
+app.include_router(assessment_engine_router, prefix="/api/v1")
+app.include_router(mastery_router, prefix="/api/v1")
+app.include_router(revision_router, prefix="/api/v1")
+app.include_router(stem_tutor_router, prefix="/api/v1")
+app.include_router(stem_analytics_router, prefix="/api/v1")
+app.include_router(malawi_stem_router, prefix="/api/v1")
+app.include_router(stem_gamification_router, prefix="/api/v1")
+app.include_router(stem_groups_router, prefix="/api/v1")
 
 
 @app.get("/health")

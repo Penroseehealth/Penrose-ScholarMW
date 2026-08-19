@@ -1,0 +1,740 @@
+import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
+import '../../services/stem_service.dart';
+import '../../widgets/shimmer_loading.dart';
+import '../../widgets/empty_state.dart';
+import '../../widgets/error_state.dart';
+
+class StemGroupsScreen extends StatefulWidget {
+  const StemGroupsScreen({super.key});
+
+  @override
+  State<StemGroupsScreen> createState() => _StemGroupsScreenState();
+}
+
+class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerProviderStateMixin {
+  final StemService _stemService = StemService();
+  late TabController _tabController;
+
+  List<dynamic> _myGroups = [];
+  List<dynamic> _allGroups = [];
+  List<dynamic> _subjects = [];
+  bool _loading = true;
+  String _selectedSubject = '';
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _loadData();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final subjects = await _stemService.getSubjects();
+      final myGroups = await _stemService.getMyGroups();
+      final allGroups = await _stemService.getStudyGroups(
+        subjectSlug: _selectedSubject.isNotEmpty ? _selectedSubject : null,
+      );
+      if (mounted) {
+        setState(() {
+          _subjects = subjects;
+          _myGroups = myGroups;
+          _allGroups = allGroups;
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: RefreshIndicator(
+        onRefresh: _loadData,
+        child: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 90,
+            pinned: true,
+            backgroundColor: AppColors.primaryDark,
+            flexibleSpace: FlexibleSpaceBar(
+              title: const Text(
+                'Study Groups',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.primaryDark, AppColors.primaryMuted],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
+            ),
+            bottom: TabBar(
+              controller: _tabController,
+              indicatorColor: AppColors.primaryLight,
+              labelColor: AppColors.textPrimary,
+              unselectedLabelColor: AppColors.textMuted,
+              tabs: const [
+                Tab(text: 'My Groups'),
+                Tab(text: 'All Groups'),
+              ],
+            ),
+          ),
+          if (_error != null && !_loading)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: ErrorState(message: _error!, onRetry: _loadData),
+              ),
+            )
+          else if (_loading)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: ShimmerLoading.list(count: 5),
+              ),
+            )
+          else
+            SliverFillRemaining(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildMyGroupsTab(),
+                  _buildAllGroupsTab(),
+                ],
+              ),
+            ),
+        ],
+      ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showCreateGroupDialog,
+        backgroundColor: AppColors.primary,
+        child: const Icon(Icons.add_rounded, color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _buildMyGroupsTab() {
+    if (_myGroups.isEmpty) {
+      return EmptyState(icon: Icons.groups_rounded, title: 'No groups yet', subtitle: 'Join or create a study group to get started');
+    }
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      itemCount: _myGroups.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      itemBuilder: (context, index) => _buildGroupCard(_myGroups[index], isMyGroup: true),
+    );
+  }
+
+  Widget _buildAllGroupsTab() {
+    return Column(
+      children: [
+        SizedBox(
+          height: 50,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            scrollDirection: Axis.horizontal,
+            itemCount: _subjects.length + 1,
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                final selected = _selectedSubject.isEmpty;
+                return ChoiceChip(
+                  label: const Text('All', style: TextStyle(fontSize: 12)),
+                  selected: selected,
+                  selectedColor: AppColors.primary,
+                  backgroundColor: AppColors.surface,
+                  side: BorderSide(color: selected ? AppColors.primary : AppColors.border),
+                  onSelected: (_) {
+                    setState(() => _selectedSubject = '');
+                    _loadData();
+                  },
+                );
+              }
+              final s = _subjects[index - 1];
+              final selected = _selectedSubject == s['slug'];
+              return ChoiceChip(
+                label: Text(
+                  s['name'] ?? '',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: selected ? Colors.white : AppColors.textSecondary,
+                  ),
+                ),
+                selected: selected,
+                selectedColor: AppColors.primary,
+                backgroundColor: AppColors.surface,
+                side: BorderSide(color: selected ? AppColors.primary : AppColors.border),
+                onSelected: (_) {
+                  setState(() => _selectedSubject = s['slug'] ?? '');
+                  _loadData();
+                },
+              );
+            },
+          ),
+        ),
+        Expanded(
+          child: _allGroups.isEmpty
+              ? EmptyState(icon: Icons.groups_rounded, title: 'No groups found', subtitle: 'Try a different subject filter')
+              : ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: _allGroups.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) => _buildGroupCard(_allGroups[index]),
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGroupCard(dynamic group, {bool isMyGroup = false}) {
+    final memberCount = group['member_count'] ?? 0;
+    final maxMembers = group['max_members'];
+    final memberText = maxMembers != null ? ' / ' : ' members';
+
+    return GestureDetector(
+      onTap: () => _openGroupDetail(group),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    group['name'] ?? '',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (group['subject_name'] != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryGlow,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      group['subject_name'],
+                      style: const TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.people_rounded, size: 14, color: AppColors.textMuted),
+                const SizedBox(width: 4),
+                Text(
+                  memberText,
+                  style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                ),
+              ],
+            ),
+            if (group['description'] != null && (group['description'] as String).isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                group['description'],
+                style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+            if (!isMyGroup) ...[
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    await _stemService.joinGroup(group['id']);
+                    _loadData();
+                  },
+                  icon: const Icon(Icons.login_rounded, size: 14),
+                  label: const Text('Join', style: TextStyle(fontSize: 12)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openGroupDetail(dynamic group) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => _GroupDetailPage(groupId: group['id'], group: group),
+      ),
+    );
+  }
+
+  void _showCreateGroupDialog() {
+    final nameController = TextEditingController();
+    final descController = TextEditingController();
+    String? selectedSubject;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text(
+          'Create Study Group',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+        ),
+        content: StatefulBuilder(
+          builder: (ctx, setDialogState) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: InputDecoration(
+                  hintText: 'Group name',
+                  hintStyle: const TextStyle(color: AppColors.textMuted),
+                  filled: true,
+                  fillColor: AppColors.surfaceHighest,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppColors.primary),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: descController,
+                style: const TextStyle(color: AppColors.textPrimary),
+                maxLines: 2,
+                decoration: InputDecoration(
+                  hintText: 'Description (optional)',
+                  hintStyle: const TextStyle(color: AppColors.textMuted),
+                  filled: true,
+                  fillColor: AppColors.surfaceHighest,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppColors.primary),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                ),
+              ),
+              const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                value: selectedSubject,
+                dropdownColor: AppColors.surface,
+                style: const TextStyle(color: AppColors.textPrimary, fontSize: 13),
+                decoration: InputDecoration(
+                  hintText: 'Subject (optional)',
+                  hintStyle: const TextStyle(color: AppColors.textMuted),
+                  filled: true,
+                  fillColor: AppColors.surfaceHighest,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppColors.primary),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                ),
+                items: _subjects.map<DropdownMenuItem<String>>((s) {
+                  return DropdownMenuItem(
+                    value: s['slug'],
+                    child: Text(s['name'] ?? ''),
+                  );
+                }).toList(),
+                onChanged: (val) => setDialogState(() => selectedSubject = val),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel', style: TextStyle(color: AppColors.textMuted)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (nameController.text.trim().isEmpty) return;
+              await _stemService.createStudyGroup(
+                nameController.text.trim(),
+                descController.text.trim().isNotEmpty ? descController.text.trim() : null,
+                selectedSubject,
+              );
+              if (ctx.mounted) Navigator.pop(ctx);
+              _loadData();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+  }
+
+}
+
+class _GroupDetailPage extends StatefulWidget {
+  final int groupId;
+  final dynamic group;
+
+  const _GroupDetailPage({required this.groupId, required this.group});
+
+  @override
+  State<_GroupDetailPage> createState() => _GroupDetailPageState();
+}
+
+class _GroupDetailPageState extends State<_GroupDetailPage> {
+  final StemService _stemService = StemService();
+  final TextEditingController _messageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+  Map<String, dynamic>? _detail;
+  List<dynamic> _messages = [];
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDetail();
+  }
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadDetail() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final detail = await _stemService.getGroupDetail(widget.groupId);
+      final messages = await _stemService.getGroupMessages(widget.groupId);
+      if (mounted) {
+        setState(() {
+          _detail = detail;
+          _messages = messages;
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
+    }
+  }
+
+  Future<void> _sendMessage() async {
+    final text = _messageController.text.trim();
+    if (text.isEmpty) return;
+    _messageController.clear();
+    await _stemService.sendGroupMessage(widget.groupId, text);
+    final messages = await _stemService.getGroupMessages(widget.groupId);
+    if (mounted) {
+      setState(() => _messages = messages);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final members = _detail?['members'] ?? [];
+    final groupName = widget.group['name'] ?? '';
+    final subjectName = widget.group['subject_name'] ?? '';
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.primaryDark,
+        title: Text(
+          groupName,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: _error != null && !_loading
+          ? Center(child: ErrorState(message: _error!, onRetry: _loadDetail))
+          : _loading
+          ? Center(child: ShimmerLoading.list(count: 3))
+          : Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(
+                    color: AppColors.surface,
+                    border: Border(bottom: BorderSide(color: AppColors.border)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (subjectName.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryGlow,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            subjectName,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'Members',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        height: 60,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: members.length,
+                          separatorBuilder: (_, __) => const SizedBox(width: 10),
+                          itemBuilder: (context, index) {
+                            final member = members[index];
+                            final isAdmin = member['role'] == 'admin';
+                            return Column(
+                              children: [
+                                CircleAvatar(
+                                  radius: 16,
+                                  backgroundColor: isAdmin ? AppColors.primary : AppColors.surfaceHighest,
+                                  child: Text(
+                                    (member['name'] ?? member['username'] ?? '?')[0].toString().toUpperCase(),
+                                    style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      member['name'] ?? member['username'] ?? '',
+                                      style: const TextStyle(fontSize: 9, color: AppColors.textMuted),
+                                    ),
+                                    if (isAdmin) ...[
+                                      const SizedBox(width: 3),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary,
+                                          borderRadius: BorderRadius.circular(3),
+                                        ),
+                                        child: const Text(
+                                          'ADMIN',
+                                          style: TextStyle(fontSize: 7, fontWeight: FontWeight.w700, color: Colors.white),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: _messages.isEmpty
+                      ? const Center(
+                          child: Text(
+                            'No messages yet. Say hello!',
+                            style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+                          ),
+                        )
+                      : ListView.separated(
+                          padding: const EdgeInsets.all(16),
+                          controller: _scrollController,
+                          itemCount: _messages.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: 10),
+                          itemBuilder: (context, index) {
+                            final msg = _messages[index];
+                            return Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: AppColors.surface,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: AppColors.border),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        msg['sender_name'] ?? msg['sender'] ?? 'Unknown',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.textPrimary,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        msg['created_at'] ?? '',
+                                        style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    msg['message'] ?? msg['content'] ?? '',
+                                    style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: const BoxDecoration(
+                    color: AppColors.surface,
+                    border: Border(top: BorderSide(color: AppColors.border)),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _messageController,
+                          style: const TextStyle(color: AppColors.textPrimary),
+                          decoration: InputDecoration(
+                            hintText: 'Type a message...',
+                            hintStyle: const TextStyle(color: AppColors.textMuted),
+                            filled: true,
+                            fillColor: AppColors.surfaceHighest,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(color: AppColors.border),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(color: AppColors.border),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(color: AppColors.primary),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          ),
+                          onSubmitted: (_) => _sendMessage(),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      IconButton(
+                        onPressed: _sendMessage,
+                        icon: const Icon(Icons.send_rounded, color: AppColors.primary),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+}

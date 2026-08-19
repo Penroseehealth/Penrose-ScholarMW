@@ -6,7 +6,10 @@ from sqlalchemy.engine import Connection
 from alembic import context
 from app.config.settings import get_settings
 from app.database.engine import Base
-from app.models import models  # noqa: F401 — ensure all models are registered
+from app.models import (
+    models,  # noqa: F401 — ensure all models are registered
+    stem,  # noqa: F401 — register STEM models
+)
 
 config = context.config
 settings = get_settings()
