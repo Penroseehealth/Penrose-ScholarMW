@@ -1,5 +1,6 @@
 import 'dart:convert';
-import 'dart:html' as html;
+import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -49,7 +50,7 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
     if (fileId == null) return;
     final url = '/api/v1/vault/$fileId/download';
     final uri = Uri.base.resolve(url);
-    html.window.open(uri.toString(), '_blank');
+    globalContext.callMethodVarArgs('open'.toJS, [uri.toString().toJS, '_blank'.toJS]);
   }
 
   String _formatFileSize(int bytes) {
@@ -207,7 +208,7 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${doc['file_name'] ?? doc['title'] ?? 'Unknown'} ${doc['file_size'] != null ? '· ${_formatFileSize(doc['file_size'])}' : ''} ${doc['is_indexed'] == true ? '· Indexed' : ''}',
+                  '${doc['file_name'] ?? doc['title'] ?? 'Unknown'} ${doc['file_size'] != null ? 'ï¿½ ${_formatFileSize(doc['file_size'])}' : ''} ${doc['is_indexed'] == true ? 'ï¿½ Indexed' : ''}',
                   style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
               ],

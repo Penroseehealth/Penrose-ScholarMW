@@ -1,20 +1,20 @@
 import 'dart:async';
-import 'dart:js' as js;
-import 'dart:js_util' as js_util;
+import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 
 import 'web_speech_service.dart';
 
 WebSpeechService createWebSpeechService() => WebSpeechServiceImpl();
 
 class WebSpeechServiceImpl implements WebSpeechService {
-  dynamic _recognition;
+  JSObject? _recognition;
   Completer<void>? _speechCompleter;
 
   @override
   bool get isSupported {
     try {
-      return js.context.hasProperty('SpeechRecognition') ||
-          js.context.hasProperty('webkitSpeechRecognition');
+      return globalContext.hasProperty('SpeechRecognition'.toJS).toDart ||
+          globalContext.hasProperty('webkitSpeechRecognition'.toJS).toDart;
     } catch (_) {
       return false;
     }
@@ -23,10 +23,10 @@ class WebSpeechServiceImpl implements WebSpeechService {
   @override
   bool get isListening => _recognition != null;
 
-  dynamic _getCtor() {
+  JSFunction? _getCtor() {
     try {
-      return js.context['SpeechRecognition'] ??
-          js.context['webkitSpeechRecognition'];
+      final ctor = globalContext.getProperty<JSFunction?>('SpeechRecognition'.toJS);
+      return ctor ?? globalContext.getProperty<JSFunction?>('webkitSpeechRecognition'.toJS);
     } catch (_) {
       return null;
     }
@@ -47,33 +47,35 @@ class WebSpeechServiceImpl implements WebSpeechService {
       return;
     }
 
-    final rec = js_util.callConstructor(ctor, []);
-    js_util.setProperty(rec, 'lang', lang);
-    js_util.setProperty(rec, 'interimResults', true);
-    js_util.setProperty(rec, 'continuous', false);
+    final rec = ctor.callAsConstructor();
+    rec.setProperty('lang'.toJS, lang.toJS);
+    rec.setProperty('interimResults'.toJS, true.toJS);
+    rec.setProperty('continuous'.toJS, false.toJS);
 
-    js_util.setProperty(rec, 'onresult', js_util.allowInterop((dynamic event) {
-      final results = js_util.getProperty(event, 'results');
-      final len = js_util.getProperty(results, 'length') as int;
-      final startIdx = js_util.getProperty(event, 'resultIndex') as int;
+    rec.setProperty('onresult'.toJS, ((JSAny? event) {
+      final e = event! as JSObject;
+      final results = e.getProperty<JSObject>('results'.toJS);
+      final len = results.getProperty<JSNumber>('length'.toJS).toDartInt;
+      final startIdx = e.getProperty<JSNumber>('resultIndex'.toJS).toDartInt;
 
       for (var i = startIdx; i < len; i++) {
-        final r = js_util.getProperty(results, i);
-        final isFinal = js_util.getProperty(r, 'isFinal') as bool;
-        final alt = js_util.getProperty(r, 0);
-        final transcript = js_util.getProperty(alt, 'transcript') as String;
+        final r = results.getProperty<JSObject>(i.toString().toJS);
+        final isFinal = r.getProperty<JSBoolean>('isFinal'.toJS).toDart;
+        final alt = r.getProperty<JSObject>('0'.toJS);
+        final transcript = alt.getProperty<JSString>('transcript'.toJS).toDart;
         onResult(transcript, isFinal);
       }
-    }));
+    }).toJS);
 
-    js_util.setProperty(rec, 'onend', js_util.allowInterop((_) {
+    rec.setProperty('onend'.toJS, ((JSAny? _) {
       _recognition = null;
       onEnd();
-    }));
+    }).toJS);
 
-    js_util.setProperty(rec, 'onerror', js_util.allowInterop((dynamic event) {
+    rec.setProperty('onerror'.toJS, ((JSAny? event) {
+      final e = event as JSObject?;
       final errorType =
-          js_util.getProperty(event, 'error') as String? ?? 'unknown';
+          e?.getProperty<JSString>('error'.toJS)?.toDart ?? 'unknown';
       _recognition = null;
 
       String message;
@@ -97,10 +99,10 @@ class WebSpeechServiceImpl implements WebSpeechService {
 
       if (message.isNotEmpty) onError(message);
       onEnd();
-    }));
+    }).toJS);
 
     try {
-      js_util.callMethod(rec, 'start', []);
+      rec.callMethod('start'.toJS);
       _recognition = rec;
     } catch (e) {
       _recognition = null;
@@ -113,7 +115,7 @@ class WebSpeechServiceImpl implements WebSpeechService {
   void stopListening() {
     if (_recognition != null) {
       try {
-        js_util.callMethod(_recognition, 'stop', []);
+        _recognition!.callMethod('stop'.toJS);
       } catch (_) {}
       _recognition = null;
     }
@@ -123,28 +125,28 @@ class WebSpeechServiceImpl implements WebSpeechService {
   Future<void> speak(String text, {String lang = 'en-US'}) async {
     cancelSpeech();
     try {
-      final synth = js.context['speechSynthesis'];
+      final synth = globalContext.getProperty<JSObject?>('speechSynthesis'.toJS);
       if (synth == null) return;
 
-      final ctor = js.context['SpeechSynthesisUtterance'];
+      final ctor = globalContext.getProperty<JSFunction?>('SpeechSynthesisUtterance'.toJS);
       if (ctor == null) return;
 
-      final utt = js_util.callConstructor(ctor, []);
-      js_util.setProperty(utt, 'text', text);
-      js_util.setProperty(utt, 'lang', lang);
+      final utt = ctor.callAsConstructor();
+      utt.setProperty('text'.toJS, text.toJS);
+      utt.setProperty('lang'.toJS, lang.toJS);
 
       _speechCompleter = Completer<void>();
       final completer = _speechCompleter!;
 
-      js_util.setProperty(utt, 'onend', js_util.allowInterop((_) {
+      utt.setProperty('onend'.toJS, ((JSAny? _) {
         if (!completer.isCompleted) completer.complete();
-      }));
+      }).toJS);
 
-      js_util.setProperty(utt, 'onerror', js_util.allowInterop((_) {
+      utt.setProperty('onerror'.toJS, ((JSAny? _) {
         if (!completer.isCompleted) completer.complete();
-      }));
+      }).toJS);
 
-      js_util.callMethod(synth, 'speak', [utt]);
+      synth.callMethodVarArgs('speak'.toJS, [utt]);
       return await completer.future;
     } catch (_) {
       return Future.value();
@@ -154,9 +156,9 @@ class WebSpeechServiceImpl implements WebSpeechService {
   @override
   void cancelSpeech() {
     try {
-      final synth = js.context['speechSynthesis'];
+      final synth = globalContext.getProperty<JSObject?>('speechSynthesis'.toJS);
       if (synth != null) {
-        js_util.callMethod(synth, 'cancel', []);
+        synth.callMethod('cancel'.toJS);
       }
     } catch (_) {}
     if (_speechCompleter != null && !_speechCompleter!.isCompleted) {

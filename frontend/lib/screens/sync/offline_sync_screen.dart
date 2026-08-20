@@ -22,7 +22,6 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
   int _conflictCount = 0;
 
   List<dynamic> _syncHistory = [];
-  Map<String, dynamic>? _selectedConflict;
 
   @override
   void initState() {
@@ -138,9 +137,6 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
             backgroundColor: AppColors.success,
           ),
         );
-        setState(() {
-          _selectedConflict = null;
-        });
         await _loadData();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
