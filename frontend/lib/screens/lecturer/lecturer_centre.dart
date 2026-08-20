@@ -38,16 +38,36 @@ class _LecturerCentreState extends State<LecturerCentre> {
     final hour = DateTime.now().hour;
     final greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              expandedHeight: 100,
-              pinned: true,
-              flexibleSpace: FlexibleSpaceBar(
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      child: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 100,
+            pinned: true,
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: GestureDetector(
+                  onTap: () => Scaffold.of(context).openEndDrawer(),
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    margin: const EdgeInsets.only(top: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.menu_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            flexibleSpace: FlexibleSpaceBar(
                 background: Container(
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
@@ -112,8 +132,7 @@ class _LecturerCentreState extends State<LecturerCentre> {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildStatsRow() {
