@@ -105,6 +105,7 @@ class QuestionResult(BaseModel):
     is_correct: bool
     explanation: str | None
     marks: int
+    grading_method: str
 
 
 class MockExamSubmitResponse(BaseModel):
@@ -272,6 +273,13 @@ async def submit_mock_exam(
         marks = practice.marks if practice else 1
         max_score += marks
 
+        auto_graded_types = {"mcq", "true_false", "fill_in_blank", "short_answer"}
+        grading_method = (
+            "auto"
+            if practice and practice.question_type in auto_graded_types
+            else "auto"
+        )
+
         if is_correct:
             correct_count += marks
 
@@ -283,6 +291,7 @@ async def submit_mock_exam(
                 is_correct=is_correct,
                 explanation=practice.explanation if practice else None,
                 marks=marks,
+                grading_method=grading_method,
             )
         )
 

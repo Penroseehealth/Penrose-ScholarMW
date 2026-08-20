@@ -44,8 +44,14 @@ import '../screens/stem/stem_groups_screen.dart';
 import '../screens/stem/subject_dashboard_screen.dart';
 import '../screens/stem/learning_path_screen.dart';
 import '../screens/stem/mock_exam_screen.dart';
+import '../screens/stem/certificates_screen.dart';
 import '../screens/stem/exam_analytics_screen.dart';
 import '../screens/stem/study_planner_screen.dart';
+import '../screens/student/messaging_screen.dart';
+import '../screens/student/chat_detail_screen.dart';
+import '../screens/student/notification_settings_screen.dart';
+import '../screens/stem/forum_screen.dart';
+import '../screens/stem/announcements_screen.dart';
 
 class AppRouter {
   final AuthProvider authProvider;
@@ -241,8 +247,25 @@ class AppRouter {
           _route('/stem-gamification', (_) => const StemGamificationScreen()),
           _route('/stem-groups', (_) => const StemGroupsScreen()),
           _route('/mock-exam', (_) => const MockExamScreen()),
+          _route('/certificates', (_) => const CertificatesScreen()),
           _route('/exam-analytics', (_) => const ExamAnalyticsScreen()),
           _route('/study-planner', (_) => const StudyPlannerScreen()),
+          _route('/messages', (_) => const MessagingScreen()),
+          _route('/notification-settings', (_) => const NotificationSettingsScreen()),
+          _route('/forum', (_) => const ForumScreen()),
+          _route('/announcements', (_) => const AnnouncementsScreen()),
+          GoRoute(
+            path: '/messages/chat/:id',
+            pageBuilder: (_, state) {
+              final id = int.tryParse(state.pathParameters['id'] ?? '0') ?? 0;
+              final name = state.uri.queryParameters['name'] ?? (state.extra as String? ?? 'Chat');
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: ChatDetailScreen(conversationId: id, otherUserName: name),
+                transitionsBuilder: _slideTransition,
+              );
+            },
+          ),
           _route('/classes', (_) => const StudentDashboard()),
           _route('/assignments', (_) => const StudentDashboard()),
           _route('/assessments', (_) => const StudentDashboard()),

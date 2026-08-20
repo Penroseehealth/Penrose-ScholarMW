@@ -567,4 +567,199 @@ class StemService {
     if (response.statusCode == 200) return jsonDecode(response.body);
     return {};
   }
+
+  // ── Messaging ──
+
+  Future<List<dynamic>> getConversations() async {
+    final response = await _api.get('/messaging/conversations');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  Future<Map<String, dynamic>> createConversation(int userId, {String? initialMessage}) async {
+    final body = <String, dynamic>{'user_id': userId};
+    if (initialMessage != null && initialMessage.isNotEmpty) {
+      body['initial_message'] = initialMessage;
+    }
+    final response = await _api.post('/messaging/conversations', body: body);
+    if (response.statusCode == 200 || response.statusCode == 201) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<List<dynamic>> getMessages(int conversationId) async {
+    final response = await _api.get('/messaging/conversations/$conversationId/messages');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  Future<Map<String, dynamic>> sendMessage(int conversationId, String message) async {
+    final response = await _api.post('/messaging/conversations/$conversationId/messages', body: {'message': message});
+    if (response.statusCode == 200 || response.statusCode == 201) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<void> markConversationRead(int conversationId) async {
+    await _api.post('/messaging/conversations/$conversationId/read');
+  }
+
+  Future<List<dynamic>> searchUsers(String query) async {
+    final response = await _api.get('/messaging/users/search?q=$query');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  // ── Smart Notifications ──
+
+  Future<List<dynamic>> getSmartNotifications() async {
+    final response = await _api.get('/smart-notifications');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  Future<int> getUnreadNotificationCount() async {
+    final response = await _api.get('/smart-notifications/unread-count');
+    if (response.statusCode == 200) return jsonDecode(response.body)['count'] ?? 0;
+    return 0;
+  }
+
+  Future<void> markNotificationRead(int id) async {
+    await _api.post('/smart-notifications/$id/read');
+  }
+
+  Future<void> markAllNotificationsRead() async {
+    await _api.post('/smart-notifications/read-all');
+  }
+
+  Future<Map<String, dynamic>> getNotificationPreferences() async {
+    final response = await _api.get('/smart-notifications/preferences');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<void> updateNotificationPreferences(Map<String, dynamic> prefs) async {
+    await _api.put('/smart-notifications/preferences', body: prefs);
+  }
+
+  // ── Forum ──
+
+  Future<List<dynamic>> getForumPosts({String? subjectSlug, String? search, String? sort}) async {
+    final params = <String>[];
+    if (subjectSlug != null && subjectSlug.isNotEmpty) params.add('subject_slug=$subjectSlug');
+    if (search != null && search.isNotEmpty) params.add('search=$search');
+    if (sort != null && sort.isNotEmpty) params.add('sort=$sort');
+    final qs = params.isNotEmpty ? '?${params.join('&')}' : '';
+    final response = await _api.get('/stem/forum/posts$qs');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  Future<Map<String, dynamic>> getForumPost(int postId) async {
+    final response = await _api.get('/stem/forum/posts/$postId');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<Map<String, dynamic>> createForumPost(String title, String body, {int? conceptId, String? subjectSlug}) async {
+    final payload = <String, dynamic>{'title': title, 'body': body};
+    if (conceptId != null) payload['concept_id'] = conceptId;
+    if (subjectSlug != null) payload['subject_slug'] = subjectSlug;
+    final response = await _api.post('/stem/forum/posts', body: payload);
+    if (response.statusCode == 200 || response.statusCode == 201) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<Map<String, dynamic>> createForumAnswer(int postId, String body) async {
+    final response = await _api.post('/stem/forum/posts/$postId/answers', body: {'body': body});
+    if (response.statusCode == 200 || response.statusCode == 201) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<void> voteForumPost(int postId, int value) async {
+    await _api.post('/stem/forum/posts/$postId/vote', body: {'value': value});
+  }
+
+  Future<void> voteForumAnswer(int answerId, int value) async {
+    await _api.post('/stem/forum/answers/$answerId/vote', body: {'value': value});
+  }
+
+  Future<void> acceptForumAnswer(int answerId) async {
+    await _api.post('/stem/forum/answers/$answerId/accept');
+  }
+
+  Future<void> resolveForumPost(int postId) async {
+    await _api.post('/stem/forum/posts/$postId/resolve');
+  }
+
+  Future<Map<String, dynamic>> getForumStats() async {
+    final response = await _api.get('/stem/forum/stats');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
+
+  // ── Announcements ──
+
+  Future<List<dynamic>> getAnnouncements({String? subjectSlug}) async {
+    final qs = subjectSlug != null && subjectSlug.isNotEmpty ? '?subject_slug=$subjectSlug' : '';
+    final response = await _api.get('/stem/announcements$qs');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  // ── Reports ──
+
+  Future<void> reportContent(String contentType, int contentId, String reason, {String? description}) async {
+    final payload = <String, dynamic>{
+      'content_type': contentType,
+      'content_id': contentId,
+      'reason': reason,
+    };
+    if (description != null) payload['description'] = description;
+    await _api.post('/stem/reports', body: payload);
+  }
+
+  // ── Proctoring ──
+
+  Future<void> logProctorEvent(String examType, int examId, String eventType, {Map<String, dynamic>? eventData}) async {
+    final payload = <String, dynamic>{
+      'exam_type': examType,
+      'exam_id': examId,
+      'event_type': eventType,
+    };
+    if (eventData != null) payload['event_data'] = eventData;
+    await _api.post('/stem/proctor/event', body: payload);
+  }
+
+  Future<Map<String, dynamic>> getProctorSummary(String examType, int examId) async {
+    final response = await _api.get('/stem/proctor/summary/$examType/$examId');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
+
+  // ── Certificates ──
+
+  Future<Map<String, dynamic>> generateCertificate(String type, {String? subjectSlug}) async {
+    final payload = <String, dynamic>{'certificate_type': type};
+    if (subjectSlug != null) payload['subject_slug'] = subjectSlug;
+    final response = await _api.post('/stem/certificates/generate', body: payload);
+    if (response.statusCode == 200 || response.statusCode == 201) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<List<dynamic>> getCertificates() async {
+    final response = await _api.get('/stem/certificates');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  Future<Map<String, dynamic>> getCertificateDetail(int id) async {
+    final response = await _api.get('/stem/certificates/$id');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<Map<String, dynamic>> getCertificateShareData(int id) async {
+    final response = await _api.get('/stem/certificates/$id/share');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
 }

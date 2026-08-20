@@ -30,10 +30,14 @@ from app.smart_notifications.router import router as smart_notifications_router
 from app.stem.adaptive_learning_router import router as adaptive_router
 from app.stem.ai_stem_tutor_router import router as stem_tutor_router
 from app.stem.analytics_router import router as stem_analytics_router
+from app.stem.announcement_router import router as announcement_router
 from app.stem.assessment_engine_router import router as assessment_engine_router
 from app.stem.careers_router import router as careers_router
+from app.stem.certificate_router import router as certificate_router
+from app.stem.content_moderation_router import router as content_moderation_router
 from app.stem.exam_analytics_router import router as exam_analytics_router
 from app.stem.formulas_router import router as formulas_router
+from app.stem.forum_router import router as forum_router
 from app.stem.gamification_router import router as stem_gamification_router
 from app.stem.group_session_router import router as group_session_router
 from app.stem.groups_router import router as stem_groups_router
@@ -42,6 +46,7 @@ from app.stem.labs_router import router as labs_router
 from app.stem.malawi_stem_router import router as malawi_stem_router
 from app.stem.mastery_router import router as mastery_router
 from app.stem.mock_exam_router import router as mock_exam_router
+from app.stem.proctor_router import router as proctor_router
 from app.stem.revision_router import router as revision_router
 from app.stem.router import router as stem_router
 from app.stem.study_planner_router import router as study_planner_router
@@ -193,9 +198,14 @@ app.include_router(stem_groups_router, prefix="/api/v1")
 app.include_router(group_session_router, prefix="/api/v1")
 app.include_router(adaptive_router, prefix="/api/v1")
 app.include_router(mock_exam_router, prefix="/api/v1")
+app.include_router(proctor_router, prefix="/api/v1")
+app.include_router(certificate_router, prefix="/api/v1")
 app.include_router(exam_analytics_router, prefix="/api/v1")
 app.include_router(subject_dashboard_router, prefix="/api/v1")
 app.include_router(study_planner_router, prefix="/api/v1")
+app.include_router(forum_router, prefix="/api/v1")
+app.include_router(announcement_router, prefix="/api/v1")
+app.include_router(content_moderation_router, prefix="/api/v1")
 
 
 @app.get("/health")

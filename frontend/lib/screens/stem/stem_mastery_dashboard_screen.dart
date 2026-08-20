@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/stem_service.dart';
 import '../../widgets/shimmer_loading.dart';
-import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
 
 class StemMasteryDashboardScreen extends StatefulWidget {

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
@@ -228,6 +229,8 @@ class _GamificationScreenState extends State<GamificationScreen>
         _buildSectionHeader('Activity Summary'),
         const SizedBox(height: 8),
         _buildActivitySummary(),
+        const SizedBox(height: 20),
+        _buildCertificatesButton(),
       ],
     );
   }
@@ -594,6 +597,48 @@ class _GamificationScreenState extends State<GamificationScreen>
   }
 
   // ── Shared Widgets ──────────────────────────────────────
+
+  Widget _buildCertificatesButton() {
+    return GestureDetector(
+      onTap: () => context.push('/certificates'),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1A1040), AppColors.primaryDark],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+        ),
+        child: const Row(
+          children: [
+            Icon(Icons.workspace_premium_outlined, color: AppColors.primaryLight, size: 24),
+            SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'My Certificates',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'View and share your earned certificates',
+                    style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _buildSectionHeader(String title) {
     return Text(

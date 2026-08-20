@@ -69,33 +69,6 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
     _loadData();
   }
 
-  void _showRevealDialog(int cardId, String back) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceElevated,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.border),
-        ),
-        title: const Text(
-          'Answer',
-          style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w700),
-        ),
-        content: Text(
-          back,
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Close', style: TextStyle(color: AppColors.textMuted)),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<void> _showCreateFlashcardDialog() async {
     final conceptIdController = TextEditingController();
     final frontController = TextEditingController();

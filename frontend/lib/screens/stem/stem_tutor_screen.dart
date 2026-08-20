@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/stem_service.dart';
 import '../../widgets/shimmer_loading.dart';
-import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
 
 class StemTutorScreen extends StatefulWidget {
@@ -20,7 +18,6 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
   final StemService _stemService = StemService();
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  List<dynamic> _subjects = [];
   List<dynamic> _concepts = [];
   List<_ChatMessage> _messages = [];
   bool _loading = false;
@@ -86,7 +83,6 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
               final concepts = await _stemService.getConcepts(subtopics[0]['id'] ?? 0);
               if (mounted) {
                 setState(() {
-                  _subjects = subjects;
                   _concepts = concepts;
                   _loading = false;
                   if (_selectedConceptId == 0 && concepts.isNotEmpty) {
@@ -101,7 +97,6 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
       }
       if (mounted) {
         setState(() {
-          _subjects = subjects;
           _loading = false;
         });
       }

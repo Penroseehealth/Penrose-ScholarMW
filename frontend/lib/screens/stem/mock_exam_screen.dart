@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../services/stem_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../widgets/shimmer_loading.dart';
+import 'proctor_overlay.dart';
 
 class MockExamScreen extends StatefulWidget {
   const MockExamScreen({super.key});
@@ -14,6 +15,7 @@ class MockExamScreen extends StatefulWidget {
 
 class _MockExamScreenState extends State<MockExamScreen> {
   final StemService _stemService = StemService();
+  final GlobalKey<ProctorOverlayState> _proctorKey = GlobalKey();
 
   List<dynamic> _subjects = [];
   bool _loadingSubjects = true;
@@ -34,9 +36,31 @@ class _MockExamScreenState extends State<MockExamScreen> {
   List<dynamic> _history = [];
   bool _loadingHistory = true;
 
+  late final AppLifecycleListener _lifecycleListener;
+
   @override
   void initState() {
     super.initState();
+    _lifecycleListener = AppLifecycleListener(
+      onDetach: () {
+        if (_examActive) {
+          final sessionId = _examData?['exam_session_id'] ?? 0;
+          _stemService.logProctorEvent('mock', sessionId, 'app_exit');
+        }
+      },
+      onHide: () {
+        if (_examActive) {
+          final sessionId = _examData?['exam_session_id'] ?? 0;
+          _stemService.logProctorEvent('mock', sessionId, 'app_background');
+        }
+      },
+      onResume: () {
+        if (_examActive) {
+          final sessionId = _examData?['exam_session_id'] ?? 0;
+          _stemService.logProctorEvent('mock', sessionId, 'app_resumed');
+        }
+      },
+    );
     _loadSubjects();
     _loadHistory();
   }
@@ -44,6 +68,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    _lifecycleListener.dispose();
     super.dispose();
   }
 
@@ -139,7 +164,16 @@ class _MockExamScreenState extends State<MockExamScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_examActive) return _buildExamView();
+    if (_examActive) {
+      final sessionId = _examData?['exam_session_id'] ?? 0;
+      return ProctorOverlay(
+        key: _proctorKey,
+        examType: 'mock',
+        examId: sessionId is int ? sessionId : 0,
+        active: true,
+        child: _buildExamView(),
+      );
+    }
     if (_examFinished && _results != null) return _buildResultsView();
     return _buildSetupView();
   }
@@ -701,6 +735,10 @@ class _MockExamScreenState extends State<MockExamScreen> {
           TextButton(
             onPressed: () {
               _timer?.cancel();
+              if (_examData != null) {
+                final sessionId = _examData!['exam_session_id'];
+                _stemService.logProctorEvent('mock', sessionId, 'exam_exit');
+              }
               Navigator.pop(ctx);
               setState(() { _examActive = false; _examFinished = false; });
             },

@@ -216,7 +216,7 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
   Widget _buildGroupCard(dynamic group, {bool isMyGroup = false}) {
     final memberCount = group['member_count'] ?? 0;
     final maxMembers = group['max_members'];
-    final memberText = maxMembers != null ? ' / ' : ' members';
+    final memberText = maxMembers != null ? '$memberCount / $maxMembers members' : '$memberCount members';
 
     return GestureDetector(
       onTap: () => _openGroupDetail(group),

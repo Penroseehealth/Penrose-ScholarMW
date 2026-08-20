@@ -730,3 +730,133 @@ class MockExamResult(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
+
+
+# ── Phase 10: Auto-grading, Exam Proctoring, Certificate Export ──
+
+
+class ExamProctorEvent(Base):
+    __tablename__ = "exam_proctor_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    exam_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    exam_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    event_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    event_data: Mapped[str | None] = mapped_column(Text, nullable=True)
+    ip_address: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    user_agent: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+
+
+class STEMUserCertificate(Base):
+    __tablename__ = "stem_user_certificates"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    certificate_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    subject_slug: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    score: Mapped[float | None] = mapped_column(Float, nullable=True)
+    issued_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+    certificate_data: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+# ── Phase 9: Q&A Discussion Forum + Announcements ──
+
+
+class STEMForumPost(Base):
+    __tablename__ = "stem_forum_posts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    concept_id: Mapped[int | None] = mapped_column(
+        ForeignKey("stem_concepts.id"), nullable=True
+    )
+    subject_slug: Mapped[str | None] = mapped_column(
+        String(100), nullable=True, index=True
+    )
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    is_question: Mapped[bool] = mapped_column(Boolean, default=True)
+    is_resolved: Mapped[bool] = mapped_column(Boolean, default=False)
+    upvotes: Mapped[int] = mapped_column(Integer, default=0)
+    view_count: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
+
+class STEMForumAnswer(Base):
+    __tablename__ = "stem_forum_answers"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    post_id: Mapped[int] = mapped_column(
+        ForeignKey("stem_forum_posts.id"), nullable=False
+    )
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    is_accepted: Mapped[bool] = mapped_column(Boolean, default=False)
+    upvotes: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+
+
+class STEMForumVote(Base):
+    __tablename__ = "stem_forum_votes"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    post_id: Mapped[int | None] = mapped_column(
+        ForeignKey("stem_forum_posts.id"), nullable=True
+    )
+    answer_id: Mapped[int | None] = mapped_column(
+        ForeignKey("stem_forum_answers.id"), nullable=True
+    )
+    value: Mapped[int] = mapped_column(Integer, default=1)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+
+
+class STEMAnnouncement(Base):
+    __tablename__ = "stem_announcements"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    author_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    subject_slug: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    priority: Mapped[str] = mapped_column(String(20), default="normal")
+    is_pinned: Mapped[bool] = mapped_column(Boolean, default=False)
+    target_audience: Mapped[str] = mapped_column(String(20), default="all")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+
+
+class STEMContentReport(Base):
+    __tablename__ = "stem_content_reports"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    reporter_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    content_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    content_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    reason: Mapped[str] = mapped_column(String(100), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="pending")
+    reviewed_by: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id"), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )

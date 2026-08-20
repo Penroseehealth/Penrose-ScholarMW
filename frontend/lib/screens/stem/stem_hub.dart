@@ -6,7 +6,6 @@ import '../../widgets/shimmer_loading.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
 import '../../modules/subject_module.dart';
-import '../../modules/modules.dart' hide SubjectModule;
 
 class StemHub extends StatefulWidget {
   const StemHub({super.key});
