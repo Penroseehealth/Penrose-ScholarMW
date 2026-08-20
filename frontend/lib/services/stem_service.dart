@@ -161,12 +161,16 @@ class StemService {
 
   // ── STEM Tutor ──
 
-  Future<Map<String, dynamic>> chatWithStemTutor(int conceptId, String message, String mode) async {
-    final response = await _api.post('/stem/tutor/chat', body: {
+  Future<Map<String, dynamic>> chatWithStemTutor(int conceptId, String message, String mode, {List<Map<String, String>>? history}) async {
+    final body = <String, dynamic>{
       'concept_id': conceptId,
       'message': message,
       'mode': mode,
-    });
+    };
+    if (history != null && history.isNotEmpty) {
+      body['history'] = history;
+    }
+    final response = await _api.post('/stem/tutor/chat', body: body);
     if (response.statusCode == 200) return jsonDecode(response.body);
     return {'response': 'Failed to get response. Please try again.'};
   }
@@ -415,6 +419,14 @@ class StemService {
     return {};
   }
 
+  // ── Subject Dashboard ──
+
+  Future<Map<String, dynamic>> getSubjectDashboard(String slug) async {
+    final response = await _api.get('/stem/subjects/$slug/dashboard');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
+
   Future<List<Map<String, dynamic>>> getSubjectModules() async {
     final response = await _api.get('/stem/subjects/modules');
     if (response.statusCode == 200) {
@@ -422,5 +434,137 @@ class StemService {
       return List<Map<String, dynamic>>.from(data);
     }
     return [];
+  }
+
+  // ── Adaptive Learning ──
+
+  Future<List<dynamic>> getDueReviews() async {
+    final response = await _api.get('/stem/adaptive/due-reviews');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  Future<Map<String, dynamic>> getLearningPath(String slug) async {
+    final response = await _api.get('/stem/adaptive/learning-path/$slug');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<List<dynamic>> getStudySchedule() async {
+    final response = await _api.get('/stem/adaptive/study-schedule');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  // ── Mock Exam ──
+
+  Future<Map<String, dynamic>> startMockExam(String slug, {int numQuestions = 10}) async {
+    final response = await _api.post('/stem/mock-exam/start', body: {
+      'subject_slug': slug,
+      'num_questions': numQuestions,
+    });
+    if (response.statusCode == 200 || response.statusCode == 201) return jsonDecode(response.body);
+    throw Exception('Failed to start mock exam');
+  }
+
+  Future<Map<String, dynamic>> submitMockExam(int sessionId, List<Map<String, dynamic>> answers) async {
+    final response = await _api.post('/stem/mock-exam/$sessionId/submit', body: {
+      'answers': answers,
+    });
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    throw Exception('Failed to submit mock exam');
+  }
+
+  Future<List<dynamic>> getMockExamHistory() async {
+    final response = await _api.get('/stem/mock-exam/history');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  // ── Group Sessions ──
+
+  Future<Map<String, dynamic>> startGroupSession(int groupId, String title, {List<int>? conceptIds}) async {
+    final body = <String, dynamic>{
+      'group_id': groupId,
+      'title': title,
+    };
+    if (conceptIds != null && conceptIds.isNotEmpty) {
+      body['concept_ids'] = conceptIds;
+    }
+    final response = await _api.post('/stem/group-sessions/start', body: body);
+    if (response.statusCode == 200 || response.statusCode == 201) return jsonDecode(response.body);
+    throw Exception('Failed to start group session');
+  }
+
+  Future<Map<String, dynamic>> endGroupSession(int sessionId, {List<int>? conceptsStudied}) async {
+    final body = <String, dynamic>{};
+    if (conceptsStudied != null && conceptsStudied.isNotEmpty) {
+      body['concepts_studied'] = conceptsStudied;
+    }
+    final response = await _api.post('/stem/group-sessions/$sessionId/end', body: body);
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    throw Exception('Failed to end group session');
+  }
+
+  Future<Map<String, dynamic>> getGroupSession(int sessionId) async {
+    final response = await _api.get('/stem/group-sessions/$sessionId');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<List<dynamic>> getGroupSessions(int groupId) async {
+    final response = await _api.get('/stem/group-sessions/group/$groupId');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  Future<Map<String, dynamic>> getGroupSessionStats(int groupId) async {
+    final response = await _api.get('/stem/group-stats/$groupId');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
+
+  // ── Exam Analytics ──
+
+  Future<Map<String, dynamic>> getExamSummary() async {
+    final response = await _api.get('/stem/analytics/exam-summary');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<List<dynamic>> getExamTrends(String slug) async {
+    final response = await _api.get('/stem/analytics/exam-trends/$slug');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  Future<Map<String, dynamic>> getExamBreakdown(int resultId) async {
+    final response = await _api.get('/stem/analytics/exam-breakdown/$resultId');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
+
+  // ── Study Planner ──
+
+  Future<Map<String, dynamic>> generateStudyPlan(String slug, {int dailyMinutes = 60, int daysAhead = 14}) async {
+    final response = await _api.post('/stem/study-planner/generate', body: {
+      'subject_slug': slug,
+      'daily_minutes': dailyMinutes,
+      'days_ahead': daysAhead,
+    });
+    if (response.statusCode == 200 || response.statusCode == 201) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<List<dynamic>> getDailyStudyPlan() async {
+    final response = await _api.get('/stem/study-planner/today');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  Future<Map<String, dynamic>> getStudyPlanOverview() async {
+    final response = await _api.get('/stem/study-planner/overview');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
   }
 }

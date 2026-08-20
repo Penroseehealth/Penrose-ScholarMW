@@ -10,6 +10,7 @@ from app.database.engine import get_db
 from app.dependencies.auth import get_current_user
 from app.models.models import User
 from app.models.stem import (
+    MasteryRecord,
     STEMConcept,
     STEMDiscipline,
     STEMTopic,
@@ -22,10 +23,16 @@ router = APIRouter(prefix="/stem", tags=["STEM Intelligence"])
 settings = get_settings()
 
 
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+
 class TutorChatRequest(BaseModel):
     concept_id: int
     message: str
     mode: str
+    history: list[ChatMessage] | None = None
 
 
 class TutorChatResponse(BaseModel):
@@ -199,20 +206,59 @@ def _build_system_prompt(context: dict, mode: str, user_message: str) -> str:
         "\n\nRespond in a helpful, encouraging tone. Use markdown formatting where appropriate."
     )
 
+    mastery = context.get("mastery")
+    if mastery:
+        pct = round(mastery.mastery_level * 100, 1)
+        parts.append(
+            f"\nStudent mastery of this concept: {pct}% "
+            f"({mastery.attempts} attempts, {mastery.correct} correct)."
+        )
+        if mastery.mastery_level < 0.3:
+            parts.append(
+                "The student is struggling. Be extra patient, break things down, "
+                "use very simple language, and provide lots of encouragement."
+            )
+        elif mastery.mastery_level < 0.6:
+            parts.append(
+                "The student has some understanding but needs reinforcement. "
+                "Focus on common misconceptions and provide practice opportunities."
+            )
+        elif mastery.mastery_level < 0.8:
+            parts.append(
+                "The student is progressing well. Challenge them with slightly harder "
+                "problems and deeper explanations."
+            )
+        else:
+            parts.append(
+                "The student has strong mastery. Push them toward advanced applications, "
+                "connections to other topics, and challenge problems."
+            )
+    else:
+        parts.append(
+            "\nStudent has not practiced this concept yet. "
+            "Start from fundamentals and be very thorough in explanations."
+        )
+
     return "\n".join(parts)
 
 
-async def _call_llm(system_prompt: str, message: str) -> str:
+async def _call_llm(
+    system_prompt: str, message: str, history: list[dict] | None = None
+) -> str:
     try:
         from openai import AsyncOpenAI
 
         client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+        messages = [{"role": "system", "content": system_prompt}]
+        if history:
+            for h in history:
+                role = h.get("role", "user")
+                if role in ("user", "assistant"):
+                    messages.append({"role": role, "content": h.get("content", "")})
+        messages.append({"role": "user", "content": message})
         response = await client.chat.completions.create(
             model=settings.OPENAI_MODEL,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": message},
-            ],
+            messages=messages,
             temperature=0.7,
             max_tokens=2000,
         )
@@ -234,8 +280,19 @@ async def tutor_chat(
         )
 
     context = await _get_concept_context(body.concept_id, db)
+
+    mastery_result = await db.execute(
+        select(MasteryRecord).where(
+            MasteryRecord.user_id == user.id,
+            MasteryRecord.concept_id == body.concept_id,
+        )
+    )
+    mastery_record = mastery_result.scalar_one_or_none()
+    context["mastery"] = mastery_record
+
     system_prompt = _build_system_prompt(context, body.mode, body.message)
-    ai_response = await _call_llm(system_prompt, body.message)
+    history_dicts = [m.model_dump() for m in body.history] if body.history else None
+    ai_response = await _call_llm(system_prompt, body.message, history_dicts)
 
     return TutorChatResponse(
         response=ai_response,

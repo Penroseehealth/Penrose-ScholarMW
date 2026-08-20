@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -18,7 +20,7 @@ class ConversationCreate(BaseModel):
 class ConversationResponse(BaseModel):
     id: int
     title: str | None = None
-    created_at: str
+    created_at: datetime
 
     model_config = {"from_attributes": True}
 
@@ -32,7 +34,7 @@ class MessageResponse(BaseModel):
     conversation_id: int
     sender_id: int
     content: str
-    created_at: str
+    created_at: datetime
     is_read: bool
 
     model_config = {"from_attributes": True}

@@ -31,30 +31,30 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
 
   static const _modes = [
     'explain',
-    'teach_me',
-    'give_example',
+    'teach',
+    'example',
+    'diagram',
+    'solve',
+    'hint',
     'quiz',
-    'compare',
-    'step_by_step',
-    'visualize',
-    'simplify',
-    'deep_dive',
-    'connect',
+    'practice',
     'challenge',
+    'simplify',
+    'deepen',
   ];
 
   static const _modeLabels = {
     'explain': 'Explain',
-    'teach_me': 'Teach me',
-    'give_example': 'Example',
+    'teach': 'Teach',
+    'example': 'Example',
+    'diagram': 'Diagram',
+    'solve': 'Solve',
+    'hint': 'Hint',
     'quiz': 'Quiz',
-    'compare': 'Compare',
-    'step_by_step': 'Step by Step',
-    'visualize': 'Visualize',
-    'simplify': 'Simplify',
-    'deep_dive': 'Deep Dive',
-    'connect': 'Connect',
+    'practice': 'Practice',
     'challenge': 'Challenge',
+    'simplify': 'Simplify',
+    'deepen': 'Deepen',
   };
 
   @override
@@ -128,10 +128,15 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
     _scrollToBottom();
 
     try {
+      final history = _messages
+          .where((m) => !m.isError)
+          .map((m) => {'role': m.isUser ? 'user' : 'assistant', 'content': m.text})
+          .toList();
       final response = await _stemService.chatWithStemTutor(
         _selectedConceptId,
         text,
         _selectedMode,
+        history: history,
       );
       if (mounted) {
         setState(() {

@@ -27,19 +27,25 @@ from app.messaging.router import router as messaging_router
 from app.notifications.router import router as notifications_router
 from app.research.router import router as research_router
 from app.smart_notifications.router import router as smart_notifications_router
+from app.stem.adaptive_learning_router import router as adaptive_router
 from app.stem.ai_stem_tutor_router import router as stem_tutor_router
 from app.stem.analytics_router import router as stem_analytics_router
 from app.stem.assessment_engine_router import router as assessment_engine_router
 from app.stem.careers_router import router as careers_router
+from app.stem.exam_analytics_router import router as exam_analytics_router
 from app.stem.formulas_router import router as formulas_router
 from app.stem.gamification_router import router as stem_gamification_router
+from app.stem.group_session_router import router as group_session_router
 from app.stem.groups_router import router as stem_groups_router
 from app.stem.knowledge_graph_router import router as kg_router
 from app.stem.labs_router import router as labs_router
 from app.stem.malawi_stem_router import router as malawi_stem_router
 from app.stem.mastery_router import router as mastery_router
+from app.stem.mock_exam_router import router as mock_exam_router
 from app.stem.revision_router import router as revision_router
 from app.stem.router import router as stem_router
+from app.stem.study_planner_router import router as study_planner_router
+from app.stem.subject_dashboard_router import router as subject_dashboard_router
 from app.sync_engine.router import router as sync_engine_router
 from app.users.router import router as users_router
 from app.writing_studio.router import router as writing_studio_router
@@ -184,6 +190,12 @@ app.include_router(stem_analytics_router, prefix="/api/v1")
 app.include_router(malawi_stem_router, prefix="/api/v1")
 app.include_router(stem_gamification_router, prefix="/api/v1")
 app.include_router(stem_groups_router, prefix="/api/v1")
+app.include_router(group_session_router, prefix="/api/v1")
+app.include_router(adaptive_router, prefix="/api/v1")
+app.include_router(mock_exam_router, prefix="/api/v1")
+app.include_router(exam_analytics_router, prefix="/api/v1")
+app.include_router(subject_dashboard_router, prefix="/api/v1")
+app.include_router(study_planner_router, prefix="/api/v1")
 
 
 @app.get("/health")

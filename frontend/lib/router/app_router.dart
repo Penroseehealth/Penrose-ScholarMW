@@ -41,6 +41,11 @@ import '../screens/stem/stem_malawi_screen.dart';
 import '../screens/stem/stem_revision_screen.dart';
 import '../screens/stem/stem_gamification_screen.dart';
 import '../screens/stem/stem_groups_screen.dart';
+import '../screens/stem/subject_dashboard_screen.dart';
+import '../screens/stem/learning_path_screen.dart';
+import '../screens/stem/mock_exam_screen.dart';
+import '../screens/stem/exam_analytics_screen.dart';
+import '../screens/stem/study_planner_screen.dart';
 
 class AppRouter {
   final AuthProvider authProvider;
@@ -135,6 +140,30 @@ class AppRouter {
           _route('/offline-sync', (_) => const OfflineSyncScreen()),
           _route('/stem', (_) => const StemHub()),
           GoRoute(
+            path: '/stem-subject/:slug',
+            pageBuilder: (_, state) {
+              final slug = state.pathParameters['slug'] ?? 'mathematics';
+              final title = state.uri.queryParameters['title'] ?? '';
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: SubjectDashboardScreen(slug: slug, title: title),
+                transitionsBuilder: _slideTransition,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/learning-path/:slug',
+            pageBuilder: (_, state) {
+              final slug = state.pathParameters['slug'] ?? 'mathematics';
+              final title = state.uri.queryParameters['title'] ?? '';
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: LearningPathScreen(slug: slug, title: title),
+                transitionsBuilder: _slideTransition,
+              );
+            },
+          ),
+          GoRoute(
             path: '/stem/:slug',
             pageBuilder: (_, state) {
               final slug = state.pathParameters['slug'] ?? 'mathematics';
@@ -211,6 +240,9 @@ class AppRouter {
           _route('/stem-revision', (_) => const StemRevisionScreen()),
           _route('/stem-gamification', (_) => const StemGamificationScreen()),
           _route('/stem-groups', (_) => const StemGroupsScreen()),
+          _route('/mock-exam', (_) => const MockExamScreen()),
+          _route('/exam-analytics', (_) => const ExamAnalyticsScreen()),
+          _route('/study-planner', (_) => const StudyPlannerScreen()),
           _route('/classes', (_) => const StudentDashboard()),
           _route('/assignments', (_) => const StudentDashboard()),
           _route('/assessments', (_) => const StudentDashboard()),

@@ -463,6 +463,8 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
 
   Map<String, dynamic>? _detail;
   List<dynamic> _messages = [];
+  List<dynamic> _sessions = [];
+  Map<String, dynamic>? _stats;
   bool _loading = true;
   String? _error;
 
@@ -487,10 +489,14 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
     try {
       final detail = await _stemService.getGroupDetail(widget.groupId);
       final messages = await _stemService.getGroupMessages(widget.groupId);
+      final sessions = await _stemService.getGroupSessions(widget.groupId);
+      final stats = await _stemService.getGroupSessionStats(widget.groupId);
       if (mounted) {
         setState(() {
           _detail = detail;
           _messages = messages;
+          _sessions = sessions;
+          _stats = stats;
           _loading = false;
         });
       }
@@ -500,6 +506,164 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
         _loading = false;
       });
     }
+  }
+
+  Future<void> _startSession() async {
+    final titleController = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('Start Study Session', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+        content: TextField(
+          controller: titleController,
+          style: const TextStyle(color: AppColors.textPrimary),
+          decoration: InputDecoration(
+            hintText: 'Session title',
+            hintStyle: const TextStyle(color: AppColors.textMuted),
+            filled: true,
+            fillColor: AppColors.surfaceHighest,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.border)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.primary)),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, titleController.text.trim()),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
+            child: const Text('Start'),
+          ),
+        ],
+      ),
+    );
+    if (result == null || result.isEmpty) return;
+    try {
+      await _stemService.startGroupSession(widget.groupId, result);
+      _loadDetail();
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed: $e'), backgroundColor: Colors.red.shade700),
+      );
+    }
+  }
+
+  Widget _buildSessionsSection() {
+    final totalSessions = _stats?['total_sessions'] ?? _sessions.length;
+    final totalMinutes = _stats?['total_duration_minutes'] ?? 0;
+    final uniqueConcepts = _stats?['unique_concepts'] ?? 0;
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.play_circle_outline_rounded, color: AppColors.primary, size: 18),
+              const SizedBox(width: 8),
+              const Text('Study Sessions', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              _buildSessionStat('Sessions', '$totalSessions', AppColors.primary),
+              const SizedBox(width: 12),
+              _buildSessionStat('Hours', '${(totalMinutes / 60).toStringAsFixed(1)}', AppColors.teal),
+              const SizedBox(width: 12),
+              _buildSessionStat('Concepts', '$uniqueConcepts', AppColors.lavender),
+            ],
+          ),
+          if (_sessions.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            const Divider(color: AppColors.border, height: 1),
+            const SizedBox(height: 10),
+            ..._sessions.take(3).map((s) => _buildSessionItem(s)),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSessionStat(String label, String value, Color color) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          children: [
+            Text(value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: color)),
+            const SizedBox(height: 2),
+            Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: color.withValues(alpha: 0.8))),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSessionItem(dynamic session) {
+    final isActive = session['ended_at'] == null;
+    final duration = session['duration_minutes'];
+    final concepts = (session['concepts'] as List<dynamic>?) ?? [];
+    final title = session['title'] ?? 'Untitled Session';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: isActive ? AppColors.success.withValues(alpha: 0.08) : AppColors.surfaceHighest,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: isActive ? AppColors.success.withValues(alpha: 0.3) : AppColors.border),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: isActive ? AppColors.success : AppColors.textMuted,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                const SizedBox(height: 2),
+                Text(
+                  duration != null ? '$duration min' : (isActive ? 'In progress' : 'Ended'),
+                  style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
+                ),
+              ],
+            ),
+          ),
+          if (concepts.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.primaryGlow,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                '${concepts.length} concept${concepts.length > 1 ? 's' : ''}',
+                style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AppColors.primary),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   Future<void> _sendMessage() async {
@@ -646,14 +810,16 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
                             style: TextStyle(fontSize: 13, color: AppColors.textMuted),
                           ),
                         )
-                      : ListView.separated(
+                      : ListView(
                           padding: const EdgeInsets.all(16),
                           controller: _scrollController,
-                          itemCount: _messages.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 10),
-                          itemBuilder: (context, index) {
-                            final msg = _messages[index];
-                            return Container(
+                          children: [
+                            if (_sessions.isNotEmpty || _stats != null) ...[
+                              _buildSessionsSection(),
+                              const SizedBox(height: 16),
+                            ],
+                            ..._messages.map((msg) => Container(
+                              margin: const EdgeInsets.only(bottom: 10),
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 color: AppColors.surface,
@@ -687,18 +853,30 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
                                   ),
                                 ],
                               ),
-                            );
-                          },
+                            )),
+                          ],
                         ),
                 ),
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 20),
                   decoration: const BoxDecoration(
                     color: AppColors.surface,
                     border: Border(top: BorderSide(color: AppColors.border)),
                   ),
                   child: Row(
                     children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryGlow,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: IconButton(
+                          onPressed: _startSession,
+                          icon: const Icon(Icons.play_circle_outline_rounded, color: AppColors.primary, size: 22),
+                          tooltip: 'Start Session',
+                        ),
+                      ),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: TextField(
                           controller: _messageController,
@@ -725,7 +903,7 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
                           onSubmitted: (_) => _sendMessage(),
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       IconButton(
                         onPressed: _sendMessage,
                         icon: const Icon(Icons.send_rounded, color: AppColors.primary),

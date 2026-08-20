@@ -267,14 +267,45 @@ def _mastery_to_response(record: MasteryRecord) -> MasteryResponse:
     )
 
 
-def _compute_next_review(mastery_level: float) -> datetime:
-    now = datetime.now(timezone.utc)
-    if mastery_level < 0.5:
-        return now + timedelta(days=1)
-    elif mastery_level < 0.8:
-        return now + timedelta(days=3)
+def _compute_next_review(
+    mastery_level: float,
+    attempts: int = 1,
+    previous_interval_days: float | None = None,
+) -> datetime:
+    """SM-2-inspired spaced repetition scheduler.
+
+    Maps mastery_level to a quality score (0-5) and computes next review interval.
+    """
+    if mastery_level >= 0.9:
+        quality = 5
+    elif mastery_level >= 0.8:
+        quality = 4
+    elif mastery_level >= 0.6:
+        quality = 3
+    elif mastery_level >= 0.4:
+        quality = 2
+    elif mastery_level >= 0.2:
+        quality = 1
     else:
-        return now + timedelta(days=7)
+        quality = 0
+
+    ease_factor = max(1.3, 2.5 + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)))
+
+    if quality < 3:
+        interval_days = 1.0
+    elif previous_interval_days is None:
+        if attempts <= 1:
+            interval_days = 1.0
+        elif attempts == 2:
+            interval_days = 6.0
+        else:
+            interval_days = max(previous_interval_days or 1.0, 6.0) * ease_factor
+            interval_days = min(interval_days, 365.0)
+    else:
+        interval_days = previous_interval_days * ease_factor
+        interval_days = min(max(interval_days, 1.0), 365.0)
+
+    return datetime.now(timezone.utc) + timedelta(days=interval_days)
 
 
 @router.get("/subjects", response_model=list[SubjectResponse])

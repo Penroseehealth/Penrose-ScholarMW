@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/stem_service.dart';
 import '../../widgets/shimmer_loading.dart';
-import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
 
 class StemAnalyticsScreen extends StatefulWidget {
@@ -176,15 +175,24 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
 
   Widget _buildWeeklyActivity() {
     final dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    final rng = Random(42);
-    final dayMinutes = List.generate(7, (_) => rng.nextInt(60) + 5);
+    final dayMinutes = List.filled(7, 0);
+    for (final day in _heatmap) {
+      final dateStr = day['date'] as String? ?? '';
+      if (dateStr.isEmpty) continue;
+      try {
+        final dt = DateTime.parse(dateStr);
+        final idx = (dt.weekday - 1) % 7;
+        dayMinutes[idx] += (day['study_minutes'] as num?)?.toInt() ?? 0;
+      } catch (_) {}
+    }
     final maxMin = dayMinutes.reduce(max).toDouble();
+    final hasData = maxMin > 0;
 
     return _section(
       title: 'Weekly Activity',
       icon: Icons.bar_chart_rounded,
       child: Column(
-        children: List.generate(7, (i) {
+        children:         hasData ? List.generate(7, (i) {
           final frac = dayMinutes[i] / maxMin;
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
@@ -221,7 +229,12 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
               ],
             ),
           );
-        }),
+        }) : [
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Text('No activity data yet. Start studying to see your weekly activity!', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+          ),
+        ],
       ),
     );
   }

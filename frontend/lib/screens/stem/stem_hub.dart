@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'stem_subject_screen.dart';
+import 'package:go_router/go_router.dart';
 import '../../services/stem_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../widgets/shimmer_loading.dart';
@@ -188,15 +188,8 @@ class _StemHubState extends State<StemHub> {
 
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => StemSubjectScreen(
-              slug: slug,
-              title: subject['name'] ?? subject['title'] ?? module?.title ?? 'Subject',
-            ),
-          ),
-        );
+        final title = subject['name'] ?? subject['title'] ?? module?.title ?? 'Subject';
+        context.push('/stem-subject/$slug?title=${Uri.encodeComponent(title)}');
       },
       child: Container(
         padding: const EdgeInsets.all(14),

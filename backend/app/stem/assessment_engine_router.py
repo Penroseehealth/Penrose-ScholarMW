@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from random import sample
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -12,6 +12,33 @@ from app.models.models import User
 from app.models.stem import MasteryRecord, STEMConcept, STMAssessmentQuestion
 
 router = APIRouter(prefix="/stem", tags=["STEM Intelligence"])
+
+
+def _compute_next_review(
+    mastery_level: float,
+    attempts: int = 1,
+    previous_interval_days: float | None = None,
+) -> datetime:
+    if mastery_level >= 0.9:
+        quality = 5
+    elif mastery_level >= 0.8:
+        quality = 4
+    elif mastery_level >= 0.6:
+        quality = 3
+    elif mastery_level >= 0.4:
+        quality = 2
+    elif mastery_level >= 0.2:
+        quality = 1
+    else:
+        quality = 0
+    ease_factor = max(1.3, 2.5 + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)))
+    if quality < 3:
+        interval_days = 1.0
+    elif previous_interval_days is None:
+        interval_days = 1.0 if attempts <= 1 else 6.0
+    else:
+        interval_days = min(max(previous_interval_days * ease_factor, 1.0), 365.0)
+    return datetime.now(timezone.utc) + timedelta(days=interval_days)
 
 
 class AnswerSubmission(BaseModel):
@@ -191,6 +218,7 @@ async def submit_assessment(
             record.correct / record.attempts if record.attempts > 0 else 0.0
         )
         record.last_practiced = now
+        record.next_review = _compute_next_review(record.mastery_level, record.attempts)
     else:
         record = MasteryRecord(
             user_id=user.id,
@@ -199,6 +227,9 @@ async def submit_assessment(
             attempts=total,
             correct=correct_count,
             last_practiced=now,
+            next_review=_compute_next_review(
+                correct_count / total if total > 0 else 0.0, total
+            ),
         )
         db.add(record)
 

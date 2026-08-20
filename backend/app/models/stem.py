@@ -676,3 +676,57 @@ class STEMGroupMessage(Base):
     )
 
     group: Mapped["STEMStudyGroup"] = relationship(back_populates="messages")
+
+
+class STEMGroupSession(Base):
+    __tablename__ = "stem_group_sessions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    group_id: Mapped[int] = mapped_column(
+        ForeignKey("stem_study_groups.id"), nullable=False
+    )
+    started_by: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    started_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+    ended_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+
+
+class STEMGroupSessionConcept(Base):
+    __tablename__ = "stem_group_session_concepts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    session_id: Mapped[int] = mapped_column(
+        ForeignKey("stem_group_sessions.id"), nullable=False
+    )
+    concept_id: Mapped[int] = mapped_column(
+        ForeignKey("stem_concepts.id"), nullable=False
+    )
+
+
+class MockExamResult(Base):
+    __tablename__ = "mock_exam_results"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    subject_slug: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    total_questions: Mapped[int] = mapped_column(Integer, nullable=False)
+    correct_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    total_marks: Mapped[int] = mapped_column(Integer, default=0)
+    score_marks: Mapped[int] = mapped_column(Integer, default=0)
+    percentage: Mapped[float] = mapped_column(Float, default=0.0)
+    time_taken_seconds: Mapped[int] = mapped_column(Integer, default=0)
+    time_limit_minutes: Mapped[int] = mapped_column(Integer, default=60)
+    difficulty_breakdown: Mapped[str | None] = mapped_column(Text, nullable=True)
+    concept_breakdown: Mapped[str | None] = mapped_column(Text, nullable=True)
+    bloom_breakdown: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
