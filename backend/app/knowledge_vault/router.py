@@ -1,6 +1,7 @@
 import os
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi.responses import FileResponse
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -93,6 +94,8 @@ async def upload_document(
         title=title,
         doc_type=doc_type,
         file_path=file_path,
+        file_name=file.filename,
+        file_size=len(file_bytes),
         course_id=course_id,
         uploaded_by=user.id,
         tags=tags,
@@ -114,3 +117,93 @@ async def search_vault(
         select(VaultDocument).where(VaultDocument.title.ilike(f"%{q}%"))
     )
     return [VaultDocumentResponse.model_validate(d) for d in result.scalars().all()]
+
+
+@router.get("/count")
+async def count_documents(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    from sqlalchemy import func
+
+    if user.role == UserRole.ADMIN:
+        count_result = await db.execute(select(func.count()).select_from(VaultDocument))
+    elif user.role == UserRole.LECTURER:
+        count_result = await db.execute(
+            select(func.count())
+            .select_from(VaultDocument)
+            .join(Course, Course.id == VaultDocument.course_id)
+            .where(Course.lecturer_id == user.id)
+        )
+    else:
+        enrolled_course_ids = (
+            (
+                await db.execute(
+                    select(Enrollment.course_id).where(
+                        Enrollment.student_id == user.id,
+                        Enrollment.is_active.is_(True),
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+        count_result = await db.execute(
+            select(func.count()).where(
+                or_(
+                    VaultDocument.course_id.in_(enrolled_course_ids),
+                    VaultDocument.uploaded_by == user.id,
+                )
+            )
+        )
+    return {"count": count_result.scalar() or 0}
+
+
+@router.get("/{doc_id}/download")
+async def download_document(
+    doc_id: int,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(VaultDocument).where(VaultDocument.id == doc_id))
+    doc = result.scalar_one_or_none()
+    if not doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document not found",
+        )
+    if not os.path.exists(doc.file_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="File not found on disk",
+        )
+    file_name = doc.file_name or os.path.basename(doc.file_path)
+    media_type = "application/octet-stream"
+    ext = os.path.splitext(file_name)[1].lower()
+    if ext == ".pdf":
+        media_type = "application/pdf"
+    elif ext in (".docx", ".txt"):
+        media_type = (
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+    elif ext == ".pptx":
+        media_type = (
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        )
+    return FileResponse(path=doc.file_path, media_type=media_type, filename=file_name)
+
+
+@router.get("/{doc_id}", response_model=VaultDocumentResponse)
+async def get_document(
+    doc_id: int,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(VaultDocument).where(VaultDocument.id == doc_id))
+    doc = result.scalar_one_or_none()
+    if not doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document not found",
+        )
+    return VaultDocumentResponse.model_validate(doc)

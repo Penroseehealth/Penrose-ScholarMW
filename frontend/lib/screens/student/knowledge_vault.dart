@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:html' as html;
 
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -16,6 +17,7 @@ class KnowledgeVaultScreen extends StatefulWidget {
 class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
   final ApiService _api = ApiService();
   List<dynamic> _documents = [];
+  int _fileCount = 0;
   bool _loading = true;
   String _searchQuery = '';
   String _filterType = 'all';
@@ -33,12 +35,28 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
         final data = jsonDecode(response.body) as List;
         setState(() {
           _documents = data;
+          _fileCount = data.length;
           _loading = false;
         });
         return;
       }
     } catch (_) {}
     setState(() => _loading = false);
+  }
+
+  Future<void> _downloadFile(dynamic doc) async {
+    final fileId = doc['id'];
+    if (fileId == null) return;
+    final url = '/api/v1/vault/$fileId/download';
+    final uri = Uri.base.resolve(url);
+    html.window.open(uri.toString(), '_blank');
+  }
+
+  String _formatFileSize(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
   @override
@@ -54,9 +72,18 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.surface,
-        title: const Text(
-          'Knowledge Vault',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Knowledge Vault',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+            ),
+            Text(
+              '$_fileCount files',
+              style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+            ),
+          ],
         ),
         actions: [
           IconButton(
@@ -180,7 +207,7 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${doc['doc_type'] ?? ''} ${doc['is_indexed'] == true ? 'Â· Indexed' : ''}',
+                  '${doc['file_name'] ?? doc['title'] ?? 'Unknown'} ${doc['file_size'] != null ? '· ${_formatFileSize(doc['file_size'])}' : ''} ${doc['is_indexed'] == true ? '· Indexed' : ''}',
                   style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
               ],
@@ -190,6 +217,10 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
           if (doc['is_indexed'] == true)
             const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 18),
           const SizedBox(width: 4),
+          IconButton(
+            icon: const Icon(Icons.download_rounded, color: AppColors.primary, size: 20),
+            onPressed: () => _downloadFile(doc),
+          ),
           const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 20),
         ],
       ),
@@ -282,6 +313,8 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
                   fields: {
                     'title': titleCtrl.text,
                     'doc_type': docType,
+                    'file_name': result.files.first.name,
+                    'file_size': result.files.first.size?.toString() ?? '',
                   },
                 );
                 if (mounted) {
