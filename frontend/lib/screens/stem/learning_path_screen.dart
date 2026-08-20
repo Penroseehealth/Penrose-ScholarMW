@@ -38,8 +38,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       ]);
       if (mounted) {
         setState(() {
-          _path = results[0];
-          _dueReviews = results[1];
+          _path = results[0] as Map<String, dynamic>?;
+          _dueReviews = results[1] as List<dynamic>;
           _loading = false;
         });
       }

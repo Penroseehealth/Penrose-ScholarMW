@@ -145,7 +145,7 @@ class WebSpeechServiceImpl implements WebSpeechService {
       }));
 
       js_util.callMethod(synth, 'speak', [utt]);
-      return completer.future;
+      return await completer.future;
     } catch (_) {
       return Future.value();
     }

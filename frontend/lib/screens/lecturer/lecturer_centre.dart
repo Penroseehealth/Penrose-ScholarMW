@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
-import '../../providers/auth_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
 
@@ -37,7 +35,6 @@ class _LecturerCentreState extends State<LecturerCentre> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
     final hour = DateTime.now().hour;
     final greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 

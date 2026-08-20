@@ -78,6 +78,9 @@ async def lifespan(app: FastAPI):
     from app.stem.seed_expanded import seed_expanded
 
     await seed_expanded()
+    from app.stem.seed_community import seed_community
+
+    await seed_community()
     yield
 
 

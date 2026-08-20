@@ -12,7 +12,6 @@ class AppDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final currentPath = GoRouterState.of(context).matchedLocation;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Drawer(
       width: MediaQuery.of(context).size.width * 0.85,
