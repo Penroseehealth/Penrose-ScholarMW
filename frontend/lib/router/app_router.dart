@@ -52,6 +52,9 @@ import '../screens/student/chat_detail_screen.dart';
 import '../screens/student/notification_settings_screen.dart';
 import '../screens/stem/forum_screen.dart';
 import '../screens/stem/announcements_screen.dart';
+import '../screens/stem/content_cms_screen.dart';
+import '../screens/stem/collaboration_chat_screen.dart';
+import '../screens/stem/analytics_export_screen.dart';
 
 class AppRouter {
   final AuthProvider authProvider;
@@ -254,6 +257,20 @@ class AppRouter {
           _route('/notification-settings', (_) => const NotificationSettingsScreen()),
           _route('/forum', (_) => const ForumScreen()),
           _route('/announcements', (_) => const AnnouncementsScreen()),
+          _route('/content-cms', (_) => const ContentCmsScreen()),
+          _route('/analytics-export', (_) => const AnalyticsExportScreen()),
+          GoRoute(
+            path: '/collab-chat/:id',
+            pageBuilder: (_, state) {
+              final id = int.tryParse(state.pathParameters['id'] ?? '0') ?? 0;
+              final name = state.uri.queryParameters['name'] ?? (state.extra as String? ?? 'Chat');
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: CollaborationChatScreen(groupId: id, groupName: name),
+                transitionsBuilder: _slideTransition,
+              );
+            },
+          ),
           GoRoute(
             path: '/messages/chat/:id',
             pageBuilder: (_, state) {

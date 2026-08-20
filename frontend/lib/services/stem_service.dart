@@ -762,4 +762,164 @@ class StemService {
     if (response.statusCode == 200) return jsonDecode(response.body);
     return {};
   }
+
+  // ── Content CMS ──
+
+  Future<List<dynamic>> getCmsSubjects() async {
+    final response = await _api.get('/stem/cms/subjects');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  Future<Map<String, dynamic>> createCmsSubject(Map<String, dynamic> body) async {
+    final response = await _api.post('/stem/cms/subjects', body: body);
+    if (response.statusCode == 201) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<Map<String, dynamic>> updateCmsSubject(int id, Map<String, dynamic> body) async {
+    final response = await _api.put('/stem/cms/subjects/$id', body: body);
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<bool> deleteCmsSubject(int id) async {
+    final response = await _api.delete('/stem/cms/subjects/$id');
+    return response.statusCode == 204;
+  }
+
+  Future<List<dynamic>> getCmsDisciplines(int subjectId) async {
+    final response = await _api.get('/stem/cms/subjects/$subjectId/disciplines');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  Future<Map<String, dynamic>> createCmsDiscipline(int subjectId, Map<String, dynamic> body) async {
+    final response = await _api.post('/stem/cms/subjects/$subjectId/disciplines', body: body);
+    if (response.statusCode == 201) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<Map<String, dynamic>> updateCmsDiscipline(int id, Map<String, dynamic> body) async {
+    final response = await _api.put('/stem/cms/disciplines/$id', body: body);
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<bool> deleteCmsDiscipline(int id) async {
+    final response = await _api.delete('/stem/cms/disciplines/$id');
+    return response.statusCode == 204;
+  }
+
+  Future<List<dynamic>> getCmsTopics(int disciplineId) async {
+    final response = await _api.get('/stem/cms/disciplines/$disciplineId/topics');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  Future<Map<String, dynamic>> createCmsTopic(int disciplineId, Map<String, dynamic> body) async {
+    final response = await _api.post('/stem/cms/disciplines/$disciplineId/topics', body: body);
+    if (response.statusCode == 201) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<Map<String, dynamic>> updateCmsTopic(int id, Map<String, dynamic> body) async {
+    final response = await _api.put('/stem/cms/topics/$id', body: body);
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<bool> deleteCmsTopic(int id) async {
+    final response = await _api.delete('/stem/cms/topics/$id');
+    return response.statusCode == 204;
+  }
+
+  Future<List<dynamic>> getCmsSubtopics(int topicId) async {
+    final response = await _api.get('/stem/cms/topics/$topicId/subtopics');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  Future<Map<String, dynamic>> createCmsSubtopic(int topicId, Map<String, dynamic> body) async {
+    final response = await _api.post('/stem/cms/topics/$topicId/subtopics', body: body);
+    if (response.statusCode == 201) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<Map<String, dynamic>> updateCmsSubtopic(int id, Map<String, dynamic> body) async {
+    final response = await _api.put('/stem/cms/subtopics/$id', body: body);
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<bool> deleteCmsSubtopic(int id) async {
+    final response = await _api.delete('/stem/cms/subtopics/$id');
+    return response.statusCode == 204;
+  }
+
+  Future<List<dynamic>> getCmsConcepts(int subtopicId) async {
+    final response = await _api.get('/stem/cms/subtopics/$subtopicId/concepts');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  Future<Map<String, dynamic>> createCmsConcept(int subtopicId, Map<String, dynamic> body) async {
+    final response = await _api.post('/stem/cms/subtopics/$subtopicId/concepts', body: body);
+    if (response.statusCode == 201) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<Map<String, dynamic>> updateCmsConcept(int id, Map<String, dynamic> body) async {
+    final response = await _api.put('/stem/cms/concepts/$id', body: body);
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<bool> deleteCmsConcept(int id) async {
+    final response = await _api.delete('/stem/cms/concepts/$id');
+    return response.statusCode == 204;
+  }
+
+  Future<Map<String, dynamic>> getCmsStats() async {
+    final response = await _api.get('/stem/cms/stats');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
+
+  // ── Collaboration ──
+
+  Future<List<dynamic>> getCollaborationHistory(int groupId, {int limit = 50}) async {
+    final response = await _api.get('/stem/collaboration/history/$groupId?limit=$limit');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  Future<Map<String, dynamic>> getCollaborationPresence(int groupId) async {
+    final response = await _api.get('/stem/collaboration/presence/$groupId');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<List<dynamic>> getOnlineGroups() async {
+    final response = await _api.get('/stem/collaboration/online');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return [];
+  }
+
+  // ── Analytics Export ──
+
+  Future<Map<String, dynamic>> getExportSummary() async {
+    final response = await _api.get('/stem/export/summary');
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return {};
+  }
+
+  Future<dynamic> getExportData(String endpoint, {String format = 'json'}) async {
+    final response = await _api.get('/stem/export/$endpoint?format=$format');
+    if (response.statusCode == 200) {
+      if (format == 'csv') return response.body;
+      return jsonDecode(response.body);
+    }
+    return format == 'csv' ? '' : {};
+  }
 }

@@ -34,8 +34,11 @@ from app.stem.announcement_router import router as announcement_router
 from app.stem.assessment_engine_router import router as assessment_engine_router
 from app.stem.careers_router import router as careers_router
 from app.stem.certificate_router import router as certificate_router
+from app.stem.collaboration_router import router as collaboration_router
+from app.stem.content_cms_router import router as content_cms_router
 from app.stem.content_moderation_router import router as content_moderation_router
 from app.stem.exam_analytics_router import router as exam_analytics_router
+from app.stem.export_router import router as export_router
 from app.stem.formulas_router import router as formulas_router
 from app.stem.forum_router import router as forum_router
 from app.stem.gamification_router import router as stem_gamification_router
@@ -206,6 +209,9 @@ app.include_router(study_planner_router, prefix="/api/v1")
 app.include_router(forum_router, prefix="/api/v1")
 app.include_router(announcement_router, prefix="/api/v1")
 app.include_router(content_moderation_router, prefix="/api/v1")
+app.include_router(content_cms_router, prefix="/api/v1")
+app.include_router(collaboration_router, prefix="/api/v1")
+app.include_router(export_router, prefix="/api/v1")
 
 
 @app.get("/health")

@@ -63,6 +63,8 @@ class AppDrawer extends StatelessWidget {
                   _buildDrawerItem(context, Icons.menu_book_rounded, 'Books & Materials', '/vault', currentPath),
                   _buildDrawerItem(context, Icons.download_rounded, 'Downloads', '/offline-sync', currentPath),
                   _buildDrawerItem(context, Icons.mic_rounded, 'Voice Tutor', '/knowledge-retrieval', currentPath),
+                  _buildDrawerItem(context, Icons.analytics_rounded, 'Analytics Export', '/analytics-export', currentPath),
+                  _buildDrawerItem(context, Icons.admin_panel_settings_rounded, 'Content Manager', '/content-cms', currentPath),
                   const SizedBox(height: 12),
                   _buildDivider(),
                   const SizedBox(height: 12),
