@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/stem_service.dart';
 import '../../widgets/shimmer_loading.dart';
@@ -708,6 +709,13 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
           icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.live_tv_rounded, color: AppColors.success),
+            tooltip: 'Live Chat',
+            onPressed: () => context.push('/collab-chat/${widget.groupId}?name=${Uri.encodeComponent(groupName)}'),
+          ),
+        ],
       ),
       body: _error != null && !_loading
           ? Center(child: ErrorState(message: _error!, onRetry: _loadDetail))
