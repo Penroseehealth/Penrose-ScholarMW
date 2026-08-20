@@ -1,6 +1,7 @@
 import json
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -23,6 +24,33 @@ from app.schemas.ai import (
 
 router = APIRouter(prefix="/ai", tags=["ScholarAI"])
 settings = get_settings()
+
+
+SOURCE_CITATION_INSTRUCTION = (
+    "\n\nIMPORTANT — Source Attribution:\n"
+    "After your main response, always append a '--- SOURCES ---' section listing the "
+    "references, textbooks, papers, or standards you used. Format each source on its own line "
+    "starting with '- '. Include author, title, year where possible.\n"
+    "If you used no specific source, list 'General STEM knowledge' as the source.\n"
+    "The SOURCES section MUST appear at the very end of every response, after all other content.\n"
+)
+
+
+def _extract_sources(text: str) -> tuple[str, str | None]:
+    marker = "--- SOURCES ---"
+    idx = text.rfind(marker)
+    if idx == -1:
+        return text, None
+    content = text[:idx].rstrip()
+    sources_block = text[idx + len(marker) :].strip()
+    source_lines = [
+        line.lstrip("- ").strip()
+        for line in sources_block.splitlines()
+        if line.strip().startswith("-")
+    ]
+    if not source_lines:
+        return content, None
+    return content, json.dumps(source_lines)
 
 
 def _build_system_prompt(agent_type: str) -> str:
@@ -53,7 +81,8 @@ def _build_system_prompt(agent_type: str) -> str:
             "structure, activities, case studies, discussion questions, quizzes, and references."
         ),
     }
-    return prompts.get(agent_type, prompts["tutor"])
+    base = prompts.get(agent_type, prompts["tutor"])
+    return base + SOURCE_CITATION_INSTRUCTION
 
 
 async def _call_llm(system_prompt: str, messages: list[dict]) -> str:
@@ -73,6 +102,22 @@ async def _call_llm(system_prompt: str, messages: list[dict]) -> str:
             "ScholarAI is currently unavailable. Please try again later. "
             "If this persists, contact your administrator."
         )
+
+
+class DataAnalysisRequest(BaseModel):
+    csv_text: str
+    question: str = ""
+
+
+class CodingPlaygroundRequest(BaseModel):
+    code: str
+    language: str = "python"
+
+
+class CodingPlaygroundResponse(BaseModel):
+    output: str
+    error: str | None = None
+    language: str
 
 
 @router.post("/chat", response_model=ChatMessageResponse)
@@ -119,7 +164,14 @@ async def chat(
     system_prompt = _build_system_prompt(body.agent_type)
     ai_response = await _call_llm(system_prompt, history)
 
-    ai_msg = ChatMessage(session_id=session_id, role="assistant", content=ai_response)
+    content, sources = _extract_sources(ai_response)
+
+    ai_msg = ChatMessage(
+        session_id=session_id,
+        role="assistant",
+        content=content,
+        sources=sources,
+    )
     db.add(ai_msg)
     await db.commit()
     await db.refresh(ai_msg)
@@ -230,3 +282,141 @@ async def generate_study_plan(
         return StudyPlanResponse(**data)
     except (json.JSONDecodeError, Exception):
         return StudyPlanResponse(schedule=[], weak_topics=[], recommended_resources=[])
+
+
+def _parse_csv_basic(csv_text: str) -> dict:
+    lines = [line.strip() for line in csv_text.strip().splitlines() if line.strip()]
+    if not lines:
+        return {"error": "Empty CSV data"}
+    delimiter = ","
+    if "\t" in lines[0]:
+        delimiter = "\t"
+    elif ";" in lines[0] and lines[0].count(";") > lines[0].count(","):
+        delimiter = ";"
+    headers = [h.strip() for h in lines[0].split(delimiter)]
+    rows = []
+    for line in lines[1:]:
+        vals = [v.strip() for v in line.split(delimiter)]
+        rows.append(dict(zip(headers, vals)))
+    numeric_cols: dict[str, list[float]] = {}
+    for h in headers:
+        nums = []
+        for row in rows:
+            try:
+                nums.append(float(row[h]))
+            except (ValueError, KeyError):
+                pass
+        if len(nums) > len(rows) * 0.5:
+            numeric_cols[h] = nums
+    stats: dict[str, dict] = {}
+    for col, vals in numeric_cols.items():
+        n = len(vals)
+        mean = sum(vals) / n
+        variance = sum((x - mean) ** 2 for x in vals) / n if n > 1 else 0
+        stats[col] = {
+            "count": n,
+            "mean": round(mean, 4),
+            "min": round(min(vals), 4),
+            "max": round(max(vals), 4),
+            "std_dev": round(variance**0.5, 4),
+            "sum": round(sum(vals), 4),
+        }
+    return {
+        "headers": headers,
+        "row_count": len(rows),
+        "sample_rows": rows[:10],
+        "numeric_stats": stats,
+        "all_rows": rows,
+    }
+
+
+@router.post("/data-analysis")
+async def analyze_data(
+    body: DataAnalysisRequest,
+    user: User = Depends(get_current_user),
+):
+    parsed = _parse_csv_basic(body.csv_text)
+    if "error" in parsed:
+        raise HTTPException(status_code=400, detail=parsed["error"])
+
+    system = (
+        "You are ScholarAI Data Analyst. Analyze the provided dataset and give clear, "
+        "educational insights. Explain statistical concepts where relevant. "
+        "For Malawian students, relate findings to local context where possible."
+    )
+    prompt = (
+        f"Dataset with {parsed['row_count']} rows and columns: {', '.join(parsed['headers'])}\n\n"
+        f"Column statistics:\n{json.dumps(parsed['numeric_stats'], indent=2)}\n\n"
+        f"Sample data (first 5 rows):\n{json.dumps(parsed['sample_rows'][:5], indent=2)}\n\n"
+    )
+    if body.question:
+        prompt += f"Student's question: {body.question}\n\n"
+    prompt += (
+        "Provide: 1) Key insights about the data, 2) Statistical summary in plain language, "
+        "3) Any interesting patterns or outliers, 4) Educational notes about the statistics used."
+    )
+
+    analysis_text = await _call_llm(system, [{"role": "user", "content": prompt}])
+    content, sources = _extract_sources(analysis_text)
+
+    return {
+        "analysis": content,
+        "sources": sources,
+        "stats": parsed["numeric_stats"],
+        "headers": parsed["headers"],
+        "row_count": parsed["row_count"],
+        "sample_data": parsed["sample_rows"][:5],
+    }
+
+
+@router.post("/coding-playground", response_model=CodingPlaygroundResponse)
+async def run_code(
+    body: CodingPlaygroundRequest,
+    user: User = Depends(get_current_user),
+):
+    if body.language.lower() in ("python", "py"):
+        try:
+            import subprocess
+
+            result = subprocess.run(
+                ["python", "-c", body.code],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            output = result.stdout
+            error = result.stderr if result.returncode != 0 else None
+            return CodingPlaygroundResponse(
+                output=output[:5000] if output else "(no output)",
+                error=error[:2000] if error else None,
+                language="python",
+            )
+        except subprocess.TimeoutExpired:
+            return CodingPlaygroundResponse(
+                output="",
+                error="Execution timed out (10s limit)",
+                language="python",
+            )
+        except Exception as e:
+            return CodingPlaygroundResponse(
+                output="",
+                error=str(e)[:2000],
+                language="python",
+            )
+    else:
+        system = (
+            "You are an expert programming tutor. The student will give you code in a "
+            "language. Simulate what the code would output. If there is a bug, explain it. "
+            "Give the output as plain text, then add a brief explanation if needed."
+        )
+        prompt = (
+            f"Simulate the output of this {body.language} code:\n\n```{body.language}\n"
+            f"{body.code}\n```\n\n"
+            "Provide the exact output, then explain any issues if present."
+        )
+        response = await _call_llm(system, [{"role": "user", "content": prompt}])
+        return CodingPlaygroundResponse(
+            output=response[:5000],
+            error=None,
+            language=body.language,
+        )

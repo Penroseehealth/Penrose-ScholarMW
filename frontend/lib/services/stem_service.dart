@@ -238,6 +238,15 @@ class StemService {
     return {};
   }
 
+  Future<Map<String, dynamic>> generateFlashcards(int conceptId, {int count = 5}) async {
+    final response = await _api.post('/stem/revision/flashcards/generate', body: {
+      'concept_id': conceptId,
+      'count': count,
+    });
+    if (response.statusCode == 200) return {'success': true, 'data': jsonDecode(response.body)};
+    return {'success': false, 'error': 'Failed to generate flashcards'};
+  }
+
   Future<List<dynamic>> getDueFlashcards() async {
     final response = await _api.get('/stem/revision/flashcards/due');
     if (response.statusCode == 200) return jsonDecode(response.body);

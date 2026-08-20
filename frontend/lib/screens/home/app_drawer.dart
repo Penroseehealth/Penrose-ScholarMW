@@ -80,6 +80,8 @@ class AppDrawer extends StatelessWidget {
       _buildDrawerItem(context, Icons.menu_book_rounded, 'Books & Materials', '/vault', currentPath),
       _buildDrawerItem(context, Icons.download_rounded, 'Downloads', '/offline-sync', currentPath),
       _buildDrawerItem(context, Icons.mic_rounded, 'Voice Tutor', '/knowledge-retrieval', currentPath),
+      _buildDrawerItem(context, Icons.insights_rounded, 'Data Analysis', '/data-analysis', currentPath),
+      _buildDrawerItem(context, Icons.code_rounded, 'Coding Playground', '/coding-playground', currentPath),
       _buildDrawerItem(context, Icons.analytics_rounded, 'Analytics Export', '/analytics-export', currentPath),
       _buildDrawerItem(context, Icons.admin_panel_settings_rounded, 'Content Manager', '/content-cms', currentPath),
       const SizedBox(height: 12),
@@ -112,6 +114,8 @@ class AppDrawer extends StatelessWidget {
       _buildDrawerItem(context, Icons.auto_awesome_rounded, 'AI Teaching Assistant', '/ai-tutor', currentPath),
       _buildDrawerItem(context, Icons.science_rounded, 'STEM Intelligence', '/stem', currentPath),
       _buildDrawerItem(context, Icons.psychology_rounded, 'STEM Tutor', '/stem-tutor', currentPath),
+      _buildDrawerItem(context, Icons.insights_rounded, 'Data Analysis', '/data-analysis', currentPath),
+      _buildDrawerItem(context, Icons.code_rounded, 'Coding Playground', '/coding-playground', currentPath),
       _buildDrawerItem(context, Icons.admin_panel_settings_rounded, 'Content Manager', '/content-cms', currentPath),
       _buildDrawerItem(context, Icons.analytics_rounded, 'Analytics Export', '/analytics-export', currentPath),
       const SizedBox(height: 12),
@@ -215,7 +219,7 @@ class AppDrawer extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppColors.primaryGlow,
                     borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     auth.userRole.toUpperCase(),

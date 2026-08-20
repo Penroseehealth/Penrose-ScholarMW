@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -5,6 +6,7 @@ from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config.settings import get_settings
 from app.database.engine import get_db
 from app.dependencies.auth import get_current_user
 from app.models.models import User
@@ -16,6 +18,7 @@ from app.models.stem import (
 )
 
 router = APIRouter(prefix="/stem", tags=["STEM Intelligence"])
+settings = get_settings()
 
 
 class FlashcardCreate(BaseModel):
@@ -27,6 +30,23 @@ class FlashcardCreate(BaseModel):
 
 class FlashcardReview(BaseModel):
     quality: int
+
+
+class FlashcardGenerateRequest(BaseModel):
+    concept_id: int
+    count: int = 5
+
+
+class FlashcardGeneratedItem(BaseModel):
+    front: str
+    back: str
+    difficulty: str
+
+
+class FlashcardGenerateResponse(BaseModel):
+    flashcards: list[FlashcardGeneratedItem]
+    concept_id: int
+    saved: int
 
 
 class FlashcardResponse(BaseModel):
@@ -432,3 +452,97 @@ async def complete_plan_item(
     await db.commit()
     await db.refresh(item)
     return _plan_item_to_response(item)
+
+
+@router.post(
+    "/revision/flashcards/generate",
+    response_model=FlashcardGenerateResponse,
+)
+async def generate_flashcards(
+    body: FlashcardGenerateRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    concept_result = await db.execute(
+        select(STEMConcept).where(STEMConcept.id == body.concept_id)
+    )
+    concept = concept_result.scalar_one_or_none()
+    if not concept:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found"
+        )
+
+    try:
+        from openai import AsyncOpenAI
+
+        client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+        prompt = (
+            f"Generate {body.count} flashcards for the following concept:\n"
+            f"Title: {concept.title}\n"
+        )
+        if concept.description:
+            prompt += f"Description: {concept.description}\n"
+        if concept.learning_objectives_text:
+            prompt += f"Learning Objectives: {concept.learning_objectives_text}\n"
+
+        prompt += (
+            "\nReturn a JSON array of objects with keys: front, back, difficulty "
+            "(one of 'easy', 'medium', 'hard').\n"
+            "Make flashcards educational and varied in difficulty. "
+            "Front should be a clear question or prompt. "
+            "Back should be a concise but complete answer."
+        )
+
+        response = await client.chat.completions.create(
+            model=settings.OPENAI_MODEL,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are an expert educational flashcard generator. "
+                        "Create clear, concise, and accurate flashcards."
+                    ),
+                },
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.7,
+            max_tokens=2000,
+        )
+        raw = response.choices[0].message.content or "[]"
+        start = raw.find("[")
+        end = raw.rfind("]") + 1
+        if start != -1 and end > start:
+            items = json.loads(raw[start:end])
+        else:
+            items = []
+    except Exception:
+        items = []
+
+    saved_count = 0
+    for item in items:
+        if isinstance(item, dict) and "front" in item and "back" in item:
+            card = STEMFlashcard(
+                user_id=user.id,
+                concept_id=body.concept_id,
+                front=item["front"],
+                back=item["back"],
+                difficulty=item.get("difficulty", "medium"),
+            )
+            db.add(card)
+            saved_count += 1
+
+    await db.commit()
+
+    return FlashcardGenerateResponse(
+        flashcards=[
+            FlashcardGeneratedItem(
+                front=item.get("front", ""),
+                back=item.get("back", ""),
+                difficulty=item.get("difficulty", "medium"),
+            )
+            for item in items
+            if isinstance(item, dict)
+        ],
+        concept_id=body.concept_id,
+        saved=saved_count,
+    )

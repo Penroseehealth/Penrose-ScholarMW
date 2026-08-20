@@ -129,6 +129,34 @@ class AiService {
     }
     return {'success': false, 'error': 'Failed to generate study plan'};
   }
+
+  Future<Map<String, dynamic>> analyzeData({
+    required String csvText,
+    String question = '',
+  }) async {
+    final response = await _api.post('/ai/data-analysis', body: {
+      'csv_text': csvText,
+      'question': question,
+    });
+    if (response.statusCode == 200) {
+      return {'success': true, 'data': jsonDecode(response.body)};
+    }
+    return {'success': false, 'error': 'Failed to analyze data'};
+  }
+
+  Future<Map<String, dynamic>> runCode({
+    required String code,
+    String language = 'python',
+  }) async {
+    final response = await _api.post('/ai/coding-playground', body: {
+      'code': code,
+      'language': language,
+    });
+    if (response.statusCode == 200) {
+      return {'success': true, 'data': jsonDecode(response.body)};
+    }
+    return {'success': false, 'error': 'Failed to run code'};
+  }
 }
 
 class NotificationService {

@@ -8,7 +8,6 @@ import '../screens/auth/register_screen.dart';
 import '../screens/home/home_shell.dart';
 import '../screens/home/student_dashboard.dart';
 import '../screens/ai_tutor/ai_tutor_screen.dart';
-import '../screens/student/student_hub.dart';
 import '../screens/student/knowledge_vault.dart';
 import '../screens/student/study_plan.dart';
 import '../screens/student/profile_screen.dart';
@@ -55,6 +54,8 @@ import '../screens/stem/announcements_screen.dart';
 import '../screens/stem/content_cms_screen.dart';
 import '../screens/stem/collaboration_chat_screen.dart';
 import '../screens/stem/analytics_export_screen.dart';
+import '../screens/data_analysis/data_analysis_screen.dart';
+import '../screens/data_analysis/coding_playground_screen.dart';
 
 class AppRouter {
   final AuthProvider authProvider;
@@ -259,6 +260,8 @@ class AppRouter {
           _route('/announcements', (_) => const AnnouncementsScreen()),
           _route('/content-cms', (_) => const ContentCmsScreen()),
           _route('/analytics-export', (_) => const AnalyticsExportScreen()),
+          _route('/data-analysis', (_) => const DataAnalysisScreen()),
+          _route('/coding-playground', (_) => const CodingPlaygroundScreen()),
           GoRoute(
             path: '/collab-chat/:id',
             pageBuilder: (_, state) {

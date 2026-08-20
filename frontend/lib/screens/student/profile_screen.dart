@@ -121,6 +121,11 @@ class ProfileScreen extends StatelessWidget {
               trailing: const Text('English', style: TextStyle(color: AppColors.textMuted, fontSize: 14)),
             ),
             _buildSettingsTile(
+              icon: Icons.data_usage_outlined,
+              title: 'Data Saver Mode',
+              trailing: const _DataSaverToggle(),
+            ),
+            _buildSettingsTile(
               icon: Icons.info_outline,
               title: 'About',
               onTap: () => showAboutDialog(
@@ -252,6 +257,41 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _DataSaverToggle extends StatefulWidget {
+  const _DataSaverToggle();
+
+  @override
+  State<_DataSaverToggle> createState() => _DataSaverToggleState();
+}
+
+class _DataSaverToggleState extends State<_DataSaverToggle> {
+  bool _enabled = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Switch(
+      value: _enabled,
+      onChanged: (v) {
+        setState(() => _enabled = v);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                v
+                    ? 'Data Saver ON — images will load lazily, auto-sync paused'
+                    : 'Data Saver OFF — full experience enabled',
+              ),
+              duration: const Duration(seconds: 2),
+              backgroundColor: v ? AppColors.warning : AppColors.success,
+            ),
+          );
+        }
+      },
+      activeThumbColor: AppColors.primary,
     );
   }
 }

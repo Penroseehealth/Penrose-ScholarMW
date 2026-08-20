@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -15,7 +17,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
   final TextEditingController _messageCtrl = TextEditingController();
   final ScrollController _scrollCtrl = ScrollController();
 
-  List<Map<String, dynamic>> _messages = [];
+  final List<Map<String, dynamic>> _messages = [];
   int? _sessionId;
   bool _isLoading = false;
   String _agentType = 'tutor';
@@ -96,7 +98,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.4),
+                    color: AppColors.primary.withValues(alpha: 0.4),
                     blurRadius: 30,
                     offset: const Offset(0, 8),
                   ),
@@ -206,28 +208,114 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
           child: Container(
             margin: const EdgeInsets.only(bottom: 12),
             constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.8,
+              maxWidth: MediaQuery.of(context).size.width * 0.85,
             ),
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: isUser ? AppColors.primary : AppColors.surface,
-              borderRadius: BorderRadius.circular(16).copyWith(
-                bottomRight: isUser ? const Radius.circular(4) : null,
-                bottomLeft: !isUser ? const Radius.circular(4) : null,
-              ),
-              border: isUser ? null : Border.all(color: AppColors.border),
-            ),
-            child: Text(
-              msg['content'] ?? '',
-              style: TextStyle(
-                color: isUser ? Colors.white : AppColors.textPrimary,
-                fontSize: 14,
-                height: 1.5,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: isUser ? AppColors.primary : AppColors.surface,
+                    borderRadius: BorderRadius.circular(16).copyWith(
+                      bottomRight: isUser ? const Radius.circular(4) : null,
+                      bottomLeft: !isUser ? const Radius.circular(4) : null,
+                    ),
+                    border: isUser ? null : Border.all(color: AppColors.border),
+                  ),
+                  child: Text(
+                    msg['content'] ?? '',
+                    style: TextStyle(
+                      color: isUser ? Colors.white : AppColors.textPrimary,
+                      fontSize: 14,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+                if (!isUser) _buildAiGovernanceBadge(msg['sources']),
+              ],
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildAiGovernanceBadge(String? sourcesJson) {
+    List<String> sources = [];
+    if (sourcesJson != null && sourcesJson.isNotEmpty) {
+      try {
+        final parsed = jsonDecode(sourcesJson);
+        if (parsed is List) {
+          sources = parsed.map<String>((s) => s.toString()).toList();
+        }
+      } catch (_) {}
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 6, left: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.primaryGlow,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.auto_awesome_rounded, size: 12, color: AppColors.primary),
+                SizedBox(width: 4),
+                Text(
+                  'AI-generated',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (sources.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 4,
+              runSpacing: 4,
+              children: sources.map((s) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.source_rounded, size: 10, color: AppColors.textMuted),
+                      const SizedBox(width: 3),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 220),
+                        child: Text(
+                          s,
+                          style: const TextStyle(
+                            fontSize: 9,
+                            color: AppColors.textMuted,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ],
+      ),
     );
   }
 
@@ -278,7 +366,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.4),
+                    color: AppColors.primary.withValues(alpha: 0.4),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -320,6 +408,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
           _messages.add({
             'role': 'assistant',
             'content': data['content'] ?? 'No response',
+            'sources': data['sources'],
           });
         } else {
           _messages.add({
