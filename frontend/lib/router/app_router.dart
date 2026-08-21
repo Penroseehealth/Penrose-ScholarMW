@@ -127,13 +127,14 @@ class AppRouter {
           transitionsBuilder: _fadeTransition,
         ),
       ),
+      _route('/lecturer', (_) => const LecturerCentre()),
       ShellRoute(
         builder: (_, __, child) => HomeShell(child: child),
         routes: [
           _route('/', (_) => const HomeRedirect()),
           _route('/student', (_) => const StudentDashboard()),
           _route('/dashboard', (_) => const StudentDashboard()),
-          _route('/lecturer', (_) => const LecturerCentre()),
+
           _route('/ai-tutor', (_) => const AiTutorScreen()),
           _route('/research', (_) => const ResearchLab()),
           _route('/vault', (_) => const KnowledgeVaultScreen()),
@@ -333,15 +334,18 @@ class HomeRedirect extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    switch (auth.userRole) {
-      case 'lecturer':
-        return const LecturerCentre();
-      case 'admin':
-        return const LecturerCentre();
-      case 'researcher':
-        return const ResearchLab();
-      default:
-        return const StudentDashboard();
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) return;
+      switch (auth.userRole) {
+        case 'lecturer':
+        case 'admin':
+          context.go('/lecturer');
+        case 'researcher':
+          context.go('/research');
+        default:
+          context.go('/student');
+      }
+    });
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }
