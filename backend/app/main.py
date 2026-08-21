@@ -54,6 +54,7 @@ from app.stem.revision_router import router as revision_router
 from app.stem.router import router as stem_router
 from app.stem.study_planner_router import router as study_planner_router
 from app.stem.subject_dashboard_router import router as subject_dashboard_router
+from app.stem.syllabus_router import router as syllabus_router
 from app.sync_engine.router import router as sync_engine_router
 from app.users.router import router as users_router
 from app.writing_studio.router import router as writing_studio_router
@@ -81,6 +82,9 @@ async def lifespan(app: FastAPI):
     from app.stem.seed_community import seed_community
 
     await seed_community()
+    from app.stem.seed_syllabus import seed_syllabus
+
+    await seed_syllabus()
     yield
 
 
@@ -215,6 +219,7 @@ app.include_router(content_moderation_router, prefix="/api/v1")
 app.include_router(content_cms_router, prefix="/api/v1")
 app.include_router(collaboration_router, prefix="/api/v1")
 app.include_router(export_router, prefix="/api/v1")
+app.include_router(syllabus_router, prefix="/api/v1")
 
 
 @app.get("/health")

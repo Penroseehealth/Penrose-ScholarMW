@@ -28,6 +28,18 @@ import '../screens/sync/offline_sync_screen.dart';
 import '../screens/stem/stem_hub.dart';
 import '../screens/stem/stem_subject_screen.dart';
 import '../screens/stem/stem_topic_screen.dart';
+import '../screens/biology/biology_dashboard.dart';
+import '../screens/biology/biology_topics.dart';
+import '../screens/biology/biology_virtual_lab.dart';
+import '../screens/biology/biology_diagram_centre.dart';
+import '../screens/biology/biology_practical_hub.dart';
+import '../screens/biology/biology_practice_centre.dart';
+import '../screens/biology/biology_past_papers.dart';
+import '../screens/biology/biology_mock_exam.dart';
+import '../screens/biology/biology_syllabus.dart';
+import '../screens/biology/biology_ai_tutor.dart';
+import '../screens/biology/biology_notebook.dart';
+import '../screens/biology/biology_analytics.dart';
 import '../screens/stem/stem_concept_screen.dart';
 import '../screens/stem/stem_knowledge_graph_screen.dart';
 import '../screens/stem/stem_formula_centre_screen.dart';
@@ -57,6 +69,7 @@ import '../screens/stem/analytics_export_screen.dart';
 import '../screens/data_analysis/data_analysis_screen.dart';
 import '../screens/data_analysis/coding_playground_screen.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
+import '../screens/admin/admin_syllabus_screen.dart';
 
 class AppRouter {
   final AuthProvider authProvider;
@@ -156,9 +169,12 @@ class AppRouter {
             pageBuilder: (_, state) {
               final slug = state.pathParameters['slug'] ?? 'mathematics';
               final title = state.uri.queryParameters['title'] ?? '';
+              final widget = slug == 'biology'
+                  ? const BiologyDashboard()
+                  : SubjectDashboardScreen(slug: slug, title: title);
               return CustomTransitionPage<void>(
                 key: state.pageKey,
-                child: SubjectDashboardScreen(slug: slug, title: title),
+                child: widget,
                 transitionsBuilder: _slideTransition,
               );
             },
@@ -265,6 +281,7 @@ class AppRouter {
           _route('/data-analysis', (_) => const DataAnalysisScreen()),
           _route('/coding-playground', (_) => const CodingPlaygroundScreen()),
           _route('/admin', (_) => const AdminDashboardScreen()),
+          _route('/admin/syllabus', (_) => const AdminSyllabusScreen()),
           GoRoute(
             path: '/collab-chat/:id',
             pageBuilder: (_, state) {
@@ -322,6 +339,17 @@ class AppRouter {
               );
             },
           ),
+          _route('/bio-topics', (_) => const BiologyTopicsScreen()),
+          _route('/bio-virtual-lab', (_) => const BiologyVirtualLabScreen()),
+          _route('/bio-diagrams', (_) => const BiologyDiagramCentreScreen()),
+          _route('/bio-practicals', (_) => const BiologyPracticalHubScreen()),
+          _route('/bio-practice', (_) => const BiologyPracticeCentreScreen()),
+          _route('/bio-past-papers', (_) => const BiologyPastPapersScreen()),
+          _route('/bio-mock-exam', (_) => const BiologyMockExamScreen()),
+          _route('/bio-syllabus', (_) => const BiologySyllabusScreen()),
+          _route('/bio-ai-tutor', (_) => const BiologyAITutorScreen()),
+          _route('/bio-notebook', (_) => const BiologyNotebookScreen()),
+          _route('/bio-analytics', (_) => const BiologyAnalyticsScreen()),
         ],
       ),
     ],

@@ -860,3 +860,140 @@ class STEMContentReport(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
+
+
+class SyllabusSubject(Base):
+    __tablename__ = "syllabus_subjects"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    slug: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    icon: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    color: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+
+    versions: Mapped[list["SyllabusVersion"]] = relationship(back_populates="subject")
+
+
+class SyllabusVersion(Base):
+    __tablename__ = "syllabus_versions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    subject_id: Mapped[int] = mapped_column(
+        ForeignKey("syllabus_subjects.id"), nullable=False
+    )
+    version_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    year_effective: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    examination_board: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    is_current: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+
+    subject: Mapped["SyllabusSubject"] = relationship(back_populates="versions")
+    core_elements: Mapped[list["SyllabusCoreElement"]] = relationship(
+        back_populates="version"
+    )
+
+
+class SyllabusCoreElement(Base):
+    __tablename__ = "syllabus_core_elements"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    version_id: Mapped[int] = mapped_column(
+        ForeignKey("syllabus_versions.id"), nullable=False
+    )
+    number: Mapped[int] = mapped_column(Integer, nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    order_index: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+
+    version: Mapped["SyllabusVersion"] = relationship(back_populates="core_elements")
+    topics: Mapped[list["SyllabusTopic"]] = relationship(back_populates="core_element")
+
+
+class SyllabusTopic(Base):
+    __tablename__ = "syllabus_topics"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    core_element_id: Mapped[int] = mapped_column(
+        ForeignKey("syllabus_core_elements.id"), nullable=False
+    )
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    year_level: Mapped[int] = mapped_column(Integer, default=3)
+    order_index: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+
+    core_element: Mapped["SyllabusCoreElement"] = relationship(back_populates="topics")
+    subtopics: Mapped[list["SyllabusSubtopic"]] = relationship(back_populates="topic")
+    resources: Mapped[list["SyllabusResource"]] = relationship(back_populates="topic")
+
+
+class SyllabusSubtopic(Base):
+    __tablename__ = "syllabus_subtopics"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    topic_id: Mapped[int] = mapped_column(
+        ForeignKey("syllabus_topics.id"), nullable=False
+    )
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    order_index: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+
+    topic: Mapped["SyllabusTopic"] = relationship(back_populates="subtopics")
+    learning_objectives: Mapped[list["SyllabusLearningObjective"]] = relationship(
+        back_populates="subtopic"
+    )
+
+
+class SyllabusLearningObjective(Base):
+    __tablename__ = "syllabus_learning_objectives"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    subtopic_id: Mapped[int] = mapped_column(
+        ForeignKey("syllabus_subtopics.id"), nullable=False
+    )
+    objective: Mapped[str] = mapped_column(Text, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    cognitive_level: Mapped[str] = mapped_column(String(50), default="Knowledge")
+    teaching_activity: Mapped[str | None] = mapped_column(Text, nullable=True)
+    teaching_method: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    order_index: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+
+    subtopic: Mapped["SyllabusSubtopic"] = relationship(
+        back_populates="learning_objectives"
+    )
+
+
+class SyllabusResource(Base):
+    __tablename__ = "syllabus_resources"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    topic_id: Mapped[int] = mapped_column(
+        ForeignKey("syllabus_topics.id"), nullable=False
+    )
+    resource_text: Mapped[str] = mapped_column(Text, nullable=False)
+    resource_type: Mapped[str] = mapped_column(String(50), default="equipment")
+    order_index: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+
+    topic: Mapped["SyllabusTopic"] = relationship(back_populates="resources")

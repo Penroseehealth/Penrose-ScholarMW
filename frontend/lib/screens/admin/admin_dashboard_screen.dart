@@ -106,7 +106,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             ? _buildOverviewTab()
                             : _selectedTab == 1
                                 ? _buildUsersTab()
-                                : _buildCoursesTab(),
+                                : _selectedTab == 99
+                                    ? const SizedBox()
+                                    : _buildCoursesTab(),
                       ),
                     ],
                   ),
@@ -118,11 +120,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Container(
       color: AppColors.surface,
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
+        child: Row(
         children: [
           _buildTab('Overview', 0),
           _buildTab('Users (${_users.length})', 1),
           _buildTab('Courses (${_courses.length})', 2),
+          _buildTab('Syllabus', 99),
         ],
       ),
     );
@@ -131,7 +134,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget _buildTab(String label, int index) {
     final isSelected = _selectedTab == index;
     return GestureDetector(
-      onTap: () => setState(() => _selectedTab = index),
+      onTap: () {
+        if (index == 99) {
+          context.go('/admin/syllabus');
+          return;
+        }
+        setState(() => _selectedTab = index);
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
