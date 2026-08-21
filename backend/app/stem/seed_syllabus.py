@@ -1,5 +1,6 @@
 """Seed the official Malawi MSCE Biology syllabus (MoEST, Forms 3 & 4).
 
+Exact reproduction of the 2013 MoEST Biology Syllabus for Forms 3 and 4.
 Run from lifespan in main.py. Idempotent — skips if subject already exists.
 """
 
@@ -20,7 +21,7 @@ BIOLOGY_SYLLABUS = {
     "subject": {
         "name": "Biology",
         "slug": "biology",
-        "description": "Malawi MSCE Biology Syllabus — MoEST Forms 3 & 4",
+        "description": "Malawi MSCE Biology Syllabus — MoEST Forms 3 & 4 (2013)",
         "icon": "science_rounded",
         "color": "#10B981",
     },
@@ -28,424 +29,568 @@ BIOLOGY_SYLLABUS = {
         "version_name": "MoEST Forms 3 & 4 (2013)",
         "year_effective": 2013,
         "examination_board": "Malawi National Examinations Board (MANEB)",
-        "description": "Official Biology syllabus for Malawi School Certificate of Education (MSCE), covering Forms 3 and 4.",
+        "description": (
+            "Official Biology syllabus for Malawi School Certificate of Education "
+            "(MSCE), covering Forms 3 and 4. Published by the Ministry of Education, "
+            "Science and Technology through the Malawi Institute of Education (MIE)."
+        ),
     },
+    # ═══════════════════════════════════════════════════════════════════════════
+    # CORE ELEMENT 1 — RESEARCH SKILLS (Form 3)
+    # ═══════════════════════════════════════════════════════════════════════════
     "core_elements": [
         {
             "number": 1,
             "name": "Research Skills",
-            "description": "Scientific investigation, laboratory techniques, data collection, and evaluation.",
+            "description": (
+                "Scientific investigation skills: using laboratory apparatus, practical "
+                "methods, and measurement techniques."
+            ),
             "topics": [
                 {
-                    "title": "Scientific Investigation",
+                    "title": "Research Skills",
                     "year_level": 3,
                     "subtopics": [
                         {
-                            "title": "Formulating Hypotheses & Designing Experiments",
+                            "title": "Using Laboratory Apparatus and Equipment",
+                            "description": (
+                                "Name and use laboratory apparatus; draw apparatus; "
+                                "record observations; draw; graph work; use word descriptions."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "Formulate hypotheses from observations",
-                                    "description": "Understand the structure of a scientific investigation",
-                                    "cognitive_level": "Knowledge/Comprehension",
-                                    "teaching_activity": "Observe natural phenomena and generate testable hypotheses",
-                                    "teaching_method": "Group discussion, guided inquiry",
-                                },
-                                {
-                                    "objective": "Design controlled experiments with independent, dependent, and controlled variables",
-                                    "description": "Apply the scientific method to biology problems",
-                                    "cognitive_level": "Application/Analysis",
-                                    "teaching_activity": "Design experiments to test plant growth under different light conditions",
-                                    "teaching_method": "Practical work, planning",
-                                },
-                                {
-                                    "objective": "Record observations accurately using tables, graphs, and drawings",
-                                    "description": "Develop skills in data collection and presentation",
-                                    "cognitive_level": "Application",
-                                    "teaching_activity": "Record and present experimental data in standard scientific format",
-                                    "teaching_method": "Practical work",
-                                },
-                                {
-                                    "objective": "Interpret experimental data and draw valid conclusions",
-                                    "description": "Evaluate the validity of scientific conclusions",
-                                    "cognitive_level": "Analysis/Evaluation",
-                                    "teaching_activity": "Analyse provided data sets and identify trends",
-                                    "teaching_method": "Data analysis exercises",
-                                },
-                                {
-                                    "objective": "Evaluate the reliability and validity of experimental results",
-                                    "description": "Understand statistical concepts like mean, range, and standard deviation",
-                                    "cognitive_level": "Evaluation",
-                                    "teaching_activity": "Calculate means and ranges from experimental data",
-                                    "teaching_method": "Mathematical exercises",
-                                },
-                            ],
-                        },
-                    ],
-                    "resources": [
-                        "Beakers, test tubes, thermometer, microscope, stopwatch, ruler, graph paper",
-                        "Laboratory safety goggles, lab coat, gloves",
-                    ],
-                },
-                {
-                    "title": "Laboratory Techniques",
-                    "year_level": 3,
-                    "subtopics": [
-                        {
-                            "title": "Microscopy, Slide Preparation & Dissection",
-                            "learning_objectives": [
-                                {
-                                    "objective": "Use a light microscope correctly to view prepared slides",
-                                    "description": "Practical skill: microscopy technique",
-                                    "cognitive_level": "Application/Practical",
-                                    "teaching_activity": "View onion cells under microscope",
+                                    "objective": "Name and use common laboratory apparatus correctly",
+                                    "cognitive_level": "Knowledge/Application",
                                     "teaching_method": "Practical demonstration",
                                 },
                                 {
-                                    "objective": "Prepare temporary mounts of plant and animal tissues",
-                                    "description": "Practical skill: slide preparation",
-                                    "cognitive_level": "Application/Practical",
-                                    "teaching_activity": "Prepare cheek cell and onion epidermis mounts",
-                                    "teaching_method": "Hands-on practical",
+                                    "objective": "Draw apparatus and apparatus setups accurately",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Guided drawing practice",
                                 },
                                 {
-                                    "objective": "Perform dissections of plant and animal specimens",
-                                    "description": "Practical skill: dissection technique",
-                                    "cognitive_level": "Application/Practical",
-                                    "teaching_activity": "Dissect a flower and a fish",
+                                    "objective": "Record observations accurately in standard scientific format",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Laboratory exercises",
+                                },
+                                {
+                                    "objective": "Draw specimens to scale using correct scientific drawing conventions",
+                                    "cognitive_level": "Application",
                                     "teaching_method": "Guided practical",
                                 },
                                 {
-                                    "objective": "Follow laboratory safety rules and procedures",
-                                    "description": "Develop responsible laboratory behaviour",
-                                    "cognitive_level": "Knowledge/Comprehension",
-                                    "teaching_activity": "Discuss and follow lab safety protocols",
-                                    "teaching_method": "Discussion, role play",
+                                    "objective": "Construct graphs from experimental data with correct labels, scales, and titles",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Data analysis exercises",
+                                },
+                                {
+                                    "objective": "Use word descriptions to communicate experimental findings",
+                                    "cognitive_level": "Comprehension/Application",
+                                    "teaching_method": "Laboratory report writing",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Practical Methods",
+                            "description": (
+                                "Dissolving, decanting, filtration, evaporation, distillation, "
+                                "and chromatography techniques."
+                            ),
+                            "learning_objectives": [
+                                {
+                                    "objective": "Carry out dissolving, decanting, and filtration techniques correctly",
+                                    "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Hands-on practical",
+                                },
+                                {
+                                    "objective": "Perform evaporation and crystallisation to obtain solute from solution",
+                                    "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Practical demonstration",
+                                },
+                                {
+                                    "objective": "Set up and carry out simple distillation",
+                                    "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Guided practical",
+                                },
+                                {
+                                    "objective": "Perform paper chromatography to separate mixtures",
+                                    "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Hands-on practical",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Measurement",
+                            "description": "Measurement of length, mass, volume, and temperature.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Measure length accurately using appropriate instruments (ruler, vernier caliper, micrometer)",
+                                    "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Practical exercises",
+                                },
+                                {
+                                    "objective": "Measure mass using a balance (top-pan, beam balance)",
+                                    "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Practical exercises",
+                                },
+                                {
+                                    "objective": "Measure volume of liquids and irregularly shaped solids",
+                                    "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Practical exercises",
+                                },
+                                {
+                                    "objective": "Measure temperature using a thermometer",
+                                    "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Practical exercises",
                                 },
                             ],
                         },
                     ],
                     "resources": [
-                        "Light microscope, prepared slides, slides and cover slips, staining reagents",
-                        "Dissection kit (scalpel, scissors, forceps, pins, dissecting board)",
+                        "Common laboratory apparatus (beakers, test tubes, measuring cylinders, thermometers, balances, rulers, microscopes)",
+                        "Filtration equipment, chromatography paper, distillation setup",
                     ],
                 },
             ],
         },
+        # ═══════════════════════════════════════════════════════════════════════
+        # CORE ELEMENT 2 — ENVIRONMENT (Form 3)
+        # ═══════════════════════════════════════════════════════════════════════
         {
             "number": 2,
             "name": "Environment",
-            "description": "Ecosystems, biotic and abiotic factors, food chains, nutrient cycles, and climate change.",
+            "description": (
+                "Organisms and their environment, populations, ecosystems, "
+                "energy flow, nutrient cycles, and human impact on the environment."
+            ),
             "topics": [
                 {
-                    "title": "Ecosystems & Biotic Factors",
+                    "title": "Organisms and Their Environment",
                     "year_level": 3,
                     "subtopics": [
                         {
-                            "title": "Ecosystem Components & Energy Flow",
+                            "title": "Distribution of Organisms",
+                            "description": (
+                                "Sampling techniques, quadrats, transects, "
+                                "distribution patterns, and effects of abiotic factors."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "Define ecosystem as the interaction of living organisms with their environment",
-                                    "description": "Understand the concept of an ecosystem",
-                                    "cognitive_level": "Knowledge",
+                                    "objective": "Use sampling techniques to estimate the distribution and abundance of organisms",
+                                    "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Field study",
                                 },
                                 {
-                                    "objective": "Identify biotic factors: producers, consumers, decomposers",
-                                    "description": "Classify organisms by their role in food chains",
+                                    "objective": "Use quadrats and transects to sample organisms in a habitat",
+                                    "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Field study",
+                                },
+                                {
+                                    "objective": "Describe the distribution of organisms in a given habitat",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Observation and discussion",
                                 },
                                 {
-                                    "objective": "Construct and interpret food chains and food webs",
-                                    "description": "Apply knowledge of feeding relationships",
-                                    "cognitive_level": "Application",
-                                },
-                                {
-                                    "objective": "Explain the transfer of energy through trophic levels",
-                                    "description": "Understand energy flow and the 10% rule",
-                                    "cognitive_level": "Comprehension/Analysis",
-                                },
-                                {
-                                    "objective": "Describe the carbon, nitrogen, and water cycles",
-                                    "description": "Understand nutrient cycling in ecosystems",
-                                    "cognitive_level": "Comprehension/Application",
+                                    "objective": "Investigate the effects of abiotic factors on the distribution of organisms",
+                                    "cognitive_level": "Application/Analysis",
+                                    "teaching_method": "Practical investigation",
                                 },
                             ],
                         },
-                    ],
-                    "resources": [
-                        "Field study equipment: quadrats, sweep nets, pitfall traps",
-                        "Graph paper, calculator",
-                    ],
-                },
-                {
-                    "title": "Abiotic Factors & Climate Change",
-                    "year_level": 3,
-                    "subtopics": [
                         {
-                            "title": "Abiotic Factors & Environmental Impact",
+                            "title": "Populations and Communities",
+                            "description": (
+                                "Factors affecting population sizes and "
+                                "relationships among organisms in a community."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "Identify abiotic factors: temperature, rainfall, light intensity, soil pH",
-                                    "description": "Understand how physical factors affect organisms",
-                                    "cognitive_level": "Knowledge",
+                                    "objective": "Identify factors affecting the sizes of populations of organisms in a habitat",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, case studies",
                                 },
                                 {
-                                    "objective": "Measure and record abiotic factors in a local habitat",
-                                    "description": "Practical skill: field measurement techniques",
-                                    "cognitive_level": "Application/Practical",
+                                    "objective": "Describe the relationships among organisms in a community (predation, competition, symbiosis)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Observation, field study",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Ecosystems",
+                            "description": (
+                                "Food chains, food webs, trophic levels, ecological "
+                                "pyramids, energy flow, and nutrient cycles."
+                            ),
+                            "learning_objectives": [
+                                {
+                                    "objective": "Describe an ecosystem as the interaction of living organisms with their environment",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion",
+                                },
+                                {
+                                    "objective": "Differentiate between a food chain and a food web",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
+                                },
+                                {
+                                    "objective": "Identify trophic levels in an ecosystem",
+                                    "cognitive_level": "Knowledge/Comprehension",
+                                    "teaching_method": "Diagram work",
+                                },
+                                {
+                                    "objective": "Construct ecological pyramids (pyramids of numbers, biomass, energy)",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Data analysis exercises",
+                                },
+                                {
+                                    "objective": "Explain the transfer of energy in a food chain and the 10% rule",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, calculation exercises",
+                                },
+                                {
+                                    "objective": "Describe nutrient cycles in an ecosystem (carbon, nitrogen, water cycles)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
+                                },
+                                {
+                                    "objective": "Identify the components of an ecosystem (producers, consumers, decomposers, abiotic factors)",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Observation, discussion",
+                                },
+                                {
+                                    "objective": "Explain the effects of physical (abiotic) factors on organisms",
+                                    "cognitive_level": "Comprehension/Analysis",
+                                    "teaching_method": "Practical investigation",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Man's Activities on the Environment",
+                            "description": (
+                                "Effects of human activities, deforestation, "
+                                "pollution, eutrophication, global warming, "
+                                "and mitigation strategies."
+                            ),
+                            "learning_objectives": [
+                                {
+                                    "objective": "Describe the effects of human activities on the environment (deforestation, pollution, eutrophication)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Case studies, discussion",
                                 },
                                 {
                                     "objective": "Explain the effects of deforestation on local and global climate",
-                                    "description": "Understand human impact on ecosystems",
                                     "cognitive_level": "Analysis",
+                                    "teaching_method": "Research, discussion",
                                 },
                                 {
                                     "objective": "Describe the causes and effects of global warming and climate change",
-                                    "description": "Appreciate environmental challenges facing Malawi",
-                                    "cognitive_level": "Comprehension/Evaluation",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Research, video presentation",
                                 },
                                 {
-                                    "objective": "Evaluate strategies for sustainable environmental management",
-                                    "description": "Develop informed opinions on conservation",
+                                    "objective": "Suggest ways of mitigating the effects of human activities on the environment",
                                     "cognitive_level": "Evaluation",
+                                    "teaching_method": "Group discussion, debate",
                                 },
                             ],
                         },
                     ],
                     "resources": [
-                        "Rain gauge, thermometer, pH meter, light meter",
-                        "Soil sampling kit",
+                        "Quadrats, transect lines, pitfall traps, sweep nets",
+                        "Thermometer, pH meter, rain gauge, light meter",
+                        "Graph paper, calculator",
                     ],
                 },
             ],
         },
+        # ═══════════════════════════════════════════════════════════════════════
+        # CORE ELEMENT 3 — PLANT BIOLOGY (Form 3 & 4)
+        # ═══════════════════════════════════════════════════════════════════════
         {
             "number": 3,
             "name": "Plant Biology",
-            "description": "Plant structure, photosynthesis, transport, transpiration, and tropisms.",
+            "description": (
+                "Plant structure, transport, photosynthesis, transpiration "
+                "(Form 3), and tropisms (Form 4)."
+            ),
             "topics": [
+                # ── Form 3 topics ────────────────────────────────────────────
                 {
-                    "title": "Plant Structure & Organisation",
+                    "title": "Plant Structure and Function",
                     "year_level": 3,
                     "subtopics": [
                         {
-                            "title": "Plant Cells, Organs & Tissues",
+                            "title": "Cell Structure",
+                            "description": (
+                                "Cell as the basic unit of life; using a microscope; "
+                                "observing plant and animal cells."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "Identify and draw the structure of a typical plant cell",
-                                    "description": "Understand plant cell organisation",
-                                    "cognitive_level": "Knowledge/Application",
+                                    "objective": "Describe the cell as the basic structural and functional unit of all living organisms",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion, slides",
                                 },
                                 {
-                                    "objective": "Describe the functions of cell wall, chloroplasts, and large vacuole",
-                                    "description": "Relate structure to function in plant cells",
-                                    "cognitive_level": "Comprehension",
+                                    "objective": "Use a microscope correctly to observe plant and animal cells",
+                                    "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Practical work",
                                 },
                                 {
-                                    "objective": "Explain the organisation of roots, stems, and leaves",
-                                    "description": "Understand plant organ systems",
+                                    "objective": "Observe and draw plant and animal cells as seen under a microscope",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Practical work, drawing",
+                                },
+                                {
+                                    "objective": "Describe the functions of the cell wall, cell membrane, cytoplasm, nucleus, chloroplasts, and large vacuole in plant cells",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, diagram work",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Levels of Organisation",
+                            "description": (
+                                "Tissues, plant organs (roots, stems, leaves), "
+                                "and monocot vs dicot differences."
+                            ),
+                            "learning_objectives": [
+                                {
+                                    "objective": "Explain how cells are organised into tissues in plants",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, diagram work",
+                                },
+                                {
+                                    "objective": "Describe the internal structure and function of roots (cross-section of a dicot root)",
+                                    "cognitive_level": "Comprehension/Practical",
+                                    "teaching_method": "Microscopy practical",
+                                },
+                                {
+                                    "objective": "Describe the internal structure and function of stems (cross-section of a dicot stem)",
+                                    "cognitive_level": "Comprehension/Practical",
+                                    "teaching_method": "Microscopy practical",
+                                },
+                                {
+                                    "objective": "Describe the internal structure and function of leaves (cross-section of a leaf)",
+                                    "cognitive_level": "Comprehension/Practical",
+                                    "teaching_method": "Microscopy practical",
                                 },
                                 {
                                     "objective": "Distinguish between monocot and dicot plants using seed and leaf venation patterns",
-                                    "description": "Apply classification skills",
                                     "cognitive_level": "Application",
+                                    "teaching_method": "Observation, comparison exercises",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Transport in Plants",
+                            "description": (
+                                "Absorption, osmosis, root pressure, water and "
+                                "mineral transport, and transpiration."
+                            ),
+                            "learning_objectives": [
+                                {
+                                    "objective": "Explain the absorption of water and dissolved mineral salts by plant roots",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, experiment",
                                 },
                                 {
-                                    "objective": "Describe the internal structure of roots (cross-section)",
-                                    "description": "Practical skill: microscopy of plant tissues",
-                                    "cognitive_level": "Application/Practical",
-                                },
-                                {
-                                    "objective": "Describe the internal structure of stems (cross-section of dicot stem)",
-                                    "description": "Understand vascular tissue arrangement",
-                                    "cognitive_level": "Application/Practical",
-                                },
-                                {
-                                    "objective": "Describe the internal structure of leaves (cross-section)",
-                                    "description": "Relate leaf structure to photosynthesis",
+                                    "objective": "Describe the process of osmosis and its role in water absorption by roots",
                                     "cognitive_level": "Comprehension/Practical",
+                                    "teaching_method": "Practical investigation",
+                                },
+                                {
+                                    "objective": "Explain the role of root pressure in the transport of water in plants",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion",
+                                },
+                                {
+                                    "objective": "Describe how water and dissolved mineral salts are transported through xylem",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
+                                },
+                                {
+                                    "objective": "Define transpiration and explain how it occurs through stomata",
+                                    "cognitive_level": "Knowledge/Comprehension",
+                                    "teaching_method": "Discussion",
+                                },
+                                {
+                                    "objective": "Investigate the factors affecting the rate of transpiration using a potometer",
+                                    "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Practical investigation",
                                 },
                             ],
                         },
-                    ],
-                    "resources": [
-                        "Microscope, prepared slides of plant tissues",
-                        "Fresh plant specimens (monocot and dicot)",
-                    ],
-                },
-                {
-                    "title": "Photosynthesis",
-                    "year_level": 3,
-                    "subtopics": [
                         {
-                            "title": "The Photosynthesis Process & Investigations",
+                            "title": "Photosynthesis",
+                            "description": (
+                                "Carbon dioxide/oxygen in air, carbohydrate synthesis, "
+                                "factors affecting rate, stomatal experiments, "
+                                "leaf and chloroplast structure."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "State the word equation for photosynthesis",
-                                    "description": "Understand the basic process of photosynthesis",
+                                    "objective": "Describe the role of carbon dioxide and oxygen in photosynthesis",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion",
+                                },
+                                {
+                                    "objective": "State the word equation for photosynthesis: carbon dioxide + water → glucose + oxygen (in the presence of light and chlorophyll)",
                                     "cognitive_level": "Knowledge",
+                                    "teaching_method": "Note-taking, discussion",
                                 },
                                 {
-                                    "objective": "Describe the factors affecting the rate of photosynthesis (light, CO2, temperature)",
-                                    "description": "Understand limiting factors",
+                                    "objective": "Explain how photosynthesis produces carbohydrates, fats, and proteins",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion",
                                 },
                                 {
-                                    "objective": "Design and carry out an experiment to investigate photosynthesis using Elodea",
-                                    "description": "Practical skill: experimental design",
-                                    "cognitive_level": "Application/Practical",
-                                },
-                                {
-                                    "objective": "Test for starch in leaves using iodine solution",
-                                    "description": "Practical skill: chemical testing",
-                                    "cognitive_level": "Application/Practical",
-                                },
-                                {
-                                    "objective": "Explain the structure and function of chloroplasts",
-                                    "description": "Relate organelle structure to function",
+                                    "objective": "Describe the factors affecting the rate of photosynthesis (light intensity, CO₂ concentration, temperature)",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, experiment",
                                 },
                                 {
-                                    "objective": "Describe the light-dependent and light-independent reactions",
-                                    "description": "Understand the two stages of photosynthesis",
-                                    "cognitive_level": "Comprehension/Analysis",
+                                    "objective": "Carry out a stomatal experiment to show that stomata are present on the underside of leaves",
+                                    "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Practical work",
+                                },
+                                {
+                                    "objective": "Describe the structure and function of stomata in relation to gas exchange",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Microscopy, diagram work",
+                                },
+                                {
+                                    "objective": "Investigate the rate of photosynthesis using an aquatic plant (Elodea) and计数bubbles",
+                                    "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Practical investigation",
+                                },
+                                {
+                                    "objective": "Describe the structure of a leaf as adapted for photosynthesis",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
+                                },
+                                {
+                                    "objective": "Describe the structure and function of chloroplasts",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work",
                                 },
                             ],
                         },
                     ],
                     "resources": [
-                        "Elodea/aquatic plant, sodium bicarbonate solution, lamp",
-                        "Iodine solution, ethanol, beakers, water bath",
+                        "Microscope, prepared slides of plant tissues (root, stem, leaf cross-sections)",
+                        "Fresh plant specimens (monocot and dicot seeds/leaves)",
+                        "Elodea/aquatic plant, sodium bicarbonate solution, lamp, beakers",
+                        "Potometer, fresh shoot, water, oil, Vaseline, plastic bag",
+                        "Iodine solution, ethanol, water bath (for starch test)",
                     ],
                 },
+                # ── Form 4 topic ─────────────────────────────────────────────
                 {
-                    "title": "Transport in Plants",
-                    "year_level": 3,
-                    "subtopics": [
-                        {
-                            "title": "Vascular Tissue & Translocation",
-                            "learning_objectives": [
-                                {
-                                    "objective": "Describe the structure and function of xylem and phloem",
-                                    "description": "Understand vascular tissue",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Explain the mechanism of water transport in xylem (cohesion-tension theory)",
-                                    "description": "Understand transpiration stream",
-                                    "cognitive_level": "Comprehension/Analysis",
-                                },
-                                {
-                                    "objective": "Describe the mechanism of translocation in phloem",
-                                    "description": "Understand movement of sugars",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Set up and interpret a potometer to measure water uptake",
-                                    "description": "Practical skill: potometer use",
-                                    "cognitive_level": "Application/Practical",
-                                },
-                                {
-                                    "objective": "Investigate factors affecting the rate of transpiration using a potometer",
-                                    "description": "Experimental design and data analysis",
-                                    "cognitive_level": "Application/Analysis",
-                                },
-                                {
-                                    "objective": "Explain the role of root pressure in water absorption",
-                                    "description": "Understand alternative water transport mechanisms",
-                                    "cognitive_level": "Comprehension",
-                                },
-                            ],
-                        },
-                    ],
-                    "resources": [
-                        "Potometer, fresh shoot, water, oil",
-                        "Vaseline, plastic bag, lamp, fan",
-                    ],
-                },
-                {
-                    "title": "Transpiration & Tropisms",
+                    "title": "Tropisms",
                     "year_level": 4,
                     "subtopics": [
                         {
-                            "title": "Transpiration and Plant Growth Responses",
+                            "title": "Plant Growth Responses",
+                            "description": (
+                                "Effects of gravity, light, touch, and water on plant "
+                                "growth; tropic and nastic movements; auxins; "
+                                "practical applications in farming and horticulture."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "Define transpiration and explain how it occurs through stomata",
-                                    "description": "Understand water loss from plants",
-                                    "cognitive_level": "Knowledge/Comprehension",
-                                },
-                                {
-                                    "objective": "Investigate the effect of environmental factors on transpiration rate",
-                                    "description": "Practical skill: cobalt chloride paper experiment",
-                                    "cognitive_level": "Application/Practical",
-                                },
-                                {
-                                    "objective": "Describe phototropism in shoots and roots",
-                                    "description": "Understand growth responses to light",
+                                    "objective": "Describe the effects of gravity on the growth of roots and shoots (gravitropism/geotropism)",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Observation of experiments",
                                 },
                                 {
-                                    "objective": "Describe gravitropism (geotropism) in roots and shoots",
-                                    "description": "Understand growth responses to gravity",
+                                    "objective": "Describe the effects of light on the growth of shoots and leaves (phototropism)",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Observation of experiments",
                                 },
                                 {
-                                    "objective": "Explain the role of auxins in plant tropisms",
-                                    "description": "Understand hormonal control of growth",
+                                    "objective": "Describe the effects of touch/wind on plant growth (thigmotropism)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Observation, discussion",
+                                },
+                                {
+                                    "objective": "Describe the effects of water on root growth (hydrotropism)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Practical investigation",
+                                },
+                                {
+                                    "objective": "Differentiate between tropic and nastic movements",
                                     "cognitive_level": "Analysis",
+                                    "teaching_method": "Comparison, discussion",
                                 },
                                 {
-                                    "objective": "Design experiments to investigate tropisms",
-                                    "description": "Practical skill: experimental planning",
+                                    "objective": "Discuss practical applications of tropisms in farming and horticulture",
+                                    "cognitive_level": "Evaluation",
+                                    "teaching_method": "Case studies, discussion",
+                                },
+                                {
+                                    "objective": "Explain the role of auxins in controlling plant tropisms",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_method": "Diagram work, discussion",
+                                },
+                                {
+                                    "objective": "Design experiments to investigate tropisms in plants",
                                     "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Guided practical planning",
                                 },
                             ],
                         },
                     ],
                     "resources": [
-                        "Cobalt chloride paper, plastic bags",
+                        "Growing seedlings (beans, maize), dark cupboard, lamp",
                         "Auxin solution, filter paper, wool",
+                        "Graph paper, ruler",
                     ],
                 },
             ],
         },
+        # ═══════════════════════════════════════════════════════════════════════
+        # CORE ELEMENT 4 — ANIMAL BIOLOGY (Form 3)
+        # ═══════════════════════════════════════════════════════════════════════
         {
             "number": 4,
             "name": "Animal Biology",
-            "description": "Animal classification, internal structure, and locomotion.",
+            "description": (
+                "Main groups of animals, internal structure of vertebrates, "
+                "and locomotion."
+            ),
             "topics": [
                 {
-                    "title": "Classification & Diversity of Animals",
+                    "title": "Main Groups of Animals",
                     "year_level": 3,
                     "subtopics": [
                         {
-                            "title": "Animal Phyla & Classification",
+                            "title": "Classification of Vertebrates and Invertebrates",
+                            "description": (
+                                "Key features of vertebrates and invertebrates; "
+                                "classification using identification keys."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "Classify animals into major phyla (Porifera to Chordata)",
-                                    "description": "Understand the basis of animal classification",
+                                    "objective": "State the key features that distinguish vertebrates from invertebrates",
                                     "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion, comparison",
                                 },
                                 {
-                                    "objective": "Compare the features of invertebrate and vertebrate animals",
-                                    "description": "Distinguish between major animal groups",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Describe the characteristics of each vertebrate class",
-                                    "description": "Know features of fish, amphibians, reptiles, birds, mammals",
+                                    "objective": "Classify animals into major invertebrate phyla (Porifera to Echinodermata)",
                                     "cognitive_level": "Knowledge/Comprehension",
+                                    "teaching_method": "Charts, specimens",
+                                },
+                                {
+                                    "objective": "Classify vertebrates into the five main classes (fish, amphibians, reptiles, birds, mammals) using key features",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Observation, discussion",
                                 },
                                 {
                                     "objective": "Use identification keys to classify animal specimens",
-                                    "description": "Practical skill: using dichotomous keys",
                                     "cognitive_level": "Application",
-                                },
-                                {
-                                    "objective": "Appreciate the diversity of animal life in Malawi",
-                                    "description": "Understand local biodiversity",
-                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Practical classification exercise",
                                 },
                             ],
                         },
@@ -456,48 +601,49 @@ BIOLOGY_SYLLABUS = {
                     ],
                 },
                 {
-                    "title": "Internal Structure of Animals",
+                    "title": "Internal Structure of Vertebrates",
                     "year_level": 3,
                     "subtopics": [
                         {
-                            "title": "Fish Dissection, Circulatory & Digestive Systems",
+                            "title": "Tissue Systems, Organ Systems and Dissection",
+                            "description": (
+                                "Tissue systems, organ systems and their components, "
+                                "interdependence of organ systems, dissection of "
+                                "a mammalian heart and eye."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "Describe the internal structure of a fish (e.g. Tilapia)",
-                                    "description": "Practical skill: fish dissection",
+                                    "objective": "Describe the tissue systems in vertebrates (epithelial, connective, muscle, nervous)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
+                                },
+                                {
+                                    "objective": "Identify the main organ systems in vertebrates (digestive, circulatory, respiratory, excretory, nervous, reproductive)",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Diagram work",
+                                },
+                                {
+                                    "objective": "Describe the components of each organ system and explain their interdependence",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, case studies",
+                                },
+                                {
+                                    "objective": "Perform a dissection of a mammalian heart to show its internal structure",
                                     "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Guided dissection",
                                 },
                                 {
-                                    "objective": "Compare the circulatory systems of fish, amphibians, and mammals",
-                                    "description": "Understand evolutionary changes in circulatory systems",
-                                    "cognitive_level": "Analysis",
-                                },
-                                {
-                                    "objective": "Describe the structure and function of the human digestive system",
-                                    "description": "Understand the alimentary canal and its organs",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Explain the process of digestion: mechanical and chemical",
-                                    "description": "Understand how food is broken down",
-                                    "cognitive_level": "Comprehension/Analysis",
-                                },
-                                {
-                                    "objective": "Describe the structure and function of the human heart",
-                                    "description": "Understand the double circulatory system",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Trace the path of blood through the body",
-                                    "description": "Apply knowledge of circulation",
-                                    "cognitive_level": "Application",
+                                    "objective": "Perform a dissection of a mammalian eye to show its internal structure",
+                                    "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Guided dissection",
                                 },
                             ],
                         },
                     ],
                     "resources": [
-                        "Dissection kit, preserved fish specimens",
-                        "Heart models, diagrams, charts",
+                        "Dissection kit (scalpel, scissors, forceps, pins, dissecting board)",
+                        "Preserved heart specimens (sheep/pig heart), mammalian eye (cow/sheep eye)",
+                        "Charts of organ systems, models",
                     ],
                 },
                 {
@@ -505,78 +651,384 @@ BIOLOGY_SYLLABUS = {
                     "year_level": 3,
                     "subtopics": [
                         {
-                            "title": "Types of Movement & Skeletal Systems",
+                            "title": "Types of Movement and Muscles",
+                            "description": (
+                                "Types of movement in animals; role of muscles and "
+                                "skeleton in movement; antagonistic muscle pairs."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "Describe the types of movement in animals: locomotion, movement of body parts",
-                                    "description": "Understand different types of animal movement",
+                                    "objective": "Describe the different types of movement in animals (locomotion, movement of body parts, movement of substances within the body)",
                                     "cognitive_level": "Knowledge",
+                                    "teaching_method": "Observation, discussion",
                                 },
                                 {
-                                    "objective": "Explain the role of muscles and skeleton in movement",
-                                    "description": "Understand antagonistic muscle pairs",
+                                    "objective": "Explain how muscles work in antagonistic pairs to produce movement at joints",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, model demonstration",
                                 },
                                 {
-                                    "objective": "Compare the skeletal systems of fish, birds, and mammals",
-                                    "description": "Understand adaptations for different modes of locomotion",
+                                    "objective": "Compare the skeletal systems of fish, birds, and mammals and relate structure to function",
                                     "cognitive_level": "Analysis",
+                                    "teaching_method": "Comparison exercises",
                                 },
                                 {
-                                    "objective": "Describe the structure and function of different types of joints",
-                                    "description": "Understand joint types: ball-and-socket, hinge, pivot",
+                                    "objective": "Describe the structure and function of different types of joints (ball-and-socket, hinge, pivot)",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Model demonstration, discussion",
                                 },
                             ],
                         },
                     ],
-                    "resources": ["Skeletal models, joint models", "Charts, diagrams"],
+                    "resources": [
+                        "Skeletal models, joint models",
+                        "Charts, diagrams, video of animal locomotion",
+                    ],
                 },
             ],
         },
+        # ═══════════════════════════════════════════════════════════════════════
+        # CORE ELEMENT 5 — HUMAN BIOLOGY (Form 3 & 4)
+        # ═══════════════════════════════════════════════════════════════════════
         {
             "number": 5,
             "name": "Human Biology",
-            "description": "Respiratory, excretory, nervous, endocrine, reproductive, circulatory, and immune systems.",
+            "description": (
+                "Digestive system, blood circulatory system, lymphatic system, "
+                "reproductive system (Form 3); respiratory system, excretory "
+                "system, coordination and response, immunity, cancer, blood "
+                "groups, and common infectious diseases (Form 4)."
+            ),
             "topics": [
+                # ── Form 3 topics ────────────────────────────────────────────
+                {
+                    "title": "Human Digestive System",
+                    "year_level": 3,
+                    "subtopics": [
+                        {
+                            "title": "Nutrition and the Need for Food",
+                            "description": (
+                                "Types of nutrition; organic and inorganic nutrients; "
+                                "accessory food factors (vitamins and roughage); "
+                                "the six classes of food and their functions; "
+                                "deficiency diseases; diet composition; food combinations."
+                            ),
+                            "learning_objectives": [
+                                {
+                                    "objective": "Define nutrition and distinguish between autotrophic and heterotrophic nutrition",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion",
+                                },
+                                {
+                                    "objective": "State the need for food: source of energy, body building, regulation of body processes",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion, note-taking",
+                                },
+                                {
+                                    "objective": "Identify organic nutrients (carbohydrates, proteins, fats) and their functions",
+                                    "cognitive_level": "Knowledge/Comprehension",
+                                    "teaching_method": "Discussion, food analysis",
+                                },
+                                {
+                                    "objective": "Identify inorganic nutrients (mineral salts: calcium, iron, iodine, sodium, potassium) and their functions",
+                                    "cognitive_level": "Knowledge/Comprehension",
+                                    "teaching_method": "Discussion",
+                                },
+                                {
+                                    "objective": "Explain the role of accessory food factors: vitamins (A, B, C, D) and roughage",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, case studies",
+                                },
+                                {
+                                    "objective": "State the six classes of food and describe the function of each in the body",
+                                    "cognitive_level": "Knowledge/Comprehension",
+                                    "teaching_method": "Note-taking, group work",
+                                },
+                                {
+                                    "objective": "Identify deficiency diseases caused by lack of specific nutrients",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Case studies, research",
+                                },
+                                {
+                                    "objective": "Describe a balanced diet and explain its importance for health",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, food diary analysis",
+                                },
+                                {
+                                    "objective": "Describe the food combinations commonly eaten in Malawi to form balanced meals",
+                                    "cognitive_level": "Comprehension/Application",
+                                    "teaching_method": "Research, discussion",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Digestion, Absorption and Transport",
+                            "description": (
+                                "Alimentary canal components; teeth and dental problems; "
+                                "enzymes; food absorption; liver functions; "
+                                "digestive system abnormalities."
+                            ),
+                            "learning_objectives": [
+                                {
+                                    "objective": "List the components of the alimentary canal and describe the function of each part",
+                                    "cognitive_level": "Knowledge/Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
+                                },
+                                {
+                                    "objective": "Describe the structure and types of teeth and their roles in digestion",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, observation",
+                                },
+                                {
+                                    "objective": "Discuss common dental problems and how to maintain healthy teeth",
+                                    "cognitive_level": "Evaluation",
+                                    "teaching_method": "Discussion, research",
+                                },
+                                {
+                                    "objective": "Explain the roles of digestive enzymes (amylase, pepsin, lipase, maltase, trypsin) in breaking down food",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, enzyme experiments",
+                                },
+                                {
+                                    "objective": "Describe how digested food is absorbed in the small intestine",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
+                                },
+                                {
+                                    "objective": "Describe the functions of the liver in relation to digestion (bile production, detoxification, glycogen storage)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion",
+                                },
+                                {
+                                    "objective": "Discuss abnormal conditions of the digestive system (constipation, diarrhoea, ulcers, indigestion)",
+                                    "cognitive_level": "Evaluation",
+                                    "teaching_method": "Case studies, discussion",
+                                },
+                            ],
+                        },
+                    ],
+                    "resources": [
+                        "Models of the alimentary canal, teeth models/charts",
+                        "Digestive enzyme experiment kits (starch, protein, fat solutions; iodine, Biuret, litmus)",
+                        "Charts showing balanced diets, deficiency diseases",
+                    ],
+                },
+                {
+                    "title": "Human Blood Circulatory System",
+                    "year_level": 3,
+                    "subtopics": [
+                        {
+                            "title": "Heart, Blood and Blood Vessels",
+                            "description": (
+                                "Role of the circulatory system; heart structure and "
+                                "function; blood components; blood vessels; heartbeat "
+                                "investigations; blood pressure; lifestyle effects; "
+                                "blood disorders."
+                            ),
+                            "learning_objectives": [
+                                {
+                                    "objective": "State the role of the circulatory system in transporting substances around the body",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion",
+                                },
+                                {
+                                    "objective": "Describe the structure and function of the human heart",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Model, diagram work",
+                                },
+                                {
+                                    "objective": "Describe the composition of blood: plasma, red blood cells, white blood cells, and platelets",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Microscopy of blood smears",
+                                },
+                                {
+                                    "objective": "Explain the function of each blood component",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion",
+                                },
+                                {
+                                    "objective": "Describe the structure and function of arteries, veins, and capillaries",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, model",
+                                },
+                                {
+                                    "objective": "Investigate the heartbeat: count pulse rate at rest and after exercise",
+                                    "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Practical investigation",
+                                },
+                                {
+                                    "objective": "Describe what blood pressure is and how it is measured",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Demonstration, discussion",
+                                },
+                                {
+                                    "objective": "Discuss how lifestyle factors (diet, exercise, smoking, alcohol) affect the circulatory system",
+                                    "cognitive_level": "Evaluation",
+                                    "teaching_method": "Research, discussion",
+                                },
+                                {
+                                    "objective": "Discuss common blood disorders (anaemia, leukaemia, sickle cell disease) and their effects",
+                                    "cognitive_level": "Evaluation",
+                                    "teaching_method": "Case studies",
+                                },
+                            ],
+                        },
+                    ],
+                    "resources": [
+                        "Heart models, blood typing kits",
+                        "Microscope, blood smear slides",
+                        "Pulse rate chart, stethoscope",
+                    ],
+                },
+                {
+                    "title": "Human Lymphatic System",
+                    "year_level": 3,
+                    "subtopics": [
+                        {
+                            "title": "Lymphatic Vessels and Nodes",
+                            "description": (
+                                "Component parts of the lymphatic system and their functions."
+                            ),
+                            "learning_objectives": [
+                                {
+                                    "objective": "Identify the component parts of the lymphatic system (lymph vessels, lymph nodes, spleen, thymus gland, tonsils)",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Diagram work, discussion",
+                                },
+                                {
+                                    "objective": "Describe the functions of the lymphatic system (drainage, immune defence, fat absorption)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion",
+                                },
+                            ],
+                        },
+                    ],
+                    "resources": [
+                        "Diagram of the lymphatic system",
+                        "Charts, models",
+                    ],
+                },
+                {
+                    "title": "Human Reproductive System",
+                    "year_level": 3,
+                    "subtopics": [
+                        {
+                            "title": "Reproduction",
+                            "description": (
+                                "Sexual reproduction; male and female reproductive "
+                                "systems; sperm and ovum; menstruation; fertilisation "
+                                "and conception; the placenta; process of birth; "
+                                "contraception; reproductive abnormalities."
+                            ),
+                            "learning_objectives": [
+                                {
+                                    "objective": "Define sexual reproduction and explain the roles of male and female gametes",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion",
+                                },
+                                {
+                                    "objective": "Describe the structure and function of the male reproductive system (testes, vas deferens, prostate gland, penis)",
+                                    "cognitive_level": "Knowledge/Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
+                                },
+                                {
+                                    "objective": "Describe the structure and function of the female reproductive system (ovaries, oviducts, uterus, vagina, vulva)",
+                                    "cognitive_level": "Knowledge/Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
+                                },
+                                {
+                                    "objective": "Describe the production of sperm and ova (gametogenesis)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work",
+                                },
+                                {
+                                    "objective": "Describe the menstrual cycle and the hormones involved (FSH, LH, oestrogen, progesterone)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
+                                },
+                                {
+                                    "objective": "Explain fertilisation and how it leads to conception",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion",
+                                },
+                                {
+                                    "objective": "Describe the structure and function of the placenta in nourishing the developing foetus",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
+                                },
+                                {
+                                    "objective": "Describe the process of birth (parturition)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Video, discussion",
+                                },
+                                {
+                                    "objective": "Describe methods of contraception and explain how they prevent pregnancy",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Research, discussion",
+                                },
+                                {
+                                    "objective": "Discuss abnormal conditions associated with reproduction (infertility, STIs, cervical cancer, prostate cancer)",
+                                    "cognitive_level": "Evaluation",
+                                    "teaching_method": "Case studies, research",
+                                },
+                            ],
+                        },
+                    ],
+                    "resources": [
+                        "Reproductive system models (male and female)",
+                        "Charts of menstrual cycle, contraception methods",
+                        "Video of human reproduction",
+                    ],
+                },
+                # ── Form 4 topics ─────────────────────────────────────────────
                 {
                     "title": "Respiratory System",
                     "year_level": 4,
                     "subtopics": [
                         {
-                            "title": "Breathing Mechanism & Gas Exchange",
+                            "title": "Breathing Mechanism and Gaseous Exchange",
+                            "description": (
+                                "Breathing mechanism; breathing capacity; gaseous "
+                                "exchange; measurement of breathing; respiratory "
+                                "abnormalities."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "Describe the structure and function of the human respiratory system",
-                                    "description": "Understand the organs of breathing",
+                                    "objective": "Describe the structure and function of the human respiratory system (nose, trachea, bronchi, lungs, alveoli, diaphragm)",
                                     "cognitive_level": "Knowledge/Comprehension",
+                                    "teaching_method": "Diagram work, model",
                                 },
                                 {
-                                    "objective": "Explain the mechanism of breathing (inhalation and exhalation)",
-                                    "description": "Understand the role of the diaphragm and intercostal muscles",
+                                    "objective": "Explain the mechanism of breathing (inhalation and exhalation) including the role of the diaphragm and intercostal muscles",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, demonstration",
+                                },
+                                {
+                                    "objective": "Investigate breathing capacity using a spirometer or similar equipment",
+                                    "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Practical measurement",
+                                },
+                                {
+                                    "objective": "Describe gaseous exchange in the alveoli (diffusion of oxygen and carbon dioxide)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
                                 },
                                 {
                                     "objective": "Investigate the effect of exercise on breathing rate and depth",
-                                    "description": "Practical skill: pulse and breathing rate measurement",
                                     "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Practical investigation",
                                 },
                                 {
-                                    "objective": "Describe gas exchange in the alveoli",
-                                    "description": "Understand diffusion across respiratory surfaces",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Discuss the effects of smoking on the respiratory system",
-                                    "description": "Appreciate health risks of tobacco use",
+                                    "objective": "Discuss respiratory abnormalities (asthma, bronchitis, emphysema, lung cancer) and their causes",
                                     "cognitive_level": "Evaluation",
+                                    "teaching_method": "Case studies, research",
                                 },
                             ],
                         },
                     ],
                     "resources": [
                         "Spirometer, stopwatch, stethoscope",
-                        "Diagrams, models, lung capacity measuring equipment",
+                        "Respiratory system model, diagrams",
                     ],
                 },
                 {
@@ -584,592 +1036,806 @@ BIOLOGY_SYLLABUS = {
                     "year_level": 4,
                     "subtopics": [
                         {
-                            "title": "Kidneys, Nephrons & Osmoregulation",
+                            "title": "Excretion and Osmoregulation",
+                            "description": (
+                                "Excretory system (kidneys, ureters, bladder, urethra); "
+                                "skin as excretory organ; composition of urine; "
+                                "effects of water and salt intake; ADH and "
+                                "osmoregulation; artificial kidney (dialysis)."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "Identify the organs of the excretory system (kidneys, ureters, bladder, urethra)",
-                                    "description": "Know the structure of the urinary system",
+                                    "objective": "Define excretion and distinguish it from egestion",
                                     "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion",
                                 },
                                 {
-                                    "objective": "Describe the structure of the nephron and its role in urine formation",
-                                    "description": "Understand filtration, reabsorption, and secretion",
+                                    "objective": "Identify the organs of the excretory system (kidneys, ureters, bladder, urethra) and describe the function of each",
+                                    "cognitive_level": "Knowledge/Comprehension",
+                                    "teaching_method": "Diagram work, model",
+                                },
+                                {
+                                    "objective": "Describe the role of the skin as an excretory organ (sweat glands)",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion",
                                 },
                                 {
-                                    "objective": "Explain the role of the kidneys in osmoregulation",
-                                    "description": "Understand water balance control",
+                                    "objective": "Describe the composition of urine (water, urea, mineral salts)",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion",
+                                },
+                                {
+                                    "objective": "Investigate the effects of water and salt intake on the volume and concentration of urine produced",
+                                    "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Practical investigation",
+                                },
+                                {
+                                    "objective": "Explain the role of ADH (antidiuretic hormone) in osmoregulation",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion",
                                 },
                                 {
-                                    "objective": "Describe the role of the skin in excretion (sweat glands)",
-                                    "description": "Understand the excretory role of the skin",
+                                    "objective": "Explain how a dialysis machine (artificial kidney) works to remove waste products from blood",
                                     "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Discuss the effects of kidney failure and modern treatments (dialysis, transplant)",
-                                    "description": "Appreciate medical applications of biology",
-                                    "cognitive_level": "Evaluation",
+                                    "teaching_method": "Diagram work, video, discussion",
                                 },
                             ],
                         },
                     ],
                     "resources": [
                         "Kidney models, nephron diagrams",
-                        "Cross-section slides",
+                        "Charts of osmoregulation, dialysis machine diagram",
                     ],
                 },
                 {
-                    "title": "Coordination & Response",
+                    "title": "Coordination and Response",
                     "year_level": 4,
                     "subtopics": [
                         {
-                            "title": "Nervous System, Reflex Arc & Synapses",
+                            "title": "Nervous System and Reflex Actions",
+                            "description": (
+                                "Functioning of the nervous system; nerve cells; "
+                                "structure of neurones; spinal cord; impulse "
+                                "transmission; reflex actions; conditioned reflexes; "
+                                "diseases of the nervous system."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "Describe the structure and function of the nervous system (CNS, PNS, SNS)",
-                                    "description": "Understand neural organisation",
-                                    "cognitive_level": "Knowledge/Comprehension",
-                                },
-                                {
-                                    "objective": "Explain the reflex arc with examples",
-                                    "description": "Understand automatic responses",
+                                    "objective": "Describe the functioning of the nervous system: central nervous system (brain and spinal cord) and peripheral nervous system",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
                                 },
                                 {
-                                    "objective": "Describe the structure and function of a neurone",
-                                    "description": "Understand nerve cell structure",
+                                    "objective": "Describe the structure of nerve cells (neurones) and distinguish between sensory, relay, and motor neurones",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work",
                                 },
                                 {
-                                    "objective": "Explain synaptic transmission",
-                                    "description": "Understand how nerve impulses cross synapses",
+                                    "objective": "Describe the structure and function of the spinal cord",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, model",
+                                },
+                                {
+                                    "objective": "Explain the transmission of nerve impulses along neurones and across synapses",
                                     "cognitive_level": "Analysis",
+                                    "teaching_method": "Diagram work, animation",
                                 },
-                            ],
-                        },
-                        {
-                            "title": "Human Eye, Endocrine System & Hormones",
-                            "learning_objectives": [
                                 {
-                                    "objective": "Describe the structure and function of the human eye",
-                                    "description": "Understand the eye as a receptor organ",
+                                    "objective": "Describe the reflex arc with examples (e.g. withdrawing hand from a hot object)",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
                                 },
                                 {
-                                    "objective": "Describe accommodation for near and distant vision",
-                                    "description": "Understand lens shape changes",
+                                    "objective": "Explain conditioned reflexes and give examples",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, examples",
                                 },
                                 {
-                                    "objective": "Explain the role of the endocrine system and major hormones (insulin, adrenaline, thyroxine, FSH, LH, oestrogen, testosterone)",
-                                    "description": "Understand hormonal coordination",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Compare the nervous and endocrine systems",
-                                    "description": "Understand speed and duration differences",
-                                    "cognitive_level": "Analysis",
-                                },
-                                {
-                                    "objective": "Discuss the effects of drug abuse on the nervous system",
-                                    "description": "Appreciate dangers of substance abuse",
+                                    "objective": "Discuss common diseases of the nervous system (polio, meningitis, Parkinson's disease, multiple sclerosis)",
                                     "cognitive_level": "Evaluation",
+                                    "teaching_method": "Research, case studies",
                                 },
                             ],
                         },
-                    ],
-                    "resources": [
-                        "Brain model, eye model",
-                        "Hormone charts, reflex hammer",
-                    ],
-                },
-                {
-                    "title": "Reproductive System",
-                    "year_level": 4,
-                    "subtopics": [
                         {
-                            "title": "Male & Female Reproduction, Menstrual Cycle",
+                            "title": "Endocrine System",
+                            "description": (
+                                "Endocrine system and glands; factors modifying "
+                                "growth and development."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "Describe the structure and function of the male reproductive system",
-                                    "description": "Know the male reproductive organs and their functions",
+                                    "objective": "Describe the endocrine system and identify the major endocrine glands (pituitary, thyroid, adrenal, pancreas, ovaries, testes)",
                                     "cognitive_level": "Knowledge/Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
                                 },
                                 {
-                                    "objective": "Describe the structure and function of the female reproductive system",
-                                    "description": "Know the female reproductive organs and their functions",
-                                    "cognitive_level": "Knowledge/Comprehension",
-                                },
-                                {
-                                    "objective": "Explain the menstrual cycle and the role of hormones (FSH, LH, oestrogen, progesterone)",
-                                    "description": "Understand hormonal regulation of reproduction",
+                                    "objective": "Explain the roles of major hormones: insulin (pancreas), adrenaline (adrenal), thyroxine (thyroid), FSH, LH, oestrogen (ovaries), testosterone (testes)",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, case studies",
                                 },
                                 {
-                                    "objective": "Describe fertilisation and early embryonic development",
-                                    "description": "Understand the events from fertilisation to implantation",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Compare asexual and sexual reproduction",
-                                    "description": "Understand the advantages and disadvantages of each",
+                                    "objective": "Compare the nervous and endocrine systems (speed, duration, target, nature of signal)",
                                     "cognitive_level": "Analysis",
+                                    "teaching_method": "Comparison exercises",
                                 },
                                 {
-                                    "objective": "Describe methods of contraception and their mechanisms",
-                                    "description": "Understand reproductive health",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Discuss sexually transmitted infections (STIs) and their prevention",
-                                    "description": "Appreciate the importance of sexual health education",
+                                    "objective": "Discuss factors that modify growth and development (nutrition, hormones, environment, genetics)",
                                     "cognitive_level": "Evaluation",
+                                    "teaching_method": "Research, discussion",
                                 },
                             ],
                         },
-                    ],
-                    "resources": [
-                        "Reproductive system models",
-                        "Charts, diagrams of menstrual cycle",
-                    ],
-                },
-                {
-                    "title": "Immunity & Disease",
-                    "year_level": 4,
-                    "subtopics": [
                         {
-                            "title": "Pathogens, Immune Response & Vaccines",
+                            "title": "Immunity",
+                            "description": (
+                                "Types of immunity; first line of defence; vaccination; "
+                                "HIV and immunity; organ transplants."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "Distinguish between pathogens: bacteria, viruses, fungi, and parasites",
-                                    "description": "Know the types of disease-causing organisms",
+                                    "objective": "Distinguish between natural and artificial immunity, and active and passive immunity",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, diagram work",
+                                },
+                                {
+                                    "objective": "Describe the first line of defence in the body (skin, mucous membranes, stomach acid, tears)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion",
+                                },
+                                {
+                                    "objective": "Explain how vaccination provides immunity (role of antigens, antibodies, memory cells)",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_method": "Discussion, diagram work",
+                                },
+                                {
+                                    "objective": "Discuss how HIV affects the immune system and its impact in Malawi",
+                                    "cognitive_level": "Evaluation",
+                                    "teaching_method": "Research, case studies, guest speaker",
+                                },
+                                {
+                                    "objective": "Discuss the challenges and ethical issues of organ transplants (rejection, immunosuppression)",
+                                    "cognitive_level": "Evaluation",
+                                    "teaching_method": "Research, debate",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Cancer",
+                            "description": "Types of cancer; detection and treatment.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Define cancer as uncontrolled cell division forming tumours (benign and malignant)",
+                                    "cognitive_level": "Knowledge/Comprehension",
+                                    "teaching_method": "Discussion, diagram work",
+                                },
+                                {
+                                    "objective": "Identify risk factors for cancer (smoking, UV radiation, diet, genetic factors, viruses)",
                                     "cognitive_level": "Knowledge",
+                                    "teaching_method": "Research, discussion",
                                 },
                                 {
-                                    "objective": "Describe how the body defends itself: skin, mucous membranes, phagocytes, lymphocytes",
-                                    "description": "Understand non-specific and specific defence",
+                                    "objective": "Describe methods of cancer detection (screening, biopsy, X-ray)",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, case studies",
                                 },
                                 {
-                                    "objective": "Explain the immune response: antibodies, antigens, and immunological memory",
-                                    "description": "Understand how immunity develops",
-                                    "cognitive_level": "Analysis",
-                                },
-                                {
-                                    "objective": "Describe how vaccines work to provide immunity",
-                                    "description": "Understand the principle of vaccination",
+                                    "objective": "Describe methods of cancer treatment (surgery, chemotherapy, radiotherapy)",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, video",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Blood Groups and Transfusion",
+                            "description": (
+                                "ABO and rhesus blood groups; blood transfusion; "
+                                "blood typing; Rhesus disease."
+                            ),
+                            "learning_objectives": [
+                                {
+                                    "objective": "Explain the ABO blood group system (A, B, AB, O) and how blood groups are determined",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, Punnett squares",
                                 },
                                 {
-                                    "objective": "Discuss the effects of HIV/AIDS on the immune system",
-                                    "description": "Appreciate the impact of HIV/AIDS in Malawi",
-                                    "cognitive_level": "Comprehension/Evaluation",
+                                    "objective": "Explain the Rhesus (Rh) blood group system and its significance",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion",
                                 },
                                 {
-                                    "objective": "Describe the transmission, symptoms, and prevention of malaria",
-                                    "description": "Understand malaria as a major disease in Malawi",
+                                    "objective": "Describe the principles of blood transfusion and why blood must be typed before transfusion",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, demonstration",
+                                },
+                                {
+                                    "objective": "Perform blood typing using anti-A and anti-B sera",
+                                    "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Practical work",
+                                },
+                                {
+                                    "objective": "Explain Rhesus disease and its effects on newborn babies",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, case studies",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Common Infectious Diseases in Malawi",
+                            "description": (
+                                "Classification of communicable and non-communicable "
+                                "diseases; description and control of major diseases "
+                                "found in Malawi."
+                            ),
+                            "learning_objectives": [
+                                {
+                                    "objective": "Classify diseases as communicable or non-communicable and give examples of each",
                                     "cognitive_level": "Knowledge/Comprehension",
+                                    "teaching_method": "Discussion, sorting exercises",
                                 },
                                 {
-                                    "objective": "Discuss the role of public health measures in disease prevention",
-                                    "description": "Appreciate the importance of hygiene and sanitation",
-                                    "cognitive_level": "Evaluation",
+                                    "objective": "Describe the cause, transmission, symptoms, and control of smallpox, tuberculosis, leprosy, and polio",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Research, discussion",
+                                },
+                                {
+                                    "objective": "Describe the cause, transmission, symptoms, and control of syphilis and gonorrhoea",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Research, discussion",
+                                },
+                                {
+                                    "objective": "Describe the cause, transmission, symptoms, and control of bilharzia (schistosomiasis), hookworm, and elephantiasis (lymphatic filariasis)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Research, discussion, field studies",
+                                },
+                                {
+                                    "objective": "Describe the cause, transmission, symptoms, and control of malaria (including the life cycle of Plasmodium)",
+                                    "cognitive_level": "Comprehension/Analysis",
+                                    "teaching_method": "Research, diagram work, discussion",
+                                },
+                                {
+                                    "objective": "Describe the cause, transmission, symptoms, and control of cholera, dysentery, typhoid, and hepatitis",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Research, discussion",
+                                },
+                                {
+                                    "objective": "Describe common eye diseases in Malawi (trachoma, conjunctivitis) and their prevention",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, research",
+                                },
+                                {
+                                    "objective": "Describe sleeping sickness and rabies: causative organisms, vectors, symptoms, and control",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Research, discussion",
                                 },
                             ],
                         },
                     ],
                     "resources": [
-                        "Microscope, prepared slides of bacteria/viruses",
-                        "Charts of immune system, vaccine vials (demonstration)",
+                        "Brain model, eye model, reflex hammer",
+                        "Hormone charts, endocrine system diagrams",
+                        "Blood typing kits (anti-A, anti-B sera, slides)",
+                        "Charts of common Malawian diseases, microscope",
+                        "Microscope, prepared slides of pathogens",
                     ],
-                },
-                {
-                    "title": "Blood & Circulatory System",
-                    "year_level": 4,
-                    "subtopics": [
-                        {
-                            "title": "Blood Composition, Heart & Blood Vessels",
-                            "learning_objectives": [
-                                {
-                                    "objective": "Describe the composition of blood: plasma, red blood cells, white blood cells, platelets",
-                                    "description": "Know the components and functions of blood",
-                                    "cognitive_level": "Knowledge",
-                                },
-                                {
-                                    "objective": "Explain the functions of each blood component",
-                                    "description": "Relate structure to function",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Describe the structure and function of arteries, veins, and capillaries",
-                                    "description": "Understand blood vessel types",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Describe the structure and function of the human heart",
-                                    "description": "Understand the double circulatory system",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Trace the path of blood through the pulmonary and systemic circuits",
-                                    "description": "Apply knowledge of circulation",
-                                    "cognitive_level": "Application",
-                                },
-                                {
-                                    "objective": "Discuss blood groups and the importance of blood transfusion",
-                                    "description": "Understand ABO and Rh blood groups",
-                                    "cognitive_level": "Comprehension",
-                                },
-                            ],
-                        },
-                    ],
-                    "resources": [
-                        "Blood smear slides, microscope",
-                        "Heart models, blood typing kits",
-                    ],
-                },
-                {
-                    "title": "Cancer & Organ Transplants",
-                    "year_level": 4,
-                    "subtopics": [
-                        {
-                            "title": "Cancer Biology & Transplant Ethics",
-                            "learning_objectives": [
-                                {
-                                    "objective": "Explain what cancer is: uncontrolled cell division (tumours)",
-                                    "description": "Understand the basic biology of cancer",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Identify risk factors for cancer: smoking, UV radiation, genetic factors",
-                                    "description": "Know the major causes of cancer",
-                                    "cognitive_level": "Knowledge",
-                                },
-                                {
-                                    "objective": "Describe methods of cancer treatment: surgery, chemotherapy, radiotherapy",
-                                    "description": "Understand treatment options",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Explain the concept of organ transplants and the problem of rejection",
-                                    "description": "Understand immune rejection",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Discuss the ethical and social issues surrounding organ transplantation",
-                                    "description": "Develop informed opinions on medical ethics",
-                                    "cognitive_level": "Evaluation",
-                                },
-                            ],
-                        },
-                    ],
-                    "resources": ["Charts, diagrams", "Videos, case studies"],
                 },
             ],
         },
+        # ═══════════════════════════════════════════════════════════════════════
+        # CORE ELEMENT 6 — MICRO-ORGANISMS (Form 4)
+        # ═══════════════════════════════════════════════════════════════════════
         {
             "number": 6,
             "name": "Micro-organisms",
-            "description": "Structure, classification, beneficial and harmful roles of micro-organisms.",
+            "description": (
+                "Structure, classification, beneficial and harmful roles "
+                "of micro-organisms; their use in food, industry, and "
+                "the spread of disease."
+            ),
             "topics": [
                 {
-                    "title": "Structure & Classification",
+                    "title": "Structure and Classification of Micro-organisms",
                     "year_level": 4,
                     "subtopics": [
                         {
-                            "title": "Bacteria, Viruses & Fungi",
+                            "title": "Bacteria, Viruses and Fungi",
+                            "description": (
+                                "Structure of bacteria, viruses, and fungi; "
+                                "classification of micro-organisms."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "Describe the structure of bacteria, viruses, and fungi",
-                                    "description": "Know the basic structure of micro-organisms",
+                                    "objective": "Describe the structure of bacteria (prokaryotic cell: cell wall, cell membrane, cytoplasm, nucleoid, flagella, pili)",
                                     "cognitive_level": "Knowledge",
+                                    "teaching_method": "Diagram work, slides",
                                 },
                                 {
-                                    "objective": "Distinguish between bacteria (prokaryotes) and viruses (non-cellular)",
-                                    "description": "Compare different types of micro-organisms",
-                                    "cognitive_level": "Comprehension",
+                                    "objective": "Describe the structure of viruses (non-cellular: protein coat, nucleic acid core) and explain why they are not considered living",
+                                    "cognitive_level": "Knowledge/Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
                                 },
                                 {
-                                    "objective": "Explain how micro-organisms are classified",
-                                    "description": "Understand classification criteria",
-                                    "cognitive_level": "Comprehension",
+                                    "objective": "Describe the structure of fungi (unicellular: yeast; multicellular: moulds and mushrooms)",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Observation, slides",
                                 },
                                 {
-                                    "objective": "Describe beneficial micro-organisms: decomposition, fermentation, nitrogen fixation",
-                                    "description": "Appreciate the positive roles of microbes",
+                                    "objective": "Explain how micro-organisms are classified (bacteria, fungi, protoctists, viruses)",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, sorting exercises",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Beneficial and Harmful Micro-organisms",
+                            "description": (
+                                "Roles of micro-organisms in decomposition, "
+                                "nitrogen fixation, fermentation, and disease."
+                            ),
+                            "learning_objectives": [
+                                {
+                                    "objective": "Describe the beneficial roles of micro-organisms: decomposition, nitrogen fixation, sewage treatment",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, field study",
                                 },
                                 {
-                                    "objective": "Describe harmful micro-organisms: disease causation",
-                                    "description": "Understand the pathogenic role of microbes",
+                                    "objective": "Explain the role of micro-organisms in fermentation (yogurt, bread, beer, traditional Malawian beverages)",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, practical demonstration",
+                                },
+                                {
+                                    "objective": "Describe how micro-organisms cause disease (pathogens, infection, toxins)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion",
+                                },
+                                {
+                                    "objective": "Explain Koch's postulates and their role in identifying the causative agents of disease",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, research",
                                 },
                             ],
                         },
                     ],
                     "resources": [
                         "Microscope, prepared slides of bacteria, yeast, mould",
-                        "Agar plates, Petri dishes",
+                        "Agar plates, Petri dishes, inoculating loop",
                     ],
                 },
                 {
-                    "title": "Micro-organisms in Food & Industry",
+                    "title": "Micro-organisms in Food and Industry",
                     "year_level": 4,
                     "subtopics": [
                         {
-                            "title": "Fermentation, Food Preservation & Aseptic Technique",
+                            "title": "Fermentation, Food Preservation and Aseptic Technique",
+                            "description": (
+                                "Role of micro-organisms in food production; "
+                                "food spoilage; methods of food preservation; "
+                                "investigating microbial growth."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "Explain the role of micro-organisms in food production (yogurt, bread, beer)",
-                                    "description": "Understand fermentation in daily life",
+                                    "objective": "Explain the role of yeasts in bread-making and beer fermentation",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Practical, discussion",
+                                },
+                                {
+                                    "objective": "Describe how Lactobacillus bacteria are used in making yogurt and other fermented foods",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, practical",
                                 },
                                 {
                                     "objective": "Describe how micro-organisms cause food spoilage",
-                                    "description": "Understand food preservation needs",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, observation",
                                 },
                                 {
-                                    "objective": "Discuss methods of food preservation (heating, cooling, drying, canning, salting)",
-                                    "description": "Know practical preservation methods",
-                                    "cognitive_level": "Knowledge",
+                                    "objective": "Discuss methods of food preservation: heating (pasteurisation, sterilisation), cooling, drying, canning, salting, sugaring, use of preservatives",
+                                    "cognitive_level": "Knowledge/Comprehension",
+                                    "teaching_method": "Discussion, research",
                                 },
                                 {
-                                    "objective": "Investigate the growth of micro-organisms under different conditions",
-                                    "description": "Practical skill: aseptic technique",
+                                    "objective": "Investigate the growth of micro-organisms under different conditions (temperature, pH, moisture) using aseptic technique",
                                     "cognitive_level": "Application/Practical",
+                                    "teaching_method": "Practical investigation",
                                 },
                             ],
                         },
                     ],
                     "resources": [
-                        "Agar plates, incubator, autoclave",
-                        "Food samples, preservatives",
+                        "Agar plates, incubator, autoclave/pressure cooker",
+                        "Food samples, preservatives, yeast, sugar",
                     ],
                 },
                 {
-                    "title": "Micro-organisms & Disease",
+                    "title": "Micro-organisms and Disease",
                     "year_level": 4,
                     "subtopics": [
                         {
-                            "title": "Koch's Postulates, Antibiotics & Water Treatment",
+                            "title": "Controlling the Spread of Infection",
+                            "description": (
+                                "Methods of controlling infection spread; "
+                                "antibiotics and antibiotic resistance; "
+                                "role of micro-organisms in sewage treatment "
+                                "and the water cycle."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "Describe how micro-organisms cause disease",
-                                    "description": "Understand the process of infection",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Explain Koch's postulates and their role in identifying disease causation",
-                                    "description": "Understand historical advances in microbiology",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Discuss methods of controlling the spread of infection (hygiene, sterilisation, disinfection)",
-                                    "description": "Know prevention methods",
+                                    "objective": "Discuss methods of controlling the spread of infection: hygiene, sterilisation, disinfection, quarantine",
                                     "cognitive_level": "Knowledge/Comprehension",
+                                    "teaching_method": "Discussion, demonstrations",
                                 },
                                 {
-                                    "objective": "Discuss the use of antibiotics and the problem of antibiotic resistance",
-                                    "description": "Appreciate the challenge of drug resistance",
-                                    "cognitive_level": "Evaluation",
-                                },
-                                {
-                                    "objective": "Describe the role of micro-organisms in the water cycle and sewage treatment",
-                                    "description": "Understand environmental microbiology",
+                                    "objective": "Explain how antibiotics work to kill or inhibit the growth of bacteria",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, diagram work",
+                                },
+                                {
+                                    "objective": "Discuss the problem of antibiotic resistance and its consequences for public health",
+                                    "cognitive_level": "Evaluation",
+                                    "teaching_method": "Research, debate",
+                                },
+                                {
+                                    "objective": "Describe the role of micro-organisms in sewage treatment (anaerobic and aerobic digestion)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
+                                },
+                                {
+                                    "objective": "Explain the role of micro-organisms in the water cycle",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
                                 },
                             ],
                         },
                     ],
                     "resources": [
-                        "Antibiotic discs, agar plates",
-                        "Microscopy equipment",
+                        "Antibiotic discs, agar plates (Kirby-Bauer test)",
+                        "Microscopy equipment, prepared slides",
+                        "Diagram of sewage treatment process",
                     ],
                 },
             ],
         },
+        # ═══════════════════════════════════════════════════════════════════════
+        # CORE ELEMENT 7 — GENETICS AND EVOLUTION (Form 3 & 4)
+        # ═══════════════════════════════════════════════════════════════════════
         {
             "number": 7,
-            "name": "Genetics & Evolution",
-            "description": "Cell division, Mendelian genetics, DNA, variation, evolution, and biotechnology.",
+            "name": "Genetics and Evolution",
+            "description": (
+                "Principles of Mendelian genetics, cell division, genes and "
+                "DNA (Form 3); variations, mutations, natural selection, "
+                "speciation, and biotechnology (Form 4)."
+            ),
             "topics": [
+                # ── Form 3 topics ────────────────────────────────────────────
                 {
-                    "title": "Cell Division: Mitosis & Meiosis",
-                    "year_level": 4,
+                    "title": "Principles of Mendelian Genetics",
+                    "year_level": 3,
                     "subtopics": [
                         {
-                            "title": "Mitosis, Meiosis & Significance",
+                            "title": "Mendel's Experiments and Genotypes",
+                            "description": (
+                                "Monohybrid inheritance; traits in organisms; "
+                                "Mendel's ideas; homozygous/heterozygous; "
+                                "genotypes/phenotypes; predicting outcomes."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "Explain the process of mitosis and its significance in growth and repair",
-                                    "description": "Understand cell division for growth",
+                                    "objective": "Describe Mendel's monohybrid inheritance experiments with pea plants",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, simulation",
                                 },
                                 {
-                                    "objective": "Describe the stages of mitosis (prophase, metaphase, anaphase, telophase)",
-                                    "description": "Know the phases of mitosis",
+                                    "objective": "Define key genetic terms: gene, allele, character, trait, dominant, recessive",
                                     "cognitive_level": "Knowledge",
+                                    "teaching_method": "Note-taking, discussion",
                                 },
                                 {
-                                    "objective": "Explain the process of meiosis and its significance in sexual reproduction",
-                                    "description": "Understand reduction division",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Compare mitosis and meiosis",
-                                    "description": "Distinguish between the two types of cell division",
-                                    "cognitive_level": "Analysis",
-                                },
-                                {
-                                    "objective": "Describe the significance of meiosis in producing genetic variation",
-                                    "description": "Understand the basis of variation",
-                                    "cognitive_level": "Comprehension",
-                                },
-                            ],
-                        },
-                    ],
-                    "resources": [
-                        "Microscope, prepared slides of mitosis stages",
-                        "Onion root tip slides",
-                    ],
-                },
-                {
-                    "title": "Mendelian Genetics",
-                    "year_level": 4,
-                    "subtopics": [
-                        {
-                            "title": "Genes, Alleles & Genetic Crosses",
-                            "learning_objectives": [
-                                {
-                                    "objective": "Define key terms: gene, allele, genotype, phenotype, dominant, recessive, homozygous, heterozygous",
-                                    "description": "Know the vocabulary of genetics",
-                                    "cognitive_level": "Knowledge",
+                                    "objective": "Explain the terms homozygous, heterozygous, genotype, and phenotype",
+                                    "cognitive_level": "Knowledge/Comprehension",
+                                    "teaching_method": "Discussion, exercises",
                                 },
                                 {
                                     "objective": "Use Punnett squares to predict the outcomes of monohybrid crosses",
-                                    "description": "Apply genetic principles",
                                     "cognitive_level": "Application",
+                                    "teaching_method": "Practice exercises",
                                 },
                                 {
-                                    "objective": "Determine the genotypes and phenotypes of offspring",
-                                    "description": "Predict genetic outcomes",
+                                    "objective": "Predict the genotypic and phenotypic ratios of offspring from genetic crosses",
                                     "cognitive_level": "Application",
+                                    "teaching_method": "Practice exercises",
                                 },
+                            ],
+                        },
+                        {
+                            "title": "Ratios and Patterns of Inheritance",
+                            "description": (
+                                "Sex determination; sex-linked inheritance; "
+                                "genetic linkage; implications of Mendel's laws."
+                            ),
+                            "learning_objectives": [
                                 {
-                                    "objective": "Explain codominance and incomplete dominance with examples",
-                                    "description": "Understand extensions to Mendelian genetics",
+                                    "objective": "Explain sex determination in humans (XX/XY chromosome system)",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Punnett squares, discussion",
                                 },
                                 {
-                                    "objective": "Explain the inheritance of sex-linked traits",
-                                    "description": "Understand sex determination and sex-linked conditions",
+                                    "objective": "Explain sex-linked inheritance using examples (colour blindness, haemophilia)",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Pedigree chart analysis",
                                 },
                                 {
-                                    "objective": "Solve genetic problems using family pedigree charts",
-                                    "description": "Apply genetic analysis skills",
-                                    "cognitive_level": "Application",
+                                    "objective": "Describe the concept of genetic linkage and crossing over",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
                                 },
                                 {
-                                    "objective": "Explain the concepts of multiple alleles using ABO blood groups as an example",
-                                    "description": "Understand inheritance of blood groups",
-                                    "cognitive_level": "Application",
+                                    "objective": "Discuss the implications of Mendel's laws of inheritance in agriculture and medicine",
+                                    "cognitive_level": "Evaluation",
+                                    "teaching_method": "Case studies, discussion",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Cell Division",
+                            "description": (
+                                "Chromosomes; mitosis; meiosis; and their significance."
+                            ),
+                            "learning_objectives": [
+                                {
+                                    "objective": "Describe chromosomes as carriers of genetic information and state the human chromosome number (46)",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Diagram work, slides",
+                                },
+                                {
+                                    "objective": "Explain the process of mitosis (prophase, metaphase, anaphase, telophase) and its significance in growth and repair",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, microscope slides",
+                                },
+                                {
+                                    "objective": "Explain the process of meiosis and its significance in sexual reproduction and genetic variation",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, comparison",
+                                },
+                                {
+                                    "objective": "Compare mitosis and meiosis (number of divisions, chromosome number, outcomes)",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_method": "Comparison exercises",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Genes, DNA and Chromosomes",
+                            "description": "DNA and chromosomes; genes and DNA.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Describe the structure of DNA as a double helix composed of nucleotides with complementary base pairing (A-T, C-G)",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Model building, diagram work",
+                                },
+                                {
+                                    "objective": "Explain how genes are segments of DNA that code for specific proteins",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, diagram work",
+                                },
+                                {
+                                    "objective": "Describe how DNA is organised into chromosomes within the nucleus",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work",
+                                },
+                                {
+                                    "objective": "Describe the process of protein synthesis: transcription (DNA → mRNA) and translation (mRNA → protein)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
                                 },
                             ],
                         },
                     ],
                     "resources": [
                         "Punnett square worksheets, pedigree chart examples",
-                        "Genetic case studies",
+                        "Microscope, prepared slides of mitosis stages (onion root tip)",
+                        "DNA model kit, chromosome charts",
+                        "Genetic case studies, computer simulations",
                     ],
                 },
+                # ── Form 4 topics ─────────────────────────────────────────────
                 {
-                    "title": "DNA & The Genome",
+                    "title": "Variations Among Organisms",
                     "year_level": 4,
                     "subtopics": [
                         {
-                            "title": "DNA Structure, Protein Synthesis & Mutations",
+                            "title": "Variation and Its Causes",
+                            "description": (
+                                "Definition and causes of variation; individual, "
+                                "same-sex, and sexual variations; continuous and "
+                                "discontinuous variation; statistical terms (mean, "
+                                "median, mode, variance, standard deviation); "
+                                "organism-environment interactions."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "Describe the structure of DNA (double helix, nucleotides, base pairing)",
-                                    "description": "Know the molecular basis of heredity",
+                                    "objective": "Define variation as the differences between individuals of the same species",
                                     "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion",
                                 },
                                 {
-                                    "objective": "Explain how genes code for proteins",
-                                    "description": "Understand the central dogma of molecular biology",
+                                    "objective": "State the causes of variation: genetic (alleles, crossing over, independent assortment) and environmental",
+                                    "cognitive_level": "Knowledge/Comprehension",
+                                    "teaching_method": "Discussion",
+                                },
+                                {
+                                    "objective": "Identify types of variation: individual variation, variation between same sexes, variation between opposite sexes (sexual dimorphism)",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Observation, data collection",
                                 },
                                 {
-                                    "objective": "Describe the process of protein synthesis (transcription and translation)",
-                                    "description": "Understand gene expression",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Discuss the structure and function of chromosomes",
-                                    "description": "Understand the organisation of genetic material",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Explain the concept of the genome and the Human Genome Project",
-                                    "description": "Understand modern genetics",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Describe the role of mutations in changing genetic information",
-                                    "description": "Understand the source of new alleles",
-                                    "cognitive_level": "Comprehension",
-                                },
-                            ],
-                        },
-                    ],
-                    "resources": ["DNA models, diagrams", "Animations, worksheets"],
-                },
-                {
-                    "title": "Variations & Evolution",
-                    "year_level": 4,
-                    "subtopics": [
-                        {
-                            "title": "Natural Selection, Evidence & Speciation",
-                            "learning_objectives": [
-                                {
-                                    "objective": "Distinguish between variation and mutation",
-                                    "description": "Understand types of variation",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Explain continuous and discontinuous variation with examples",
-                                    "description": "Classify types of variation",
+                                    "objective": "Distinguish between continuous variation (e.g. height, weight) and discontinuous variation (e.g. blood group, eye colour) with examples",
                                     "cognitive_level": "Application",
+                                    "teaching_method": "Data analysis, discussion",
                                 },
                                 {
-                                    "objective": "Describe the theory of evolution by natural selection (Darwin and Wallace)",
-                                    "description": "Understand the mechanism of evolution",
-                                    "cognitive_level": "Comprehension",
+                                    "objective": "Calculate statistical measures of variation: mean, median, mode, variance, and standard deviation",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Mathematical exercises",
                                 },
                                 {
-                                    "objective": "Provide evidence for evolution: fossils, comparative anatomy, biogeography",
-                                    "description": "Evaluate evidence for evolution",
-                                    "cognitive_level": "Analysis",
-                                },
-                                {
-                                    "objective": "Discuss the impact of natural selection on populations",
-                                    "description": "Understand adaptation and speciation",
-                                    "cognitive_level": "Analysis",
-                                },
-                                {
-                                    "objective": "Discuss the contribution of Malawi's biodiversity to evolutionary studies",
-                                    "description": "Appreciate local relevance",
+                                    "objective": "Discuss how the interaction between organisms and their environment affects variation",
                                     "cognitive_level": "Evaluation",
+                                    "teaching_method": "Research, discussion",
                                 },
                             ],
                         },
                     ],
                     "resources": [
-                        "Fossil specimens, charts",
-                        "Field guides, identification keys",
+                        "Measuring equipment (rulers, balances)",
+                        "Calculation worksheets, graph paper",
+                        "Charts showing variation in populations",
+                    ],
+                },
+                {
+                    "title": "Mutations",
+                    "year_level": 4,
+                    "subtopics": [
+                        {
+                            "title": "Types and Effects of Mutations",
+                            "description": (
+                                "Definition and causes of mutations; gene, "
+                                "chromosome, numerical, and structural mutations; "
+                                "significance; non-disjunction; induced mutations."
+                            ),
+                            "learning_objectives": [
+                                {
+                                    "objective": "Define mutation as a sudden, heritable change in genetic material",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion",
+                                },
+                                {
+                                    "objective": "State the causes of mutations: radiation, chemicals, viruses, errors in DNA replication",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Research, discussion",
+                                },
+                                {
+                                    "objective": "Describe gene mutations (changes in base sequence: substitution, insertion, deletion) and their effects",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
+                                },
+                                {
+                                    "objective": "Describe chromosome mutations (changes in chromosome structure: deletion, duplication, inversion, translocation)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work",
+                                },
+                                {
+                                    "objective": "Describe numerical mutations (changes in chromosome number): aneuploidy, polyploidy, and non-disjunction",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
+                                },
+                                {
+                                    "objective": "Discuss the significance of mutations: harmful, beneficial, and neutral effects; role in evolution",
+                                    "cognitive_level": "Evaluation",
+                                    "teaching_method": "Discussion, case studies",
+                                },
+                                {
+                                    "objective": "Explain how mutations can be induced (mutagens: UV, X-rays, chemicals) and discuss applications",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Research, discussion",
+                                },
+                            ],
+                        },
+                    ],
+                    "resources": [
+                        "Diagram sets of chromosome mutations",
+                        "Case studies (Down syndrome, sickle cell anaemia)",
+                        "Research materials on mutagens",
+                    ],
+                },
+                {
+                    "title": "Natural Selection",
+                    "year_level": 4,
+                    "subtopics": [
+                        {
+                            "title": "Evolutionary Theory and Evidence",
+                            "description": (
+                                "Theory of natural selection (Darwin and Wallace); "
+                                "evidence for evolution; changes in populations; "
+                                "artificial selection; survival of the fittest."
+                            ),
+                            "learning_objectives": [
+                                {
+                                    "objective": "State the theory of natural selection as proposed by Darwin and Wallace",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion, historical account",
+                                },
+                                {
+                                    "objective": "Explain the process of natural selection: variation, overproduction, competition, survival and reproduction of the fittest",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, simulation",
+                                },
+                                {
+                                    "objective": "Provide evidence for evolution: fossils, comparative anatomy, biogeography, molecular biology",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_method": "Research, discussion",
+                                },
+                                {
+                                    "objective": "Discuss how natural selection leads to changes in populations over time (adaptation, speciation)",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_method": "Case studies",
+                                },
+                                {
+                                    "objective": "Explain artificial selection (selective breeding) and give examples in agriculture",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, examples",
+                                },
+                                {
+                                    "objective": "Discuss survival of the fittest in the context of Malawi's environment and biodiversity",
+                                    "cognitive_level": "Evaluation",
+                                    "teaching_method": "Research, field examples",
+                                },
+                            ],
+                        },
+                    ],
+                    "resources": [
+                        "Fossil specimens/images, charts",
+                        "Case studies of Darwin's finches, peppered moth",
+                        "Field guides to Malawian wildlife",
+                    ],
+                },
+                {
+                    "title": "Speciation",
+                    "year_level": 4,
+                    "subtopics": [
+                        {
+                            "title": "Formation of New Species",
+                            "description": (
+                                "Geographic and reproductive isolation; "
+                                "isolation mechanisms; species concept."
+                            ),
+                            "learning_objectives": [
+                                {
+                                    "objective": "Define a species as a group of organisms that can interbreed to produce fertile offspring",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion",
+                                },
+                                {
+                                    "objective": "Explain how geographic isolation leads to speciation (allopatric speciation)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, examples",
+                                },
+                                {
+                                    "objective": "Explain how reproductive isolation leads to speciation (sympatric speciation)",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, examples",
+                                },
+                                {
+                                    "objective": "Describe mechanisms that maintain species isolation: behavioural, temporal, mechanical, and gametic isolation",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Discussion, examples",
+                                },
+                            ],
+                        },
+                    ],
+                    "resources": [
+                        "Diagram of geographic isolation scenarios",
+                        "Case studies (Lake Malawi cichlids as an example of speciation)",
                     ],
                 },
                 {
@@ -1177,39 +1843,45 @@ BIOLOGY_SYLLABUS = {
                     "year_level": 4,
                     "subtopics": [
                         {
-                            "title": "Genetic Engineering & GMOs",
+                            "title": "Genetic Engineering and Applications",
+                            "description": (
+                                "Plant and animal breeding in Malawi; improvements; "
+                                "recombinant DNA technology; insulin production; "
+                                "genetic engineering applications; ethical implications."
+                            ),
                             "learning_objectives": [
                                 {
-                                    "objective": "Explain the principles of genetic engineering",
-                                    "description": "Understand manipulation of genetic material",
+                                    "objective": "Describe plant and animal breeding programmes in Malawi and how they improve crop and livestock varieties",
                                     "cognitive_level": "Comprehension",
+                                    "teaching_method": "Research, discussion",
                                 },
                                 {
-                                    "objective": "Discuss the applications of genetic engineering in agriculture (GM crops)",
-                                    "description": "Evaluate biotechnology in food production",
+                                    "objective": "Explain the principles of recombinant DNA technology and genetic engineering",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, discussion",
+                                },
+                                {
+                                    "objective": "Describe how genetically engineered bacteria are used to produce human insulin for diabetes treatment",
+                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Diagram work, case study",
+                                },
+                                {
+                                    "objective": "Discuss applications of genetic engineering in agriculture (GM crops: Bt cotton, drought-resistant maize)",
                                     "cognitive_level": "Evaluation",
+                                    "teaching_method": "Research, debate",
                                 },
                                 {
-                                    "objective": "Describe the use of micro-organisms in biotechnology (fermentation, enzyme production)",
-                                    "description": "Understand industrial biotechnology",
-                                    "cognitive_level": "Comprehension",
-                                },
-                                {
-                                    "objective": "Discuss the ethical issues surrounding genetic engineering and GMOs",
-                                    "description": "Develop informed opinions on biotechnology",
+                                    "objective": "Discuss the ethical implications of genetic engineering and genetically modified organisms (GMOs)",
                                     "cognitive_level": "Evaluation",
-                                },
-                                {
-                                    "objective": "Explain the role of biotechnology in medicine (insulin production, gene therapy)",
-                                    "description": "Understand medical biotechnology",
-                                    "cognitive_level": "Comprehension",
+                                    "teaching_method": "Debate, research",
                                 },
                             ],
                         },
                     ],
                     "resources": [
-                        "Biotechnology case studies",
-                        "Debate materials, ethical scenarios",
+                        "Biotechnology case studies (GM crops in Malawi)",
+                        "Diagram of recombinant DNA technology process",
+                        "Debate materials, ethical scenario cards",
                     ],
                 },
             ],
