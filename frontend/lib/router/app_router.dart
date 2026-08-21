@@ -56,6 +56,7 @@ import '../screens/stem/collaboration_chat_screen.dart';
 import '../screens/stem/analytics_export_screen.dart';
 import '../screens/data_analysis/data_analysis_screen.dart';
 import '../screens/data_analysis/coding_playground_screen.dart';
+import '../screens/admin/admin_dashboard_screen.dart';
 
 class AppRouter {
   final AuthProvider authProvider;
@@ -262,6 +263,7 @@ class AppRouter {
           _route('/analytics-export', (_) => const AnalyticsExportScreen()),
           _route('/data-analysis', (_) => const DataAnalysisScreen()),
           _route('/coding-playground', (_) => const CodingPlaygroundScreen()),
+          _route('/admin', (_) => const AdminDashboardScreen()),
           GoRoute(
             path: '/collab-chat/:id',
             pageBuilder: (_, state) {

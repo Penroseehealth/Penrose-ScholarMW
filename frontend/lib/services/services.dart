@@ -4,6 +4,7 @@ import 'api_service.dart';
 export 'api_service.dart';
 export 'cache_service.dart';
 export 'stem_service.dart';
+export 'data_saver_service.dart';
 
 class CourseService {
   final ApiService _api = ApiService();

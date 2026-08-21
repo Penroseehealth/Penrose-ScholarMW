@@ -158,7 +158,7 @@ GROUP_MESSAGES = [
 async def _seed_forum_posts(db: AsyncSession) -> dict:
     existing = {row[0] for row in await db.execute(select(STEMForumPost.title))}
     students = (
-        (await db.execute(select(User).where(User.role.value == "student").limit(3)))
+        (await db.execute(select(User).where(User.role == "student").limit(3)))
         .scalars()
         .all()
     )
@@ -190,7 +190,11 @@ async def _seed_forum_posts(db: AsyncSession) -> dict:
         for post in all_posts[:2]:
             if any(a.body.startswith("Here's the answer") for a in []):
                 continue
-            responder = students[1 if post.user_id == students[0].id else 0]
+            responder = (
+                students[1]
+                if len(students) > 1 and post.user_id == students[0].id
+                else students[0]
+            )
             answer = STEMForumAnswer(
                 post_id=post.id,
                 user_id=responder.id,
@@ -223,7 +227,7 @@ async def _seed_forum_posts(db: AsyncSession) -> dict:
 async def _seed_announcements(db: AsyncSession) -> int:
     existing = {row[0] for row in await db.execute(select(STEMAnnouncement.title))}
     lecturer = (
-        (await db.execute(select(User).where(User.role.value == "lecturer").limit(1)))
+        (await db.execute(select(User).where(User.role == "lecturer").limit(1)))
         .scalars()
         .first()
     )
@@ -251,7 +255,7 @@ async def _seed_announcements(db: AsyncSession) -> int:
 async def _seed_study_groups(db: AsyncSession) -> dict:
     existing = {row[0] for row in await db.execute(select(STEMStudyGroup.name))}
     students = (
-        (await db.execute(select(User).where(User.role.value == "student").limit(3)))
+        (await db.execute(select(User).where(User.role == "student").limit(3)))
         .scalars()
         .all()
     )

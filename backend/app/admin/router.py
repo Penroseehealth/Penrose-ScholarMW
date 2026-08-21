@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -147,3 +149,142 @@ async def toggle_course_active(
     course.is_active = not course.is_active
     await db.commit()
     return {"id": course.id, "is_active": course.is_active}
+
+
+# ─── Institutional Analytics ───────────────────────────────────────────────
+
+
+@router.get("/institutional-analytics")
+async def institutional_analytics(
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    now = datetime.now(timezone.utc)
+    thirty_days_ago = now - timedelta(days=30)
+    seven_days_ago = now - timedelta(days=7)
+
+    total_users = (await db.execute(select(func.count(User.id)))).scalar() or 0
+    total_students = (
+        await db.execute(
+            select(func.count(User.id)).where(User.role == UserRole.STUDENT)
+        )
+    ).scalar() or 0
+    total_lecturers = (
+        await db.execute(
+            select(func.count(User.id)).where(User.role == UserRole.LECTURER)
+        )
+    ).scalar() or 0
+    total_courses = (await db.execute(select(func.count(Course.id)))).scalar() or 0
+    total_enrollments = (
+        await db.execute(select(func.count(Enrollment.id)))
+    ).scalar() or 0
+    total_submissions = (
+        await db.execute(select(func.count(Submission.id)))
+    ).scalar() or 0
+
+    new_users_30d = (
+        await db.execute(
+            select(func.count(User.id)).where(User.created_at > thirty_days_ago)
+        )
+    ).scalar() or 0
+
+    active_users_7d = (
+        await db.execute(
+            select(func.count(User.id)).where(User.last_seen_at > seven_days_ago)
+        )
+    ).scalar() or 0
+
+    dept_result = await db.execute(
+        select(User.department, func.count(User.id))
+        .where(User.department.isnot(None))
+        .group_by(User.department)
+    )
+    department_breakdown = [
+        {"department": row[0], "count": row[1]} for row in dept_result.all()
+    ]
+
+    enrolled_result = await db.execute(
+        select(Enrollment.progress_pct).where(Enrollment.is_active == True)
+    )
+    progress_values = [r for (r,) in enrolled_result.all()]
+    avg_progress = (
+        round(sum(progress_values) / len(progress_values), 2) if progress_values else 0
+    )
+    completion_rate = (
+        round(
+            len([p for p in progress_values if p >= 80]) / len(progress_values) * 100, 2
+        )
+        if progress_values
+        else 0
+    )
+
+    submission_result = await db.execute(
+        select(Submission).where(Submission.submitted_at > thirty_days_ago)
+    )
+    recent_submissions = len(submission_result.scalars().all())
+
+    score_result = await db.execute(
+        select(Submission.final_marks).where(Submission.final_marks.isnot(None))
+    )
+    scores = [s for (s,) in score_result.all()]
+    avg_score = round(sum(scores) / len(scores), 2) if scores else 0
+
+    return {
+        "overview": {
+            "total_users": total_users,
+            "total_students": total_students,
+            "total_lecturers": total_lecturers,
+            "total_courses": total_courses,
+            "total_enrollments": total_enrollments,
+            "total_submissions": total_submissions,
+        },
+        "engagement": {
+            "new_users_30d": new_users_30d,
+            "active_users_7d": active_users_7d,
+            "recent_submissions": recent_submissions,
+            "avg_score": avg_score,
+        },
+        "academics": {
+            "avg_enrollment_progress": avg_progress,
+            "completion_rate": completion_rate,
+            "department_breakdown": department_breakdown,
+        },
+    }
+
+
+@router.get("/institutional-analytics/trends")
+async def institutional_trends(
+    days: int = 30,
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    now = datetime.now(timezone.utc)
+    trends = []
+    for i in range(days, 0, -1):
+        day_start = (now - timedelta(days=i)).replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
+        day_end = day_start + timedelta(days=1)
+        new_users = (
+            await db.execute(
+                select(func.count(User.id)).where(
+                    User.created_at >= day_start, User.created_at < day_end
+                )
+            )
+        ).scalar() or 0
+        new_submissions = (
+            await db.execute(
+                select(func.count(Submission.id)).where(
+                    Submission.submitted_at >= day_start,
+                    Submission.submitted_at < day_end,
+                )
+            )
+        ).scalar() or 0
+        trends.append(
+            {
+                "date": day_start.strftime("%Y-%m-%d"),
+                "new_users": new_users,
+                "submissions": new_submissions,
+            }
+        )
+    return {"days": days, "trends": trends}

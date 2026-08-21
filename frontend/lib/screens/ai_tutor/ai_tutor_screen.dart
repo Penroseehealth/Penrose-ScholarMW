@@ -1,9 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
+import '../../widgets/ai_governance_widgets.dart';
 
 class AiTutorScreen extends StatefulWidget {
   const AiTutorScreen({super.key});
@@ -23,10 +22,10 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
   String _agentType = 'tutor';
 
   final Map<String, String> _agentLabels = {
-    'tutor': 'AI Tutor',
+    'tutor': 'Penrose Learning Assistant',
     'study_coach': 'Study Coach',
     'writer': 'Academic Writer',
-    'research': 'Research Assistant',
+    'research': 'Penrose Research Assistant',
     'assessment': 'Assessment AI',
   };
 
@@ -87,32 +86,38 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 40),
-            Container(
-              padding: const EdgeInsets.all(28),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppColors.primary, AppColors.primaryDark],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.4),
-                    blurRadius: 30,
-                    offset: const Offset(0, 8),
+            Semantics(
+              label: 'ScholarAI avatar',
+              child: Container(
+                padding: const EdgeInsets.all(28),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColors.primary, AppColors.primaryDark],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                ],
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.4),
+                      blurRadius: 30,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.auto_awesome_rounded, size: 56, color: Colors.white),
               ),
-              child: const Icon(Icons.auto_awesome_rounded, size: 56, color: Colors.white),
             ),
             const SizedBox(height: 28),
-            const Text(
-              'What would you like to learn?',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+            Semantics(
+              header: true,
+              child: const Text(
+                'What would you like to learn?',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
               ),
             ),
             const SizedBox(height: 8),
@@ -134,37 +139,41 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
   }
 
   Widget _buildSuggestionChip(IconData icon, String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Material(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
+    return Semantics(
+      button: true,
+      label: text,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Material(
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(12),
-          onTap: () {
-            _messageCtrl.text = text;
-            _sendMessage();
-          },
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Row(
-              children: [
-                Icon(icon, size: 18, color: AppColors.primary),
-                const SizedBox(width: 12),
-                Text(
-                  text,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () {
+              _messageCtrl.text = text;
+              _sendMessage();
+            },
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Row(
+                children: [
+                  Icon(icon, size: 18, color: AppColors.primary),
+                  const SizedBox(width: 12),
+                  Text(
+                    text,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -232,90 +241,16 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
                     ),
                   ),
                 ),
-                if (!isUser) _buildAiGovernanceBadge(msg['sources']),
+                if (!isUser)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6, left: 4),
+                    child: AiGovernanceBar(sourcesJson: msg['sources']),
+                  ),
               ],
             ),
           ),
         );
       },
-    );
-  }
-
-  Widget _buildAiGovernanceBadge(String? sourcesJson) {
-    List<String> sources = [];
-    if (sourcesJson != null && sourcesJson.isNotEmpty) {
-      try {
-        final parsed = jsonDecode(sourcesJson);
-        if (parsed is List) {
-          sources = parsed.map<String>((s) => s.toString()).toList();
-        }
-      } catch (_) {}
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 6, left: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.primaryGlow,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.auto_awesome_rounded, size: 12, color: AppColors.primary),
-                SizedBox(width: 4),
-                Text(
-                  'AI-generated',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (sources.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Wrap(
-              spacing: 4,
-              runSpacing: 4,
-              children: sources.map((s) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.source_rounded, size: 10, color: AppColors.textMuted),
-                      const SizedBox(width: 3),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 220),
-                        child: Text(
-                          s,
-                          style: const TextStyle(
-                            fontSize: 9,
-                            color: AppColors.textMuted,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
-        ],
-      ),
     );
   }
 
@@ -358,23 +293,27 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            Container(
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppColors.primary, AppColors.primaryDark],
-                ),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.4),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+            Semantics(
+              button: true,
+              label: 'Send message',
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColors.primary, AppColors.primaryDark],
                   ),
-                ],
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
-                onPressed: _sendMessage,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.4),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                  onPressed: _sendMessage,
+                ),
               ),
             ),
           ],

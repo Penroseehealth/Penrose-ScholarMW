@@ -1,9 +1,8 @@
-import 'dart:convert' show jsonDecode;
-
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
+import '../../widgets/ai_governance_widgets.dart';
 
 class DataAnalysisScreen extends StatefulWidget {
   const DataAnalysisScreen({super.key});
@@ -107,23 +106,27 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
             const SizedBox(height: 6),
             _buildQuestionInput(),
             const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _isLoading ? null : _analyze,
-                icon: _isLoading
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : const Icon(Icons.analytics_rounded, size: 18),
-                label: Text(_isLoading ? 'Analyzing...' : 'Analyze Data'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            Semantics(
+              button: true,
+              label: 'Analyze data',
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _isLoading ? null : _analyze,
+                  icon: _isLoading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Icon(Icons.analytics_rounded, size: 18),
+                  label: Text(_isLoading ? 'Analyzing...' : 'Analyze Data'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
                 ),
               ),
             ),
@@ -231,7 +234,7 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildGovernanceBadge(sources),
+        AiGovernanceBar(sourcesJson: sources is String ? sources : null, label: 'AI-generated analysis'),
         if (stats.isNotEmpty) ...[
           const SizedBox(height: 16),
           _buildSectionLabel('Column Statistics'),
@@ -251,86 +254,6 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
           _buildAnalysisCard(analysis),
         ],
       ],
-    );
-  }
-
-  Widget _buildGovernanceBadge(dynamic sources) {
-    List<String> sourceList = [];
-    if (sources is String && sources.isNotEmpty) {
-      try {
-        final parsed = jsonDecode(sources);
-        if (parsed is List) {
-          sourceList = parsed.map<String>((s) => s.toString()).toList();
-        }
-      } catch (_) {}
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryGlow,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.auto_awesome_rounded, size: 12, color: AppColors.primary),
-                    SizedBox(width: 4),
-                    Text(
-                      'AI-generated analysis',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          if (sourceList.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 6,
-              runSpacing: 4,
-              children: sourceList.map((s) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceElevated,
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.source_rounded, size: 10, color: AppColors.textMuted),
-                      const SizedBox(width: 3),
-                      Text(
-                        s,
-                        style: const TextStyle(fontSize: 9, color: AppColors.textMuted),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
-        ],
-      ),
     );
   }
 

@@ -130,7 +130,7 @@ class _StudentHubState extends State<StudentHub> {
       children: [
         _buildActionCard(
           icon: Icons.smart_toy_outlined,
-          label: 'AI Tutor',
+          label: 'Penrose Learning Assistant',
           color: AppColors.accent,
           onTap: () => context.go('/ai-tutor'),
         ),

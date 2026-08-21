@@ -151,7 +151,7 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AI Learning Coach'),
+        title: const Text('Penrose Learning Assistant'),
         backgroundColor: AppColors.background,
         elevation: 0,
         foregroundColor: AppColors.textPrimary,

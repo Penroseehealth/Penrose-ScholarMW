@@ -227,20 +227,23 @@ console.log("Evens:", evens);''',
             ),
           ),
           Expanded(
-            child: TextField(
-              controller: _codeCtrl,
-              style: const TextStyle(
-                fontFamily: 'monospace',
-                fontSize: 13,
-                color: Color(0xFFCDD6F4),
-                height: 1.6,
-              ),
-              maxLines: null,
-              expands: true,
-              textAlignVertical: TextAlignVertical.top,
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.all(12),
+            child: Semantics(
+              label: 'Code editor',
+              child: TextField(
+                controller: _codeCtrl,
+                style: const TextStyle(
+                  fontFamily: 'monospace',
+                  fontSize: 13,
+                  color: Color(0xFFCDD6F4),
+                  height: 1.6,
+                ),
+                maxLines: null,
+                expands: true,
+                textAlignVertical: TextAlignVertical.top,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.all(12),
+                ),
               ),
             ),
           ),
@@ -290,24 +293,27 @@ console.log("Evens:", evens);''',
             ),
           ),
           Expanded(
-            child: _isRunning
-                ? const Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
-                        ),
-                        SizedBox(width: 8),
-                        Text('Running...', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
-                      ],
-                    ),
-                  )
-                : _error != null
-                    ? _buildErrorOutput()
-                    : _buildSuccessOutput(),
+            child: Semantics(
+              label: 'Code output panel',
+              child: _isRunning
+                  ? const Center(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                          ),
+                          SizedBox(width: 8),
+                          Text('Running...', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                        ],
+                      ),
+                    )
+                  : _error != null
+                      ? _buildErrorOutput()
+                      : _buildSuccessOutput(),
+            ),
           ),
         ],
       ),

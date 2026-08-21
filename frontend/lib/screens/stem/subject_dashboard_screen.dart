@@ -532,7 +532,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
             Expanded(
               child: _buildActionButton(
                 icon: Icons.psychology_outlined,
-                label: 'AI Tutor',
+                label: 'Penrose Learning Assistant',
                 color: AppColors.teal,
                 onTap: () => context.push('/stem-tutor'),
               ),

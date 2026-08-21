@@ -164,7 +164,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
           _buildActionCard(
             context,
             icon: Icons.psychology_rounded,
-            label: 'AI Tutor',
+            label: 'Penrose Learning Assistant',
             gradient: const [Color(0xFF7C3AED), Color(0xFF6D28D9)],
             onTap: () => context.go('/ai-tutor'),
           ),

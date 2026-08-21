@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import '../core/constants/api_constants.dart';
 import 'cache_service.dart';
+import 'data_saver_service.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._();
@@ -46,8 +47,23 @@ class ApiService {
   }
 
   Future<http.Response> get(String path) async {
+    final saver = DataSaverService();
+    if (saver.enabled) {
+      final cached = await saver.getCachedResponse(path);
+      if (cached != null) {
+        return http.Response(jsonEncode(cached), 200);
+      }
+    }
     final h = await headers;
     final response = await http.get(Uri.parse('$apiBaseUrl$path'), headers: h);
+    if (response.statusCode == 200 && saver.enabled) {
+      try {
+        final data = jsonDecode(response.body);
+        if (data is Map<String, dynamic>) {
+          await saver.cacheResponse(path, data);
+        }
+      } catch (_) {}
+    }
     if (response.statusCode == 401 && _refreshToken != null) {
       final refreshed = await _tryRefresh();
       if (refreshed) {

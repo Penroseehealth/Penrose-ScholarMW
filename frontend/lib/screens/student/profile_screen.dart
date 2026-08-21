@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../providers/locale_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
 
@@ -13,6 +14,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
+    final localeProvider = context.watch<LocaleProvider>();
     final user = auth.user ?? {};
     final name = (user['full_name'] ?? 'User').toString();
 
@@ -118,7 +120,25 @@ class ProfileScreen extends StatelessWidget {
             _buildSettingsTile(
               icon: Icons.language_outlined,
               title: 'Language',
-              trailing: const Text('English', style: TextStyle(color: AppColors.textMuted, fontSize: 14)),
+              trailing: GestureDetector(
+                onTap: () => localeProvider.toggleLanguage(),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryGlow,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                  ),
+                  child: Text(
+                    localeProvider.languageName,
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
             ),
             _buildSettingsTile(
               icon: Icons.data_usage_outlined,
