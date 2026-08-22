@@ -20,6 +20,18 @@ class _StemHubState extends State<StemHub> {
   bool _loading = true;
   String? _error;
 
+  static const _languageHubs = [
+    {'name': 'English', 'slug': 'english', 'colorHex': 0xFF2563EB, 'desc': 'Complete English learning from foundation to academic proficiency'},
+    {'name': 'Chinese', 'slug': 'chinese', 'colorHex': 0xFFDC2626, 'desc': 'Progressive Chinese learning aligned with HSK standards'},
+    {'name': 'Arabic', 'slug': 'arabic', 'colorHex': 0xFF059669, 'desc': 'Structured Arabic from alphabet mastery to academic proficiency'},
+  ];
+
+  static const _languageIcons = <String, IconData>{
+    'english': Icons.abc_rounded,
+    'chinese': Icons.translate,
+    'arabic': Icons.menu_book_rounded,
+  };
+
   @override
   void initState() {
     super.initState();
@@ -93,9 +105,43 @@ class _StemHubState extends State<StemHub> {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+              child: Row(
+                children: [
+                  const Icon(Icons.translate_rounded, color: AppColors.primary, size: 22),
+                  const SizedBox(width: 10),
+                  const Text(
+                    'Language Hubs',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                childAspectRatio: 1.8,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => _buildLanguageCard(_languageHubs[index]),
+                childCount: _languageHubs.length,
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
               child: Text(
-                'Subjects',
+                'STEM Subjects',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -121,10 +167,10 @@ class _StemHubState extends State<StemHub> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               sliver: SliverGrid(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
+                  crossAxisCount: 3,
                   mainAxisSpacing: 10,
                   crossAxisSpacing: 10,
-                  childAspectRatio: 1.6,
+                  childAspectRatio: 1.8,
                 ),
                 delegate: SliverChildBuilderDelegate(
                   (context, index) => _buildSubjectCard(_subjects[index]),
@@ -224,7 +270,7 @@ class _StemHubState extends State<StemHub> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    subject['name'] ?? '',
+                    subject['title'] ?? subject['name'] ?? '',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -236,6 +282,75 @@ class _StemHubState extends State<StemHub> {
                   const SizedBox(height: 2),
                   Text(
                     subject['description'] ?? '',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textMuted,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageCard(Map<String, dynamic> hub) {
+    final accentColor = Color(hub['colorHex'] as int);
+    final slug = hub['slug'] as String;
+    final iconData = _languageIcons[slug] ?? Icons.language_rounded;
+    return GestureDetector(
+      onTap: () => context.push('/language/${hub['slug']}'),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 4,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                color: accentColor,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(iconData, color: accentColor, size: 22),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    hub['name']! as String,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    hub['desc']! as String,
                     style: const TextStyle(
                       fontSize: 12,
                       color: AppColors.textMuted,

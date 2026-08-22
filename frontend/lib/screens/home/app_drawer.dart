@@ -52,6 +52,7 @@ class AppDrawer extends StatelessWidget {
       _buildSectionHeader('ACADEMIC'),
       _buildDrawerItem(context, Icons.dashboard_rounded, 'Dashboard', '/', currentPath),
       _buildDrawerItem(context, Icons.school_rounded, 'STEM Intelligence', '/stem', currentPath),
+      _buildDrawerItem(context, Icons.translate_rounded, 'Language Hubs', '/languages', currentPath),
       _buildDrawerItem(context, Icons.account_tree_rounded, 'Knowledge Graph', '/stem-knowledge-graph', currentPath),
       _buildDrawerItem(context, Icons.functions_rounded, 'Formula Centre', '/stem-formula-centre', currentPath),
       _buildDrawerItem(context, Icons.science_rounded, 'STEM Labs', '/stem-labs', currentPath),

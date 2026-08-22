@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme.dart';
 import '../../services/services.dart';
+import '../home/app_drawer.dart';
 
 class LecturerCentre extends StatefulWidget {
   const LecturerCentre({super.key});
@@ -151,6 +152,7 @@ class _LecturerCentreState extends State<LecturerCentre>
       opacity: _fadeAnim,
       child: Scaffold(
         backgroundColor: AppColors.background,
+        endDrawer: const AppDrawer(),
         body: isMobile
             ? _buildMobileLayout()
             : Row(
@@ -160,7 +162,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                   Expanded(
                     child: Column(
                       children: [
-                        _buildTopHeader(isMobile, isTablet),
+                        _buildTopHeader(isMobile, isTablet, isDesktop: isDesktop),
                         Expanded(child: _buildMainContent(isDesktop, isTablet)),
                       ],
                     ),
@@ -576,7 +578,7 @@ class _LecturerCentreState extends State<LecturerCentre>
 
   // ───────────────────────── TOP HEADER ─────────────────
 
-  Widget _buildTopHeader(bool isMobile, bool isTablet) {
+  Widget _buildTopHeader(bool isMobile, bool isTablet, {bool isDesktop = false}) {
     return Container(
       padding: EdgeInsets.symmetric(
           horizontal: isMobile ? 16 : 24, vertical: 14),
@@ -587,7 +589,13 @@ class _LecturerCentreState extends State<LecturerCentre>
       ),
       child: Row(
         children: [
-
+          Builder(
+            builder: (ctx) => IconButton(
+              icon: const Icon(Icons.menu_rounded, color: AppColors.textPrimary, size: 24),
+              onPressed: () => Scaffold.of(ctx).openEndDrawer(),
+            ),
+          ),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -688,6 +696,8 @@ class _LecturerCentreState extends State<LecturerCentre>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildStemSubjectsSection(),
+          const SizedBox(height: 32),
+          _buildLanguageHubsSection(),
           const SizedBox(height: 32),
           _buildAnalyticsOverview(isDesktop),
           const SizedBox(height: 32),
@@ -941,6 +951,130 @@ class _LecturerCentreState extends State<LecturerCentre>
           ),
         ),
       ),
+    );
+  }
+
+  // ───────────────────────── LANGUAGE HUBS SECTION ─────────────────
+
+  Widget _buildLanguageHubsSection() {
+    const languageHubs = [
+      {
+        'title': 'English',
+        'subtitle': 'English Language Hub',
+        'slug': 'english',
+        'colorHex': 0xFF2196F3,
+        'icon': Icons.language_rounded,
+      },
+      {
+        'title': 'Chinese',
+        'subtitle': 'Chinese Language Hub',
+        'slug': 'chinese',
+        'colorHex': 0xFFD32F2F,
+        'icon': Icons.translate_rounded,
+      },
+      {
+        'title': 'Arabic',
+        'subtitle': 'Arabic Language Hub',
+        'slug': 'arabic',
+        'colorHex': 0xFF388E3C,
+        'icon': Icons.menu_book_rounded,
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader(
+          'Language Hubs',
+          trailing: TextButton.icon(
+            onPressed: () => context.go('/languages'),
+            icon: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+            label: const Text('View All'),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.primary,
+              textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final crossAxisCount = constraints.maxWidth > 700 ? 3 : (constraints.maxWidth > 450 ? 2 : 1);
+            return GridView.count(
+              crossAxisCount: crossAxisCount,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 2.0,
+              children: languageHubs.map((hub) {
+                final color = Color(hub['colorHex'] as int);
+                final icon = hub['icon'] as IconData;
+                final slug = hub['slug'] as String;
+
+                return Semantics(
+                  button: true,
+                  label: hub['title'] as String,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () => context.go('/language/$slug'),
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 52,
+                              height: 52,
+                              decoration: BoxDecoration(
+                                color: color.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Icon(icon, color: color, size: 26),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    hub['title'] as String,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    hub['subtitle'] as String,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: color,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textMuted),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            );
+          },
+        ),
+      ],
     );
   }
 

@@ -70,6 +70,28 @@ import '../screens/data_analysis/data_analysis_screen.dart';
 import '../screens/data_analysis/coding_playground_screen.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
 import '../screens/admin/admin_syllabus_screen.dart';
+import '../screens/languages/languages_hub.dart';
+import '../screens/languages/language_dashboard.dart';
+import '../screens/languages/language_vocabulary.dart';
+import '../screens/languages/language_grammar.dart';
+import '../screens/languages/language_listening.dart';
+import '../screens/languages/language_speaking.dart';
+import '../screens/languages/language_reading.dart';
+import '../screens/languages/language_writing.dart';
+import '../screens/languages/language_notebook.dart';
+import '../screens/languages/language_conversation.dart';
+import '../screens/languages/language_ai_tutor.dart';
+import '../screens/languages/language_practice.dart';
+import '../screens/languages/language_assessment.dart';
+import '../screens/languages/language_progress.dart';
+import '../screens/languages/language_levels.dart';
+import '../screens/languages/language_learning_path.dart';
+import '../screens/languages/language_pronunciation.dart';
+import '../screens/languages/language_revision.dart';
+import '../screens/languages/language_culture.dart';
+import '../screens/languages/language_offline.dart';
+import '../screens/languages/language_settings.dart';
+import '../screens/languages/language_level_detail.dart';
 
 class AppRouter {
   final AuthProvider authProvider;
@@ -350,6 +372,193 @@ class AppRouter {
           _route('/bio-ai-tutor', (_) => const BiologyAITutorScreen()),
           _route('/bio-notebook', (_) => const BiologyNotebookScreen()),
           _route('/bio-analytics', (_) => const BiologyAnalyticsScreen()),
+          _route('/languages', (_) => const LanguagesHub()),
+          GoRoute(
+            path: '/language/:slug',
+            pageBuilder: (_, state) {
+              final slug = state.pathParameters['slug'] ?? 'english';
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: LanguageDashboard(slug: slug),
+                transitionsBuilder: _slideTransition,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/language/:slug/vocabulary',
+            pageBuilder: (_, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const LanguageVocabulary(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/grammar',
+            pageBuilder: (_, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const LanguageGrammar(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/listening',
+            pageBuilder: (_, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const LanguageListening(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/speaking',
+            pageBuilder: (_, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const LanguageSpeaking(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/reading',
+            pageBuilder: (_, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const LanguageReading(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/writing',
+            pageBuilder: (_, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const LanguageWriting(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/notebook',
+            pageBuilder: (_, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const LanguageNotebook(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/conversation',
+            pageBuilder: (_, state) {
+              final slug = state.pathParameters['slug'] ?? 'english';
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: LanguageConversationScreen(slug: slug),
+                transitionsBuilder: _slideTransition,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/language/:slug/ai-tutor',
+            pageBuilder: (_, state) {
+              final slug = state.pathParameters['slug'] ?? 'english';
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: LanguageAITutorScreen(slug: slug),
+                transitionsBuilder: _slideTransition,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/language/:slug/practice',
+            pageBuilder: (_, state) {
+              final slug = state.pathParameters['slug'] ?? 'english';
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: LanguagePracticeScreen(slug: slug),
+                transitionsBuilder: _slideTransition,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/language/:slug/assessment',
+            pageBuilder: (_, state) {
+              final slug = state.pathParameters['slug'] ?? 'english';
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: LanguageAssessmentScreen(slug: slug),
+                transitionsBuilder: _slideTransition,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/language/:slug/progress',
+            pageBuilder: (_, state) {
+              final slug = state.pathParameters['slug'] ?? 'english';
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: LanguageProgressScreen(slug: slug),
+                transitionsBuilder: _slideTransition,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/language/:slug/levels',
+            pageBuilder: (_, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const LanguageLevels(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/levels/:levelSlug',
+            pageBuilder: (_, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const LanguageLevelDetail(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/path',
+            pageBuilder: (_, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const LanguageLearningPath(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/pronunciation',
+            pageBuilder: (_, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const LanguagePronunciation(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/revision',
+            pageBuilder: (_, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const LanguageRevision(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/culture',
+            pageBuilder: (_, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const LanguageCulture(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/offline',
+            pageBuilder: (_, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const LanguageOffline(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/settings',
+            pageBuilder: (_, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const LanguageSettings(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
         ],
       ),
     ],

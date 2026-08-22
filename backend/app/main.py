@@ -55,6 +55,7 @@ from app.stem.router import router as stem_router
 from app.stem.study_planner_router import router as study_planner_router
 from app.stem.subject_dashboard_router import router as subject_dashboard_router
 from app.stem.syllabus_router import router as syllabus_router
+from app.languages.router import router as languages_router
 from app.sync_engine.router import router as sync_engine_router
 from app.users.router import router as users_router
 from app.writing_studio.router import router as writing_studio_router
@@ -85,6 +86,15 @@ async def lifespan(app: FastAPI):
     from app.stem.seed_syllabus import seed_syllabus
 
     await seed_syllabus()
+    from app.languages.seed_english import seed_english
+
+    await seed_english()
+    from app.languages.seed_chinese import seed_chinese
+
+    await seed_chinese()
+    from app.languages.seed_arabic import seed_arabic
+
+    await seed_arabic()
     yield
 
 
@@ -220,6 +230,7 @@ app.include_router(content_cms_router, prefix="/api/v1")
 app.include_router(collaboration_router, prefix="/api/v1")
 app.include_router(export_router, prefix="/api/v1")
 app.include_router(syllabus_router, prefix="/api/v1")
+app.include_router(languages_router, prefix="/api/v1")
 
 
 @app.get("/health")
@@ -236,11 +247,38 @@ if WEB_DIR.is_dir():
     if icons_dir.is_dir():
         app.mount("/icons", StaticFiles(directory=str(icons_dir)), name="icons")
 
-    from starlette.responses import FileResponse
+    from starlette.responses import FileResponse, HTMLResponse
+    import hashlib, os
+
+    _main_js_path = WEB_DIR / "main.dart.js"
+    _build_hash = hashlib.md5(str(os.path.getmtime(_main_js_path)).encode()).hexdigest()[:12]
+    _index_html = (WEB_DIR / "index.html").read_text(encoding="utf-8")
+    _index_html = _index_html.replace('flutter_bootstrap.js', f'flutter_bootstrap.js?v={_build_hash}')
+    _index_html = _index_html.replace('main.dart.js', f'main.dart.js?v={_build_hash}')
+    _bootstrap_js = (WEB_DIR / "flutter_bootstrap.js").read_text(encoding="utf-8")
+    _bootstrap_js = _bootstrap_js.replace('main.dart.js', f'main.dart.js?v={_build_hash}')
 
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
         file_path = WEB_DIR / full_path
+        if full_path == "" or full_path == "index.html":
+            return HTMLResponse(_index_html, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
+        if full_path == "flutter_bootstrap.js":
+            return HTMLResponse(_bootstrap_js, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
+        if full_path == "flutter_service_worker.js":
+            sw_code = (
+                "self.addEventListener('install', function(e) { self.skipWaiting(); });\n"
+                "self.addEventListener('activate', function(e) {\n"
+                "  e.waitUntil(\n"
+                "    caches.keys().then(function(names) {\n"
+                "      return Promise.all(names.map(function(n) { return caches.delete(n); }));\n"
+                "    }).then(function() { return self.registration.unregister(); })\n"
+                "  );\n"
+                "});\n"
+            )
+            return HTMLResponse(sw_code, headers={"Cache-Control": "no-store", "Content-Type": "application/javascript"})
         if file_path.is_file():
-            return FileResponse(str(file_path))
-        return FileResponse(str(WEB_DIR / "index.html"))
+            headers = {"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+            return FileResponse(str(file_path), headers=headers)
+        headers = {"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+        return HTMLResponse(_index_html, headers=headers)
