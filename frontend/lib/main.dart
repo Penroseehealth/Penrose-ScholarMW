@@ -6,6 +6,7 @@ import 'core/l10n/app_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
 import 'providers/locale_provider.dart';
+import 'providers/theme_provider.dart';
 import 'router/app_router.dart';
 import 'services/data_saver_service.dart';
 
@@ -31,16 +32,17 @@ class _PenroseScholarAppState extends State<PenroseScholarApp> {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()..init()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()..init()),
       ],
-      child: Consumer2<AuthProvider, LocaleProvider>(
-        builder: (context, auth, localeProvider, _) {
+      child: Consumer3<AuthProvider, LocaleProvider, ThemeProvider>(
+        builder: (context, auth, localeProvider, themeProvider, _) {
           _appRouter ??= AppRouter(auth);
           return MaterialApp.router(
             title: 'Penrose ScholarMW',
             debugShowCheckedModeBanner: false,
-            theme: AppTheme.dark(),
+            theme: AppTheme.light(),
             darkTheme: AppTheme.dark(),
-            themeMode: ThemeMode.dark,
+            themeMode: themeProvider.themeMode,
             locale: localeProvider.locale,
             supportedLocales: AppLocalizations.supportedLocales,
             localizationsDelegates: const [

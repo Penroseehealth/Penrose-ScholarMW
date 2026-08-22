@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/stem_service.dart';
+import '../../widgets/stem_text.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/error_state.dart';
 
@@ -336,14 +337,24 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
           ),
           border: isUser ? null : Border.all(color: AppColors.border),
         ),
-        child: Text(
-          msg.text,
-          style: TextStyle(
-            fontSize: 14,
-            color: isUser ? Colors.white : AppColors.textSecondary,
-            height: 1.4,
-          ),
-        ),
+        child: isUser
+            ? Text(
+                msg.text,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.white,
+                  height: 1.4,
+                ),
+              )
+            : StemText(
+                msg.text,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
+                  height: 1.4,
+                ),
+                selectable: true,
+              ),
       ),
     );
   }

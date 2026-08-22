@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.config.settings import get_settings
+from app.config.stem_latex import STEM_LATEX_INSTRUCTION
 from app.core.subject_registry import get_subject_module
 from app.database.engine import get_db
 from app.dependencies.auth import get_current_user
@@ -204,6 +205,7 @@ def _build_system_prompt(context: dict, mode: str, user_message: str) -> str:
 
     parts.append(
         "\n\nRespond in a helpful, encouraging tone. Use markdown formatting where appropriate."
+        + STEM_LATEX_INSTRUCTION
     )
 
     mastery = context.get("mastery")
@@ -245,25 +247,21 @@ def _build_system_prompt(context: dict, mode: str, user_message: str) -> str:
 async def _call_llm(
     system_prompt: str, message: str, history: list[dict] | None = None
 ) -> str:
-    try:
-        from openai import AsyncOpenAI
+    from app.config.ai_client import AIProviderError, call_ai_text
 
-        client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
-        messages = [{"role": "system", "content": system_prompt}]
-        if history:
-            for h in history:
-                role = h.get("role", "user")
-                if role in ("user", "assistant"):
-                    messages.append({"role": role, "content": h.get("content", "")})
-        messages.append({"role": "user", "content": message})
-        response = await client.chat.completions.create(
-            model=settings.OPENAI_MODEL,
-            messages=messages,
-            temperature=0.7,
-            max_tokens=2000,
-        )
-        return response.choices[0].message.content or "I could not generate a response."
-    except Exception:
+    messages: list[dict[str, str]] = [{"role": "system", "content": system_prompt}]
+    if history:
+        for h in history:
+            role = h.get("role", "user")
+            if role in ("user", "assistant"):
+                messages.append({"role": role, "content": h.get("content", "")})
+    messages.append({"role": "user", "content": message})
+    try:
+        return await call_ai_text(messages, max_tokens=2000, temperature=0.7)
+    except AIProviderError as exc:
+        import logging
+
+        logging.getLogger(__name__).warning("AI call failed: %s", exc)
         return "The STEM Tutor is currently unavailable. Please try again later."
 
 

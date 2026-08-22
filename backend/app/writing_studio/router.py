@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.config.settings import get_settings
+from app.config.stem_latex import STEM_LATEX_INSTRUCTION
 from app.database.engine import get_db
 from app.dependencies.auth import get_current_user
 from app.models.models import (
@@ -299,43 +300,38 @@ async def writing_assist(
 
     content = body.content or section.content or ""
 
-    if settings.OPENAI_API_KEY:
-        try:
-            from openai import AsyncOpenAI
+    try:
+        from app.config.ai_client import AIProviderError, call_ai_text
 
-            client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
-            system_prompt = (
-                "You are an academic writing assistant. "
-                "Provide specific, actionable suggestions to improve academic writing. "
-                "Focus on clarity, grammar, structure, and scholarly tone."
-            )
-            user_msg = f"Action: {body.action}\n\nContent:\n{content}"
-            response = await client.chat.completions.create(
-                model=settings.OPENAI_MODEL,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_msg},
-                ],
-                temperature=0.7,
-                max_tokens=1500,
-            )
-            text = response.choices[0].message.content or ""
-            suggestions = [s.strip() for s in text.split("\n") if s.strip()]
-            return WritingAssistResponse(
-                suggestions=suggestions[:10],
-                improved_text=(
-                    text
-                    if body.action in ("improve_grammar", "improve_tone", "paraphrase")
-                    else None
-                ),
-                analysis=(
-                    text
-                    if body.action in ("suggest_structure", "identify_gaps")
-                    else None
-                ),
-            )
-        except Exception:
-            logger.exception("OpenAI call failed for writing assist")
+        system_prompt = (
+            "You are an academic writing assistant. "
+            "Provide specific, actionable suggestions to improve academic writing. "
+            "Focus on clarity, grammar, structure, and scholarly tone."
+            + STEM_LATEX_INSTRUCTION
+        )
+        user_msg = f"Action: {body.action}\n\nContent:\n{content}"
+        text = await call_ai_text(
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_msg},
+            ],
+            temperature=0.7,
+            max_tokens=1500,
+        )
+        suggestions = [s.strip() for s in text.split("\n") if s.strip()]
+        return WritingAssistResponse(
+            suggestions=suggestions[:10],
+            improved_text=(
+                text
+                if body.action in ("improve_grammar", "improve_tone", "paraphrase")
+                else None
+            ),
+            analysis=(
+                text if body.action in ("suggest_structure", "identify_gaps") else None
+            ),
+        )
+    except AIProviderError:
+        logger.exception("AI call failed for writing assist")
 
     placeholder_map = {
         "improve_grammar": [

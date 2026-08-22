@@ -6,6 +6,16 @@ export 'cache_service.dart';
 export 'stem_service.dart';
 export 'data_saver_service.dart';
 
+String _extractError(dynamic response, String fallback) {
+  try {
+    if (response.body.isEmpty) return fallback;
+    final body = jsonDecode(response.body);
+    return body['detail'] ?? body['error'] ?? body['message'] ?? fallback;
+  } catch (_) {
+    return fallback;
+  }
+}
+
 class CourseService {
   final ApiService _api = ApiService();
 
@@ -28,9 +38,10 @@ class CourseService {
   Future<Map<String, dynamic>> enroll(int courseId) async {
     final response = await _api.post('/courses/$courseId/enroll');
     if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.body.isEmpty) return {'success': true, 'data': null};
       return {'success': true, 'data': jsonDecode(response.body)};
     }
-    return {'success': false, 'error': jsonDecode(response.body)['detail'] ?? 'Enrollment failed'};
+    return {'success': false, 'error': _extractError(response, 'Enrollment failed')};
   }
 
   Future<List<dynamic>> getSchedule(int courseId) async {
@@ -60,7 +71,7 @@ class AiService {
     if (response.statusCode == 200) {
       return {'success': true, 'data': jsonDecode(response.body)};
     }
-    return {'success': false, 'error': 'Failed to get response'};
+    return {'success': false, 'error': _extractError(response, 'Failed to get response')};
   }
 
   Future<List<dynamic>> listSessions() async {
@@ -92,7 +103,7 @@ class AiService {
     if (response.statusCode == 200) {
       return {'success': true, 'data': jsonDecode(response.body)};
     }
-    return {'success': false, 'error': 'Failed to generate lesson plan'};
+    return {'success': false, 'error': _extractError(response, 'Failed to generate lesson plan')};
   }
 
   Future<Map<String, dynamic>> generateAssessment({
@@ -112,7 +123,7 @@ class AiService {
     if (response.statusCode == 200) {
       return {'success': true, 'data': jsonDecode(response.body)};
     }
-    return {'success': false, 'error': 'Failed to generate assessment'};
+    return {'success': false, 'error': _extractError(response, 'Failed to generate assessment')};
   }
 
   Future<Map<String, dynamic>> generateStudyPlan({
@@ -128,7 +139,7 @@ class AiService {
     if (response.statusCode == 200) {
       return {'success': true, 'data': jsonDecode(response.body)};
     }
-    return {'success': false, 'error': 'Failed to generate study plan'};
+    return {'success': false, 'error': _extractError(response, 'Failed to generate study plan')};
   }
 
   Future<Map<String, dynamic>> analyzeData({
@@ -142,7 +153,7 @@ class AiService {
     if (response.statusCode == 200) {
       return {'success': true, 'data': jsonDecode(response.body)};
     }
-    return {'success': false, 'error': 'Failed to analyze data'};
+    return {'success': false, 'error': _extractError(response, 'Failed to analyze data')};
   }
 
   Future<Map<String, dynamic>> runCode({
@@ -156,7 +167,7 @@ class AiService {
     if (response.statusCode == 200) {
       return {'success': true, 'data': jsonDecode(response.body)};
     }
-    return {'success': false, 'error': 'Failed to run code'};
+    return {'success': false, 'error': _extractError(response, 'Failed to run code')};
   }
 }
 
@@ -235,5 +246,130 @@ class AssessmentService {
       return {'success': true, 'data': jsonDecode(response.body)};
     }
     return {'success': false, 'error': 'Submission failed'};
+  }
+}
+
+class MultimodalService {
+  final ApiService _api = ApiService();
+
+  Future<Map<String, dynamic>> uploadFile(String filePath, String filename) async {
+    final response = await _api.uploadFile('/ai/multimodal/upload', filePath, filename);
+    if (response.statusCode == 200) {
+      return {'success': true, 'data': jsonDecode(response.body)};
+    }
+    return {'success': false, 'error': _extractError(response, 'Upload failed')};
+  }
+
+  Future<Map<String, dynamic>> uploadFileBytes(List<int> bytes, String filename) async {
+    final response = await _api.uploadFileBytes('/ai/multimodal/upload', bytes, filename);
+    if (response.statusCode == 200) {
+      return {'success': true, 'data': jsonDecode(response.body)};
+    }
+    return {'success': false, 'error': _extractError(response, 'Upload failed')};
+  }
+
+  Future<Map<String, dynamic>> deleteFile(String fileId) async {
+    final response = await _api.delete('/ai/multimodal/files/$fileId');
+    if (response.statusCode == 200) {
+      return {'success': true};
+    }
+    return {'success': false, 'error': _extractError(response, 'Delete failed')};
+  }
+
+  Future<List<dynamic>> listVoices({String? language}) async {
+    final path = language != null
+        ? '/ai/multimodal/voices?language=$language'
+        : '/ai/multimodal/voices';
+    final response = await _api.get(path);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    return [];
+  }
+
+  Future<Map<String, dynamic>> updateVoiceSettings({
+    required String voiceId,
+    double speed = 1.0,
+    bool autoRead = false,
+  }) async {
+    final response = await _api.post('/ai/multimodal/voices/settings', body: {
+      'default_voice_id': voiceId,
+      'playback_speed': speed,
+      'auto_read': autoRead,
+    });
+    if (response.statusCode == 200) {
+      return {'success': true, 'data': jsonDecode(response.body)};
+    }
+    return {'success': false, 'error': _extractError(response, 'Settings update failed')};
+  }
+
+  Future<Map<String, dynamic>> synthesizeTTS({
+    required String text,
+    String voiceId = 'default',
+    double speed = 1.0,
+  }) async {
+    final response = await _api.post('/ai/multimodal/tts/synthesize', body: {
+      'text': text,
+      'voice_id': voiceId,
+      'speed': speed,
+    });
+    if (response.statusCode == 200) {
+      return {'success': true, 'data': jsonDecode(response.body)};
+    }
+    return {'success': false, 'error': _extractError(response, 'TTS failed')};
+  }
+
+  Future<Map<String, dynamic>> stemToSpeech({
+    required String latex,
+    String language = 'en',
+  }) async {
+    final response = await _api.post('/ai/multimodal/stem-to-speech', body: {
+      'text': latex,
+      'language': language,
+    });
+    if (response.statusCode == 200) {
+      return {'success': true, 'data': jsonDecode(response.body)};
+    }
+    return {'success': false, 'error': _extractError(response, 'STEM speech conversion failed')};
+  }
+
+  Future<Map<String, dynamic>> chatWithFiles({
+    required String message,
+    int? sessionId,
+    String agentType = 'tutor',
+    List<String> fileIds = const [],
+  }) async {
+    final response = await _api.post('/ai/chat', body: {
+      'message': message,
+      'session_id': sessionId,
+      'agent_type': agentType,
+      'file_ids': fileIds,
+    });
+    if (response.statusCode == 200) {
+      return {'success': true, 'data': jsonDecode(response.body)};
+    }
+    return {'success': false, 'error': _extractError(response, 'Chat failed')};
+  }
+
+  Future<Map<String, dynamic>> createVoiceClone({
+    required String voiceName,
+    required bool consentConfirmed,
+  }) async {
+    final response = await _api.post('/ai/multimodal/voices/clone', body: {
+      'voice_name': voiceName,
+      'consent_confirmed': consentConfirmed,
+    });
+    if (response.statusCode == 200) {
+      return {'success': true, 'data': jsonDecode(response.body)};
+    }
+    return {'success': false, 'error': _extractError(response, 'Voice clone failed')};
+  }
+
+  Future<Map<String, dynamic>> deleteVoiceClone(String cloneId) async {
+    final response = await _api.delete('/ai/multimodal/voices/clone/$cloneId');
+    if (response.statusCode == 200) {
+      return {'success': true};
+    }
+    return {'success': false, 'error': _extractError(response, 'Delete failed')};
   }
 }

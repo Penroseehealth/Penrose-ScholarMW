@@ -92,6 +92,9 @@ async def subject_dashboard(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    from app.stem.slug_utils import resolve_slug
+
+    slug = resolve_slug(slug)
     subject_result = await db.execute(
         select(STEMSubject).where(STEMSubject.subject_slug == slug)
     )

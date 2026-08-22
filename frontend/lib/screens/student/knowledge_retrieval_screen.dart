@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
+import '../../widgets/stem_text.dart';
 import '../../services/web_speech_service.dart';
 
 class KnowledgeRetrievalScreen extends StatefulWidget {
@@ -120,9 +121,14 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
           _loading = false;
         });
       } else {
+        String errorMsg = 'Sorry, I could not process your request. Please try again.';
+        try {
+          final body = _decodeResponse(response.body);
+          errorMsg = body['detail'] ?? body['error'] ?? body['message'] ?? errorMsg;
+        } catch (_) {}
         setState(() {
           _messages.add(_ChatMessage(
-            text: 'Sorry, I could not process your request. Please try again.',
+            text: errorMsg,
             isUser: false,
             sources: [],
             confidence: null,
@@ -197,6 +203,8 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
         },
         onError: (error) {
           if (mounted) {
+            setState(() { _listening = false; });
+            _pulseCtrl.stop();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(error),
@@ -378,14 +386,23 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
                   ),
                 ],
               ),
-              child: Text(
-                msg.text,
-                style: TextStyle(
-                  fontSize: 14,
-                  height: 1.5,
-                  color: isUser ? Colors.white : AppColors.textPrimary,
-                ),
-              ),
+              child: isUser
+                  ? Text(
+                      msg.text,
+                      style: TextStyle(
+                        fontSize: 14,
+                        height: 1.5,
+                        color: Colors.white,
+                      ),
+                    )
+                  : StemText(
+                      msg.text,
+                      style: TextStyle(
+                        fontSize: 14,
+                        height: 1.5,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
             ),
             if (!isUser)
               Padding(

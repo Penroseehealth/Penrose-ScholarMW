@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config.settings import get_settings
+from app.config.stem_latex import STEM_LATEX_INSTRUCTION
 from app.database.engine import get_db
 from app.dependencies.auth import get_current_user, require_lecturer
 from app.models.models import (
@@ -299,53 +299,50 @@ async def generate_assessment_questions(
     if not assessment:
         raise HTTPException(status_code=404, detail="Assessment not found")
 
-    settings = get_settings()
     questions = []
 
-    if settings.OPENAI_API_KEY:
-        try:
-            from openai import AsyncOpenAI
+    try:
+        from app.config.ai_client import AIProviderError, call_ai_chat
 
-            client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
-            prompt = (
-                f"Generate {num_questions} {difficulty}-level assessment questions "
-                f"on the topic: {topic}. "
-                f"Question types: {', '.join(question_types)}. "
-                f"Return JSON array with objects containing: "
-                f"question_text, question_type, options (if applicable), "
-                f"correct_answer, marks."
+        prompt = (
+            f"Generate {num_questions} {difficulty}-level assessment questions "
+            f"on the topic: {topic}. "
+            f"Question types: {', '.join(question_types)}. "
+            f"Return JSON array with objects containing: "
+            f"question_text, question_type, options (if applicable), "
+            f"correct_answer, marks."
+        )
+        completion, _provider = await call_ai_chat(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are an expert assessment designer. Return only valid JSON."
+                    + STEM_LATEX_INSTRUCTION,
+                },
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.7,
+            response_format={"type": "json_object"},
+        )
+        content = completion.choices[0].message.content
+        parsed = json.loads(content)
+        raw_questions = (
+            parsed if isinstance(parsed, list) else parsed.get("questions", [])
+        )
+        for q in raw_questions:
+            q_type = q.get("question_type", "multiple_choice")
+            question = AssessmentQuestion(
+                assessment_id=assessment_id,
+                question_text=q.get("question_text", ""),
+                question_type=q_type,
+                options=q.get("options"),
+                correct_answer=q.get("correct_answer"),
+                marks=q.get("marks", 1),
             )
-            response = await client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are an expert assessment designer. Return only valid JSON.",
-                    },
-                    {"role": "user", "content": prompt},
-                ],
-                temperature=0.7,
-                response_format={"type": "json_object"},
-            )
-            content = response.choices[0].message.content
-            parsed = json.loads(content)
-            raw_questions = (
-                parsed if isinstance(parsed, list) else parsed.get("questions", [])
-            )
-            for q in raw_questions:
-                q_type = q.get("question_type", "multiple_choice")
-                question = AssessmentQuestion(
-                    assessment_id=assessment_id,
-                    question_text=q.get("question_text", ""),
-                    question_type=q_type,
-                    options=q.get("options"),
-                    correct_answer=q.get("correct_answer"),
-                    marks=q.get("marks", 1),
-                )
-                db.add(question)
-                questions.append(question)
-        except Exception:
-            questions = []
+            db.add(question)
+            questions.append(question)
+    except (AIProviderError, Exception):
+        questions = []
 
     if not questions:
         for i in range(num_questions):
@@ -415,40 +412,37 @@ async def quality_review_assessment(
     total_marks = sum(q.marks for q in questions)
     avg_marks = total_marks / len(questions) if questions else 0
 
-    settings = get_settings()
     ai_review = None
 
-    if settings.OPENAI_API_KEY:
-        try:
-            from openai import AsyncOpenAI
+    try:
+        from app.config.ai_client import AIProviderError, call_ai_chat
 
-            client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
-            questions_summary = "\n".join(
-                f"- [{q.question_type}] {q.question_text} ({q.marks} marks)"
-                for q in questions
-            )
-            prompt = (
-                f"Review this assessment for quality. Title: {assessment.title}\n"
-                f"Questions:\n{questions_summary}\n\n"
-                f"Provide a JSON object with: "
-                f"quality_score (0-100), strengths (list), "
-                f"improvements (list), coverage_notes (string)."
-            )
-            response = await client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are an expert educational assessor. Return only valid JSON.",
-                    },
-                    {"role": "user", "content": prompt},
-                ],
-                temperature=0.3,
-                response_format={"type": "json_object"},
-            )
-            ai_review = json.loads(response.choices[0].message.content)
-        except Exception:
-            ai_review = None
+        questions_summary = "\n".join(
+            f"- [{q.question_type}] {q.question_text} ({q.marks} marks)"
+            for q in questions
+        )
+        prompt = (
+            f"Review this assessment for quality. Title: {assessment.title}\n"
+            f"Questions:\n{questions_summary}\n\n"
+            f"Provide a JSON object with: "
+            f"quality_score (0-100), strengths (list), "
+            f"improvements (list), coverage_notes (string)."
+        )
+        completion, _provider = await call_ai_chat(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are an expert educational assessor. Return only valid JSON."
+                    + STEM_LATEX_INSTRUCTION,
+                },
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.3,
+            response_format={"type": "json_object"},
+        )
+        ai_review = json.loads(completion.choices[0].message.content)
+    except (AIProviderError, Exception):
+        ai_review = None
 
     review = {
         "assessment_id": assessment_id,

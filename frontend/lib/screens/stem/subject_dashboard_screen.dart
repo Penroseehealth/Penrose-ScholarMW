@@ -156,6 +156,8 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
             _buildRecentActivity(recentActivity, accentColor),
           ],
           const SizedBox(height: 20),
+          _buildSyllabusButton(accentColor),
+          const SizedBox(height: 20),
           _buildActionButtons(accentColor),
         ],
       ),
@@ -511,6 +513,45 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSyllabusButton(Color accent) {
+    final slug = widget.slug;
+    if (slug != 'mathematics' && slug != 'chemistry') {
+      return const SizedBox.shrink();
+    }
+    final route = slug == 'mathematics' ? '/math-syllabus' : '/chem-syllabus';
+    final label = slug == 'mathematics' ? 'View Mathematics Syllabus' : 'View Chemistry Syllabus';
+    final icon = slug == 'mathematics' ? Icons.calculate_rounded : Icons.science_rounded;
+
+    return GestureDetector(
+      onTap: () => context.push(route),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+        decoration: BoxDecoration(
+          color: accent.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: accent.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: accent, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: accent,
+                ),
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, color: accent, size: 20),
+          ],
+        ),
       ),
     );
   }

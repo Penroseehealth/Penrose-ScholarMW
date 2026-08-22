@@ -127,6 +127,9 @@ async def list_subjects(db: AsyncSession = Depends(get_db)):
 @router.get("/subjects/{slug}/tree")
 async def get_syllabus_tree(slug: str, db: AsyncSession = Depends(get_db)):
     """Full syllabus tree for a subject: versions → core elements → topics → subtopics → L.O.s"""
+    from app.stem.slug_utils import resolve_slug
+
+    slug = resolve_slug(slug)
     subject = (
         await db.execute(
             select(SyllabusSubject).where(
@@ -215,6 +218,9 @@ async def get_syllabus_tree(slug: str, db: AsyncSession = Depends(get_db)):
 @router.get("/subjects/{slug}/topics")
 async def list_topics_flat(slug: str, db: AsyncSession = Depends(get_db)):
     """Flat list of all topics for a subject — useful for search and dropdown."""
+    from app.stem.slug_utils import resolve_slug
+
+    slug = resolve_slug(slug)
     subject = (
         await db.execute(
             select(SyllabusSubject).where(

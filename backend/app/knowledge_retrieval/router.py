@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config.settings import get_settings
+from app.config.stem_latex import STEM_LATEX_INSTRUCTION
 from app.database.engine import get_db
 from app.dependencies.auth import get_current_user
 from app.models.models import (
@@ -250,50 +250,37 @@ async def rag_query(
     confidence = _confidence_from_sources(sources)
 
     # --- LLM grounded answer -------------------------------------------------
-    settings = get_settings()
-    api_key = getattr(settings, "OPENAI_API_KEY", "") or ""
-    if api_key and api_key not in ("sk-your-openai-key", ""):
-        try:
-            from openai import AsyncOpenAI
+    try:
+        from app.config.ai_client import AIProviderError, call_ai_text
 
-            client = AsyncOpenAI(api_key=api_key)
+        context_block = "\n\n".join(
+            f"[Source {i + 1}: {s['title']} ({s['source']})]\n{s['content']}"
+            for i, s in enumerate(sources)
+        )
+        if not context_block:
+            context_block = "No relevant documents were found in the knowledge base."
 
-            context_block = "\n\n".join(
-                f"[Source {i + 1}: {s['title']} ({s['source']})]\n{s['content']}"
-                for i, s in enumerate(sources)
-            )
-            if not context_block:
-                context_block = (
-                    "No relevant documents were found in the knowledge base."
-                )
+        system_prompt = (
+            "You are ScholarAI, an academic assistant for Malawian universities. "
+            "Use ONLY the provided context to answer the question. "
+            "If the context doesn't contain enough information, say so."
+            + STEM_LATEX_INSTRUCTION
+        )
+        user_message = f"Context:\n{context_block}\n\nQuestion: {payload.question}"
 
-            system_prompt = (
-                "You are ScholarAI, an academic assistant for Malawian universities. "
-                "Use ONLY the provided context to answer the question. "
-                "If the context doesn't contain enough information, say so."
-            )
-            user_message = f"Context:\n{context_block}\n\nQuestion: {payload.question}"
-
-            completion = await client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_message},
-                ],
-                temperature=0.3,
-                max_tokens=1024,
-            )
-            answer = completion.choices[0].message.content or "No answer generated."
-        except Exception as exc:
-            logger.error("OpenAI call failed: %s", exc)
-            answer = (
-                "I found some potentially relevant sources but could not generate "
-                "an AI answer at this time. Please review the sources below."
-            )
-    else:
+        answer = await call_ai_text(
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_message},
+            ],
+            temperature=0.3,
+            max_tokens=1024,
+        )
+    except AIProviderError as exc:
+        logger.error("AI call failed: %s", exc)
         answer = (
-            "AI answering is currently unavailable. Here are the most relevant "
-            "sources I found for your question."
+            "I found some potentially relevant sources but could not generate "
+            "an AI answer at this time. Please review the sources below."
         )
 
     return RAGQueryResponse(answer=answer, sources=sources, confidence=confidence)
@@ -310,9 +297,6 @@ async def voice_transcribe(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    settings = get_settings()
-    api_key = getattr(settings, "OPENAI_API_KEY", "") or ""
-
     # --- Retrieve or create chat session ------------------------------------
     if payload.session_id:
         session_result = await db.execute(
@@ -343,48 +327,31 @@ async def voice_transcribe(
     # --- Generate assistant response ----------------------------------------
     assistant_text: str
 
-    if api_key and api_key not in ("sk-your-openai-key", ""):
-        try:
-            from openai import AsyncOpenAI
+    try:
+        from app.config.ai_client import AIProviderError, call_ai_text
 
-            client = AsyncOpenAI(api_key=api_key)
-
-            history_result = await db.execute(
-                select(ChatMessage)
-                .where(ChatMessage.session_id == session.id)
-                .order_by(ChatMessage.id)
-            )
-            history = history_result.scalars().all()
-
-            system_prompt = (
-                "You are ScholarAI, an academic assistant and voice tutor for "
-                "Malawian university students. Provide clear, helpful, and "
-                "educational responses. Keep answers concise since they will be "
-                "read aloud via text-to-speech."
-            )
-
-            messages = [{"role": "system", "content": system_prompt}]
-            for msg in history:
-                messages.append({"role": msg.role, "content": msg.content})
-
-            completion = await client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=messages,
-                temperature=0.4,
-                max_tokens=512,
-            )
-            assistant_text = (
-                completion.choices[0].message.content
-                or "I could not generate a response."
-            )
-        except Exception as exc:
-            logger.error("OpenAI call failed for voice transcribe: %s", exc)
-            assistant_text = "I'm sorry, I encountered an error processing your voice message. Please try again."
-    else:
-        assistant_text = (
-            f'Voice Scholar is initializing. I received your message: "{payload.audio_text}". '
-            "AI responses are currently unavailable. Please configure an OpenAI API key to enable full voice tutoring."
+        history_result = await db.execute(
+            select(ChatMessage)
+            .where(ChatMessage.session_id == session.id)
+            .order_by(ChatMessage.id)
         )
+        history = history_result.scalars().all()
+
+        system_prompt = (
+            "You are ScholarAI, an academic assistant and voice tutor for "
+            "Malawian university students. Provide clear, helpful, and "
+            "educational responses. Keep answers concise since they will be "
+            "read aloud via text-to-speech." + STEM_LATEX_INSTRUCTION
+        )
+
+        messages = [{"role": "system", "content": system_prompt}]
+        for msg in history:
+            messages.append({"role": msg.role, "content": msg.content})
+
+        assistant_text = await call_ai_text(messages, temperature=0.4, max_tokens=512)
+    except AIProviderError as exc:
+        logger.error("AI call failed for voice transcribe: %s", exc)
+        assistant_text = "I'm sorry, I encountered an error processing your voice message. Please try again."
 
     # --- Persist assistant response -----------------------------------------
     assistant_msg = ChatMessage(

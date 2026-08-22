@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../widgets/stem_text.dart';
 
 const Color _bioGreen = Color(0xFF10B981);
 
@@ -616,14 +617,24 @@ class _BiologyAITutorScreenState extends State<BiologyAITutorScreen> {
                 ],
               ),
             if (!isUser) const SizedBox(height: 6),
-            SelectableText(
-              msg.text,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: isUser ? 0.9 : 0.85),
-                fontSize: 14,
-                height: 1.5,
-              ),
-            ),
+            isUser
+                ? SelectableText(
+                    msg.text,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      fontSize: 14,
+                      height: 1.5,
+                    ),
+                  )
+                : StemText(
+                    msg.text,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      fontSize: 14,
+                      height: 1.5,
+                    ),
+                    selectable: true,
+                  ),
             const SizedBox(height: 6),
             Text(
               '${msg.time.hour.toString().padLeft(2, '0')}:${msg.time.minute.toString().padLeft(2, '0')}',

@@ -26,14 +26,22 @@ class _StudentDashboardState extends State<StudentDashboard> {
   }
 
   Future<void> _loadData() async {
-    final courses = await _courseService.listCourses();
-    final notifs = await NotificationService().listNotifications();
-    if (mounted) {
-      setState(() {
-        _courses = courses;
-        _notifications = notifs;
-        _loading = false;
-      });
+    try {
+      final courses = await _courseService.listCourses();
+      final notifs = await NotificationService().listNotifications();
+      if (mounted) {
+        setState(() {
+          _courses = courses;
+          _notifications = notifs;
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+      }
     }
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
+import '../../widgets/stem_text.dart';
 
 class AssessmentStudio extends StatefulWidget {
   const AssessmentStudio({super.key});
@@ -212,7 +213,7 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               )
             else
-              Text(
+              StemText(
                 q['question_text'] ?? '',
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               ),
@@ -232,7 +233,7 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
               else
                 ...((q['options'] as String).split('\n').map((o) => Padding(
                       padding: const EdgeInsets.only(left: 16, top: 4),
-                      child: Text(o, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                      child: StemText(o, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
                     ))),
             ],
           ],

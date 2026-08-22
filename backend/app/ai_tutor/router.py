@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.config.settings import get_settings
+from app.config.stem_latex import STEM_LATEX_INSTRUCTION
 from app.database.engine import get_db
 from app.dependencies.auth import get_current_user
 from app.models.models import ChatMessage, ChatSession, User
@@ -82,25 +83,22 @@ def _build_system_prompt(agent_type: str) -> str:
         ),
     }
     base = prompts.get(agent_type, prompts["tutor"])
-    return base + SOURCE_CITATION_INSTRUCTION
+    return base + STEM_LATEX_INSTRUCTION + SOURCE_CITATION_INSTRUCTION
 
 
 async def _call_llm(system_prompt: str, messages: list[dict]) -> str:
-    try:
-        from openai import AsyncOpenAI
+    from app.config.ai_client import AIProviderError, call_ai_text
 
-        client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
-        response = await client.chat.completions.create(
-            model=settings.OPENAI_MODEL,
-            messages=[{"role": "system", "content": system_prompt}] + messages,
-            temperature=0.7,
-            max_tokens=2000,
-        )
-        return response.choices[0].message.content or "I could not generate a response."
-    except Exception:
+    full_messages = [{"role": "system", "content": system_prompt}] + messages
+    try:
+        return await call_ai_text(full_messages, max_tokens=2000, temperature=0.7)
+    except AIProviderError as exc:
+        import logging
+
+        logging.getLogger(__name__).warning("AI call failed: %s", exc)
         return (
             "ScholarAI is currently unavailable. Please try again later. "
-            "If this persists, contact your administrator."
+            f"(Detail: {exc})"
         )
 
 
@@ -162,6 +160,28 @@ async def chat(
     ]
 
     system_prompt = _build_system_prompt(body.agent_type)
+
+    if body.file_ids:
+        from app.stem.multimodal_router import _file_store
+
+        file_context_parts = []
+        for fid in body.file_ids:
+            f = _file_store.get(fid)
+            if f and f.get("user_id") == user.id:
+                file_context_parts.append(
+                    f"[Uploaded File: {f['filename']} ({f['file_type']})]\n"
+                    f"{f.get('extracted_text', '(no text extracted)')}"
+                )
+        if file_context_parts:
+            file_context = "\n\n".join(file_context_parts)
+            system_prompt += (
+                "\n\nIMPORTANT — The student has uploaded the following file(s). "
+                "Use the content as the primary source for your answer. "
+                "If the student asks to answer 'using this document only', "
+                "do NOT introduce information outside the uploaded content.\n\n"
+                f"--- UPLOADED CONTENT ---\n{file_context}\n--- END UPLOADED CONTENT ---"
+            )
+
     ai_response = await _call_llm(system_prompt, history)
 
     content, sources = _extract_sources(ai_response)

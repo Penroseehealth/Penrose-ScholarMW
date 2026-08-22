@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
+import '../../widgets/stem_text.dart';
 
 class StudyPlanScreen extends StatefulWidget {
   final int courseId;
@@ -112,7 +113,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      Expanded(child: Text(topic)),
+                      Expanded(child: StemText(topic)),
                     ],
                   ),
                 )),
@@ -166,13 +167,13 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Text(
+                    StemText(
                       day['topic'] ?? '',
                       style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                     if (day['activity'] != null) ...[
                       const SizedBox(height: 4),
-                      Text(
+                      StemText(
                         day['activity'],
                         style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
                       ),
@@ -208,7 +209,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
                       const Icon(Icons.link, size: 16, color: AppColors.accent),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Text(
+                        child: StemText(
                           r,
                           style: const TextStyle(fontSize: 14),
                         ),

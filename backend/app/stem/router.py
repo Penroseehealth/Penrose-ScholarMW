@@ -350,6 +350,9 @@ async def get_subject_modules():
 
 @router.get("/subjects/{slug}", response_model=SubjectResponse)
 async def get_subject(slug: str, db: AsyncSession = Depends(get_db)):
+    from app.stem.slug_utils import resolve_slug
+
+    slug = resolve_slug(slug)
     result = await db.execute(
         select(STEMSubject).where(STEMSubject.subject_slug == slug)
     )
@@ -367,6 +370,9 @@ async def get_subject(slug: str, db: AsyncSession = Depends(get_db)):
 
 @router.get("/subjects/{slug}/disciplines", response_model=list[DisciplineResponse])
 async def list_disciplines_for_subject(slug: str, db: AsyncSession = Depends(get_db)):
+    from app.stem.slug_utils import resolve_slug
+
+    slug = resolve_slug(slug)
     subject_result = await db.execute(
         select(STEMSubject).where(STEMSubject.subject_slug == slug)
     )

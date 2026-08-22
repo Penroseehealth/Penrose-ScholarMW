@@ -473,9 +473,8 @@ async def generate_flashcards(
         )
 
     try:
-        from openai import AsyncOpenAI
+        from app.config.ai_client import AIProviderError, call_ai_chat
 
-        client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
         prompt = (
             f"Generate {body.count} flashcards for the following concept:\n"
             f"Title: {concept.title}\n"
@@ -493,8 +492,7 @@ async def generate_flashcards(
             "Back should be a concise but complete answer."
         )
 
-        response = await client.chat.completions.create(
-            model=settings.OPENAI_MODEL,
+        completion, _provider = await call_ai_chat(
             messages=[
                 {
                     "role": "system",
@@ -508,14 +506,14 @@ async def generate_flashcards(
             temperature=0.7,
             max_tokens=2000,
         )
-        raw = response.choices[0].message.content or "[]"
+        raw = completion.choices[0].message.content or "[]"
         start = raw.find("[")
         end = raw.rfind("]") + 1
         if start != -1 and end > start:
             items = json.loads(raw[start:end])
         else:
             items = []
-    except Exception:
+    except (AIProviderError, Exception):
         items = []
 
     saved_count = 0

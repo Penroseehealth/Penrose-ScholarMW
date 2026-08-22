@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.settings import get_settings
+from app.config.stem_latex import STEM_LATEX_INSTRUCTION
 from app.database.engine import get_db
 from app.dependencies.auth import get_current_user
 from app.models.models import ChatMessage, ChatSession, User
@@ -36,18 +37,15 @@ AVAILABLE_MODELS = {
 
 
 async def _call_openai(system_prompt: str, messages: list[dict]) -> str:
-    try:
-        from openai import AsyncOpenAI
+    from app.config.ai_client import AIProviderError, call_ai_text
 
-        client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
-        response = await client.chat.completions.create(
-            model=settings.OPENAI_MODEL,
-            messages=[{"role": "system", "content": system_prompt}] + messages,
-            temperature=0.7,
-            max_tokens=2000,
-        )
-        return response.choices[0].message.content or "No response generated."
-    except Exception:
+    full_messages = [{"role": "system", "content": system_prompt}] + messages
+    try:
+        return await call_ai_text(full_messages, max_tokens=2000, temperature=0.7)
+    except AIProviderError as exc:
+        import logging
+
+        logging.getLogger(__name__).warning("AI call failed: %s", exc)
         return "AI model is currently unavailable. Please try again later."
 
 
@@ -66,7 +64,7 @@ def _get_system_prompt(agent_type: str) -> str:
             "improve academic language, and provide citation guidance."
         ),
     }
-    return prompts.get(agent_type, prompts["tutor"])
+    return prompts.get(agent_type, prompts["tutor"]) + STEM_LATEX_INSTRUCTION
 
 
 class ChatOrchestratorRequest(BaseModel):

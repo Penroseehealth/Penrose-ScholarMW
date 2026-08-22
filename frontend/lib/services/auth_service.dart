@@ -10,12 +10,17 @@ class AuthService {
       'email': email,
       'password': password,
     });
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 && response.body.isNotEmpty) {
       final data = jsonDecode(response.body);
       await _api.setTokens(data['access_token'], data['refresh_token']);
       return {'success': true, 'user': data['user']};
     }
-    return {'success': false, 'error': jsonDecode(response.body)['detail'] ?? 'Login failed'};
+    try {
+      if (response.body.isNotEmpty) {
+        return {'success': false, 'error': jsonDecode(response.body)['detail'] ?? 'Login failed'};
+      }
+    } catch (_) {}
+    return {'success': false, 'error': 'Login failed'};
   }
 
   Future<Map<String, dynamic>> register({
@@ -38,12 +43,17 @@ class AuthService {
       'student_id': studentId,
       'year_of_study': yearOfStudy,
     });
-    if (response.statusCode == 201) {
+    if (response.statusCode == 201 && response.body.isNotEmpty) {
       final data = jsonDecode(response.body);
       await _api.setTokens(data['access_token'], data['refresh_token']);
       return {'success': true, 'user': data['user']};
     }
-    return {'success': false, 'error': jsonDecode(response.body)['detail'] ?? 'Registration failed'};
+    try {
+      if (response.body.isNotEmpty) {
+        return {'success': false, 'error': jsonDecode(response.body)['detail'] ?? 'Registration failed'};
+      }
+    } catch (_) {}
+    return {'success': false, 'error': 'Registration failed'};
   }
 
   Future<void> logout() async {
@@ -52,7 +62,7 @@ class AuthService {
 
   Future<Map<String, dynamic>?> getMe() async {
     final response = await _api.get('/auth/me');
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 && response.body.isNotEmpty) {
       return jsonDecode(response.body);
     }
     return null;

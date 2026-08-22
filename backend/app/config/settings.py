@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=str(_BACKEND_DIR / ".env"),
         env_file_encoding="utf-8",
         case_sensitive=False,
     )
@@ -29,6 +32,11 @@ class Settings(BaseSettings):
         "http://localhost:8000",
     ]
     ENVIRONMENT: str = "development"
+    CLOUDFLARE_ACCOUNT_ID: str = ""
+    CLOUDFLARE_API_TOKEN: str = ""
+    CLOUDFLARE_AI_MODEL: str = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+    HUGGINGFACE_API_TOKEN: str = ""
+    HUGGINGFACE_MODEL: str = "meta-llama/Llama-4-Scout-17B-16E-Instruct"
 
 
 @lru_cache

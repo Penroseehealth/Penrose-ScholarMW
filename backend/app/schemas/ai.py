@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ChatRequest(BaseModel):
@@ -8,6 +8,7 @@ class ChatRequest(BaseModel):
     session_id: int | None = None
     agent_type: str = "tutor"
     context_course_id: int | None = None
+    file_ids: list[str] = Field(default_factory=list)
 
 
 class ChatMessageResponse(BaseModel):

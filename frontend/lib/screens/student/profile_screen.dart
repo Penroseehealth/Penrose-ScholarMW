@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../providers/locale_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
 
@@ -15,6 +16,7 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final localeProvider = context.watch<LocaleProvider>();
+    final themeProvider = context.watch<ThemeProvider>();
     final user = auth.user ?? {};
     final name = (user['full_name'] ?? 'User').toString();
 
@@ -103,8 +105,8 @@ class ProfileScreen extends StatelessWidget {
               icon: Icons.dark_mode_outlined,
               title: 'Dark Mode',
               trailing: Switch(
-                value: true,
-                onChanged: (v) {},
+                value: themeProvider.isDark,
+                onChanged: (_) => themeProvider.toggleTheme(),
                 activeColor: AppColors.primary,
               ),
             ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
 import '../../widgets/ai_governance_widgets.dart';
+import '../../widgets/stem_text.dart';
 
 class DataAnalysisScreen extends StatefulWidget {
   const DataAnalysisScreen({super.key});
@@ -367,7 +368,7 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: AppColors.border),
       ),
-      child: Text(
+      child: StemText(
         analysis,
         style: const TextStyle(
           fontSize: 13,

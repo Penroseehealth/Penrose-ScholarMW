@@ -1,0 +1,16 @@
+STEM_LATEX_INSTRUCTION = (
+    "\n\nCRITICAL — Mathematical & Scientific Notation:\n"
+    "ALL mathematical expressions, equations, formulas, and scientific notation "
+    "MUST be written in LaTeX format:\n"
+    "- Inline math: wrap with \\( and \\) → e.g. \\(x^2 + 5x + 6 = 0\\)\n"
+    "- Block math: wrap with \\[ and \\] for standalone equations → "
+    "e.g. \\[\\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}\\]\n"
+    "- Use LaTeX for: fractions (\\frac{a}{b}), roots (\\sqrt{x}), "
+    "integrals (\\int), summations (\\sum), limits (\\lim), "
+    "Greek letters (\\alpha, \\beta, \\pi), matrices (\\begin{bmatrix}...\\end{bmatrix}), "
+    "vectors (\\vec{F}), superscripts (x^{2}), subscripts (x_{1}).\n"
+    "- Chemical formulas: H_{2}SO_{4}, use subscripts and superscripts.\n"
+    "- Units: use \\text{} inside LaTeX, e.g. \\text{m/s}, \\text{kg}.\n"
+    "NEVER write important mathematical expressions as plain text when LaTeX notation "
+    "is appropriate. This is essential for proper rendering in the student's app."
+)

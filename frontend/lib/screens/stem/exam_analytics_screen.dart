@@ -597,7 +597,7 @@ class _ScoreTrendPainter extends CustomPainter {
       ..color = AppColors.border
       ..strokeWidth = 0.5;
 
-    const labelStyle = TextStyle(fontSize: 10, color: AppColors.textMuted, fontFamily: 'Inter');
+    const labelStyle = TextStyle(fontSize: 10, color: AppColors.textMuted);
 
     const topPadding = 10.0;
     const bottomPadding = 30.0;

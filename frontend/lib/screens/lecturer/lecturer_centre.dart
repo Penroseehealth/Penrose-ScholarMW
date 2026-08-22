@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme.dart';
+import '../../providers/theme_provider.dart';
 import '../../services/services.dart';
 import '../home/app_drawer.dart';
 
@@ -628,7 +630,13 @@ class _LecturerCentreState extends State<LecturerCentre>
               Icons.notifications_outlined, 'Notifications', () {},
               badge: 3),
           const SizedBox(width: 8),
-          _buildHeaderAction(Icons.dark_mode_outlined, 'Theme', () {}),
+          _buildHeaderAction(
+            context.watch<ThemeProvider>().isDark
+                ? Icons.dark_mode_outlined
+                : Icons.light_mode_outlined,
+            'Theme',
+            () => context.read<ThemeProvider>().toggleTheme(),
+          ),
         ],
       ),
     );

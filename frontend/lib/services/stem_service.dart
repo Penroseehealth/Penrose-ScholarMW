@@ -1,6 +1,15 @@
 import 'dart:convert';
 import 'api_service.dart';
 
+String _extractError(dynamic response, String fallback) {
+  try {
+    final body = jsonDecode(response.body);
+    return body['detail'] ?? body['error'] ?? body['message'] ?? fallback;
+  } catch (_) {
+    return fallback;
+  }
+}
+
 class StemService {
   final ApiService _api = ApiService();
 
@@ -172,7 +181,7 @@ class StemService {
     }
     final response = await _api.post('/stem/tutor/chat', body: body);
     if (response.statusCode == 200) return jsonDecode(response.body);
-    return {'response': 'Failed to get response. Please try again.'};
+    return {'response': _extractError(response, 'Failed to get response. Please try again.')};
   }
 
   Future<List<dynamic>> getTutorModes() async {
@@ -244,7 +253,7 @@ class StemService {
       'count': count,
     });
     if (response.statusCode == 200) return {'success': true, 'data': jsonDecode(response.body)};
-    return {'success': false, 'error': 'Failed to generate flashcards'};
+    return {'success': false, 'error': _extractError(response, 'Failed to generate flashcards')};
   }
 
   Future<List<dynamic>> getDueFlashcards() async {
@@ -562,7 +571,7 @@ class StemService {
       'days_ahead': daysAhead,
     });
     if (response.statusCode == 200 || response.statusCode == 201) return jsonDecode(response.body);
-    return {};
+    return {'error': _extractError(response, 'Failed to generate study plan')};
   }
 
   Future<List<dynamic>> getDailyStudyPlan() async {
@@ -751,7 +760,7 @@ class StemService {
     if (subjectSlug != null) payload['subject_slug'] = subjectSlug;
     final response = await _api.post('/stem/certificates/generate', body: payload);
     if (response.statusCode == 200 || response.statusCode == 201) return jsonDecode(response.body);
-    return {};
+    return {'message': _extractError(response, 'Failed to generate certificate')};
   }
 
   Future<List<dynamic>> getCertificates() async {

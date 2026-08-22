@@ -16,3 +16,7 @@ openai==1.51.0
 pytest==8.3.3
 pytest-asyncio==0.24.0
 ruff==0.7.3
+sympy==1.13.3
+PyPDF2==3.0.1
+python-docx==1.1.2
+openpyxl==3.1.5
