@@ -36,9 +36,9 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
     });
 
     try {
-      final notifRes = await _api.get('/api/v1/smart-notifications/');
+      final notifRes = await _api.get('/smart-notifications/');
       final prefsRes =
-          await _api.get('/api/v1/smart-notifications/preferences');
+          await _api.get('/smart-notifications/preferences');
 
       if (!mounted) return;
 
@@ -78,7 +78,7 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
 
     try {
       final res = await _api.put(
-        '/api/v1/smart-notifications/preferences',
+        '/smart-notifications/preferences',
         body: Map<String, dynamic>.from(_preferences),
       );
 

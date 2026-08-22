@@ -36,9 +36,9 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
     });
 
     try {
-      final statusRes = await _api.get('/api/v1/sync/status');
+      final statusRes = await _api.get('/sync/status');
       final pullRes = await _api.get(
-        '/api/v1/sync/pull?since=${DateTime.now().toUtc().subtract(const Duration(days: 7)).toIso8601String()}',
+        '/sync/pull?since=${DateTime.now().toUtc().subtract(const Duration(days: 7)).toIso8601String()}',
       );
 
       if (!mounted) return;
@@ -80,7 +80,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
 
     try {
       final response = await _api.post(
-        '/api/v1/sync/push',
+        '/sync/push',
         body: {'records': []},
       );
 
@@ -114,7 +114,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
       String recordId, String resolution, Map<String, dynamic> merged) async {
     try {
       final response = await _api.post(
-        '/api/v1/sync/resolve',
+        '/sync/resolve',
         body: {
           'record_id': recordId,
           'resolution': resolution,

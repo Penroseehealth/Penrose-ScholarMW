@@ -94,7 +94,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
 
     try {
       final response =
-          await _api.post('/api/v1/knowledge/rag-query', body: {
+          await _api.post('/knowledge/rag-query', body: {
         'question': question,
         'max_sources': 5,
       });

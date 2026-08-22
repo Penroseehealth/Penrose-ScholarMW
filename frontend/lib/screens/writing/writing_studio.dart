@@ -50,7 +50,7 @@ class _WritingStudioState extends State<WritingStudio>
   Future<void> _loadProjects() async {
     setState(() => _loadingProjects = true);
     try {
-      final response = await _api.get('/api/v1/writing/projects');
+      final response = await _api.get('/writing/projects');
       final data = jsonDecode(response.body)['data'];
       setState(() {
         _projects = List<Map<String, dynamic>>.from(
@@ -76,7 +76,7 @@ class _WritingStudioState extends State<WritingStudio>
     });
     // Load sections from project detail
     try {
-      final response = await _api.get('/api/v1/writing/projects/${project['id']}');
+      final response = await _api.get('/writing/projects/${project['id']}');
       final data = jsonDecode(response.body)['data'];
       setState(() {
         _sections = List<Map<String, dynamic>>.from(
@@ -138,7 +138,7 @@ class _WritingStudioState extends State<WritingStudio>
             onPressed: () async {
               if (titleController.text.trim().isEmpty) return;
               try {
-                await _api.post('/api/v1/writing/projects', body: {
+                await _api.post('/writing/projects', body: {
                   'title': titleController.text.trim(),
                   'description': descController.text.trim(),
                 });
@@ -180,7 +180,7 @@ class _WritingStudioState extends State<WritingStudio>
   Future<void> _loadCollections() async {
     setState(() => _loadingCollections = true);
     try {
-      final response = await _api.get('/api/v1/writing/references/collections');
+      final response = await _api.get('/writing/references/collections');
       final data = jsonDecode(response.body)['data'];
       setState(() {
         _collections = List<Map<String, dynamic>>.from(
@@ -200,7 +200,7 @@ class _WritingStudioState extends State<WritingStudio>
     });
     try {
       final response = await _api.get(
-        '/api/v1/writing/references/citations?collection_id=$collectionId',
+        '/writing/references/citations?collection_id=$collectionId',
       );
       final data = jsonDecode(response.body)['data'];
       setState(() {
@@ -277,7 +277,7 @@ class _WritingStudioState extends State<WritingStudio>
             onPressed: () async {
               if (titleController.text.trim().isEmpty) return;
               try {
-                await _api.post('/api/v1/writing/references/citations', body: {
+                await _api.post('/writing/references/citations', body: {
                   'collection_id': _selectedCollectionId,
                   'title': titleController.text.trim(),
                   'authors': authorController.text.trim(),
@@ -312,7 +312,7 @@ class _WritingStudioState extends State<WritingStudio>
     setState(() => _loadingBibliography = true);
     try {
       final response = await _api.post(
-        '/api/v1/writing/references/bibliography',
+        '/writing/references/bibliography',
         body: {'collection_id': _selectedCollectionId},
       );
       if (mounted) {

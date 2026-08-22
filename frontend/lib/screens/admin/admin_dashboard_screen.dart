@@ -35,9 +35,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     });
     try {
       final results = await Future.wait([
-        _api.get('/api/v1/admin/institutional-analytics'),
-        _api.get('/api/v1/admin/users'),
-        _api.get('/api/v1/admin/courses'),
+        _api.get('/admin/institutional-analytics'),
+        _api.get('/admin/users'),
+        _api.get('/admin/courses'),
       ]);
       if (!mounted) return;
       setState(() {

@@ -27,7 +27,7 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
   Future<void> _loadPlans() async {
     setState(() => _loading = true);
     try {
-      final response = await _api.get('/api/v1/analytics/learning-plans');
+      final response = await _api.get('/analytics/learning-plans');
       if (response.statusCode == 200) {
         final plans = jsonDecode(response.body);
         setState(() => _plans = plans is List ? plans : []);
@@ -46,7 +46,7 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
 
   Future<void> _selectPlan(dynamic planId) async {
     try {
-      final response = await _api.get('/api/v1/analytics/learning-plans/$planId');
+      final response = await _api.get('/analytics/learning-plans/$planId');
       if (response.statusCode == 200) {
         final plan = jsonDecode(response.body);
         setState(() {
@@ -65,7 +65,7 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
   Future<void> _generatePlan() async {
     setState(() => _generating = true);
     try {
-      await _api.post('/api/v1/analytics/learning-plans/generate', body: {
+      await _api.post('/analytics/learning-plans/generate', body: {
         'exam_date': '2026-12-01',
         'hours_per_day': 2.0,
       });
@@ -78,7 +78,7 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
   Future<void> _markComplete(dynamic planId, dynamic itemId) async {
     try {
       await _api.put(
-        '/api/v1/analytics/learning-plans/$planId/items/$itemId/complete',
+        '/analytics/learning-plans/$planId/items/$itemId/complete',
       );
       await _selectPlan(planId);
     } catch (e) {

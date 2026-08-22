@@ -46,9 +46,9 @@ class _GamificationScreenState extends State<GamificationScreen>
     });
 
     try {
-      final pointsRes = await _api.get('/api/v1/gamification/points');
-      final achieveRes = await _api.get('/api/v1/gamification/achievements');
-      final leaderRes = await _api.get('/api/v1/gamification/leaderboard');
+      final pointsRes = await _api.get('/gamification/points');
+      final achieveRes = await _api.get('/gamification/achievements');
+      final leaderRes = await _api.get('/gamification/leaderboard');
 
       if (!mounted) return;
 

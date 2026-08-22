@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/theme/app_colors.dart';
-
 const Color _bioGreen = Color(0xFF10B981);
-const Color _bioGreenDark = Color(0xFF059669);
-const Color _bioGreenGlow = Color(0x2210B981);
 
 class BiologyTopicsScreen extends StatefulWidget {
   const BiologyTopicsScreen({super.key});
@@ -15,297 +11,181 @@ class BiologyTopicsScreen extends StatefulWidget {
 }
 
 class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
-  int? _expandedChapter;
+  int _selectedForm = 0; // 0 = All
 
-  static final _chapters = [
-    _Chapter(
-      1,
-      'Introduction to Biology',
+  static const _forms = ['All', 'Form 1', 'Form 2', 'Form 3', 'Form 4'];
+
+  static final _coreElements = [
+    _CoreElement(
+      'Research Skills',
+      'Scientific Method, Observation & Laboratory Safety',
+      Icons.science_rounded,
+      Colors.blue,
+      6, 3, 2, // total topics, quizzes, practicals
+      [
+        _TopicData('Biological Skills and Attitudes', 1),
+        _TopicData('Use of Biological Laboratory Apparatus', 1),
+        _TopicData('Use of Biological Specimens and Prepared Slides', 1),
+        _TopicData('Handling and Interpreting Biological Data', 1),
+        _TopicData('Biological Concepts and Structures', 1),
+        _TopicData('First Aid and Safety in the Field', 3),
+      ],
+    ),
+    _CoreElement(
+      'Environment',
+      'Ecosystems, Ecology & Conservation in Malawi',
       Icons.eco_rounded,
+      Colors.teal,
+      6, 3, 2,
       [
-        'What is Biology?',
-        'Characteristics of Living Organisms',
-        'Classification of Organisms',
-        'Scientific Naming (Binomial Nomenclature)',
-        'Kingdoms of Organisms',
-        'Biodiversity',
-        'Adaptations',
-        'Scientific Investigation',
-        'Laboratory Safety',
+        _TopicData('Classification of Living Organisms', 1),
+        _TopicData('Ecosystems and Food Chains', 1),
+        _TopicData('Ecological Relationships and Interdependence', 1),
+        _TopicData('Conservation and Sustainable Use of Resources', 1),
+        _TopicData('Pollution and Human Impact on the Environment', 1),
+        _TopicData('Mineral Resources and Land Use', 3),
       ],
-      0.85,
     ),
-    _Chapter(
-      2,
-      'Cell Biology',
-      Icons.biotech_rounded,
+    _CoreElement(
+      'Plant Biology',
+      'Structure, Nutrition, Transport & Reproduction',
+      Icons.local_florist_rounded,
+      _bioGreen,
+      5, 3, 2,
       [
-        'Cell Theory',
-        'Plant Cells',
-        'Animal Cells',
-        'Prokaryotic and Eukaryotic Cells',
-        'Cell Organelles',
-        'Structure and Function of Organelles',
-        'Cell Specialization',
-        'Microscopy',
-        'Magnification and Calculations',
-        'Drawing Biological Specimens',
-        'Cell Size',
+        _TopicData('Introduction to Plant Classification', 1),
+        _TopicData('Plant Nutrition and Photosynthesis', 2),
+        _TopicData('Transport in Plants', 2),
+        _TopicData('Plant Reproduction and Growth', 2),
+        _TopicData('Plant Responses and Adaptations', 4),
       ],
-      0.72,
     ),
-    _Chapter(
-      3,
-      'Movement of Substances',
-      Icons.water_drop_rounded,
+    _CoreElement(
+      'Animal Biology',
+      'Classification, Structure, Coordination & Behaviour',
+      Icons.pets_rounded,
+      Colors.orange,
+      4, 2, 1,
       [
-        'Diffusion',
-        'Osmosis',
-        'Active Transport',
-        'Concentration Gradients',
-        'Partially Permeable Membranes',
-        'Effects of Solutions on Cells',
+        _TopicData('Introduction to Animal Classification', 1),
+        _TopicData('Animal Cells and Organisation', 1),
+        _TopicData('Animal Nutrition and Feeding', 1),
+        _TopicData('Animal Coordination and Behaviour', 3),
       ],
-      0.60,
     ),
-    _Chapter(
-      4,
-      'Nutrition',
-      Icons.restaurant_rounded,
+    _CoreElement(
+      'Human Biology',
+      'Body Systems, Health, Nutrition & Disease',
+      Icons.person_rounded,
+      Colors.purple,
+      15, 8, 4,
       [
-        'Nutrients — Carbohydrates, Proteins, Lipids',
-        'Vitamins and Minerals',
-        'Water and Balanced Diet',
-        'Deficiency Diseases',
-        'Human Digestive System',
-        'Digestion and Enzymes',
-        'Absorption and Assimilation',
-        'Plant Nutrition — Photosynthesis',
-        'Chloroplast Structure',
-        'Requirements and Limiting Factors',
-        'Leaf Adaptations for Photosynthesis',
-        'Mineral Requirements (Nitrogen, Magnesium)',
+        _TopicData('Nutrition and Balanced Diet', 1),
+        _TopicData('Deficiency Diseases and Disorders', 1),
+        _TopicData('Circulatory System and Blood', 2),
+        _TopicData('Respiratory System', 2),
+        _TopicData('Excretory System', 2),
+        _TopicData('Nervous and Endocrine System', 3),
+        _TopicData('Skeletal and Muscular System', 1),
+        _TopicData('Reproductive System', 2),
+        _TopicData('Immunity and Disease', 2),
+        _TopicData('Homeostasis and Coordination', 3),
+        _TopicData('Growth and Development', 1),
+        _TopicData('Population and Human Ecology', 1),
+        _TopicData('Substance Use and Abuse', 1),
+        _TopicData('Biotechnology and Human Biology', 4),
+        _TopicData('Human Diseases and Health Education', 3),
       ],
-      0.45,
     ),
-    _Chapter(
-      5,
-      'Transport',
-      Icons.bloodtype_rounded,
-      [
-        'Blood — Components and Functions',
-        'Red Blood Cells, White Blood Cells, Platelets, Plasma',
-        'Blood Groups',
-        'Heart Structure',
-        'Double Circulation',
-        'Arteries, Veins, Capillaries',
-        'Transport in Plants — Xylem and Phloem',
-        'Transpiration and Translocation',
-        'Root Hair Cells and Water Uptake',
-      ],
-      0.30,
-    ),
-    _Chapter(
-      6,
-      'Gaseous Exchange & Respiration',
-      Icons.air_rounded,
-      [
-        'Breathing Mechanism',
-        'Human Respiratory System',
-        'Gas Exchange in Alveoli',
-        'Adaptations for Gas Exchange',
-        'Aerobic Respiration',
-        'Anaerobic Respiration',
-        'Energy Release',
-        'Word and Chemical Equations',
-        'Comparison of Aerobic and Anaerobic Respiration',
-      ],
-      0.20,
-    ),
-    _Chapter(
-      7,
-      'Excretion & Homeostasis',
-      Icons.monitor_heart_rounded,
-      [
-        'Excretory Products',
-        'Kidney Structure and Function',
-        'The Nephron',
-        'Urine Formation',
-        'Osmoregulation',
-        'Temperature Regulation',
-        'Blood Glucose Regulation',
-        'Homeostasis Principles',
-      ],
-      0.10,
-    ),
-    _Chapter(
-      8,
-      'Coordination & Response',
-      Icons.psychology_rounded,
-      [
-        'Nervous System Overview',
-        'Neurons — Structure and Types',
-        'Reflex Actions and Reflex Arc',
-        'Synapses',
-        'The Brain',
-        'The Spinal Cord',
-        'Sense Organs — The Eye',
-        'Hormones and the Endocrine System',
-        'Tropisms in Plants',
-      ],
-      0.05,
-    ),
-    _Chapter(
-      9,
-      'Reproduction',
-      Icons.child_care_rounded,
-      [
-        'Male Reproductive System',
-        'Female Reproductive System',
-        'Gametes — Sperm and Ovum',
-        'Menstrual Cycle',
-        'Fertilization and Pregnancy',
-        'Development and Birth',
-        'Flower Structure',
-        'Pollination and Fertilization in Plants',
-        'Seed Formation and Dispersal',
-        'Germination',
-      ],
-      0.0,
-    ),
-    _Chapter(
-      10,
-      'Genetics & Inheritance',
-      Icons.science_rounded,
-      [
-        'DNA — Structure and Function',
-        'Genes and Chromosomes',
-        'Alleles — Dominant and Recessive',
-        'Genotype and Phenotype',
-        'Punnett Squares',
-        'Monohybrid Inheritance',
-        'Sex Determination',
-        'Variation',
-        'Mutation',
-      ],
-      0.0,
-    ),
-    _Chapter(
-      11,
-      'Ecology',
-      Icons.park_rounded,
-      [
-        'Organisms and Environment',
-        'Habitat, Population, Community, Ecosystem',
-        'Food Chains and Food Webs',
-        'Trophic Levels and Energy Flow',
-        'Carbon Cycle',
-        'Nitrogen Cycle',
-        'Water Cycle',
-        'Population Growth',
-        'Competition and Predation',
-        'Adaptation',
-      ],
-      0.0,
-    ),
-    _Chapter(
-      12,
-      'Microorganisms',
+    _CoreElement(
+      'Micro-organisms',
+      'Roles in Disease, Food Production & Biotechnology',
       Icons.bug_report_rounded,
+      Colors.red,
+      4, 2, 1,
       [
-        'Bacteria — Structure and Types',
-        'Viruses',
-        'Fungi',
-        'Protoctists / Protozoa',
-        'Useful Microorganisms',
-        'Harmful Microorganisms',
-        'Disease Transmission',
-        'Prevention of Infection',
-        'Food Preservation',
-        'Biotechnology Basics',
+        _TopicData('Introduction to Micro-organisms', 2),
+        _TopicData('Micro-organisms in Disease', 4),
+        _TopicData('Micro-organisms in Food Production', 4),
+        _TopicData('Micro-organisms and Waste Management', 4),
       ],
-      0.0,
     ),
-    _Chapter(
-      13,
-      'Disease & Immunity',
-      Icons.vaccines_rounded,
+    _CoreElement(
+      'Genetics & Evolution',
+      'Inheritance, DNA, Variation & Natural Selection',
+      Icons.scatter_plot_rounded,
+      Colors.amber,
+      6, 4, 2,
       [
-        'Communicable Diseases',
-        'Non-communicable Diseases',
-        'Pathogens — Bacteria, Viruses, Protozoa, Fungi',
-        'Transmission Routes',
-        'Prevention Methods',
-        'Immune Response',
-        'Vaccination and Immunization',
-        'Case Study: Malaria in Malawi',
-        'Case Study: Cholera',
-        'Case Study: Tuberculosis',
-        'Case Study: HIV/AIDS',
-        'Case Study: Bilharzia',
+        _TopicData('Cell Division (Mitosis and Meiosis)', 3),
+        _TopicData('Mendelian Genetics', 3),
+        _TopicData('DNA and the Genome', 3),
+        _TopicData('Variation and Inheritance', 3),
+        _TopicData('Evolution and Natural Selection', 4),
+        _TopicData('Biotechnology and Genetic Engineering', 4),
       ],
-      0.0,
-    ),
-    _Chapter(
-      14,
-      'Environment & Conservation',
-      Icons.forest_rounded,
-      [
-        'Pollution — Air, Water, Soil',
-        'Deforestation',
-        'Climate Change',
-        'Habitat Destruction',
-        'Conservation Strategies',
-        'Biodiversity Preservation',
-        'Sustainable Resource Use',
-        'Lake Malawi Ecosystem',
-        'Forest Conservation in Malawi',
-        'Soil Erosion and Prevention',
-      ],
-      0.0,
-    ),
-    _Chapter(
-      15,
-      'Practical Skills',
-      Icons.science_rounded,
-      [
-        'Microscope Skills — Use and Care',
-        'Biological Drawings — Rules and Standards',
-        'Magnification Calculations',
-        'Food Tests — Starch, Protein, Lipid, Sugar',
-        'Osmosis Experiments',
-        'Enzyme Experiments',
-        'Photosynthesis Investigations',
-        'Respiration Experiments',
-        'Transpiration Setup',
-        'Ecology Fieldwork — Quadrats and Transects',
-        'Sampling Techniques',
-        'Experimental Design and Variables',
-      ],
-      0.15,
     ),
   ];
 
+  List<_CoreElement> get _filteredElements {
+    if (_selectedForm == 0) return _coreElements;
+    final formNum = _selectedForm;
+    return _coreElements.where((ce) {
+      return ce.topics.any((t) => t.formLevel == formNum);
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final isDesktop = width >= 900;
-
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: const Color(0xFF0A0E1A),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF0F1623),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          onPressed: () => context.go('/biology'),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.book_rounded, color: _bioGreen, size: 22),
+            SizedBox(width: 10),
+            Text('Biology Topics',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: _bioGreen.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: _bioGreen.withValues(alpha: 0.3)),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.auto_stories_rounded, color: _bioGreen, size: 14),
+                SizedBox(width: 4),
+                Text('374 Topics',
+                    style: TextStyle(color: _bioGreen, fontSize: 11, fontWeight: FontWeight.w600)),
+              ],
+            ),
+          ),
+        ],
+      ),
       body: Column(
         children: [
-          _buildHeader(),
+          _buildFormTabs(),
+          Container(
+            height: 1,
+            color: Colors.white.withValues(alpha: 0.06),
+          ),
           Expanded(
             child: ListView.builder(
-              padding: EdgeInsets.symmetric(
-                  horizontal: isDesktop ? 32 : 16, vertical: 20),
-              itemCount: _chapters.length + 1,
-              itemBuilder: (ctx, i) {
-                if (i == 0) return _buildOverviewBanner();
-                final ch = _chapters[i - 1];
-                return _buildChapterCard(ch);
-              },
+              padding: const EdgeInsets.all(16),
+              itemCount: _filteredElements.length,
+              itemBuilder: (_, i) => _buildCoreElementCard(_filteredElements[i]),
             ),
           ),
         ],
@@ -313,289 +193,238 @@ class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildFormTabs() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Row(
-          children: [
-            GestureDetector(
-              onTap: () => context.go('/stem-subject/biology'),
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: const Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: AppColors.textSecondary),
+      height: 48,
+      color: const Color(0xFF0F1623),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        itemCount: _forms.length,
+        itemBuilder: (_, i) {
+          final selected = _selectedForm == i;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: ChoiceChip(
+              label: Text(_forms[i], style: const TextStyle(fontSize: 13)),
+              selected: selected,
+              onSelected: (_) => setState(() => _selectedForm = i),
+              backgroundColor: Colors.white.withValues(alpha: 0.05),
+              selectedColor: _bioGreen,
+              labelStyle: TextStyle(
+                color: selected ? Colors.white : Colors.white70,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
-            const SizedBox(width: 14),
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Topics & Syllabus',
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
-                          letterSpacing: -0.3)),
-                  Text('MSCE Biology — 15 Chapters',
-                      style: TextStyle(
-                          fontSize: 12, color: AppColors.textMuted)),
-                ],
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildOverviewBanner() {
-    final totalTopics = _chapters.fold<int>(0, (a, ch) => a + ch.topics.length);
-    final completedChapters =
-        _chapters.where((ch) => ch.progress >= 0.8).length;
+  Widget _buildCoreElementCard(_CoreElement ce) {
+    final filteredTopics = _selectedForm == 0
+        ? ce.topics
+        : ce.topics.where((t) => t.formLevel == _selectedForm).toList();
+    final completedCount = (filteredTopics.length * 0.4).toInt();
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            _bioGreen.withValues(alpha: 0.1),
-            _bioGreenDark.withValues(alpha: 0.04),
-          ],
+        color: Colors.white.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: ce.color.withValues(alpha: 0.08),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: ce.color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(ce.icon, color: ce.color, size: 22),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(ce.name,
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16)),
+                      const SizedBox(height: 2),
+                      Text(ce.description,
+                          style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.5),
+                              fontSize: 12)),
+                    ],
+                  ),
+                ),
+                _buildProgressRing(completedCount, filteredTopics.length, ce.color),
+              ],
+            ),
+          ),
+          // Stats row
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(color: Colors.white.withValues(alpha: 0.04)),
+              ),
+            ),
+            child: Row(
+              children: [
+                _stat('${filteredTopics.length}', 'Topics', ce.color),
+                const SizedBox(width: 20),
+                _stat('${ce.quizzes}', 'Quizzes', Colors.blue),
+                const SizedBox(width: 20),
+                _stat('${ce.practicals}', 'Practicals', Colors.orange),
+                const Spacer(),
+                Text(
+                  '${(completedCount / filteredTopics.length * 100).toInt()}% complete',
+                  style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.4), fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          // Topics list
+          ...filteredTopics.map((t) => _buildTopicTile(t, ce.color)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTopicTile(_TopicData topic, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: Colors.white.withValues(alpha: 0.04)),
         ),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _bioGreen.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Center(
+              child: Text(
+                'F${topic.formLevel}',
+                style: TextStyle(
+                    color: color,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('MSCE Biology Syllabus',
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary)),
-                const SizedBox(height: 6),
-                Text(
-                    '$totalTopics topics across ${_chapters.length} chapters  •  $completedChapters mastered',
+                Text(topic.name,
                     style: const TextStyle(
-                        fontSize: 12, color: AppColors.textMuted)),
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500)),
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: _bioGreen.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
+          Icon(Icons.chevron_right_rounded,
+              color: Colors.white.withValues(alpha: 0.2), size: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProgressRing(int completed, int total, Color color) {
+    final progress = total > 0 ? completed / total : 0.0;
+    return SizedBox(
+      width: 44,
+      height: 44,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          SizedBox(
+            width: 44,
+            height: 44,
+            child: CircularProgressIndicator(
+              value: progress,
+              strokeWidth: 3,
+              backgroundColor: color.withValues(alpha: 0.15),
+              valueColor: AlwaysStoppedAnimation(color),
             ),
-            child: const Text('View All',
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: _bioGreen)),
+          ),
+          Text(
+            '${(progress * 100).toInt()}%',
+            style: TextStyle(
+                color: color, fontSize: 11, fontWeight: FontWeight.bold),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildChapterCard(_Chapter ch) {
-    final isExpanded = _expandedChapter == ch.number;
-    final color = ch.progress >= 0.8
-        ? AppColors.success
-        : ch.progress >= 0.4
-            ? _bioGreen
-            : ch.progress > 0
-                ? AppColors.warning
-                : AppColors.textMuted;
-
-    return Semantics(
-      label: 'Chapter ${ch.number}: ${ch.name}',
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isExpanded ? _bioGreen.withValues(alpha: 0.3) : AppColors.border,
-            width: isExpanded ? 1.5 : 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  _expandedChapter = isExpanded ? null : ch.number;
-                });
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(ch.icon, color: color, size: 22),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text('${ch.number}.',
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      color: color)),
-                              const SizedBox(width: 6),
-                              Expanded(
-                                child: Text(ch.name,
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.textPrimary)),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              Text('${ch.topics.length} topics',
-                                  style: const TextStyle(
-                                      fontSize: 11,
-                                      color: AppColors.textMuted)),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(3),
-                                  child: LinearProgressIndicator(
-                                    value: ch.progress,
-                                    backgroundColor: AppColors.surfaceHighest,
-                                    color: color,
-                                    minHeight: 3,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text('${(ch.progress * 100).toInt()}%',
-                                  style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w700,
-                                      color: color)),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    AnimatedRotation(
-                      turns: isExpanded ? 0.25 : 0,
-                      duration: const Duration(milliseconds: 200),
-                      child: const Icon(Icons.keyboard_arrow_down_rounded,
-                          color: AppColors.textMuted, size: 22),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            AnimatedCrossFade(
-              firstChild: const SizedBox.shrink(),
-              secondChild: _buildTopicList(ch),
-              crossFadeState:
-                  isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-              duration: const Duration(milliseconds: 200),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTopicList(_Chapter ch) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(18, 0, 18, 14),
-      child: Column(
-        children: ch.topics.asMap().entries.map((entry) {
-          final i = entry.key;
-          final topic = entry.value;
-          final topicProgress = ch.progress > 0
-              ? (i / ch.topics.length < ch.progress ? 1.0 : 0.0)
-              : 0.0;
-          final statusColor = topicProgress >= 1.0
-              ? AppColors.success
-              : topicProgress > 0
-                  ? _bioGreen
-                  : AppColors.textMuted.withValues(alpha: 0.4);
-
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                onTap: () => context.go(
-                    '/stem-topic/${ch.number}-${i + 1}?title=$topic'),
-                child: Row(
-                  children: [
-                    Icon(
-                      topicProgress >= 1.0
-                          ? Icons.check_circle_rounded
-                          : topicProgress > 0
-                              ? Icons.radio_button_checked
-                              : Icons.radio_button_unchecked,
-                      size: 18,
-                      color: statusColor,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(topic,
-                          style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: topicProgress >= 1.0
-                                  ? AppColors.textSecondary
-                                  : AppColors.textPrimary)),
-                    ),
-                    Icon(Icons.chevron_right_rounded,
-                        size: 16, color: AppColors.textMuted),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
+  Widget _stat(String value, String label, Color color) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(value,
+            style: TextStyle(
+                color: color, fontSize: 16, fontWeight: FontWeight.bold)),
+        Text(label,
+            style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.4), fontSize: 11)),
+      ],
     );
   }
 }
 
-class _Chapter {
-  final int number;
+class _CoreElement {
   final String name;
+  final String description;
   final IconData icon;
-  final List<String> topics;
-  final double progress;
-  const _Chapter(this.number, this.name, this.icon, this.topics, this.progress);
+  final Color color;
+  final int totalTopics;
+  final int quizzes;
+  final int practicals;
+  final List<_TopicData> topics;
+
+  const _CoreElement(
+
+    this.name,
+    this.description,
+    this.icon,
+    this.color,
+    this.totalTopics,
+    this.quizzes,
+    this.practicals,
+    this.topics,
+  );
+}
+
+class _TopicData {
+  final String name;
+  final int formLevel;
+
+  const _TopicData(this.name, this.formLevel);
 }

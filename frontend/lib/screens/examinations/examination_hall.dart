@@ -44,7 +44,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
   Future<void> _loadExams() async {
     setState(() => _loading = true);
     try {
-      final response = await _api.get('/api/v1/examinations/');
+      final response = await _api.get('/examinations/');
       final body = jsonDecode(response.body) as Map<String, dynamic>;
       final data = body['data'];
       setState(() {
@@ -65,7 +65,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
 
   Future<void> _loadSubmissions() async {
     try {
-      final response = await _api.get('/api/v1/examinations/my-submissions');
+      final response = await _api.get('/examinations/my-submissions');
       final body = jsonDecode(response.body) as Map<String, dynamic>;
       final data = body['data'];
       setState(() {
@@ -81,7 +81,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
   Future<void> _viewExamDetail(String examId) async {
     setState(() => _loadingDetail = true);
     try {
-      final response = await _api.get('/api/v1/examinations/$examId');
+      final response = await _api.get('/examinations/$examId');
       final body = jsonDecode(response.body) as Map<String, dynamic>;
       setState(() {
         _selectedExam = body['data'] is Map<String, dynamic>
@@ -103,7 +103,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
   Future<void> _startExam(String examId) async {
     setState(() => _loadingQuestions = true);
     try {
-      final response = await _api.get('/api/v1/examinations/$examId/questions');
+      final response = await _api.get('/examinations/$examId/questions');
       final body = jsonDecode(response.body) as Map<String, dynamic>;
       final data = body['data'];
       final questions = List<Map<String, dynamic>>.from(
@@ -154,7 +154,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
     setState(() => _submitting = true);
     try {
       final examId = _selectedExam?['id']?.toString();
-      await _api.post('/api/v1/examinations/submit', body: {
+      await _api.post('/examinations/submit', body: {
         'examination_id': examId,
         'answers': _answers.entries
             .map((e) => {'question_id': e.key, 'answer': e.value})

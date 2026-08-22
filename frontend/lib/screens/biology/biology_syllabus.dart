@@ -1,14 +1,11 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
 
 const Color _bioGreen = Color(0xFF10B981);
-const Color _bioGreenDark = Color(0xFF059669);
-const Color _bioGreenGlow = Color(0x2210B981);
 
 class BiologySyllabusScreen extends StatefulWidget {
   const BiologySyllabusScreen({super.key});
@@ -18,7 +15,7 @@ class BiologySyllabusScreen extends StatefulWidget {
 }
 
 class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
-  int _selectedYear = 3;
+  int _selectedYear = 0;
   int? _expandedCore;
   int? _expandedTopic;
   String _searchQuery = '';
@@ -34,7 +31,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
 
   Future<void> _loadSyllabus() async {
     try {
-      final res = await _api.get('/api/v1/syllabus/subjects/biology/tree');
+      final res = await _api.get('/syllabus/subjects/biology/tree');
       if (res.statusCode == 200 && mounted) {
         final data = jsonDecode(res.body);
         final versions = data['versions'] as List? ?? [];
@@ -48,6 +45,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
               (ce['topics'] as List? ?? []).map((t) {
                 return _SyllabusTopic(
                   t['title'] ?? '',
+                  t['year_level'] ?? 3,
                   (t['subtopics'] as List? ?? []).expand((sub) {
                     return (sub['learning_objectives'] as List? ?? []).map((lo) {
                       return _LearningObjective(
@@ -93,7 +91,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
       Icons.science_rounded,
       [
         _SyllabusTopic(
-          'Scientific Investigation',
+          'Scientific Investigation', 1,
           [
             _LearningObjective('Formulate hypotheses from observations', 'Understand the structure of a scientific investigation', 'Knowledge/Comprehension'),
             _LearningObjective('Design controlled experiments with independent, dependent, and controlled variables', 'Apply the scientific method to biology problems', 'Application/Analysis'),
@@ -104,7 +102,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['Beakers, test tubes, thermometer, microscope, stopwatch, ruler, graph paper', 'Laboratory safety goggles, lab coat, gloves'],
         ),
         _SyllabusTopic(
-          'Laboratory Techniques',
+          'Laboratory Techniques', 1,
           [
             _LearningObjective('Use a light microscope correctly to view prepared slides', 'Practical skill: microscopy technique', 'Application/Practical'),
             _LearningObjective('Prepare temporary mounts of plant and animal tissues', 'Practical skill: slide preparation', 'Application/Practical'),
@@ -121,7 +119,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
       Icons.eco_rounded,
       [
         _SyllabusTopic(
-          'Ecosystems & Biotic Factors',
+          'Ecosystems & Biotic Factors', 3,
           [
             _LearningObjective('Define ecosystem as the interaction of living organisms with their environment', 'Understand the concept of an ecosystem', 'Knowledge'),
             _LearningObjective('Identify biotic factors: producers, consumers, decomposers', 'Classify organisms by their role in food chains', 'Comprehension'),
@@ -132,7 +130,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['Field study equipment: quadrats, sweep nets, pitfall traps', 'Graph paper, calculator'],
         ),
         _SyllabusTopic(
-          'Abiotic Factors & Climate Change',
+          'Abiotic Factors & Climate Change', 3,
           [
             _LearningObjective('Identify abiotic factors: temperature, rainfall, light intensity, soil pH', 'Understand how physical factors affect organisms', 'Knowledge'),
             _LearningObjective('Measure and record abiotic factors in a local habitat', 'Practical skill: field measurement techniques', 'Application/Practical'),
@@ -150,7 +148,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
       Icons.local_florist_rounded,
       [
         _SyllabusTopic(
-          'Plant Structure & Organisation',
+          'Plant Structure & Organisation', 3,
           [
             _LearningObjective('Identify and draw the structure of a typical plant cell', 'Understand plant cell organisation', 'Knowledge/Application'),
             _LearningObjective('Describe the functions of cell wall, chloroplasts, and large vacuole', 'Relate structure to function in plant cells', 'Comprehension'),
@@ -163,7 +161,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['Microscope, prepared slides of plant tissues', 'Fresh plant specimens (monocot and dicot)'],
         ),
         _SyllabusTopic(
-          'Photosynthesis',
+          'Photosynthesis', 3,
           [
             _LearningObjective('State the word equation for photosynthesis', 'Understand the basic process of photosynthesis', 'Knowledge'),
             _LearningObjective('Describe the factors affecting the rate of photosynthesis (light, CO₂, temperature)', 'Understand limiting factors', 'Comprehension'),
@@ -175,7 +173,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['Elodea/aquatic plant, sodium bicarbonate solution, lamp', 'Iodine solution, ethanol, beakers, water bath'],
         ),
         _SyllabusTopic(
-          'Transport in Plants',
+          'Transport in Plants', 3,
           [
             _LearningObjective('Describe the structure and function of xylem and phloem', 'Understand vascular tissue', 'Comprehension'),
             _LearningObjective('Explain the mechanism of water transport in xylem (cohesion-tension theory)', 'Understand transpiration stream', 'Comprehension/Analysis'),
@@ -187,7 +185,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['Potometer, fresh shoot, water, oil', 'Vaseline, plastic bag, lamp, fan'],
         ),
         _SyllabusTopic(
-          'Transpiration & Tropisms',
+          'Transpiration & Tropisms', 3,
           [
             _LearningObjective('Define transpiration and explain how it occurs through stomata', 'Understand water loss from plants', 'Knowledge/Comprehension'),
             _LearningObjective('Investigate the effect of environmental factors on transpiration rate', 'Practical skill: cobalt chloride paper experiment', 'Application/Practical'),
@@ -206,7 +204,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
       Icons.pets_rounded,
       [
         _SyllabusTopic(
-          'Classification & Diversity of Animals',
+          'Classification & Diversity of Animals', 3,
           [
             _LearningObjective('Classify animals into major phyla (Porifera to Chordata)', 'Understand the basis of animal classification', 'Knowledge'),
             _LearningObjective('Compare the features of invertebrate and vertebrate animals', 'Distinguish between major animal groups', 'Comprehension'),
@@ -217,7 +215,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['Preserved animal specimens, identification keys', 'Charts, models, field guides'],
         ),
         _SyllabusTopic(
-          'Internal Structure of Animals',
+          'Internal Structure of Animals', 3,
           [
             _LearningObjective('Describe the internal structure of a fish (e.g. Tilapia)', 'Practical skill: fish dissection', 'Application/Practical'),
             _LearningObjective('Compare the circulatory systems of fish, amphibians, and mammals', 'Understand evolutionary changes in circulatory systems', 'Analysis'),
@@ -229,7 +227,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['Dissection kit, preserved fish specimens', 'Heart models, diagrams, charts'],
         ),
         _SyllabusTopic(
-          'Locomotion in Animals',
+          'Locomotion in Animals', 3,
           [
             _LearningObjective('Describe the types of movement in animals: locomotion, movement of body parts', 'Understand different types of animal movement', 'Knowledge'),
             _LearningObjective('Explain the role of muscles and skeleton in movement', 'Understand antagonistic muscle pairs', 'Comprehension'),
@@ -246,7 +244,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
       Icons.person_rounded,
       [
         _SyllabusTopic(
-          'Respiratory System',
+          'Respiratory System', 3,
           [
             _LearningObjective('Describe the structure and function of the human respiratory system', 'Understand the organs of breathing', 'Knowledge/Comprehension'),
             _LearningObjective('Explain the mechanism of breathing (inhalation and exhalation)', 'Understand the role of the diaphragm and intercostal muscles', 'Comprehension'),
@@ -257,7 +255,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['Spirometer, stopwatch, stethoscope', 'Diagrams, models, lung capacity measuring equipment'],
         ),
         _SyllabusTopic(
-          'Excretory System',
+          'Excretory System', 3,
           [
             _LearningObjective('Identify the organs of the excretory system (kidneys, ureters, bladder, urethra)', 'Know the structure of the urinary system', 'Knowledge'),
             _LearningObjective('Describe the structure of the nephron and its role in urine formation', 'Understand filtration, reabsorption, and secretion', 'Comprehension'),
@@ -268,7 +266,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['Kidney models, nephron diagrams', 'Cross-section slides'],
         ),
         _SyllabusTopic(
-          'Coordination & Response (Nervous & Endocrine)',
+          'Coordination & Response (Nervous & Endocrine)', 3,
           [
             _LearningObjective('Describe the structure and function of the nervous system (CNS, PNS, SNS)', 'Understand neural organisation', 'Knowledge/Comprehension'),
             _LearningObjective('Explain the reflex arc with examples', 'Understand automatic responses', 'Comprehension'),
@@ -283,7 +281,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['Brain model, eye model', 'Hormone charts, reflex hammer'],
         ),
         _SyllabusTopic(
-          'Reproductive System',
+          'Reproductive System', 3,
           [
             _LearningObjective('Describe the structure and function of the male reproductive system', 'Know the male reproductive organs and their functions', 'Knowledge/Comprehension'),
             _LearningObjective('Describe the structure and function of the female reproductive system', 'Know the female reproductive organs and their functions', 'Knowledge/Comprehension'),
@@ -296,7 +294,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['Reproductive system models', 'Charts, diagrams, diagrams of menstrual cycle'],
         ),
         _SyllabusTopic(
-          'Immunity & Disease',
+          'Immunity & Disease', 3,
           [
             _LearningObjective('Distinguish between pathogens: bacteria, viruses, fungi, and parasites', 'Know the types of disease-causing organisms', 'Knowledge'),
             _LearningObjective('Describe how the body defends itself: skin, mucous membranes, phagocytes, lymphocytes', 'Understand non-specific and specific defence', 'Comprehension'),
@@ -309,7 +307,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['Microscope, prepared slides of bacteria/viruses', 'Charts of immune system, vaccine vials (demonstration)'],
         ),
         _SyllabusTopic(
-          'Blood & Circulatory System',
+          'Blood & Circulatory System', 3,
           [
             _LearningObjective('Describe the composition of blood: plasma, red blood cells, white blood cells, platelets', 'Know the components and functions of blood', 'Knowledge'),
             _LearningObjective('Explain the functions of each blood component', 'Relate structure to function', 'Comprehension'),
@@ -321,7 +319,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['Blood smear slides, microscope', 'Heart models, blood typing kits'],
         ),
         _SyllabusTopic(
-          'Cancer & Organ Transplants',
+          'Cancer & Organ Transplants', 3,
           [
             _LearningObjective('Explain what cancer is: uncontrolled cell division (tumours)', 'Understand the basic biology of cancer', 'Comprehension'),
             _LearningObjective('Identify risk factors for cancer: smoking, UV radiation, genetic factors', 'Know the major causes of cancer', 'Knowledge'),
@@ -332,7 +330,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['Charts, diagrams', 'Videos, case studies'],
         ),
         _SyllabusTopic(
-          'Organ Transplants & Ethics',
+          'Organ Transplants & Ethics', 3,
           [
             _LearningObjective('Discuss the ethical issues of organ donation and transplantation', 'Develop critical thinking about medical ethics', 'Evaluation'),
             _LearningObjective('Evaluate the benefits and risks of organ transplant surgery', 'Consider medical, social, and ethical factors', 'Evaluation'),
@@ -348,7 +346,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
       Icons.bug_report_rounded,
       [
         _SyllabusTopic(
-          'Structure & Classification',
+          'Structure & Classification', 3,
           [
             _LearningObjective('Describe the structure of bacteria, viruses, and fungi', 'Know the basic structure of micro-organisms', 'Knowledge'),
             _LearningObjective('Distinguish between bacteria (prokaryotes) and viruses (non-cellular)', 'Compare different types of micro-organisms', 'Comprehension'),
@@ -359,7 +357,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['Microscope, prepared slides of bacteria, yeast, mould', 'Agar plates, Petri dishes'],
         ),
         _SyllabusTopic(
-          'Micro-organisms in Food & Industry',
+          'Micro-organisms in Food & Industry', 3,
           [
             _LearningObjective('Explain the role of micro-organisms in food production (yogurt, bread, beer)', 'Understand fermentation in daily life', 'Comprehension'),
             _LearningObjective('Describe how micro-organisms cause food spoilage', 'Understand food preservation needs', 'Comprehension'),
@@ -369,7 +367,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['Agar plates, incubator, autoclave', 'Food samples, preservatives'],
         ),
         _SyllabusTopic(
-          'Micro-organisms & Disease',
+          'Micro-organisms & Disease', 3,
           [
             _LearningObjective('Describe how micro-organisms cause disease', 'Understand the process of infection', 'Comprehension'),
             _LearningObjective('Explain Koch\'s postulates and their role in identifying disease causation', 'Understand historical advances in microbiology', 'Comprehension'),
@@ -387,7 +385,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
       Icons.science_rounded,
       [
         _SyllabusTopic(
-          'Cell Division: Mitosis & Meiosis',
+          'Cell Division: Mitosis & Meiosis', 3,
           [
             _LearningObjective('Explain the process of mitosis and its significance in growth and repair', 'Understand cell division for growth', 'Comprehension'),
             _LearningObjective('Describe the stages of mitosis (prophase, metaphase, anaphase, telophase)', 'Know the phases of mitosis', 'Knowledge'),
@@ -398,7 +396,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['Microscope, prepared slides of mitosis stages', 'Onion root tip slides'],
         ),
         _SyllabusTopic(
-          'Mendelian Genetics',
+          'Mendelian Genetics', 3,
           [
             _LearningObjective('Define key terms: gene, allele, genotype, phenotype, dominant, recessive, homozygous, heterozygous', 'Know the vocabulary of genetics', 'Knowledge'),
             _LearningObjective('Use Punnett squares to predict the outcomes of monohybrid crosses', 'Apply genetic principles', 'Application'),
@@ -411,7 +409,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['Punnett square worksheets, pedigree chart examples', 'Genetic case studies'],
         ),
         _SyllabusTopic(
-          'DNA & The Genome',
+          'DNA & The Genome', 3,
           [
             _LearningObjective('Describe the structure of DNA (double helix, nucleotides, base pairing)', 'Know the molecular basis of heredity', 'Knowledge'),
             _LearningObjective('Explain how genes code for proteins', 'Understand the central dogma of molecular biology', 'Comprehension'),
@@ -423,7 +421,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['DNA models, diagrams', 'Animations, worksheets'],
         ),
         _SyllabusTopic(
-          'Variations & Evolution',
+          'Variations & Evolution', 3,
           [
             _LearningObjective('Distinguish between variation and mutation', 'Understand types of variation', 'Comprehension'),
             _LearningObjective('Explain continuous and discontinuous variation with examples', 'Classify types of variation', 'Application'),
@@ -435,7 +433,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
           ['Fossil specimens, charts', 'Field guides, identification keys'],
         ),
         _SyllabusTopic(
-          'Biotechnology',
+          'Biotechnology', 3,
           [
             _LearningObjective('Explain the principles of genetic engineering', 'Understand manipulation of genetic material', 'Comprehension'),
             _LearningObjective('Discuss the applications of genetic engineering in agriculture (GM crops)', 'Evaluate biotechnology in food production', 'Evaluation'),
@@ -452,12 +450,11 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
   List<_TopicWithCore> get _filteredTopics {
     final result = <_TopicWithCore>[];
     for (final core in _syllabus) {
-      if (_selectedYear == 3 || true) {
-        for (final topic in core.topics) {
-          if (_searchQuery.isEmpty ||
-              topic.title.toLowerCase().contains(_searchQuery.toLowerCase())) {
-            result.add(_TopicWithCore(core, topic));
-          }
+      for (final topic in core.topics) {
+        if (_selectedYear != 0 && topic.yearLevel != _selectedYear) continue;
+        if (_searchQuery.isEmpty ||
+            topic.title.toLowerCase().contains(_searchQuery.toLowerCase())) {
+          result.add(_TopicWithCore(core, topic));
         }
       }
     }
@@ -466,9 +463,6 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final isDesktop = width >= 900;
-
     return Scaffold(
       backgroundColor: const Color(0xFF0A0E1A),
       appBar: AppBar(
@@ -549,14 +543,21 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       color: const Color(0xFF0F1623),
-      child: Row(
-        children: [
-          _yearTab(3, 'Form 3'),
-          const SizedBox(width: 8),
-          _yearTab(4, 'Form 4'),
-          const SizedBox(width: 8),
-          _yearTab(0, 'All'),
-        ],
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            _yearTab(1, 'Form 1'),
+            const SizedBox(width: 8),
+            _yearTab(2, 'Form 2'),
+            const SizedBox(width: 8),
+            _yearTab(3, 'Form 3'),
+            const SizedBox(width: 8),
+            _yearTab(4, 'Form 4'),
+            const SizedBox(width: 8),
+            _yearTab(0, 'All'),
+          ],
+        ),
       ),
     );
   }
@@ -564,7 +565,11 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
   Widget _yearTab(int year, String label) {
     final selected = _selectedYear == year;
     return GestureDetector(
-      onTap: () => setState(() => _selectedYear = year),
+      onTap: () => setState(() {
+        _selectedYear = year;
+        _expandedCore = null;
+        _expandedTopic = null;
+      }),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -610,12 +615,34 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
     );
   }
 
+  List<_CoreElement> get _filteredCoreElements {
+    if (_selectedYear == 0) return _syllabus;
+    return _syllabus.map((core) {
+      final filteredTopics = core.topics.where((t) => t.yearLevel == _selectedYear).toList();
+      return _CoreElement(core.number, core.title, core.icon, filteredTopics);
+    }).where((core) => core.topics.isNotEmpty).toList();
+  }
+
   Widget _buildCoreElements() {
+    final filtered = _filteredCoreElements;
+    if (filtered.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.menu_book_rounded, size: 48, color: Colors.white.withValues(alpha: 0.2)),
+            const SizedBox(height: 12),
+            Text('No topics for Form $_selectedYear',
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.5))),
+          ],
+        ),
+      );
+    }
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: _syllabus.length,
+      itemCount: filtered.length,
       itemBuilder: (_, i) {
-        final core = _syllabus[i];
+        final core = filtered[i];
         final expanded = _expandedCore == i;
         return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
@@ -724,6 +751,17 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
                         style: const TextStyle(
                             color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
                   ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: _bioGreen.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text('Form ${topic.yearLevel}',
+                        style: TextStyle(
+                            color: _bioGreen.withValues(alpha: 0.8), fontSize: 10, fontWeight: FontWeight.w600)),
+                  ),
+                  const SizedBox(width: 6),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
@@ -858,10 +896,11 @@ class _CoreElement {
 
 class _SyllabusTopic {
   final String title;
+  final int yearLevel;
   final List<_LearningObjective> objectives;
   final List<String> resources;
 
-  const _SyllabusTopic(this.title, this.objectives, this.resources);
+  const _SyllabusTopic(this.title, this.yearLevel, this.objectives, this.resources);
 }
 
 class _LearningObjective {

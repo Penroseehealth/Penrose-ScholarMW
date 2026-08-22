@@ -37,7 +37,7 @@ class _AdminSyllabusScreenState extends State<AdminSyllabusScreen> {
       _error = null;
     });
     try {
-      final res = await _api.get('/api/v1/syllabus/subjects');
+      final res = await _api.get('/syllabus/subjects');
       if (res.statusCode == 200) {
         _subjects = jsonDecode(res.body);
         if (_subjects.isNotEmpty) {
@@ -62,7 +62,7 @@ class _AdminSyllabusScreenState extends State<AdminSyllabusScreen> {
       _error = null;
     });
     try {
-      final res = await _api.get('/api/v1/syllabus/subjects/$_selectedSubject/tree');
+      final res = await _api.get('/syllabus/subjects/$_selectedSubject/tree');
       if (res.statusCode == 200) {
         _syllabusTree = jsonDecode(res.body);
       } else {
@@ -101,7 +101,7 @@ class _AdminSyllabusScreenState extends State<AdminSyllabusScreen> {
           ),
           ElevatedButton(
             onPressed: () async {
-              final res = await _api.post('/api/v1/syllabus/admin/subjects', body: {
+              final res = await _api.post('/syllabus/admin/subjects', body: {
                 'name': nameCtrl.text.trim(),
                 'slug': slugCtrl.text.trim(),
                 'description': descCtrl.text.trim(),
@@ -147,7 +147,7 @@ class _AdminSyllabusScreenState extends State<AdminSyllabusScreen> {
           ),
           ElevatedButton(
             onPressed: () async {
-              final res = await _api.post('/api/v1/syllabus/admin/topics', body: {
+              final res = await _api.post('/syllabus/admin/topics', body: {
                 'core_element_id': coreElementId,
                 'title': titleCtrl.text.trim(),
                 'description': descCtrl.text.trim(),
@@ -190,7 +190,7 @@ class _AdminSyllabusScreenState extends State<AdminSyllabusScreen> {
       ),
     );
     if (confirm == true) {
-      await _api.delete('/api/v1/syllabus/admin/topics/$topicId');
+      await _api.delete('/syllabus/admin/topics/$topicId');
       await _loadTree();
     }
   }
@@ -218,7 +218,7 @@ class _AdminSyllabusScreenState extends State<AdminSyllabusScreen> {
       ),
     );
     if (confirm == true) {
-      await _api.delete('/api/v1/syllabus/admin/subtopics/$subId');
+      await _api.delete('/syllabus/admin/subtopics/$subId');
       await _loadTree();
     }
   }
@@ -245,7 +245,7 @@ class _AdminSyllabusScreenState extends State<AdminSyllabusScreen> {
       ),
     );
     if (confirm == true) {
-      await _api.delete('/api/v1/syllabus/admin/learning-objectives/$loId');
+      await _api.delete('/syllabus/admin/learning-objectives/$loId');
       await _loadTree();
     }
   }

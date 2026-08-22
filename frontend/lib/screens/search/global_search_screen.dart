@@ -57,7 +57,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
     });
 
     try {
-      final response = await _api.get('/api/v1/search?q=${Uri.encodeQueryComponent(query)}');
+      final response = await _api.get('/search?q=${Uri.encodeQueryComponent(query)}');
 
       if (!mounted) return;
 

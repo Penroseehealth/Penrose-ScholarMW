@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/theme/app_colors.dart';
-
 const Color _bioGreen = Color(0xFF10B981);
 
 class BiologyAnalyticsScreen extends StatefulWidget {
@@ -19,13 +17,13 @@ class _BiologyAnalyticsScreenState extends State<BiologyAnalyticsScreen>
   String _selectedPeriod = 'All Time';
 
   static final _coreElementProgress = [
-    _CoreProgress('Research Skills', 85, 12, 8, Icons.science_rounded, Colors.blue),
-    _CoreProgress('Environment', 72, 10, 6, Icons.eco_rounded, Colors.teal),
-    _CoreProgress('Plant Biology', 60, 14, 9, Icons.local_florist_rounded, _bioGreen),
-    _CoreProgress('Animal Biology', 45, 8, 4, Icons.pets_rounded, Colors.orange),
-    _CoreProgress('Human Biology', 35, 18, 7, Icons.person_rounded, Colors.purple),
-    _CoreProgress('Micro-organisms', 20, 6, 2, Icons.bug_report_rounded, Colors.red),
-    _CoreProgress('Genetics & Evolution', 15, 12, 5, Icons.science_rounded, Colors.amber),
+    _CoreProgress('Research Skills', 85, 6, 4, Icons.science_rounded, Colors.blue),
+    _CoreProgress('Environment', 72, 6, 4, Icons.eco_rounded, Colors.teal),
+    _CoreProgress('Plant Biology', 60, 5, 3, Icons.local_florist_rounded, _bioGreen),
+    _CoreProgress('Animal Biology', 45, 4, 2, Icons.pets_rounded, Colors.orange),
+    _CoreProgress('Human Biology', 35, 15, 6, Icons.person_rounded, Colors.purple),
+    _CoreProgress('Micro-organisms', 20, 4, 1, Icons.bug_report_rounded, Colors.red),
+    _CoreProgress('Genetics & Evolution', 15, 6, 3, Icons.science_rounded, Colors.amber),
   ];
 
   static final _recentActivity = [

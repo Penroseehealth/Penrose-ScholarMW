@@ -38,7 +38,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
   Future<void> _loadLayers() async {
     setState(() => _loading = true);
     try {
-      final response = await _api.get('/api/v1/malawi-context/layers');
+      final response = await _api.get('/malawi-context/layers');
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body);
         final data = decoded is List
@@ -64,7 +64,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
     try {
       final id = layer['id'] ?? layer['layer_id'];
       final response =
-          await _api.get('/api/v1/malawi-context/layers/$id/documents');
+          await _api.get('/malawi-context/layers/$id/documents');
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body);
         final docs = decoded is List
@@ -94,7 +94,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
     try {
       final layerType = _selectedLayer?['layer_type'] ?? '';
       final response =
-          await _api.post('/api/v1/malawi-context/query', body: {
+          await _api.post('/malawi-context/query', body: {
         'question': question,
         'layer_type': layerType,
       });

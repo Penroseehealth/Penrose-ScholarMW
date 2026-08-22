@@ -3,11 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/theme/app_colors.dart';
-
 const Color _bioGreen = Color(0xFF10B981);
-const Color _bioGreenDark = Color(0xFF059669);
-const Color _bioGreenGlow = Color(0x2210B981);
 
 class BiologyAITutorScreen extends StatefulWidget {
   const BiologyAITutorScreen({super.key});
@@ -37,28 +33,59 @@ class _BiologyAITutorScreenState extends State<BiologyAITutorScreen> {
   ];
 
   static final _topics = [
-    'Research Skills & Scientific Method',
-    'Ecosystems & Environment',
-    'Plant Structure & Organisation',
-    'Photosynthesis',
+    // CE1: Research Skills (Forms 1, 2, 3)
+    'Biological Skills & Laboratory Safety',
+    'Biology and Technology',
+    'Observation and Experimentation',
+    'Communication and Data Analysis',
+    'Safety and First Aid in Biology',
+    // CE2: Environment (Forms 1, 3)
+    'Environmental Factors and Habitats',
+    'Ecosystems and Food Chains',
+    'Ecological Relationships',
+    'Conservation and Environmental Issues',
+    'Human Impact on the Environment',
+    // CE3: Plant Biology (Forms 1, 2, 3, 4)
+    'Introduction to Plants',
+    'Plant Cells and Organisation',
+    'Plant Nutrition (Photosynthesis)',
     'Transport in Plants (Xylem & Phloem)',
-    'Transpiration & Tropisms',
-    'Animal Classification & Diversity',
-    'Internal Structure of Animals',
-    'Human Digestive System',
-    'Human Circulatory System',
+    'Plant Growth and Reproduction',
+    'Respiration and Translocation',
+    'Transpiration and Tropisms',
+    // CE4: Animal Biology (Forms 1, 3)
+    'Introduction to Animals',
+    'Animal Cells and Organisation',
+    'Animal Nutrition and Feeding',
+    'Internal Structures of Animals',
+    // CE5: Human Biology (Forms 1, 2, 3, 4)
+    'Human Body Systems Overview',
+    'Nutrition and Diet',
+    'Circulatory System and Blood',
     'Respiratory System',
     'Excretory System',
-    'Nervous & Endocrine System',
+    'Nervous and Endocrine System',
+    'Skeletal and Muscular System',
     'Reproductive System',
-    'Immunity & Disease',
-    'Blood & Blood Groups',
-    'Micro-organisms',
-    'Cell Division (Mitosis & Meiosis)',
+    'Immunity and Disease',
+    'Homeostasis and Coordination',
+    'Growth and Development',
+    'Population and Human Ecology',
+    'Substance Use and Abuse',
+    'Deficiency Diseases and Disorders',
+    'Biotechnology and Human Biology',
+    // CE6: Micro-organisms (Forms 2, 4)
+    'Introduction to Micro-organisms',
+    'Micro-organisms in Disease',
+    'Micro-organisms in Food Production',
+    'Micro-organisms and Waste Management',
+    // CE7: Genetics and Evolution (Forms 3, 4)
+    'Cell Division (Mitosis and Meiosis)',
     'Mendelian Genetics',
-    'DNA & The Genome',
-    'Variations & Evolution',
-    'Biotechnology',
+    'DNA and the Genome',
+    'Variation and Inheritance',
+    'Evolution and Natural Selection',
+    'Biotechnology and Genetic Engineering',
   ];
 
   static final _welcomeSuggestions = [
@@ -70,13 +97,15 @@ class _BiologyAITutorScreenState extends State<BiologyAITutorScreen> {
     'How do vaccines work in the immune system?',
     'Explain Mendelian genetics with an example',
     'What is the role of micro-organisms in Malawi?',
+    'How do I use a microscope safely in the lab?',
+    'What are the different ecosystems in Malawi?',
   ];
 
   @override
   void initState() {
     super.initState();
     _messages.add(_ChatMessage(
-      'Welcome to the Biology AI Tutor! I am syllabus-locked to the Malawi MSCE Biology curriculum. Ask me anything from the Forms 3 & 4 syllabus.\n\nSelect a topic or type your question below.',
+      'Welcome to the Biology AI Tutor! I am syllabus-locked to the Malawi MSCE Biology curriculum. Ask me anything from the Forms 1 to 4 syllabus.\n\nSelect a topic or type your question below.',
       false,
       DateTime.now(),
     ));
@@ -255,7 +284,7 @@ class _BiologyAITutorScreenState extends State<BiologyAITutorScreen> {
 
     return '**Question:** $question\n\n'
         '**Topic:** $topic\n\n'
-        'I am the Biology AI Tutor, locked to the **Malawi MSCE Biology Syllabus** (Forms 3 & 4). Here is what I can help with:\n\n'
+        'I am the Biology AI Tutor, locked to the **Malawi MSCE Biology Syllabus** (Forms 1 to 4). Here is what I can help with:\n\n'
         '• **Explain** concepts from any of the 7 Core Elements\n'
         '• **Teach** step-by-step with examples\n'
         '• **Quiz** you on syllabus topics\n'
