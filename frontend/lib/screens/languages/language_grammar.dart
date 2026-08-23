@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/language_service.dart';
+import '../../core/theme/theme_colors.dart';
 
 class LanguageGrammar extends StatefulWidget {
-  const LanguageGrammar({super.key});
+  LanguageGrammar({super.key});
 
   @override
   State<LanguageGrammar> createState() => _LanguageGrammarState();
@@ -56,20 +57,20 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
   Color _difficultyColor(String diff) {
     switch (diff.toLowerCase()) {
       case 'beginner':
-        return AppColors.success;
+        return context.colors.success;
       case 'intermediate':
-        return AppColors.warning;
+        return context.colors.warning;
       case 'advanced':
-        return const Color(0xFFEF4444);
+        return Color(0xFFEF4444);
       default:
-        return AppColors.textSecondary;
+        return context.colors.textSecondary;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -77,7 +78,7 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
             _buildCategoryChips(),
             Expanded(
               child: _loading
-                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                  ? Center(child: CircularProgressIndicator(color: AppColors.primary))
                   : _filteredRules.isEmpty
                       ? _buildEmpty()
                       : _buildRulesList(),
@@ -91,21 +92,21 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: AppColors.divider)),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        border: Border(bottom: BorderSide(color: context.colors.divider)),
       ),
       child: Row(
         children: [
           IconButton(
             onPressed: () => context.pop(),
-            icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary, size: 20),
+            icon: Icon(Icons.arrow_back_ios, color: context.colors.textPrimary, size: 20),
           ),
-          const Icon(Icons.rule, color: AppColors.primary, size: 24),
-          const SizedBox(width: 8),
-          const Expanded(
+          Icon(Icons.rule, color: AppColors.primary, size: 24),
+          SizedBox(width: 8),
+          Expanded(
             child: Text('Grammar', style: TextStyle(
-              color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold,
+              color: context.colors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold,
             )),
           ),
           Container(
@@ -114,7 +115,7 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
               color: AppColors.primary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Text('${_rules.length} rules', style: const TextStyle(
+            child: Text('${_rules.length} rules', style: TextStyle(
               color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w600,
             )),
           ),
@@ -149,12 +150,12 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           decoration: BoxDecoration(
-            color: selected ? AppColors.primary : AppColors.surfaceHighest,
+            color: selected ? AppColors.primary : context.colors.surfaceHighest,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: selected ? AppColors.primary : AppColors.divider),
+            border: Border.all(color: selected ? AppColors.primary : context.colors.divider),
           ),
           child: Text(label, style: TextStyle(
-            color: selected ? Colors.white : AppColors.textSecondary,
+            color: selected ? Colors.white : context.colors.textSecondary,
             fontSize: 12, fontWeight: FontWeight.w500,
           )),
         ),
@@ -167,10 +168,10 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.rule_outlined, size: 48, color: AppColors.textSecondary.withValues(alpha: 0.4)),
-          const SizedBox(height: 12),
+          Icon(Icons.rule_outlined, size: 48, color: context.colors.textSecondary.withValues(alpha: 0.4)),
+          SizedBox(height: 12),
           Text('No grammar rules found', style: TextStyle(
-            color: AppColors.textSecondary.withValues(alpha: 0.6), fontSize: 14,
+            color: context.colors.textSecondary.withValues(alpha: 0.6), fontSize: 14,
           )),
         ],
       ),
@@ -201,14 +202,14 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
     return GestureDetector(
       onTap: () => setState(() => _expandedIndex = expanded ? null : index),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: Duration(milliseconds: 200),
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: expanded ? AppColors.primary.withValues(alpha: 0.4) : AppColors.divider,
+            color: expanded ? AppColors.primary.withValues(alpha: 0.4) : context.colors.divider,
           ),
         ),
         child: Column(
@@ -217,8 +218,8 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
             Row(
               children: [
                 Expanded(
-                  child: Text(name, style: const TextStyle(
-                    color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold,
+                  child: Text(name, style: TextStyle(
+                    color: context.colors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold,
                   )),
                 ),
                 Container(
@@ -232,67 +233,67 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
                     fontSize: 11, fontWeight: FontWeight.w600,
                   )),
                 ),
-                const SizedBox(width: 6),
+                SizedBox(width: 6),
                 Icon(
                   expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                  color: AppColors.textSecondary, size: 20,
+                  color: context.colors.textSecondary, size: 20,
                 ),
               ],
             ),
             if (category.toString().isNotEmpty) ...[
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: Text(category.toString(), style: const TextStyle(
+                child: Text(category.toString(), style: TextStyle(
                   color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w500,
                 )),
               ),
             ],
             if (expanded) ...[
-              const Divider(color: AppColors.divider, height: 16),
-              Text(explanation.toString(), style: const TextStyle(
-                color: AppColors.textSecondary, fontSize: 14, height: 1.5,
+              Divider(color: context.colors.divider, height: 16),
+              Text(explanation.toString(), style: TextStyle(
+                color: context.colors.textSecondary, fontSize: 14, height: 1.5,
               )),
               if (examples != null) ...[
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceHighest.withValues(alpha: 0.5),
+                    color: context.colors.surfaceHighest.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     examples is List ? examples.join('\n') : examples.toString(),
-                    style: const TextStyle(
-                      color: AppColors.textPrimary, fontSize: 13, fontFamily: 'monospace', height: 1.6,
+                    style: TextStyle(
+                      color: context.colors.textPrimary, fontSize: 13, fontFamily: 'monospace', height: 1.6,
                     ),
                   ),
                 ),
               ],
               if (contrast.toString().isNotEmpty) ...[
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppColors.warning.withValues(alpha: 0.08),
+                    color: context.colors.warning.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.warning.withValues(alpha: 0.2)),
+                    border: Border.all(color: context.colors.warning.withValues(alpha: 0.2)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Compare:', style: TextStyle(
-                        color: AppColors.warning.withValues(alpha: 0.8), fontSize: 11, fontWeight: FontWeight.w600,
+                        color: context.colors.warning.withValues(alpha: 0.8), fontSize: 11, fontWeight: FontWeight.w600,
                       )),
-                      const SizedBox(height: 4),
-                      Text(contrast.toString(), style: const TextStyle(
-                        color: AppColors.textPrimary, fontSize: 13,
+                      SizedBox(height: 4),
+                      Text(contrast.toString(), style: TextStyle(
+                        color: context.colors.textPrimary, fontSize: 13,
                       )),
                     ],
                   ),

@@ -4,9 +4,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
+import '../../core/theme/theme_colors.dart';
 
 class GlobalSearchScreen extends StatefulWidget {
-  const GlobalSearchScreen({super.key});
+  GlobalSearchScreen({super.key});
 
   @override
   State<GlobalSearchScreen> createState() => _GlobalSearchScreenState();
@@ -34,7 +35,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
 
   void _onSearchChanged(String value) {
     _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
+    _debounce = Timer(Duration(milliseconds: 500), () {
       final trimmed = value.trim();
       if (trimmed.length < 2) {
         setState(() {
@@ -133,11 +134,11 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: Column(
         children: [
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [AppColors.primary, AppColors.primaryDark],
                 begin: Alignment.topLeft,
@@ -151,7 +152,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Search',
                       style: TextStyle(
                         color: Colors.white,
@@ -159,7 +160,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       'Find courses, assessments, resources & more',
                       style: TextStyle(
@@ -167,22 +168,22 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                         fontSize: 14,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                     TextField(
                       controller: _searchController,
                       focusNode: _searchFocusNode,
                       onChanged: _onSearchChanged,
                       autofocus: true,
-                      style: const TextStyle(color: Colors.white, fontSize: 15),
+                      style: TextStyle(color: Colors.white, fontSize: 15),
                       decoration: InputDecoration(
                         hintText: 'Search everything...',
                         hintStyle:
                             TextStyle(color: Colors.white.withOpacity(0.6)),
-                        prefixIcon: const Icon(Icons.search,
+                        prefixIcon: Icon(Icons.search,
                             color: Colors.white70, size: 22),
                         suffixIcon: _query.isNotEmpty
                             ? IconButton(
-                                icon: const Icon(Icons.clear,
+                                icon: Icon(Icons.clear,
                                     color: Colors.white70, size: 20),
                                 onPressed: () {
                                   _searchController.clear();
@@ -217,7 +218,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
 
   Widget _buildBody() {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(child: CircularProgressIndicator());
     }
 
     if (_error != null) {
@@ -242,20 +243,20 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.search, size: 56, color: AppColors.textMuted.withOpacity(0.3)),
-            const SizedBox(height: 12),
-            const Text(
+            Icon(Icons.search, size: 56, color: context.colors.textMuted.withOpacity(0.3)),
+            SizedBox(height: 12),
+            Text(
               'Type to search',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
+                color: context.colors.textSecondary,
               ),
             ),
-            const SizedBox(height: 4),
-            const Text(
+            SizedBox(height: 4),
+            Text(
               'Search across courses, assessments, and resources',
-              style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+              style: TextStyle(fontSize: 13, color: context.colors.textMuted),
               textAlign: TextAlign.center,
             ),
           ],
@@ -271,20 +272,20 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.search_off, size: 56, color: AppColors.textMuted.withOpacity(0.3)),
-            const SizedBox(height: 12),
+            Icon(Icons.search_off, size: 56, color: context.colors.textMuted.withOpacity(0.3)),
+            SizedBox(height: 12),
             Text(
               'No results for "$_query"',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
+                color: context.colors.textSecondary,
               ),
             ),
-            const SizedBox(height: 4),
-            const Text(
+            SizedBox(height: 4),
+            Text(
               'Try different keywords or check your spelling',
-              style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+              style: TextStyle(fontSize: 13, color: context.colors.textMuted),
               textAlign: TextAlign.center,
             ),
           ],
@@ -302,32 +303,32 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
       children: [
         Text(
           '$totalResults result${totalResults == 1 ? '' : 's'} for "$_query"',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13,
-            color: AppColors.textSecondary,
+            color: context.colors.textSecondary,
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         for (final entry in grouped.entries) ...[
           Row(
             children: [
               Icon(_groupIcon(entry.key),
                   size: 18, color: AppColors.primary),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 '${_groupTitle(entry.key)} (${entry.value.length})',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: context.colors.textPrimary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           ...entry.value.map((item) => _buildResultItem(item)),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
         ],
       ],
     );
@@ -343,7 +344,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+            EdgeInsets.symmetric(horizontal: 14, vertical: 4),
         leading: Container(
           width: 38,
           height: 38,
@@ -355,21 +356,21 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
         ),
         title: Text(
           title,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
         subtitle: subtitle.isNotEmpty
             ? Text(
                 subtitle,
-                style: const TextStyle(
-                    fontSize: 12, color: AppColors.textSecondary),
+                style: TextStyle(
+                    fontSize: 12, color: context.colors.textSecondary),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               )
             : null,
         trailing:
-            const Icon(Icons.chevron_right, size: 18, color: AppColors.textSecondary),
+            Icon(Icons.chevron_right, size: 18, color: context.colors.textSecondary),
       ),
     );
   }
@@ -381,15 +382,15 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
-            const SizedBox(height: 12),
+            Icon(Icons.error_outline, size: 48, color: context.colors.error),
+            SizedBox(height: 12),
             Text(
               _error!,
               style:
-                  const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                  TextStyle(fontSize: 14, color: context.colors.textSecondary),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => _performSearch(_query),
               style: ElevatedButton.styleFrom(
@@ -399,7 +400,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text('Retry'),
+              child: Text('Retry'),
             ),
           ],
         ),

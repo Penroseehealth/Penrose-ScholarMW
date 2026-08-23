@@ -3,13 +3,14 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../services/language_service.dart';
+import '../../core/theme/theme_colors.dart';
 
 const Color _langBlue = Color(0xFF2563EB);
 const Color _langRed = Color(0xFFDC2626);
 const Color _langGreen = Color(0xFF059669);
 
 class LanguagesHub extends StatefulWidget {
-  const LanguagesHub({super.key});
+  LanguagesHub({super.key});
 
   @override
   State<LanguagesHub> createState() => _LanguagesHubState();
@@ -29,7 +30,7 @@ class _LanguagesHubState extends State<LanguagesHub>
     super.initState();
     _fadeCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: Duration(milliseconds: 500),
     );
     _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut);
     _fadeCtrl.forward();
@@ -87,14 +88,14 @@ class _LanguagesHubState extends State<LanguagesHub>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.surfaceElevated,
+        backgroundColor: context.colors.surfaceElevated,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: AppColors.border),
+          side: BorderSide(color: context.colors.border),
         ),
         content: Text(
           '$feature — choose a language above to get started',
-          style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+          style: TextStyle(fontSize: 13, color: context.colors.textPrimary),
         ),
       ),
     );
@@ -108,7 +109,7 @@ class _LanguagesHubState extends State<LanguagesHub>
     return FadeTransition(
       opacity: _fadeAnim,
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.colors.background,
         body: Column(
           children: [
             _buildHeader(),
@@ -121,19 +122,19 @@ class _LanguagesHubState extends State<LanguagesHub>
                     sliver: SliverList(
                       delegate: SliverChildListDelegate([
                         _buildHero(),
-                        const SizedBox(height: 28),
+                        SizedBox(height: 28),
                         _buildSectionTitle('Choose Your Language'),
-                        const SizedBox(height: 14),
+                        SizedBox(height: 14),
                         _buildLanguageGrid(isDesktop),
-                        const SizedBox(height: 28),
+                        SizedBox(height: 28),
                         _buildSectionTitle('Your Progress'),
-                        const SizedBox(height: 14),
+                        SizedBox(height: 14),
                         _buildProgressStats(isDesktop),
-                        const SizedBox(height: 28),
+                        SizedBox(height: 28),
                         _buildSectionTitle('Language Features'),
-                        const SizedBox(height: 14),
+                        SizedBox(height: 14),
                         _buildFeatureGrid(isDesktop),
-                        const SizedBox(height: 40),
+                        SizedBox(height: 40),
                       ]),
                     ),
                   ),
@@ -149,9 +150,9 @@ class _LanguagesHubState extends State<LanguagesHub>
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        border: Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
       ),
       child: SafeArea(
         bottom: false,
@@ -163,27 +164,27 @@ class _LanguagesHubState extends State<LanguagesHub>
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
+                  color: context.colors.surfaceElevated,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.colors.border),
                 ),
-                child: const Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: AppColors.textSecondary),
+                child: Icon(Icons.arrow_back_ios_new_rounded,
+                    size: 18, color: context.colors.textSecondary),
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Container(
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: AppColors.primaryGlow,
+                color: context.colors.primaryGlow,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.translate_rounded,
+              child: Icon(Icons.translate_rounded,
                   color: AppColors.primary, size: 22),
             ),
-            const SizedBox(width: 14),
-            const Expanded(
+            SizedBox(width: 14),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -191,28 +192,28 @@ class _LanguagesHubState extends State<LanguagesHub>
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                          color: context.colors.textPrimary,
                           letterSpacing: -0.3)),
                   Text('English · Chinese · Arabic',
                       style: TextStyle(
-                          fontSize: 12, color: AppColors.textMuted)),
+                          fontSize: 12, color: context.colors.textMuted)),
                 ],
               ),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: AppColors.warningMuted,
+                color: context.colors.warningMuted,
                 borderRadius: BorderRadius.circular(8),
                 border:
-                    Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
+                    Border.all(color: context.colors.warning.withValues(alpha: 0.3)),
               ),
-              child: const Text('BETA',
+              child: Text('BETA',
                   style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.8,
-                      color: AppColors.warning)),
+                      color: context.colors.warning)),
             ),
           ],
         ),
@@ -244,29 +245,29 @@ class _LanguagesHubState extends State<LanguagesHub>
           Row(
             children: [
               for (var i = 0; i < flags.length; i++) ...[
-                if (i > 0) const SizedBox(width: 10),
+                if (i > 0) SizedBox(width: 10),
                 Container(
                   width: 46,
                   height: 46,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: context.colors.surface,
                     borderRadius: BorderRadius.circular(13),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: context.colors.border),
                   ),
                   child: Text(flags[i],
-                      style: const TextStyle(fontSize: 22)),
+                      style: TextStyle(fontSize: 22)),
                 ),
               ],
-              const Spacer(),
+              Spacer(),
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryGlow,
+                  color: context.colors.primaryGlow,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.auto_awesome_rounded,
@@ -282,21 +283,21 @@ class _LanguagesHubState extends State<LanguagesHub>
               ),
             ],
           ),
-          const SizedBox(height: 18),
-          const Text('AI-Powered Language Learning',
+          SizedBox(height: 18),
+          Text('AI-Powered Language Learning',
               style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                  color: context.colors.textPrimary,
                   letterSpacing: -0.4)),
-          const SizedBox(height: 8),
-          const Text(
+          SizedBox(height: 8),
+          Text(
             'Master English, Chinese and Arabic with adaptive lessons, '
             'spaced-repetition vocabulary and an AI tutor that speaks your language.',
             style: TextStyle(
                 fontSize: 13,
                 height: 1.5,
-                color: AppColors.textSecondary),
+                color: context.colors.textSecondary),
           ),
         ],
       ),
@@ -310,17 +311,17 @@ class _LanguagesHubState extends State<LanguagesHub>
           width: 4,
           height: 20,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
                 colors: [AppColors.primary, AppColors.primaryDark]),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Text(title,
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
+                color: context.colors.textPrimary,
                 letterSpacing: -0.3)),
       ],
     );
@@ -332,11 +333,11 @@ class _LanguagesHubState extends State<LanguagesHub>
         height: 180,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
-        child: const CircularProgressIndicator(
+        child: CircularProgressIndicator(
             strokeWidth: 2.5, color: AppColors.primary),
       );
     }
@@ -345,30 +346,30 @@ class _LanguagesHubState extends State<LanguagesHub>
         width: double.infinity,
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
-        child: const Column(
+        child: Column(
           children: [
             Icon(Icons.language_rounded,
-                size: 32, color: AppColors.textMuted),
+                size: 32, color: context.colors.textMuted),
             SizedBox(height: 10),
             Text('No languages available yet',
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary)),
+                    color: context.colors.textSecondary)),
             SizedBox(height: 4),
             Text('Check back soon — new languages are on the way.',
-                style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
           ],
         ),
       );
     }
     return GridView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      physics: NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: isDesktop ? 3 : 1,
         crossAxisSpacing: 12,
@@ -424,14 +425,14 @@ class _LanguagesHubState extends State<LanguagesHub>
                       height: 48,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: context.colors.surface,
                         borderRadius: BorderRadius.circular(13),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: context.colors.border),
                       ),
                       child: Text(flag,
-                          style: const TextStyle(fontSize: 24)),
+                          style: TextStyle(fontSize: 24)),
                     ),
-                    const SizedBox(width: 14),
+                    SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -439,27 +440,27 @@ class _LanguagesHubState extends State<LanguagesHub>
                           Text(name,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 17,
                                   fontWeight: FontWeight.w800,
-                                  color: AppColors.textPrimary,
+                                  color: context.colors.textPrimary,
                                   letterSpacing: -0.3)),
                           if (nativeName.isNotEmpty)
                             Text(nativeName,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: 11,
-                                    color: AppColors.textMuted)),
+                                    color: context.colors.textMuted)),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Icon(Icons.arrow_forward_ios_rounded,
                         size: 16, color: color),
                   ],
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 if (levelSystem.isNotEmpty)
                   Container(
                     width: double.infinity,
@@ -477,16 +478,16 @@ class _LanguagesHubState extends State<LanguagesHub>
                             fontWeight: FontWeight.w600,
                             color: color)),
                   ),
-                const Spacer(),
+                Spacer(),
                 Row(
                   children: [
                     Expanded(
                         child: _buildLangStat(
                             vocabCount, 'Vocabulary', color)),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Expanded(
                         child: _buildLangStat(grammarCount, 'Grammar', color)),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Expanded(child: _buildLangStat(levelCount, 'Levels', color)),
                   ],
                 ),
@@ -502,9 +503,9 @@ class _LanguagesHubState extends State<LanguagesHub>
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         children: [
@@ -516,12 +517,12 @@ class _LanguagesHubState extends State<LanguagesHub>
                   fontWeight: FontWeight.w800,
                   color: color,
                   letterSpacing: -0.3)),
-          const SizedBox(height: 2),
+          SizedBox(height: 2),
           Text(label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                  fontSize: 10, color: AppColors.textMuted)),
+              style: TextStyle(
+                  fontSize: 10, color: context.colors.textMuted)),
         ],
       ),
     );
@@ -531,17 +532,17 @@ class _LanguagesHubState extends State<LanguagesHub>
     return GridView.count(
       crossAxisCount: isDesktop ? 3 : 1,
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      physics: NeverScrollableScrollPhysics(),
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
       childAspectRatio: isDesktop ? 2.2 : 3.4,
       children: [
         _buildStatCard('0', 'Day Streak', Icons.local_fire_department_rounded,
-            AppColors.warning, 'Start learning to build your streak'),
+            context.colors.warning, 'Start learning to build your streak'),
         _buildStatCard('0', 'Mastered Words', Icons.check_circle_rounded,
-            AppColors.success, 'Across all your languages'),
+            context.colors.success, 'Across all your languages'),
         _buildStatCard('0h', 'Study Time', Icons.schedule_rounded,
-            AppColors.info, 'Time spent practising this week'),
+            context.colors.info, 'Time spent practising this week'),
       ],
     );
   }
@@ -551,9 +552,9 @@ class _LanguagesHubState extends State<LanguagesHub>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         children: [
@@ -566,7 +567,7 @@ class _LanguagesHubState extends State<LanguagesHub>
             ),
             child: Icon(icon, size: 21, color: color),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -582,24 +583,24 @@ class _LanguagesHubState extends State<LanguagesHub>
                             fontWeight: FontWeight.w800,
                             color: color,
                             letterSpacing: -0.4)),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Flexible(
                       child: Text(label,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textSecondary)),
+                              color: context.colors.textSecondary)),
                     ),
                   ],
                 ),
-                const SizedBox(height: 3),
+                SizedBox(height: 3),
                 Text(sub,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontSize: 11, color: AppColors.textMuted)),
+                    style: TextStyle(
+                        fontSize: 11, color: context.colors.textMuted)),
               ],
             ),
           ),
@@ -627,7 +628,7 @@ class _LanguagesHubState extends State<LanguagesHub>
     return GridView.count(
       crossAxisCount: isDesktop ? 3 : 2,
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      physics: NeverScrollableScrollPhysics(),
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
       childAspectRatio: isDesktop ? 2.0 : 1.55,
@@ -644,8 +645,8 @@ class _LanguagesHubState extends State<LanguagesHub>
       _langRed,
       _langGreen,
       _langBlue,
-      AppColors.teal,
-      AppColors.warning,
+      context.colors.teal,
+      context.colors.warning,
     ];
     final color = accents[index % accents.length];
 
@@ -659,9 +660,9 @@ class _LanguagesHubState extends State<LanguagesHub>
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -678,39 +679,39 @@ class _LanguagesHubState extends State<LanguagesHub>
                       ),
                       child: Icon(feature.icon, size: 19, color: color),
                     ),
-                    const Spacer(),
+                    Spacer(),
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceHighest,
+                        color: context.colors.surfaceHighest,
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: const Text('SOON',
+                      child: Text('SOON',
                           style: TextStyle(
                               fontSize: 9,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.6,
-                              color: AppColors.textMuted)),
+                              color: context.colors.textMuted)),
                     ),
                   ],
                 ),
-                const Spacer(),
+                Spacer(),
                 Text(feature.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary)),
-                const SizedBox(height: 3),
+                        color: context.colors.textPrimary)),
+                SizedBox(height: 3),
                 Text(feature.description,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 11,
                         height: 1.3,
-                        color: AppColors.textMuted)),
+                        color: context.colors.textMuted)),
               ],
             ),
           ),

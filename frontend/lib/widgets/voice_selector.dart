@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
+import '../core/theme/theme_colors.dart';
 
 class VoiceSelector extends StatefulWidget {
   final String? selectedVoiceId;
   final Function(String voiceId) onVoiceSelected;
 
-  const VoiceSelector({
+  VoiceSelector({
     super.key,
     this.selectedVoiceId,
     required this.onVoiceSelected,
@@ -40,8 +41,8 @@ class _VoiceSelectorState extends State<VoiceSelector> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: context.colors.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SafeArea(
@@ -52,20 +53,20 @@ class _VoiceSelectorState extends State<VoiceSelector> {
             Center(
               child: Container(
                 width: 36, height: 4,
-                decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)),
+                decoration: BoxDecoration(color: context.colors.border, borderRadius: BorderRadius.circular(2)),
               ),
             ),
-            const SizedBox(height: 16),
-            const Text(
+            SizedBox(height: 16),
+            Text(
               'Voice Library',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
             ),
-            const SizedBox(height: 4),
-            const Text(
+            SizedBox(height: 4),
+            Text(
               'Choose your preferred AI voice',
-              style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+              style: TextStyle(fontSize: 13, color: context.colors.textMuted),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Flexible(
               child: ListView.builder(
                 shrinkWrap: true,
@@ -86,7 +87,7 @@ class _VoiceSelectorState extends State<VoiceSelector> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
-        color: isSelected ? AppColors.primaryMuted.withValues(alpha: 0.3) : AppColors.surfaceElevated,
+        color: isSelected ? AppColors.primaryMuted.withValues(alpha: 0.3) : context.colors.surfaceElevated,
         borderRadius: BorderRadius.circular(12),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
@@ -96,7 +97,7 @@ class _VoiceSelectorState extends State<VoiceSelector> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isSelected ? AppColors.primary : AppColors.border,
+                color: isSelected ? AppColors.primary : context.colors.border,
                 width: isSelected ? 1.5 : 1,
               ),
             ),
@@ -105,7 +106,7 @@ class _VoiceSelectorState extends State<VoiceSelector> {
                 Container(
                   width: 36, height: 36,
                   decoration: BoxDecoration(
-                    color: isSelected ? AppColors.primary.withValues(alpha: 0.2) : AppColors.surfaceHighest,
+                    color: isSelected ? AppColors.primary.withValues(alpha: 0.2) : context.colors.surfaceHighest,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
@@ -115,10 +116,10 @@ class _VoiceSelectorState extends State<VoiceSelector> {
                             ? Icons.translate_rounded
                             : Icons.record_voice_over_rounded,
                     size: 18,
-                    color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                    color: isSelected ? AppColors.primary : context.colors.textSecondary,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,13 +129,13 @@ class _VoiceSelectorState extends State<VoiceSelector> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                          color: isSelected ? AppColors.primary : context.colors.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         voice['desc']!,
-                        style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                        style: TextStyle(fontSize: 11, color: context.colors.textMuted),
                       ),
                     ],
                   ),
@@ -142,26 +143,26 @@ class _VoiceSelectorState extends State<VoiceSelector> {
                 GestureDetector(
                   onTap: () {
                     setState(() => _previewing = voice['id']);
-                    Future.delayed(const Duration(seconds: 2), () {
+                    Future.delayed(Duration(seconds: 2), () {
                       if (mounted) setState(() => _previewing = null);
                     });
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceHighest,
+                      color: context.colors.surfaceHighest,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
                       isPreviewing ? Icons.volume_up_rounded : Icons.play_arrow_rounded,
                       size: 16,
-                      color: AppColors.textSecondary,
+                      color: context.colors.textSecondary,
                     ),
                   ),
                 ),
                 if (isSelected) ...[
-                  const SizedBox(width: 8),
-                  const Icon(Icons.check_circle_rounded, size: 18, color: AppColors.primary),
+                  SizedBox(width: 8),
+                  Icon(Icons.check_circle_rounded, size: 18, color: AppColors.primary),
                 ],
               ],
             ),

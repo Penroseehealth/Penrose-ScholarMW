@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 
 class ChineseRadicalLab extends StatefulWidget {
-  const ChineseRadicalLab({super.key});
+  ChineseRadicalLab({super.key});
   @override
   State<ChineseRadicalLab> createState() => _ChineseRadicalLabState();
 }
@@ -115,12 +116,12 @@ class _ChineseRadicalLabState extends State<ChineseRadicalLab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
-        title: const Text('Radical Lab'),
-        backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.textPrimary, elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18), onPressed: () => context.pop()),
+        title: Text('Radical Lab'),
+        backgroundColor: context.colors.surface,
+        foregroundColor: context.colors.textPrimary, elevation: 0,
+        leading: IconButton(icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18), onPressed: () => context.pop()),
       ),
       body: _selected != null ? _buildDetail() : _buildGrid(),
     );
@@ -131,17 +132,17 @@ class _ChineseRadicalLabState extends State<ChineseRadicalLab> {
     return Column(children: [
       Padding(padding: const EdgeInsets.all(16), child: TextField(
         onChanged: (v) => setState(() => _search = v),
-        style: const TextStyle(color: AppColors.textPrimary),
+        style: TextStyle(color: context.colors.textPrimary),
         decoration: InputDecoration(
-          hintText: 'Search radicals...', hintStyle: TextStyle(color: AppColors.textMuted.withValues(alpha: 0.5)),
-          prefixIcon: Icon(Icons.search_rounded, color: AppColors.textMuted, size: 20),
-          filled: true, fillColor: AppColors.surface,
+          hintText: 'Search radicals...', hintStyle: TextStyle(color: context.colors.textMuted.withValues(alpha: 0.5)),
+          prefixIcon: Icon(Icons.search_rounded, color: context.colors.textMuted, size: 20),
+          filled: true, fillColor: context.colors.surface,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12))),
       ),
       Expanded(child: GridView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3, mainAxisSpacing: 10, crossAxisSpacing: 10, childAspectRatio: 0.85),
         itemCount: list.length,
         itemBuilder: (_, i) {
@@ -154,14 +155,14 @@ class _ChineseRadicalLabState extends State<ChineseRadicalLab> {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.colors.surface,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.border)),
+                border: Border.all(color: context.colors.border)),
               child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Text(r['r'] as String, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w400, color: AppColors.textPrimary)),
-                const SizedBox(height: 4),
-                Text(r['meaning'] as String, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
-                const SizedBox(height: 2),
+                Text(r['r'] as String, style: TextStyle(fontSize: 28, fontWeight: FontWeight.w400, color: context.colors.textPrimary)),
+                SizedBox(height: 4),
+                Text(r['meaning'] as String, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
+                SizedBox(height: 2),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(color: accent.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(4)),
@@ -176,25 +177,25 @@ class _ChineseRadicalLabState extends State<ChineseRadicalLab> {
     return Column(children: [
       Container(
         width: double.infinity, padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(color: AppColors.surface, border: Border(bottom: BorderSide(color: AppColors.border))),
+        decoration: BoxDecoration(color: context.colors.surface, border: Border(bottom: BorderSide(color: context.colors.border))),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             GestureDetector(
               onTap: () => setState(() => _selected = null),
               child: Icon(Icons.arrow_back_rounded, color: accent, size: 20)),
-            const SizedBox(width: 12),
-            Text(r['r'] as String, style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w400, color: AppColors.textPrimary)),
-            const SizedBox(width: 16),
+            SizedBox(width: 12),
+            Text(r['r'] as String, style: TextStyle(fontSize: 48, fontWeight: FontWeight.w400, color: context.colors.textPrimary)),
+            SizedBox(width: 16),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(r['meaning'] as String, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
-              Text('${r['name']} | ${r['strokes']} strokes | ${r['pos']}', style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+              Text(r['meaning'] as String, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+              Text('${r['name']} | ${r['strokes']} strokes | ${r['pos']}', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
             ]))]),
-          const SizedBox(height: 12),
-          Text(r['etymology'] as String, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+          SizedBox(height: 12),
+          Text(r['etymology'] as String, style: TextStyle(fontSize: 13, color: context.colors.textSecondary)),
         ])),
       Expanded(child: GridView.builder(
         padding: const EdgeInsets.all(16),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2, mainAxisSpacing: 10, crossAxisSpacing: 10, childAspectRatio: 1.6),
         itemCount: chars.length,
         itemBuilder: (_, i) {
@@ -202,16 +203,16 @@ class _ChineseRadicalLabState extends State<ChineseRadicalLab> {
           return Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.border)),
+              border: Border.all(color: context.colors.border)),
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Text(c['c'] as String, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w400, color: AppColors.textPrimary)),
-              const SizedBox(height: 4),
+              Text(c['c'] as String, style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400, color: context.colors.textPrimary)),
+              SizedBox(height: 4),
               Text(c['p'] as String, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: accent)),
-              Text(c['m'] as String, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
-              const SizedBox(height: 2),
-              Text(c['b'] as String, style: const TextStyle(fontSize: 9, color: AppColors.textMuted)),
+              Text(c['m'] as String, style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
+              SizedBox(height: 2),
+              Text(c['b'] as String, style: TextStyle(fontSize: 9, color: context.colors.textMuted)),
             ]));
         }))]);
   }

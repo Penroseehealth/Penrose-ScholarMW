@@ -5,9 +5,10 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
+import '../../core/theme/theme_colors.dart';
 
 class StudentHub extends StatefulWidget {
-  const StudentHub({super.key});
+  StudentHub({super.key});
 
   @override
   State<StudentHub> createState() => _StudentHubState();
@@ -45,7 +46,7 @@ class _StudentHubState extends State<StudentHub> {
     final firstName = auth.userName.split(' ').first;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: RefreshIndicator(
         onRefresh: _loadData,
         child: CustomScrollView(
@@ -55,7 +56,7 @@ class _StudentHubState extends State<StudentHub> {
               pinned: true,
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [AppColors.primary, AppColors.primaryDark],
                       begin: Alignment.topLeft,
@@ -71,13 +72,13 @@ class _StudentHubState extends State<StudentHub> {
                         children: [
                           Text(
                             '$greeting, $firstName',
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4),
                           Text(
                             'Your academic intelligence is ready',
                             style: TextStyle(
@@ -99,18 +100,18 @@ class _StudentHubState extends State<StudentHub> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildQuickActions(),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                     _buildSectionTitle('My Courses'),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     if (_loading)
-                      const Center(child: CircularProgressIndicator())
+                      Center(child: CircularProgressIndicator())
                     else if (_courses.isEmpty)
                       _buildEmptyState('No courses yet', 'Enroll in courses to get started')
                     else
                       _buildResponsiveCourseGrid(),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                     _buildSectionTitle('Notifications'),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     if (_notifications.isEmpty)
                       _buildEmptyState('All caught up!', 'No new notifications')
                     else
@@ -131,24 +132,24 @@ class _StudentHubState extends State<StudentHub> {
         _buildActionCard(
           icon: Icons.smart_toy_outlined,
           label: 'Penrose Learning Assistant',
-          color: AppColors.accent,
+          color: context.colors.accent,
           onTap: () => context.go('/ai-tutor'),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         _buildActionCard(
           icon: Icons.quiz_outlined,
           label: 'Tasks',
-          color: AppColors.secondary,
+          color: context.colors.secondary,
           onTap: () {},
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         _buildActionCard(
           icon: Icons.analytics_outlined,
           label: 'Progress',
-          color: AppColors.success,
+          color: context.colors.success,
           onTap: () {},
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         _buildActionCard(
           icon: Icons.schedule_outlined,
           label: 'Schedule',
@@ -178,7 +179,7 @@ class _StudentHubState extends State<StudentHub> {
           child: Column(
             children: [
               Icon(icon, color: color, size: 28),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               Text(
                 label,
                 style: TextStyle(
@@ -197,10 +198,10 @@ class _StudentHubState extends State<StudentHub> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
-        color: AppColors.textPrimary,
+        color: context.colors.textPrimary,
       ),
     );
   }
@@ -220,7 +221,7 @@ class _StudentHubState extends State<StudentHub> {
 
     return GridView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      physics: NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
         crossAxisSpacing: 8,
@@ -244,17 +245,17 @@ class _StudentHubState extends State<StudentHub> {
             color: AppColors.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: const Icon(Icons.book_outlined, color: AppColors.primary),
+          child: Icon(Icons.book_outlined, color: AppColors.primary),
         ),
         title: Text(
           course['title'] ?? '',
-          style: const TextStyle(fontWeight: FontWeight.w600),
+          style: TextStyle(fontWeight: FontWeight.w600),
         ),
         subtitle: Text(
           '${course['code']} • ${course['level'] ?? ''}',
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+          style: TextStyle(color: context.colors.textSecondary, fontSize: 13),
         ),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: Icon(Icons.chevron_right),
       ),
     );
   }
@@ -264,16 +265,16 @@ class _StudentHubState extends State<StudentHub> {
       margin: const EdgeInsets.only(bottom: 6),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: AppColors.info.withOpacity(0.1),
-          child: const Icon(Icons.info_outline, size: 18, color: AppColors.info),
+          backgroundColor: context.colors.info.withOpacity(0.1),
+          child: Icon(Icons.info_outline, size: 18, color: context.colors.info),
         ),
         title: Text(
           notif['title'] ?? '',
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         ),
         subtitle: Text(
           notif['message'] ?? '',
-          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
@@ -285,18 +286,18 @@ class _StudentHubState extends State<StudentHub> {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Center(
         child: Column(
           children: [
-            Icon(Icons.inbox_outlined, size: 48, color: AppColors.textMuted.withOpacity(0.3)),
-            const SizedBox(height: 12),
-            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
-            const SizedBox(height: 4),
-            Text(subtitle, style: const TextStyle(fontSize: 13, color: AppColors.textMuted)),
+            Icon(Icons.inbox_outlined, size: 48, color: context.colors.textMuted.withOpacity(0.3)),
+            SizedBox(height: 12),
+            Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
+            SizedBox(height: 4),
+            Text(subtitle, style: TextStyle(fontSize: 13, color: context.colors.textMuted)),
           ],
         ),
       ),

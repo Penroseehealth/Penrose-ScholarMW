@@ -5,12 +5,13 @@ import '../../core/theme/app_colors.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/error_state.dart';
 import '../../modules/subject_module.dart';
+import '../../core/theme/theme_colors.dart';
 
 class SubjectDashboardScreen extends StatefulWidget {
   final String slug;
   final String title;
 
-  const SubjectDashboardScreen({
+  SubjectDashboardScreen({
     super.key,
     required this.slug,
     required this.title,
@@ -67,9 +68,9 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(module?.icon ?? Icons.school_outlined, size: 48, color: AppColors.textMuted),
-            const SizedBox(height: 12),
-            const Text('No data available', style: TextStyle(color: AppColors.textMuted)),
+            Icon(module?.icon ?? Icons.school_outlined, size: 48, color: context.colors.textMuted),
+            SizedBox(height: 12),
+            Text('No data available', style: TextStyle(color: context.colors.textMuted)),
           ],
         ),
       ));
@@ -80,7 +81,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
 
   Widget _buildScaffold(Color accentColor, {required Widget child}) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: RefreshIndicator(
         onRefresh: _loadDashboard,
         color: accentColor,
@@ -90,17 +91,17 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
               expandedHeight: 120,
               pinned: true,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimary, size: 18),
+                icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.colors.textPrimary, size: 18),
                 onPressed: () => Navigator.maybePop(context),
               ),
               backgroundColor: AppColors.primaryDark,
               flexibleSpace: FlexibleSpaceBar(
                 title: Text(
                   widget.title.isNotEmpty ? widget.title : (_dashboard?['subject_title'] ?? widget.slug),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
                 background: Container(
@@ -137,27 +138,27 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildGreeting(greeting),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           _buildConceptCounts(totalConcepts, masteredConcepts, inProgressConcepts, totalAttempts, accentColor),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           _buildProgressSection(progress, accentColor),
           if (currentLearning != null) ...[
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             _buildCurrentLearning(currentLearning, accentColor),
           ],
           if (recommendations.isNotEmpty) ...[
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             _buildRecommendations(recommendations, accentColor),
           ],
           if (recentActivity != null) ...[
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             _buildRecentActivity(recentActivity, accentColor),
           ],
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           _buildSyllabusButton(accentColor),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           _buildActionButtons(accentColor),
         ],
       ),
@@ -167,10 +168,10 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
   Widget _buildGreeting(String greeting) {
     return Text(
       greeting,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 22,
         fontWeight: FontWeight.w700,
-        color: AppColors.textPrimary,
+        color: context.colors.textPrimary,
       ),
     );
   }
@@ -179,12 +180,12 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
     return Row(
       children: [
         _buildCountChip('$total', 'Concepts', accent),
-        const SizedBox(width: 8),
-        _buildCountChip('$mastered', 'Mastered', AppColors.success),
-        const SizedBox(width: 8),
-        _buildCountChip('$inProgress', 'In Progress', AppColors.warning),
-        const SizedBox(width: 8),
-        _buildCountChip('$attempts', 'Practices', AppColors.info),
+        SizedBox(width: 8),
+        _buildCountChip('$mastered', 'Mastered', context.colors.success),
+        SizedBox(width: 8),
+        _buildCountChip('$inProgress', 'In Progress', context.colors.warning),
+        SizedBox(width: 8),
+        _buildCountChip('$attempts', 'Practices', context.colors.info),
       ],
     );
   }
@@ -208,7 +209,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
                 color: color,
               ),
             ),
-            const SizedBox(height: 2),
+            SizedBox(height: 2),
             Text(
               label,
               style: TextStyle(
@@ -227,30 +228,30 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
   Widget _buildProgressSection(Map<String, dynamic> progress, Color accent) {
     final items = [
       _ProgressItem('Overall Mastery', (progress['overall_mastery'] as num?)?.toDouble() ?? 0, accent),
-      _ProgressItem('Current Topic', (progress['current_topic_mastery'] as num?)?.toDouble() ?? 0, AppColors.info),
-      _ProgressItem('Course Completion', (progress['course_completion'] as num?)?.toDouble() ?? 0, AppColors.teal),
-      _ProgressItem('Assessment Avg', (progress['assessment_average'] as num?)?.toDouble() ?? 0, AppColors.lavender),
+      _ProgressItem('Current Topic', (progress['current_topic_mastery'] as num?)?.toDouble() ?? 0, context.colors.info),
+      _ProgressItem('Course Completion', (progress['course_completion'] as num?)?.toDouble() ?? 0, context.colors.teal),
+      _ProgressItem('Assessment Avg', (progress['assessment_average'] as num?)?.toDouble() ?? 0, context.colors.lavender),
     ];
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Progress',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: context.colors.textPrimary,
             ),
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           ...items.map((item) => Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Column(
@@ -261,7 +262,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
                   children: [
                     Text(
                       item.label,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
                     ),
                     Text(
                       '${item.value.round()}%',
@@ -273,12 +274,12 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: item.value / 100,
-                    backgroundColor: AppColors.surfaceHighest,
+                    backgroundColor: context.colors.surfaceHighest,
                     valueColor: AlwaysStoppedAnimation<Color>(item.color),
                     minHeight: 6,
                   ),
@@ -306,7 +307,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: accent.withValues(alpha: 0.3)),
         ),
@@ -321,31 +322,31 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
               ),
               child: Icon(Icons.play_circle_outline_rounded, color: accent, size: 22),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Continue Learning',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textMuted),
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.textMuted),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(
                     conceptTitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      color: context.colors.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (topicTitle.isNotEmpty) ...[
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2),
                     Text(
                       topicTitle,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                      style: TextStyle(fontSize: 12, color: context.colors.textMuted),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -353,7 +354,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
                 ],
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             _MiniMasteryRing(mastery: masteryLevel, color: accent),
           ],
         ),
@@ -365,9 +366,9 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -375,18 +376,18 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
           Row(
             children: [
               Icon(Icons.lightbulb_outline_rounded, color: accent, size: 18),
-              const SizedBox(width: 8),
-              const Text(
+              SizedBox(width: 8),
+              Text(
                 'Recommended',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: context.colors.textPrimary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           ...recommendations.map((r) => _buildRecommendationItem(r, accent)),
         ],
       ),
@@ -410,42 +411,42 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: context.colors.surfaceElevated,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           children: [
             Icon(
               masteryLevel > 0 ? Icons.trending_up_rounded : Icons.add_circle_outline_rounded,
-              color: masteryLevel > 0 ? AppColors.warning : AppColors.info,
+              color: masteryLevel > 0 ? context.colors.warning : context.colors.info,
               size: 20,
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      color: context.colors.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(
                     topicTitle.isNotEmpty ? '$reason \u2022 $topicTitle' : reason,
-                    style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                    style: TextStyle(fontSize: 11, color: context.colors.textMuted),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 18),
+            Icon(Icons.chevron_right_rounded, color: context.colors.textMuted, size: 18),
           ],
         ),
       ),
@@ -460,28 +461,28 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.history_rounded, color: AppColors.info, size: 18),
-              const SizedBox(width: 8),
-              const Text(
+              Icon(Icons.history_rounded, color: context.colors.info, size: 18),
+              SizedBox(width: 8),
+              Text(
                 'Recent Activity',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: context.colors.textPrimary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Row(
             children: [
               Expanded(
@@ -490,25 +491,25 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
                   children: [
                     Text(
                       conceptTitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: context.colors.textPrimary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     if (questionType.isNotEmpty) ...[
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         questionType.toUpperCase(),
-                        style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                        style: TextStyle(fontSize: 11, color: context.colors.textMuted),
                       ),
                     ],
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               _MiniMasteryRing(mastery: masteryLevel, color: accent),
             ],
           ),
@@ -538,7 +539,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
         child: Row(
           children: [
             Icon(icon, color: accent, size: 20),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Text(
                 label,
@@ -569,75 +570,75 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
                 onTap: () => context.push('/learning-path/${widget.slug}?title=${Uri.encodeComponent(widget.title)}'),
               ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             Expanded(
               child: _buildActionButton(
                 icon: Icons.psychology_outlined,
                 label: 'Penrose Learning Assistant',
-                color: AppColors.teal,
+                color: context.colors.teal,
                 onTap: () => context.push('/stem-tutor'),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         Row(
           children: [
             Expanded(
               child: _buildActionButton(
                 icon: Icons.quiz_outlined,
                 label: 'Practice',
-                color: AppColors.info,
+                color: context.colors.info,
                 onTap: () => context.push('/stem-mastery'),
               ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             Expanded(
               child: _buildActionButton(
                 icon: Icons.timer_outlined,
                 label: 'Mock Exam',
-                color: AppColors.lavender,
+                color: context.colors.lavender,
                 onTap: () => context.push('/mock-exam'),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         GestureDetector(
           onTap: () => context.push('/study-planner'),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 10),
             decoration: BoxDecoration(
-              color: AppColors.teal.withValues(alpha: 0.1),
+              color: context.colors.teal.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.teal.withValues(alpha: 0.2)),
+              border: Border.all(color: context.colors.teal.withValues(alpha: 0.2)),
             ),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.calendar_today_outlined, color: AppColors.teal, size: 16),
+                Icon(Icons.calendar_today_outlined, color: context.colors.teal, size: 16),
                 SizedBox(width: 6),
-                Text('Study Planner', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.teal)),
+                Text('Study Planner', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.teal)),
               ],
             ),
           ),
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         GestureDetector(
           onTap: () => context.push('/exam-analytics'),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 10),
             decoration: BoxDecoration(
-              color: AppColors.lavender.withValues(alpha: 0.1),
+              color: context.colors.lavender.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.lavender.withValues(alpha: 0.2)),
+              border: Border.all(color: context.colors.lavender.withValues(alpha: 0.2)),
             ),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.analytics_outlined, color: AppColors.lavender, size: 16),
+                Icon(Icons.analytics_outlined, color: context.colors.lavender, size: 16),
                 SizedBox(width: 6),
-                Text('View Exam Analytics', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.lavender)),
+                Text('View Exam Analytics', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.lavender)),
               ],
             ),
           ),
@@ -664,7 +665,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
         child: Column(
           children: [
             Icon(icon, color: color, size: 22),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Text(
               label,
               style: TextStyle(
@@ -704,7 +705,7 @@ class _MiniMasteryRing extends StatelessWidget {
           CircularProgressIndicator(
             value: mastery / 100,
             strokeWidth: 3.5,
-            backgroundColor: AppColors.surfaceHighest,
+            backgroundColor: context.colors.surfaceHighest,
             valueColor: AlwaysStoppedAnimation<Color>(color),
           ),
           Center(
@@ -737,17 +738,17 @@ class _DashboardLoading extends StatelessWidget {
             width: 200,
             height: 24,
             decoration: BoxDecoration(
-              color: AppColors.shimmerBase,
+              color: context.colors.shimmerBase,
               borderRadius: BorderRadius.circular(6),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           ShimmerLoading.grid(count: 4),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Container(
             height: 160,
             decoration: BoxDecoration(
-              color: AppColors.shimmerBase,
+              color: context.colors.shimmerBase,
               borderRadius: BorderRadius.circular(14),
             ),
           ),

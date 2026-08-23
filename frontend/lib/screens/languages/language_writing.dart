@@ -2,9 +2,10 @@
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/language_service.dart';
+import '../../core/theme/theme_colors.dart';
 
 class LanguageWriting extends StatefulWidget {
-  const LanguageWriting({super.key});
+  LanguageWriting({super.key});
   @override
   State<LanguageWriting> createState() => _LanguageWritingState();
 }
@@ -74,7 +75,7 @@ class _LanguageWritingState extends State<LanguageWriting> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -86,13 +87,13 @@ class _LanguageWritingState extends State<LanguageWriting> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildWritingArea(),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     _buildActionButtons(),
                     if (_showFeedback) ...[
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       _buildFeedbackSection(),
                     ],
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     _buildPromptsSection(),
                   ],
                 ),
@@ -107,27 +108,27 @@ class _LanguageWritingState extends State<LanguageWriting> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: AppColors.divider)),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        border: Border(bottom: BorderSide(color: context.colors.divider)),
       ),
       child: Row(
         children: [
           IconButton(
             onPressed: () => context.pop(),
-            icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary, size: 20),
+            icon: Icon(Icons.arrow_back_ios, color: context.colors.textPrimary, size: 20),
           ),
-          const Icon(Icons.edit_note, color: AppColors.primary, size: 24),
-          const SizedBox(width: 8),
+          Icon(Icons.edit_note, color: AppColors.primary, size: 24),
+          SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Writing Workspace', style: TextStyle(
-                  color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold,
+                Text('Writing Workspace', style: TextStyle(
+                  color: context.colors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold,
                 )),
                 Text('${_vocabulary.length} vocabulary words \u00b7 ${_grammar.length} grammar rules', style: TextStyle(
-                  color: AppColors.textSecondary.withValues(alpha: 0.7), fontSize: 11,
+                  color: context.colors.textSecondary.withValues(alpha: 0.7), fontSize: 11,
                 )),
               ],
             ),
@@ -140,30 +141,30 @@ class _LanguageWritingState extends State<LanguageWriting> {
   Widget _buildWritingArea() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.divider),
+        border: Border.all(color: context.colors.divider),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: AppColors.divider)),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: context.colors.divider)),
             ),
             child: Row(
               children: [
-                const Icon(Icons.edit, color: AppColors.primary, size: 18),
-                const SizedBox(width: 8),
-                const Text('Your Writing', style: TextStyle(
-                  color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600,
+                Icon(Icons.edit, color: AppColors.primary, size: 18),
+                SizedBox(width: 8),
+                Text('Your Writing', style: TextStyle(
+                  color: context.colors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600,
                 )),
-                const Spacer(),
+                Spacer(),
                 Text(
                   '${_textController.text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length} words',
                   style: TextStyle(
-                    color: AppColors.textSecondary.withValues(alpha: 0.6), fontSize: 12,
+                    color: context.colors.textSecondary.withValues(alpha: 0.6), fontSize: 12,
                   ),
                 ),
               ],
@@ -172,11 +173,11 @@ class _LanguageWritingState extends State<LanguageWriting> {
           TextField(
             controller: _textController,
             maxLines: 8, minLines: 5,
-            style: const TextStyle(color: AppColors.textPrimary, fontSize: 15, height: 1.7),
+            style: TextStyle(color: context.colors.textPrimary, fontSize: 15, height: 1.7),
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
               hintText: 'Start writing here...\n\nYou can write in the target language or your native language. The AI tutor will help correct and improve your writing.',
-              hintStyle: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.4)),
+              hintStyle: TextStyle(color: context.colors.textSecondary.withValues(alpha: 0.4)),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.all(14),
             ),
@@ -194,9 +195,9 @@ class _LanguageWritingState extends State<LanguageWriting> {
             setState(() => _showFeedback = !_showFeedback);
           }),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         Expanded(
-          child: _btn('Clear', Icons.delete_outline, AppColors.textSecondary, () {
+          child: _btn('Clear', Icons.delete_outline, context.colors.textSecondary, () {
             _textController.clear();
             setState(() => _showFeedback = false);
           }),
@@ -218,7 +219,7 @@ class _LanguageWritingState extends State<LanguageWriting> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, color: color, size: 18),
-            const SizedBox(width: 6),
+            SizedBox(width: 6),
             Text(label, style: TextStyle(
               color: color, fontSize: 13, fontWeight: FontWeight.w600,
             )),
@@ -233,7 +234,7 @@ class _LanguageWritingState extends State<LanguageWriting> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
@@ -242,32 +243,32 @@ class _LanguageWritingState extends State<LanguageWriting> {
         children: [
           Row(
             children: [
-              const Icon(Icons.auto_awesome, color: AppColors.primary, size: 18),
-              const SizedBox(width: 6),
-              const Text('AI Feedback', style: TextStyle(
+              Icon(Icons.auto_awesome, color: AppColors.primary, size: 18),
+              SizedBox(width: 6),
+              Text('AI Feedback', style: TextStyle(
                 color: AppColors.primary, fontSize: 14, fontWeight: FontWeight.w600,
               )),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           Text(
             hasText
                 ? 'Your writing shows good structure. You have used ${_textController.text.split(RegExp(r"\s+")).length} words. Consider using more descriptive adjectives and vary your sentence patterns.'
                 : 'Write something to get feedback on your grammar, vocabulary, and style.',
-            style: const TextStyle(
-              color: AppColors.textSecondary, fontSize: 13, height: 1.5,
+            style: TextStyle(
+              color: context.colors.textSecondary, fontSize: 13, height: 1.5,
             ),
           ),
           if (hasText && _grammar.isNotEmpty) ...[
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             Text('Grammar rules to review:', style: TextStyle(
-              color: AppColors.textPrimary.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.w600,
+              color: context.colors.textPrimary.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.w600,
             )),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             ...(_grammar.take(3).map((g) => Padding(
               padding: const EdgeInsets.only(bottom: 4),
               child: Text('\u2022 ${(g['title'] ?? '').toString()}',
-                style: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.7), fontSize: 12)),
+                style: TextStyle(color: context.colors.textSecondary.withValues(alpha: 0.7), fontSize: 12)),
             ))),
           ],
         ],
@@ -280,20 +281,20 @@ class _LanguageWritingState extends State<LanguageWriting> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Writing Prompts', style: TextStyle(
-          color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold,
+        Text('Writing Prompts', style: TextStyle(
+          color: context.colors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold,
         )),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         if (prompts.isEmpty)
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.divider),
+              border: Border.all(color: context.colors.divider),
             ),
             child: Text('No vocabulary themes available for prompts yet.',
-              style: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.6), fontSize: 13)),
+              style: TextStyle(color: context.colors.textSecondary.withValues(alpha: 0.6), fontSize: 13)),
           )
         else
           ...prompts.map((p) => GestureDetector(
@@ -307,9 +308,9 @@ class _LanguageWritingState extends State<LanguageWriting> {
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.colors.surface,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.divider),
+                border: Border.all(color: context.colors.divider),
               ),
               child: Row(
                 children: [
@@ -317,13 +318,13 @@ class _LanguageWritingState extends State<LanguageWriting> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(p['title'], style: const TextStyle(
-                          color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600,
+                        Text(p['title'], style: TextStyle(
+                          color: context.colors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600,
                         )),
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2),
                         Text(p['desc'], maxLines: 2, overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: AppColors.textSecondary.withValues(alpha: 0.7), fontSize: 12,
+                            color: context.colors.textSecondary.withValues(alpha: 0.7), fontSize: 12,
                           )),
                       ],
                     ),
@@ -331,11 +332,11 @@ class _LanguageWritingState extends State<LanguageWriting> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceHighest,
+                      color: context.colors.surfaceHighest,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(p['difficulty'], style: TextStyle(
-                      color: AppColors.textSecondary.withValues(alpha: 0.7), fontSize: 10,
+                      color: context.colors.textSecondary.withValues(alpha: 0.7), fontSize: 10,
                     )),
                   ),
                 ],

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../services/stem_service.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 
 class StemConceptScreen extends StatefulWidget {
   final int conceptId;
   final String title;
 
-  const StemConceptScreen({
+  StemConceptScreen({
     super.key,
     required this.conceptId,
     required this.title,
@@ -86,39 +87,39 @@ class _StemConceptScreenState extends State<StemConceptScreen> with SingleTicker
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
+        backgroundColor: context.colors.surface,
         elevation: 0,
         title: Text(
           widget.title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
+            color: context.colors.textPrimary,
           ),
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(49),
           child: Container(
-            color: AppColors.surface,
+            color: context.colors.surface,
             child: Column(
               children: [
                 TabBar(
                   controller: _tabController,
                   labelColor: AppColors.primary,
-                  unselectedLabelColor: AppColors.textMuted,
+                  unselectedLabelColor: context.colors.textMuted,
                   indicatorColor: AppColors.primary,
                   indicatorSize: TabBarIndicatorSize.label,
-                  labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                  unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-                  tabs: const [
+                  labelStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                  unselectedLabelStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                  tabs: [
                     Tab(text: 'Learn'),
                     Tab(text: 'Objectives'),
                     Tab(text: 'Practice'),
                   ],
                 ),
-                Container(color: AppColors.border, height: 1),
+                Container(color: context.colors.border, height: 1),
               ],
             ),
           ),
@@ -137,7 +138,7 @@ class _StemConceptScreenState extends State<StemConceptScreen> with SingleTicker
 
   Widget _buildLearnTab() {
     if (_loadingMaterials) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+      return Center(child: CircularProgressIndicator(color: AppColors.primary));
     }
     if (_materials.isEmpty) {
       return _buildEmptyTab('No learning materials', 'Materials will appear here');
@@ -151,7 +152,7 @@ class _StemConceptScreenState extends State<StemConceptScreen> with SingleTicker
 
   Widget _buildObjectivesTab() {
     if (_loadingObjectives) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+      return Center(child: CircularProgressIndicator(color: AppColors.primary));
     }
     if (_objectives.isEmpty) {
       return _buildEmptyTab('No objectives', 'Objectives will appear here');
@@ -165,7 +166,7 @@ class _StemConceptScreenState extends State<StemConceptScreen> with SingleTicker
 
   Widget _buildPracticeTab() {
     if (_loadingPractices) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+      return Center(child: CircularProgressIndicator(color: AppColors.primary));
     }
     if (_practices.isEmpty) {
       return _buildEmptyTab('No practice questions', 'Questions will appear here');
@@ -215,9 +216,9 @@ class _StemConceptScreenState extends State<StemConceptScreen> with SingleTicker
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -239,14 +240,14 @@ class _StemConceptScreenState extends State<StemConceptScreen> with SingleTicker
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Expanded(
                 child: Text(
                   objective['title'] ?? '',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
               ),
@@ -254,12 +255,12 @@ class _StemConceptScreenState extends State<StemConceptScreen> with SingleTicker
           ),
           if (objective['description'] != null &&
               (objective['description'] as String).isNotEmpty) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               objective['description'],
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: AppColors.textMuted,
+                color: context.colors.textMuted,
               ),
             ),
           ],
@@ -271,19 +272,19 @@ class _StemConceptScreenState extends State<StemConceptScreen> with SingleTicker
   Color _getBloomColor(String level) {
     switch (level.toLowerCase()) {
       case 'remember':
-        return AppColors.info;
+        return context.colors.info;
       case 'understand':
-        return AppColors.teal;
+        return context.colors.teal;
       case 'apply':
-        return AppColors.success;
+        return context.colors.success;
       case 'analyze':
-        return AppColors.warning;
+        return context.colors.warning;
       case 'evaluate':
         return AppColors.primary;
       case 'create':
-        return AppColors.error;
+        return context.colors.error;
       default:
-        return AppColors.textMuted;
+        return context.colors.textMuted;
     }
   }
 
@@ -294,16 +295,16 @@ class _StemConceptScreenState extends State<StemConceptScreen> with SingleTicker
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.inbox_outlined, size: 44, color: AppColors.textMuted.withOpacity(0.4)),
-            const SizedBox(height: 12),
+            Icon(Icons.inbox_outlined, size: 44, color: context.colors.textMuted.withOpacity(0.4)),
+            SizedBox(height: 12),
             Text(
               title,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textSecondary),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               subtitle,
-              style: const TextStyle(fontSize: 13, color: AppColors.textMuted),
+              style: TextStyle(fontSize: 13, color: context.colors.textMuted),
             ),
           ],
         ),
@@ -333,9 +334,9 @@ class _ExpandableMaterialCardState extends State<_ExpandableMaterialCard> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         children: [
@@ -349,30 +350,30 @@ class _ExpandableMaterialCardState extends State<_ExpandableMaterialCard> {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: AppColors.primaryGlow,
+                      color: context.colors.primaryGlow,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(widget.icon, color: AppColors.primary, size: 18),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           widget.material['title'] ?? '',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
+                            color: context.colors.textPrimary,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2),
                         Text(
                           widget.material['material_type'] ?? 'text',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
-                            color: AppColors.textMuted,
+                            color: context.colors.textMuted,
                           ),
                         ),
                       ],
@@ -380,10 +381,10 @@ class _ExpandableMaterialCardState extends State<_ExpandableMaterialCard> {
                   ),
                   AnimatedRotation(
                     turns: _expanded ? 0.25 : 0,
-                    duration: const Duration(milliseconds: 200),
-                    child: const Icon(
+                    duration: Duration(milliseconds: 200),
+                    child: Icon(
                       Icons.expand_more_rounded,
-                      color: AppColors.textMuted,
+                      color: context.colors.textMuted,
                       size: 22,
                     ),
                   ),
@@ -392,14 +393,14 @@ class _ExpandableMaterialCardState extends State<_ExpandableMaterialCard> {
             ),
           ),
           if (_expanded) ...[
-            const Divider(height: 1, color: AppColors.border),
+            Divider(height: 1, color: context.colors.border),
             Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
                 widget.material['content'] ?? '',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
-                  color: AppColors.textSecondary,
+                  color: context.colors.textSecondary,
                   height: 1.6,
                 ),
               ),
@@ -470,12 +471,12 @@ class _PracticeQuestionCardState extends State<_PracticeQuestionCard> {
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: _answerRevealed
-              ? (_isCorrect ? AppColors.success.withOpacity(0.3) : AppColors.error.withOpacity(0.3))
-              : AppColors.border,
+              ? (_isCorrect ? context.colors.success.withOpacity(0.3) : context.colors.error.withOpacity(0.3))
+              : context.colors.border,
         ),
       ),
       child: Column(
@@ -487,13 +488,13 @@ class _PracticeQuestionCardState extends State<_PracticeQuestionCard> {
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryGlow,
+                  color: context.colors.primaryGlow,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Center(
                   child: Text(
                     '${widget.index + 1}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: AppColors.primary,
@@ -501,29 +502,29 @@ class _PracticeQuestionCardState extends State<_PracticeQuestionCard> {
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Expanded(
                 child: Text(
                   widget.question['title'] ?? '',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Text(
             widget.question['question_text'] ?? '',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: AppColors.textSecondary,
+              color: context.colors.textSecondary,
               height: 1.5,
             ),
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           if (isMCQ)
             ...List.generate(options.length, (i) {
               final option = options[i];
@@ -540,10 +541,10 @@ class _PracticeQuestionCardState extends State<_PracticeQuestionCard> {
                   decoration: BoxDecoration(
                     color: isSelected
                         ? AppColors.primary.withOpacity(0.1)
-                        : AppColors.surfaceElevated,
+                        : context.colors.surfaceElevated,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: isSelected ? AppColors.primary : AppColors.border,
+                      color: isSelected ? AppColors.primary : context.colors.border,
                     ),
                   ),
                   child: Row(
@@ -554,7 +555,7 @@ class _PracticeQuestionCardState extends State<_PracticeQuestionCard> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: isSelected ? AppColors.primary : AppColors.textMuted,
+                            color: isSelected ? AppColors.primary : context.colors.textMuted,
                             width: 1.5,
                           ),
                         ),
@@ -563,7 +564,7 @@ class _PracticeQuestionCardState extends State<_PracticeQuestionCard> {
                                 child: Container(
                                   width: 10,
                                   height: 10,
-                                  decoration: const BoxDecoration(
+                                  decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: AppColors.primary,
                                   ),
@@ -571,20 +572,20 @@ class _PracticeQuestionCardState extends State<_PracticeQuestionCard> {
                               )
                             : null,
                       ),
-                      const SizedBox(width: 10),
+                      SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           option,
                           style: TextStyle(
                             fontSize: 13,
-                            color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
+                            color: isSelected ? context.colors.textPrimary : context.colors.textSecondary,
                           ),
                         ),
                       ),
                       if (_answerRevealed && option == widget.question['correct_answer'])
-                        const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 18),
+                        Icon(Icons.check_circle_rounded, color: context.colors.success, size: 18),
                       if (_answerRevealed && isSelected && option != widget.question['correct_answer'])
-                        const Icon(Icons.cancel_rounded, color: AppColors.error, size: 18),
+                        Icon(Icons.cancel_rounded, color: context.colors.error, size: 18),
                     ],
                   ),
                 ),
@@ -594,31 +595,31 @@ class _PracticeQuestionCardState extends State<_PracticeQuestionCard> {
             TextField(
               controller: _answerController,
               enabled: !_answerRevealed,
-              style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
+              style: TextStyle(fontSize: 14, color: context.colors.textPrimary),
               decoration: InputDecoration(
                 hintText: 'Type your answer...',
-                hintStyle: const TextStyle(color: AppColors.textMuted),
+                hintStyle: TextStyle(color: context.colors.textMuted),
                 filled: true,
-                fillColor: AppColors.surfaceElevated,
+                fillColor: context.colors.surfaceElevated,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: AppColors.border),
+                  borderSide: BorderSide(color: context.colors.border),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: AppColors.border),
+                  borderSide: BorderSide(color: context.colors.border),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: AppColors.primary),
+                  borderSide: BorderSide(color: AppColors.primary),
                 ),
                 disabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: AppColors.border),
+                  borderSide: BorderSide(color: context.colors.border),
                 ),
               ),
             ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           if (!_answerRevealed)
             SizedBox(
               width: double.infinity,
@@ -629,41 +630,41 @@ class _PracticeQuestionCardState extends State<_PracticeQuestionCard> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: AppColors.textOnPrimary,
-                  disabledBackgroundColor: AppColors.surfaceHighest,
-                  disabledForegroundColor: AppColors.textMuted,
+                  disabledBackgroundColor: context.colors.surfaceHighest,
+                  disabledForegroundColor: context.colors.textMuted,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   elevation: 0,
                 ),
-                child: const Text(
+                child: Text(
                   'Check Answer',
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
           if (_answerRevealed) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: _isCorrect ? AppColors.successMuted : AppColors.errorMuted,
+                color: _isCorrect ? context.colors.successMuted : context.colors.errorMuted,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Row(
                 children: [
                   Icon(
                     _isCorrect ? Icons.check_circle_rounded : Icons.cancel_rounded,
-                    color: _isCorrect ? AppColors.success : AppColors.error,
+                    color: _isCorrect ? context.colors.success : context.colors.error,
                     size: 20,
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       _isCorrect ? 'Correct!' : 'Incorrect',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: _isCorrect ? AppColors.success : AppColors.error,
+                        color: _isCorrect ? context.colors.success : context.colors.error,
                       ),
                     ),
                   ),
@@ -672,49 +673,49 @@ class _PracticeQuestionCardState extends State<_PracticeQuestionCard> {
             ),
             if (widget.question['explanation'] != null &&
                 (widget.question['explanation'] as String).isNotEmpty) ...[
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.infoMuted,
+                  color: context.colors.infoMuted,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   widget.question['explanation'],
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.textSecondary,
+                    color: context.colors.textSecondary,
                     height: 1.5,
                   ),
                 ),
               ),
             ],
             if (!_masterySubmitted) ...[
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () => _submitMastery(true),
-                      icon: const Icon(Icons.check_rounded, size: 16),
-                      label: const Text('Got it right'),
+                      icon: Icon(Icons.check_rounded, size: 16),
+                      label: Text('Got it right'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.success,
-                        side: BorderSide(color: AppColors.success.withOpacity(0.3)),
+                        foregroundColor: context.colors.success,
+                        side: BorderSide(color: context.colors.success.withOpacity(0.3)),
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () => _submitMastery(false),
-                      icon: const Icon(Icons.close_rounded, size: 16),
-                      label: const Text('Got it wrong'),
+                      icon: Icon(Icons.close_rounded, size: 16),
+                      label: Text('Got it wrong'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.error,
-                        side: BorderSide(color: AppColors.error.withOpacity(0.3)),
+                        foregroundColor: context.colors.error,
+                        side: BorderSide(color: context.colors.error.withOpacity(0.3)),
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
@@ -724,11 +725,11 @@ class _PracticeQuestionCardState extends State<_PracticeQuestionCard> {
               ),
             ],
             if (_masterySubmitted)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(top: 8),
                 child: Text(
                   'Mastery recorded',
-                  style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                  style: TextStyle(fontSize: 12, color: context.colors.textMuted),
                 ),
               ),
           ],

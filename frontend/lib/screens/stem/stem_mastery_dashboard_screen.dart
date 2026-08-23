@@ -3,9 +3,10 @@ import '../../core/theme/app_colors.dart';
 import '../../services/stem_service.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/error_state.dart';
+import '../../core/theme/theme_colors.dart';
 
 class StemMasteryDashboardScreen extends StatefulWidget {
-  const StemMasteryDashboardScreen({super.key});
+  StemMasteryDashboardScreen({super.key});
 
   @override
   State<StemMasteryDashboardScreen> createState() => _StemMasteryDashboardScreenState();
@@ -44,15 +45,15 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
   }
 
   Color _masteryColor(double pct) {
-    if (pct < 50) return AppColors.error;
-    if (pct < 80) return AppColors.warning;
-    return AppColors.success;
+    if (pct < 50) return context.colors.error;
+    if (pct < 80) return context.colors.warning;
+    return context.colors.success;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: RefreshIndicator(
         onRefresh: _loadData,
         child: CustomScrollView(
@@ -62,16 +63,16 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
             pinned: true,
             backgroundColor: AppColors.primaryDark,
             flexibleSpace: FlexibleSpaceBar(
-              title: const Text(
+              title: Text(
                 'My STEM Mastery',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: context.colors.textPrimary,
                 ),
               ),
               background: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppColors.primaryDark, AppColors.primaryMuted],
                     begin: Alignment.topLeft,
@@ -87,12 +88,12 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
             SliverToBoxAdapter(child: ShimmerLoading.list(count: 3))
           else ...[
             SliverToBoxAdapter(child: _buildSubjectMastery()),
-            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+            SliverToBoxAdapter(child: SizedBox(height: 20)),
             SliverToBoxAdapter(child: _buildWeakConcepts()),
-            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+            SliverToBoxAdapter(child: SizedBox(height: 20)),
             SliverToBoxAdapter(child: _buildRecommendations()),
           ],
-          const SliverToBoxAdapter(child: SizedBox(height: 40)),
+          SliverToBoxAdapter(child: SizedBox(height: 40)),
           ],
         ),
       ),
@@ -107,14 +108,14 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.colors.surface,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.colors.border),
           ),
-          child: const Center(
+          child: Center(
             child: Text(
               'No mastery data yet. Start learning to track your progress!',
-              style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+              style: TextStyle(fontSize: 13, color: context.colors.textMuted),
               textAlign: TextAlign.center,
             ),
           ),
@@ -127,15 +128,15 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Subject Mastery',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: context.colors.textPrimary,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           ...subjects.map<Widget>((s) {
             final name = s['name'] ?? s['subject'] ?? '';
             final pct = (s['mastery_percentage'] ?? s['mastery'] ?? 0).toDouble();
@@ -145,9 +146,9 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.colors.surface,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.colors.border),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,10 +158,10 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
                       children: [
                         Text(
                           name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
+                            color: context.colors.textPrimary,
                           ),
                         ),
                         Text(
@@ -173,12 +174,12 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(6),
                       child: LinearProgressIndicator(
                         value: pct / 100,
-                        backgroundColor: AppColors.surfaceHighest,
+                        backgroundColor: context.colors.surfaceHighest,
                         valueColor: AlwaysStoppedAnimation<Color>(color),
                         minHeight: 8,
                       ),
@@ -204,19 +205,19 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
         children: [
           Row(
             children: [
-              const Icon(Icons.warning_amber_rounded, size: 18, color: AppColors.warning),
-              const SizedBox(width: 8),
-              const Text(
+              Icon(Icons.warning_amber_rounded, size: 18, color: context.colors.warning),
+              SizedBox(width: 8),
+              Text(
                 'Weak Concepts',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: context.colors.textPrimary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           ...weak.map<Widget>((c) {
             final title = c['title'] ?? c['name'] ?? '';
             final subject = c['subject'] ?? '';
@@ -226,9 +227,9 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.colors.surface,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.error.withOpacity(0.3)),
+                  border: Border.all(color: context.colors.error.withOpacity(0.3)),
                 ),
                 child: Row(
                   children: [
@@ -236,27 +237,27 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
                       width: 4,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: AppColors.error,
+                        color: context.colors.error,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             title,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              color: context.colors.textPrimary,
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          SizedBox(height: 2),
                           Text(
                             subject,
-                            style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                            style: TextStyle(fontSize: 12, color: context.colors.textMuted),
                           ),
                         ],
                       ),
@@ -264,15 +265,15 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.errorMuted,
+                        color: context.colors.errorMuted,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         '${pct.toStringAsFixed(0)}%',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.error,
+                          color: context.colors.error,
                         ),
                       ),
                     ),
@@ -294,15 +295,15 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Recommendations',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: context.colors.textPrimary,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           ..._recommendations.map<Widget>((r) {
             final title = r['title'] ?? '';
             final description = r['description'] ?? '';
@@ -311,22 +312,22 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
             final Color priorityColor;
             switch (priority.toString().toLowerCase()) {
               case 'high':
-                priorityColor = AppColors.error;
+                priorityColor = context.colors.error;
                 break;
               case 'low':
-                priorityColor = AppColors.info;
+                priorityColor = context.colors.info;
                 break;
               default:
-                priorityColor = AppColors.warning;
+                priorityColor = context.colors.warning;
             }
             return Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.colors.surface,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.colors.border),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -336,10 +337,10 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
                         Expanded(
                           child: Text(
                             title,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                              color: context.colors.textPrimary,
                             ),
                           ),
                         ),
@@ -361,12 +362,12 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6),
                     Text(
                       description,
-                      style: const TextStyle(fontSize: 13, color: AppColors.textMuted),
+                      style: TextStyle(fontSize: 13, color: context.colors.textMuted),
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10),
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
@@ -384,7 +385,7 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Complete',
                           style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                         ),

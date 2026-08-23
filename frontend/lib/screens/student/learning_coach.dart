@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
+import '../../core/theme/theme_colors.dart';
 
 class LearningCoachScreen extends StatefulWidget {
-  const LearningCoachScreen({super.key});
+  LearningCoachScreen({super.key});
 
   @override
   State<LearningCoachScreen> createState() => _LearningCoachScreenState();
@@ -84,7 +85,7 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to mark as complete')),
+          SnackBar(content: Text('Failed to mark as complete')),
         );
       }
     }
@@ -151,14 +152,14 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Penrose Learning Assistant'),
-        backgroundColor: AppColors.background,
+        title: Text('Penrose Learning Assistant'),
+        backgroundColor: context.colors.background,
         elevation: 0,
-        foregroundColor: AppColors.textPrimary,
+        foregroundColor: context.colors.textPrimary,
       ),
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _loadPlans,
               child: ListView(
@@ -172,21 +173,21 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
+                            color: context.colors.textPrimary,
                           ),
                         ),
                       ),
                       ElevatedButton.icon(
                         onPressed: _generating ? null : _generatePlan,
                         icon: _generating
-                            ? const SizedBox(
+                            ? SizedBox(
                                 width: 16,
                                 height: 16,
                                 child: CircularProgressIndicator(
                                     strokeWidth: 2, color: Colors.white),
                               )
-                            : const Icon(Icons.auto_awesome, size: 18),
-                        label: const Text('Generate New Plan'),
+                            : Icon(Icons.auto_awesome, size: 18),
+                        label: Text('Generate New Plan'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
@@ -197,18 +198,18 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   if (_selectedPlan != null) ...[
                     Text(
                       'Exam: ${_selectedPlan!['exam_date'] ?? 'Not set'} · '
                       '${_selectedPlan!['hours_per_day'] ?? 2}h/day',
                       style: TextStyle(
                         fontSize: 13,
-                        color: AppColors.textSecondary,
+                        color: context.colors.textSecondary,
                       ),
                     ),
                   ],
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
                   if (_items.isEmpty)
                     Center(
                       child: Padding(
@@ -216,21 +217,21 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
                         child: Column(
                           children: [
                             Icon(Icons.school,
-                                size: 64, color: AppColors.textSecondary),
-                            const SizedBox(height: 16),
+                                size: 64, color: context.colors.textSecondary),
+                            SizedBox(height: 16),
                             Text(
                               'No study plan yet',
                               style: TextStyle(
                                 fontSize: 16,
-                                color: AppColors.textSecondary,
+                                color: context.colors.textSecondary,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                             Text(
                               'Tap "Generate New Plan" to get started',
                               style: TextStyle(
                                 fontSize: 13,
-                                color: AppColors.textSecondary,
+                                color: context.colors.textSecondary,
                               ),
                             ),
                           ],
@@ -267,9 +268,9 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         ...dayItems.map((item) => _buildItemCard(item)),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
       ],
     );
   }
@@ -284,25 +285,25 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: completed ? AppColors.successMuted : AppColors.surface,
+        color: completed ? context.colors.successMuted : context.colors.surface,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: completed
               ? Colors.green.withOpacity(0.3)
-              : AppColors.textSecondary.withOpacity(0.2),
+              : context.colors.textSecondary.withOpacity(0.2),
         ),
       ),
       child: Row(
         children: [
           if (completed)
-            const Icon(Icons.check_circle, color: Colors.green, size: 22)
+            Icon(Icons.check_circle, color: Colors.green, size: 22)
           else
             Icon(
               _chipIcon(activityType),
               color: _chipColor(activityType),
               size: 22,
             ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -312,12 +313,12 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                     decoration:
                         completed ? TextDecoration.lineThrough : null,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Row(
                   children: [
                     Container(
@@ -336,12 +337,12 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Text(
                       '${item['duration_minutes'] ?? 30} min',
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: context.colors.textSecondary,
                       ),
                     ),
                   ],
@@ -361,7 +362,7 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
                   borderRadius: BorderRadius.circular(6),
                 ),
               ),
-              child: const Text('Study', style: TextStyle(fontSize: 12)),
+              child: Text('Study', style: TextStyle(fontSize: 12)),
             ),
           if (completed)
             TextButton(

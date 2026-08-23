@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 
 const Color _langTeal = Color(0xFF2DD4BF);
 const Color _langTealDark = Color(0xFF14B8A6);
@@ -12,7 +13,7 @@ const Color _langTealGlow = Color(0x222DD4BF);
 class LanguageProgressScreen extends StatefulWidget {
   final String slug;
 
-  const LanguageProgressScreen({super.key, required this.slug});
+  LanguageProgressScreen({super.key, required this.slug});
 
   @override
   State<LanguageProgressScreen> createState() => _LanguageProgressScreenState();
@@ -65,7 +66,7 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: Column(
         children: [
           _buildHeader(),
@@ -76,38 +77,38 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildOverallMastery(),
-                  const SizedBox(height: 24),
-                  const Text('Skill Breakdown',
+                  SizedBox(height: 24),
+                  Text('Skill Breakdown',
                       style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary)),
-                  const SizedBox(height: 12),
+                          color: context.colors.textPrimary)),
+                  SizedBox(height: 12),
                   ..._skills.map(_buildSkillBar),
-                  const SizedBox(height: 24),
-                  const Text('AI Recommendations',
+                  SizedBox(height: 24),
+                  Text('AI Recommendations',
                       style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary)),
-                  const SizedBox(height: 12),
+                          color: context.colors.textPrimary)),
+                  SizedBox(height: 12),
                   ..._recommendations.map(_buildRecommendationCard),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                   Row(
                     children: [
                       Expanded(child: _buildStreakCard()),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                     ],
                   ),
-                  const SizedBox(height: 24),
-                  const Text('Study Time This Week',
+                  SizedBox(height: 24),
+                  Text('Study Time This Week',
                       style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary)),
-                  const SizedBox(height: 12),
+                          color: context.colors.textPrimary)),
+                  SizedBox(height: 12),
                   _buildStudyTimeChart(),
-                  const SizedBox(height: 40),
+                  SizedBox(height: 40),
                 ],
               ),
             ),
@@ -120,10 +121,10 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: context.colors.surface,
         border:
-            Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
+            Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
       ),
       child: SafeArea(
         bottom: false,
@@ -135,15 +136,15 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
+                  color: context.colors.surfaceElevated,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.colors.border),
                 ),
-                child: const Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: AppColors.textSecondary),
+                child: Icon(Icons.arrow_back_ios_new_rounded,
+                    size: 18, color: context.colors.textSecondary),
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Container(
               width: 40,
               height: 40,
@@ -151,22 +152,22 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
                 color: _langTealGlow,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.insights_rounded,
+              child: Icon(Icons.insights_rounded,
                   color: _langTeal, size: 22),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('${_languageTitle(widget.slug)} Progress',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary)),
-                  const Text('Mastery analytics & insights',
+                          color: context.colors.textPrimary)),
+                  Text('Mastery analytics & insights',
                       style:
-                          TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                          TextStyle(fontSize: 12, color: context.colors.textMuted)),
                 ],
               ),
             ),
@@ -199,7 +200,7 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
                 CircularProgressIndicator(
                   value: _overallMastery,
                   strokeWidth: 11,
-                  backgroundColor: AppColors.surfaceHighest,
+                  backgroundColor: context.colors.surfaceHighest,
                   strokeCap: StrokeCap.round,
                   valueColor: const AlwaysStoppedAnimation<Color>(_langTeal),
                 ),
@@ -208,27 +209,27 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text('${(_overallMastery * 100).round()}%',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.w900,
-                              color: AppColors.textPrimary)),
-                      const Text('overall mastery',
+                              color: context.colors.textPrimary)),
+                      Text('overall mastery',
                           style: TextStyle(
-                              fontSize: 11, color: AppColors.textMuted)),
+                              fontSize: 11, color: context.colors.textMuted)),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildMiniStat('Lessons', '86', AppColors.lavender),
-              _buildMiniStat('Words', '1,240', AppColors.info),
-              _buildMiniStat('Accuracy', '78%', AppColors.success),
-              _buildMiniStat('Level', 'A2', AppColors.warning),
+              _buildMiniStat('Lessons', '86', context.colors.lavender),
+              _buildMiniStat('Words', '1,240', context.colors.info),
+              _buildMiniStat('Accuracy', '78%', context.colors.success),
+              _buildMiniStat('Level', 'A2', context.colors.warning),
             ],
           ),
         ],
@@ -242,10 +243,10 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
         Text(value,
             style: TextStyle(
                 fontSize: 15, fontWeight: FontWeight.w800, color: color)),
-        const SizedBox(height: 2),
+        SizedBox(height: 2),
         Text(label,
             style:
-                const TextStyle(fontSize: 10, color: AppColors.textMuted)),
+                TextStyle(fontSize: 10, color: context.colors.textMuted)),
       ],
     );
   }
@@ -259,9 +260,9 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,10 +271,10 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(title,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary)),
+                      color: context.colors.textPrimary)),
               Text('$value%',
                   style: TextStyle(
                       fontSize: 13,
@@ -281,12 +282,12 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
                       color: color)),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           ClipRRect(
             borderRadius: BorderRadius.circular(3),
             child: LinearProgressIndicator(
               value: value / 100,
-              backgroundColor: AppColors.surfaceHighest,
+              backgroundColor: context.colors.surfaceHighest,
               valueColor: AlwaysStoppedAnimation<Color>(color),
               minHeight: 6,
             ),
@@ -303,7 +304,7 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: [
           AppColors.primary.withValues(alpha: 0.08),
-          AppColors.accent.withValues(alpha: 0.04),
+          context.colors.accent.withValues(alpha: 0.04),
         ]),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
@@ -321,21 +322,21 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
             child: Icon(rec['icon'] as IconData,
                 color: AppColors.primaryLight, size: 19),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(rec['title'] as String,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary)),
-                const SizedBox(height: 4),
+                        color: context.colors.textPrimary)),
+                SizedBox(height: 4),
                 Text(rec['body'] as String,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: context.colors.textSecondary,
                         height: 1.45)),
               ],
             ),
@@ -350,11 +351,11 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: [
-          AppColors.warning.withValues(alpha: 0.12),
-          AppColors.error.withValues(alpha: 0.05),
+          context.colors.warning.withValues(alpha: 0.12),
+          context.colors.error.withValues(alpha: 0.05),
         ]),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
+        border: Border.all(color: context.colors.warning.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -362,13 +363,13 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: AppColors.warning.withValues(alpha: 0.18),
+              color: context.colors.warning.withValues(alpha: 0.18),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.local_fire_department_rounded,
-                color: AppColors.warning, size: 28),
+            child: Icon(Icons.local_fire_department_rounded,
+                color: context.colors.warning, size: 28),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -376,25 +377,25 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
                 RichText(
                   text: TextSpan(
                     text: '$_streak',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w900,
-                        color: AppColors.warning),
-                    children: const [
+                        color: context.colors.warning),
+                    children: [
                       TextSpan(
                         text: ' day streak',
                         style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary),
+                            color: context.colors.textPrimary),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 4),
-                const Text('Practice today to keep it burning!',
+                SizedBox(height: 4),
+                Text('Practice today to keep it burning!',
                     style:
-                        TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                        TextStyle(fontSize: 11, color: context.colors.textMuted)),
               ],
             ),
           ),
@@ -412,9 +413,9 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -422,11 +423,11 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Minutes per day',
+              Text('Minutes per day',
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary)),
+                      color: context.colors.textSecondary)),
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -435,14 +436,14 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
                   borderRadius: BorderRadius.circular(7),
                 ),
                 child: Text('$total min total',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: _langTeal)),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           // Chart placeholder: simple weekly bar visual
           SizedBox(
             height: 130,
@@ -461,9 +462,9 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
                                   fontSize: 9,
                                   fontWeight: FontWeight.w700,
                                   color: _weeklyMinutes[i] == 0
-                                      ? AppColors.textMuted
+                                      ? context.colors.textMuted
                                       : _langTeal)),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4),
                           Container(
                             height: maxMinutes == 0
                                 ? 6
@@ -472,17 +473,17 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
                                         .clamp(0.06, 1.0),
                             decoration: BoxDecoration(
                               color: _weeklyMinutes[i] == 0
-                                  ? AppColors.surfaceHighest
+                                  ? context.colors.surfaceHighest
                                   : _langTeal.withValues(alpha: 0.75),
                               borderRadius: const BorderRadius.vertical(
                                   top: Radius.circular(5)),
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          SizedBox(height: 6),
                           Text(_weekDays[i],
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 10,
-                                  color: AppColors.textMuted)),
+                                  color: context.colors.textMuted)),
                         ],
                       ),
                     ),
@@ -490,14 +491,14 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColors.surfaceElevated,
+              color: context.colors.surfaceElevated,
               borderRadius: BorderRadius.circular(9),
             ),
-            child: const Row(
+            child: Row(
               children: [
                 Icon(Icons.show_chart_rounded,
                     size: 15, color: AppColors.primaryLight),
@@ -506,7 +507,7 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
                   child: Text(
                       'Detailed time-series chart coming soon — trends, comparisons and goals.',
                       style: TextStyle(
-                          fontSize: 11, color: AppColors.textMuted)),
+                          fontSize: 11, color: context.colors.textMuted)),
                 ),
               ],
             ),

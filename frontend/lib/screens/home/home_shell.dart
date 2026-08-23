@@ -4,10 +4,11 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/app_colors.dart';
 import 'app_drawer.dart';
+import '../../core/theme/theme_colors.dart';
 
 class HomeShell extends StatelessWidget {
   final Widget child;
-  const HomeShell({super.key, required this.child});
+  HomeShell({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -83,10 +84,10 @@ class HomeShell extends StatelessWidget {
                   selectedIndex: currentIndex,
                   onDestinationSelected: onNavTap,
                   labelType: NavigationRailLabelType.all,
-                  backgroundColor: AppColors.surface,
-                  leading: const SizedBox(height: 8),
-                  trailing: const Expanded(child: SizedBox()),
-                  destinations: const [
+                  backgroundColor: context.colors.surface,
+                  leading: SizedBox(height: 8),
+                  trailing: Expanded(child: SizedBox()),
+                  destinations: [
                     NavigationRailDestination(
                       icon: Icon(Icons.dashboard_outlined),
                       selectedIcon: Icon(Icons.dashboard_rounded),
@@ -109,22 +110,22 @@ class HomeShell extends StatelessWidget {
                     ),
                   ],
                 ),
-                const VerticalDivider(width: 1, color: AppColors.border),
+                VerticalDivider(width: 1, color: context.colors.border),
                 Expanded(child: child),
               ],
             ),
-            endDrawer: const AppDrawer(),
+            endDrawer: AppDrawer(),
           );
         }
 
         return Scaffold(
           body: child,
-          endDrawer: const AppDrawer(),
+          endDrawer: AppDrawer(),
           bottomNavigationBar: Container(
-            decoration: const BoxDecoration(
-              color: AppColors.surfaceElevated,
+            decoration: BoxDecoration(
+              color: context.colors.surfaceElevated,
               border: Border(
-                top: BorderSide(color: AppColors.border, width: 0.5),
+                top: BorderSide(color: context.colors.border, width: 0.5),
               ),
             ),
             child: SafeArea(

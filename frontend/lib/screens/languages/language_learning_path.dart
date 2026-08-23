@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/language_service.dart';
+import '../../core/theme/theme_colors.dart';
 
 class LanguageLearningPath extends StatefulWidget {
-  const LanguageLearningPath({super.key});
+  LanguageLearningPath({super.key});
 
   @override
   State<LanguageLearningPath> createState() => _LanguageLearningPathState();
@@ -47,19 +48,19 @@ class _LanguageLearningPathState extends State<LanguageLearningPath> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
-        title: const Text('Learning Path'),
-        backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.textPrimary,
+        title: Text('Learning Path'),
+        backgroundColor: context.colors.surface,
+        foregroundColor: context.colors.textPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18),
           onPressed: () => context.pop(),
         ),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? Center(child: CircularProgressIndicator(color: AppColors.primary))
           : _levels.isEmpty
               ? _buildEmpty()
               : ListView.builder(
@@ -92,12 +93,12 @@ class _LanguageLearningPathState extends State<LanguageLearningPath> {
                               decoration: BoxDecoration(
                                 color: isFirst
                                     ? AppColors.primary
-                                    : AppColors.surfaceElevated,
+                                    : context.colors.surfaceElevated,
                                 shape: BoxShape.circle,
                                 border: Border.all(
                                     color: isFirst
                                         ? AppColors.primary
-                                        : AppColors.border),
+                                        : context.colors.border),
                               ),
                               child: Center(
                                 child: Text(
@@ -107,7 +108,7 @@ class _LanguageLearningPathState extends State<LanguageLearningPath> {
                                     fontWeight: FontWeight.w800,
                                     color: isFirst
                                         ? Colors.white
-                                        : AppColors.textMuted,
+                                        : context.colors.textMuted,
                                   ),
                                 ),
                               ),
@@ -116,22 +117,22 @@ class _LanguageLearningPathState extends State<LanguageLearningPath> {
                               Container(
                                 width: 2,
                                 height: 50,
-                                color: AppColors.border,
+                                color: context.colors.border,
                               ),
                           ],
                         ),
-                        const SizedBox(width: 16),
+                        SizedBox(width: 16),
                         Expanded(
                           child: Container(
                             margin: const EdgeInsets.only(bottom: 16),
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: AppColors.surface,
+                              color: context.colors.surface,
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
                                 color: isFirst
                                     ? AppColors.primary.withValues(alpha: 0.3)
-                                    : AppColors.border,
+                                    : context.colors.border,
                               ),
                             ),
                             child: Column(
@@ -145,25 +146,25 @@ class _LanguageLearningPathState extends State<LanguageLearningPath> {
                                           letterSpacing: 1.0,
                                           color: isFirst
                                               ? AppColors.primary
-                                              : AppColors.textMuted)),
-                                const SizedBox(height: 4),
+                                              : context.colors.textMuted)),
+                                SizedBox(height: 4),
                                 Text(name,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
-                                        color: AppColors.textPrimary)),
-                                const SizedBox(height: 4),
+                                        color: context.colors.textPrimary)),
+                                SizedBox(height: 4),
                                 Text(desc,
-                                    style: const TextStyle(
-                                        fontSize: 12, color: AppColors.textMuted)),
-                                const SizedBox(height: 8),
+                                    style: TextStyle(
+                                        fontSize: 12, color: context.colors.textMuted)),
+                                SizedBox(height: 8),
                                 Text('$lessonCount lessons',
                                     style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,
                                         color: isFirst
                                             ? AppColors.primary
-                                            : AppColors.textSecondary)),
+                                            : context.colors.textSecondary)),
                               ],
                             ),
                           ),
@@ -181,10 +182,10 @@ class _LanguageLearningPathState extends State<LanguageLearningPath> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.route, size: 48, color: AppColors.textMuted),
-          const SizedBox(height: 12),
-          const Text('No learning path available',
-              style: TextStyle(fontSize: 16, color: AppColors.textMuted)),
+          Icon(Icons.route, size: 48, color: context.colors.textMuted),
+          SizedBox(height: 12),
+          Text('No learning path available',
+              style: TextStyle(fontSize: 16, color: context.colors.textMuted)),
         ],
       ),
     );

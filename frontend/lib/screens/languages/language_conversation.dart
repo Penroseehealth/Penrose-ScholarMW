@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 
 const Color _langTeal = Color(0xFF2DD4BF);
 const Color _langTealDark = Color(0xFF14B8A6);
@@ -10,7 +11,7 @@ const Color _langTealGlow = Color(0x222DD4BF);
 class LanguageConversationScreen extends StatefulWidget {
   final String slug;
 
-  const LanguageConversationScreen({super.key, required this.slug});
+  LanguageConversationScreen({super.key, required this.slug});
 
   @override
   State<LanguageConversationScreen> createState() =>
@@ -68,7 +69,7 @@ class _LanguageConversationScreenState
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
+          duration: Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
       }
@@ -97,7 +98,7 @@ class _LanguageConversationScreenState
     });
     _scrollToBottom();
 
-    await Future.delayed(const Duration(milliseconds: 900));
+    await Future.delayed(Duration(milliseconds: 900));
 
     final modeLabel = _modes[_selectedMode].$1;
     final response =
@@ -153,7 +154,7 @@ class _LanguageConversationScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: Column(
         children: [
           _buildHeader(),
@@ -168,10 +169,10 @@ class _LanguageConversationScreenState
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: context.colors.surface,
         border:
-            Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
+            Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
       ),
       child: SafeArea(
         bottom: false,
@@ -183,15 +184,15 @@ class _LanguageConversationScreenState
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
+                  color: context.colors.surfaceElevated,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.colors.border),
                 ),
-                child: const Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: AppColors.textSecondary),
+                child: Icon(Icons.arrow_back_ios_new_rounded,
+                    size: 18, color: context.colors.textSecondary),
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Container(
               width: 40,
               height: 40,
@@ -199,22 +200,22 @@ class _LanguageConversationScreenState
                 color: _langTealGlow,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.record_voice_over_rounded,
+              child: Icon(Icons.record_voice_over_rounded,
                   color: _langTeal, size: 22),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('${_languageTitle(widget.slug)} Conversation',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary)),
-                  const Text('AI Conversation Practice',
+                          color: context.colors.textPrimary)),
+                  Text('AI Conversation Practice',
                       style: TextStyle(
-                          fontSize: 12, color: AppColors.textMuted)),
+                          fontSize: 12, color: context.colors.textMuted)),
                 ],
               ),
             ),
@@ -226,7 +227,7 @@ class _LanguageConversationScreenState
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text('${_messages.length} msgs',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: _langTeal)),
@@ -240,7 +241,7 @@ class _LanguageConversationScreenState
   Widget _buildModeSelector() {
     return Container(
       height: 52,
-      color: AppColors.surface,
+      color: context.colors.surface,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -257,10 +258,10 @@ class _LanguageConversationScreenState
                 decoration: BoxDecoration(
                   color: selected
                       ? _langTeal.withValues(alpha: 0.15)
-                      : AppColors.surfaceElevated,
+                      : context.colors.surfaceElevated,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: selected ? _langTeal : AppColors.border,
+                    color: selected ? _langTeal : context.colors.border,
                     width: selected ? 1.5 : 1,
                   ),
                 ),
@@ -269,8 +270,8 @@ class _LanguageConversationScreenState
                   children: [
                     Icon(m.$2,
                         size: 15,
-                        color: selected ? _langTeal : AppColors.textMuted),
-                    const SizedBox(width: 6),
+                        color: selected ? _langTeal : context.colors.textMuted),
+                    SizedBox(width: 6),
                     Text(m.$1,
                         style: TextStyle(
                             fontSize: 12,
@@ -279,7 +280,7 @@ class _LanguageConversationScreenState
                                 : FontWeight.w500,
                             color: selected
                                 ? _langTeal
-                                : AppColors.textSecondary)),
+                                : context.colors.textSecondary)),
                   ],
                 ),
               ),
@@ -305,16 +306,16 @@ class _LanguageConversationScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Choose a Scenario',
+          Text('Choose a Scenario',
               style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondary)),
-          const SizedBox(height: 10),
+                  color: context.colors.textSecondary)),
+          SizedBox(height: 10),
           GridView.count(
             crossAxisCount: 3,
             shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
+            physics: NeverScrollableScrollPhysics(),
             mainAxisSpacing: 8,
             crossAxisSpacing: 8,
             childAspectRatio: 1.15,
@@ -338,10 +339,10 @@ class _LanguageConversationScreenState
         decoration: BoxDecoration(
           color: active
               ? _langTeal.withValues(alpha: 0.12)
-              : AppColors.surface,
+              : context.colors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: active ? _langTeal : AppColors.border,
+            color: active ? _langTeal : context.colors.border,
             width: active ? 1.5 : 1,
           ),
         ),
@@ -349,22 +350,22 @@ class _LanguageConversationScreenState
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(s.$2,
-                color: active ? _langTeal : AppColors.textSecondary,
+                color: active ? _langTeal : context.colors.textSecondary,
                 size: 22),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Text(s.$1,
                 style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: active
                         ? _langTeal
-                        : AppColors.textPrimary)),
+                        : context.colors.textPrimary)),
             Text(s.$3,
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                    fontSize: 9, color: AppColors.textMuted)),
+                style: TextStyle(
+                    fontSize: 9, color: context.colors.textMuted)),
           ],
         ),
       ),
@@ -425,7 +426,7 @@ class _LanguageConversationScreenState
                   size: 13,
                   color: isUser ? _langTeal : AppColors.primaryLight,
                 ),
-                const SizedBox(width: 6),
+                SizedBox(width: 6),
                 Text(
                   isUser ? 'You' : 'AI Partner',
                   style: TextStyle(
@@ -436,19 +437,19 @@ class _LanguageConversationScreenState
                 ),
               ],
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             SelectableText(
               msg.text,
-              style: const TextStyle(
-                  color: AppColors.textPrimary,
+              style: TextStyle(
+                  color: context.colors.textPrimary,
                   fontSize: 14,
                   height: 1.5),
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Text(
               '${msg.time.hour.toString().padLeft(2, '0')}:${msg.time.minute.toString().padLeft(2, '0')}',
-              style: const TextStyle(
-                  color: AppColors.textMuted, fontSize: 10),
+              style: TextStyle(
+                  color: context.colors.textMuted, fontSize: 10),
             ),
           ],
         ),
@@ -472,9 +473,9 @@ class _LanguageConversationScreenState
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.smart_toy_rounded,
+            Icon(Icons.smart_toy_rounded,
                 color: AppColors.primaryLight, size: 14),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             ...List.generate(3, (i) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -492,9 +493,9 @@ class _LanguageConversationScreenState
   Widget _buildInputArea() {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.border, width: 0.5)),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        border: Border(top: BorderSide(color: context.colors.border, width: 0.5)),
       ),
       child: SafeArea(
         top: false,
@@ -503,17 +504,17 @@ class _LanguageConversationScreenState
             Expanded(
               child: TextField(
                 controller: _messageController,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: TextStyle(color: context.colors.textPrimary),
                 textInputAction: TextInputAction.send,
                 onSubmitted: _sendMessage,
                 decoration: InputDecoration(
                   hintText: _activeScenario != null
                       ? 'Reply in the scenario...'
                       : 'Type a message...',
-                  hintStyle: const TextStyle(
-                      color: AppColors.textMuted, fontSize: 13),
+                  hintStyle: TextStyle(
+                      color: context.colors.textMuted, fontSize: 13),
                   filled: true,
-                  fillColor: AppColors.surfaceElevated,
+                  fillColor: context.colors.surfaceElevated,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide:
@@ -526,19 +527,19 @@ class _LanguageConversationScreenState
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: _langTeal),
+                    borderSide: BorderSide(color: _langTeal),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16, vertical: 12),
                 ),
               ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             Container(
               decoration:
                   BoxDecoration(color: _langTeal, borderRadius: BorderRadius.circular(12)),
               child: IconButton(
-                icon: const Icon(Icons.send_rounded, color: Color(0xFF062B27)),
+                icon: Icon(Icons.send_rounded, color: Color(0xFF062B27)),
                 onPressed: () => _sendMessage(_messageController.text),
               ),
             ),

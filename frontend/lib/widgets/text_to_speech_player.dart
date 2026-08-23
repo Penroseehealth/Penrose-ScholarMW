@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
+import '../core/theme/theme_colors.dart';
 
 class TextToSpeechPlayer extends StatefulWidget {
   final String text;
   final String? voiceId;
 
-  const TextToSpeechPlayer({
+  TextToSpeechPlayer({
     super.key,
     required this.text,
     this.voiceId,
@@ -29,9 +30,9 @@ class _TextToSpeechPlayerState extends State<TextToSpeechPlayer> {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppColors.surfaceElevated,
+        color: context.colors.surfaceElevated,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -39,9 +40,9 @@ class _TextToSpeechPlayerState extends State<TextToSpeechPlayer> {
           Row(
             children: [
               _playBtn(),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Expanded(child: _progressBar()),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               _speedChip(),
             ],
           ),
@@ -59,10 +60,10 @@ class _TextToSpeechPlayerState extends State<TextToSpeechPlayer> {
         decoration: BoxDecoration(
           gradient: _isPlaying
               ? null
-              : const LinearGradient(
+              : LinearGradient(
                   colors: [AppColors.primary, AppColors.primaryDark],
                 ),
-          color: _isPlaying ? AppColors.warning : null,
+          color: _isPlaying ? context.colors.warning : null,
           shape: BoxShape.circle,
         ),
         child: Icon(
@@ -85,15 +86,15 @@ class _TextToSpeechPlayerState extends State<TextToSpeechPlayer> {
           borderRadius: BorderRadius.circular(3),
           child: LinearProgressIndicator(
             value: _progress,
-            backgroundColor: AppColors.border,
-            valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+            backgroundColor: context.colors.border,
+            valueColor: AlwaysStoppedAnimation(AppColors.primary),
             minHeight: 4,
           ),
         ),
-        const SizedBox(height: 2),
+        SizedBox(height: 2),
         Text(
           _isPlaying ? 'Listening at ${_speed}x' : 'Tap to listen',
-          style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
+          style: TextStyle(fontSize: 10, color: context.colors.textMuted),
         ),
       ],
     );
@@ -105,16 +106,16 @@ class _TextToSpeechPlayerState extends State<TextToSpeechPlayer> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: AppColors.surfaceHighest,
+          color: context.colors.surfaceHighest,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Text(
           '${_speed}x',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w600,
-            color: AppColors.textSecondary,
+            color: context.colors.textSecondary,
           ),
         ),
       ),
@@ -142,7 +143,7 @@ class _TextToSpeechPlayerState extends State<TextToSpeechPlayer> {
   }
 
   void _simulateProgress() {
-    Future.delayed(const Duration(milliseconds: 100), () {
+    Future.delayed(Duration(milliseconds: 100), () {
       if (_isPlaying && !_isPaused && mounted) {
         setState(() {
           _progress += 0.005 * _speed;

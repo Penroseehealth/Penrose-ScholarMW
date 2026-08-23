@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../core/theme/theme_colors.dart';
 
 class StemSymbolPalette extends StatelessWidget {
   final Function(String) onSymbolTap;
   final bool showInline;
 
-  const StemSymbolPalette({
+  StemSymbolPalette({
     super.key,
     required this.onSymbolTap,
     this.showInline = true,
@@ -16,9 +17,9 @@ class StemSymbolPalette extends StatelessWidget {
     return Container(
       height: showInline ? 220 : 360,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         border: Border(
-          top: BorderSide(color: AppColors.border),
+          top: BorderSide(color: context.colors.border),
         ),
       ),
       child: DefaultTabController(
@@ -29,10 +30,10 @@ class StemSymbolPalette extends StatelessWidget {
               isScrollable: true,
               tabAlignment: TabAlignment.start,
               labelColor: AppColors.primary,
-              unselectedLabelColor: AppColors.textMuted,
+              unselectedLabelColor: context.colors.textMuted,
               indicatorColor: AppColors.primary,
-              labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-              unselectedLabelStyle: const TextStyle(fontSize: 11),
+              labelStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+              unselectedLabelStyle: TextStyle(fontSize: 11),
               tabs: _categories.map((c) => Tab(text: c.label)).toList(),
             ),
             Expanded(
@@ -52,7 +53,7 @@ class StemSymbolPalette extends StatelessWidget {
       List<StemSymbol> symbols, Function(String) onTap) {
     return GridView.builder(
       padding: const EdgeInsets.all(8),
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 48,
         childAspectRatio: 1,
         crossAxisSpacing: 4,
@@ -66,15 +67,15 @@ class StemSymbolPalette extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           child: Container(
             decoration: BoxDecoration(
-              color: AppColors.surfaceElevated,
+              color: context.colors.surfaceElevated,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: Center(
               child: Text(
                 sym.display,
                 style: TextStyle(
-                  color: AppColors.textPrimary,
+                  color: context.colors.textPrimary,
                   fontSize: sym.display.length > 3 ? 10 : 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -90,7 +91,7 @@ class StemSymbolPalette extends StatelessWidget {
 class StemSymbol {
   final String display;
   final String latex;
-  const StemSymbol(this.display, this.latex);
+  StemSymbol(this.display, this.latex);
 }
 
 class _StemCategory {
@@ -99,7 +100,7 @@ class _StemCategory {
   const _StemCategory(this.label, this.symbols);
 }
 
-const _categories = [
+final _categories = [
   _StemCategory('Basic', [
     StemSymbol('+', '+'),
     StemSymbol('−', '-'),

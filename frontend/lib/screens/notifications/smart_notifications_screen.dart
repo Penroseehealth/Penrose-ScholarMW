@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
+import '../../core/theme/theme_colors.dart';
 
 class SmartNotificationsScreen extends StatefulWidget {
-  const SmartNotificationsScreen({super.key});
+  SmartNotificationsScreen({super.key});
 
   @override
   State<SmartNotificationsScreen> createState() =>
@@ -87,7 +88,7 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
           _preferences[key] = !(value as bool);
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to update preference')),
+          SnackBar(content: Text('Failed to update preference')),
         );
       }
     } catch (e) {
@@ -102,13 +103,13 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
   Color _priorityColor(String? priority) {
     switch (priority) {
       case 'high':
-        return AppColors.error;
+        return context.colors.error;
       case 'medium':
-        return AppColors.warning;
+        return context.colors.warning;
       case 'low':
-        return AppColors.success;
+        return context.colors.success;
       default:
-        return AppColors.info;
+        return context.colors.info;
     }
   }
 
@@ -132,7 +133,7 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: RefreshIndicator(
         onRefresh: _loadData,
         child: CustomScrollView(
@@ -142,7 +143,7 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
               pinned: true,
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [AppColors.primary, AppColors.primaryDark],
                       begin: Alignment.topLeft,
@@ -159,7 +160,7 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
+                              Text(
                                 'Smart Notifications',
                                 style: TextStyle(
                                   color: Colors.white,
@@ -177,7 +178,7 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
                                   ),
                                   child: Text(
                                     '$_totalNotifications new',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
@@ -186,7 +187,7 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
                                 ),
                             ],
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4),
                           Text(
                             'Intelligent alerts & study nudges',
                             style: TextStyle(
@@ -215,7 +216,7 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
 
   Widget _buildBody() {
     if (_loading) {
-      return const SizedBox(
+      return SizedBox(
         height: 300,
         child: Center(child: CircularProgressIndicator()),
       );
@@ -229,11 +230,11 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Notifications'),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         _buildNotificationsList(),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         _buildSectionHeader('Preferences'),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         _buildPreferencesPanel(),
       ],
     );
@@ -280,7 +281,7 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
                   size: 22,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -290,7 +291,7 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
                         Expanded(
                           child: Text(
                             title,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                             ),
@@ -314,12 +315,12 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       message,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
-                        color: AppColors.textSecondary,
+                        color: context.colors.textSecondary,
                       ),
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
@@ -336,7 +337,7 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
 
   Widget _buildPreferencesPanel() {
     if (_prefsLoading) {
-      return const Card(
+      return Card(
         child: Padding(
           padding: EdgeInsets.all(24),
           child: Center(child: CircularProgressIndicator()),
@@ -356,28 +357,28 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
               subtitle: 'Get notified about upcoming tests & assignments',
               icon: Icons.quiz_outlined,
             ),
-            const Divider(height: 1, indent: 56),
+            Divider(height: 1, indent: 56),
             _buildPreferenceToggle(
               key: 'study_nudges',
               title: 'Study Nudges',
               subtitle: 'AI-powered reminders to keep you on track',
               icon: Icons.menu_book_outlined,
             ),
-            const Divider(height: 1, indent: 56),
+            Divider(height: 1, indent: 56),
             _buildPreferenceToggle(
               key: 'resource_alerts',
               title: 'Resource Alerts',
               subtitle: 'New materials & library updates',
               icon: Icons.folder_open_outlined,
             ),
-            const Divider(height: 1, indent: 56),
+            Divider(height: 1, indent: 56),
             _buildPreferenceToggle(
               key: 'weekly_summary',
               title: 'Weekly Summary',
               subtitle: 'End-of-week performance digest',
               icon: Icons.summarize_outlined,
             ),
-            const Divider(height: 1, indent: 56),
+            Divider(height: 1, indent: 56),
             _buildPreferenceToggle(
               key: 'ai_insights',
               title: 'AI Insights',
@@ -402,12 +403,12 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
       leading: Icon(icon, color: AppColors.primary, size: 22),
       title: Text(
         title,
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
       ),
       subtitle: Text(
         subtitle,
         style:
-            const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+            TextStyle(fontSize: 12, color: context.colors.textSecondary),
       ),
       trailing: Switch(
         value: value,
@@ -422,10 +423,10 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
   Widget _buildSectionHeader(String title) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.bold,
-        color: AppColors.textPrimary,
+        color: context.colors.textPrimary,
       ),
     );
   }
@@ -439,7 +440,7 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
           child: Text(
             message,
             style:
-                const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                TextStyle(fontSize: 13, color: context.colors.textSecondary),
           ),
         ),
       ),
@@ -452,15 +453,15 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
         padding: const EdgeInsets.all(32),
         child: Column(
           children: [
-            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
-            const SizedBox(height: 12),
+            Icon(Icons.error_outline, size: 48, color: context.colors.error),
+            SizedBox(height: 12),
             Text(
               _error!,
               style:
-                  const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                  TextStyle(fontSize: 14, color: context.colors.textSecondary),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadData,
               style: ElevatedButton.styleFrom(
@@ -470,7 +471,7 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text('Retry'),
+              child: Text('Retry'),
             ),
           ],
         ),

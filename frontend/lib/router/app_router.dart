@@ -150,7 +150,7 @@ class AppRouter {
         path: '/login',
         pageBuilder: (context, state) => CustomTransitionPage<void>(
           key: state.pageKey,
-          child: const LoginScreen(),
+          child: LoginScreen(),
           transitionsBuilder: _fadeTransition,
         ),
       ),
@@ -158,41 +158,41 @@ class AppRouter {
         path: '/register',
         pageBuilder: (context, state) => CustomTransitionPage<void>(
           key: state.pageKey,
-          child: const RegisterScreen(),
+          child: RegisterScreen(),
           transitionsBuilder: _fadeTransition,
         ),
       ),
-      _route('/lecturer', (_) => const LecturerCentre()),
+      _route('/lecturer', (_) => LecturerCentre()),
       ShellRoute(
         builder: (_, __, child) => HomeShell(child: child),
         routes: [
-          _route('/', (_) => const HomeRedirect()),
-          _route('/student', (_) => const StudentDashboard()),
-          _route('/dashboard', (_) => const StudentDashboard()),
+          _route('/', (_) => HomeRedirect()),
+          _route('/student', (_) => StudentDashboard()),
+          _route('/dashboard', (_) => StudentDashboard()),
 
-          _route('/ai-tutor', (_) => const AiTutorScreen()),
-          _route('/research', (_) => const ResearchLab()),
-          _route('/vault', (_) => const KnowledgeVaultScreen()),
-          _route('/assessment-studio', (_) => const AssessmentStudio()),
-          _route('/profile', (_) => const ProfileScreen()),
-          _route('/analytics', (_) => const AnalyticsDashboard()),
-          _route('/learning-coach', (_) => const LearningCoachScreen()),
-          _route('/malawi-context', (_) => const MalawiContextScreen()),
-          _route('/knowledge-retrieval', (_) => const KnowledgeRetrievalScreen()),
-          _route('/examinations', (_) => const ExaminationHall()),
-          _route('/writing-studio', (_) => const WritingStudio()),
-          _route('/gamification', (_) => const GamificationScreen()),
-          _route('/smart-notifications', (_) => const SmartNotificationsScreen()),
-          _route('/search', (_) => const GlobalSearchScreen()),
-          _route('/offline-sync', (_) => const OfflineSyncScreen()),
-          _route('/stem', (_) => const StemHub()),
+          _route('/ai-tutor', (_) => AiTutorScreen()),
+          _route('/research', (_) => ResearchLab()),
+          _route('/vault', (_) => KnowledgeVaultScreen()),
+          _route('/assessment-studio', (_) => AssessmentStudio()),
+          _route('/profile', (_) => ProfileScreen()),
+          _route('/analytics', (_) => AnalyticsDashboard()),
+          _route('/learning-coach', (_) => LearningCoachScreen()),
+          _route('/malawi-context', (_) => MalawiContextScreen()),
+          _route('/knowledge-retrieval', (_) => KnowledgeRetrievalScreen()),
+          _route('/examinations', (_) => ExaminationHall()),
+          _route('/writing-studio', (_) => WritingStudio()),
+          _route('/gamification', (_) => GamificationScreen()),
+          _route('/smart-notifications', (_) => SmartNotificationsScreen()),
+          _route('/search', (_) => GlobalSearchScreen()),
+          _route('/offline-sync', (_) => OfflineSyncScreen()),
+          _route('/stem', (_) => StemHub()),
           GoRoute(
             path: '/stem-subject/:slug',
             pageBuilder: (_, state) {
               final slug = state.pathParameters['slug'] ?? 'mathematics';
               final title = state.uri.queryParameters['title'] ?? '';
               final widget = slug == 'biology'
-                  ? const BiologyDashboard()
+                  ? BiologyDashboard()
                   : SubjectDashboardScreen(slug: slug, title: title);
               return CustomTransitionPage<void>(
                 key: state.pageKey,
@@ -258,7 +258,7 @@ class AppRouter {
               transitionsBuilder: _slideTransition,
             );
           }),
-          _route('/stem-formula-centre', (_) => const StemFormulaCentreScreen()),
+          _route('/stem-formula-centre', (_) => StemFormulaCentreScreen()),
           GoRoute(path: '/stem-careers', pageBuilder: (_, state) {
             final slug = state.uri.queryParameters['subject'] ?? '';
             return CustomTransitionPage<void>(
@@ -276,7 +276,7 @@ class AppRouter {
               transitionsBuilder: _slideTransition,
             );
           }),
-          _route('/stem-mastery', (_) => const StemMasteryDashboardScreen()),
+          _route('/stem-mastery', (_) => StemMasteryDashboardScreen()),
           GoRoute(path: '/stem-tutor', pageBuilder: (_, state) {
             final conceptId = int.tryParse(state.uri.queryParameters['concept'] ?? '0') ?? 0;
             return CustomTransitionPage<void>(
@@ -285,25 +285,25 @@ class AppRouter {
               transitionsBuilder: _slideTransition,
             );
           }),
-          _route('/stem-analytics', (_) => const StemAnalyticsScreen()),
-          _route('/stem-malawi', (_) => const StemMalawiScreen()),
-          _route('/stem-revision', (_) => const StemRevisionScreen()),
-          _route('/stem-gamification', (_) => const StemGamificationScreen()),
-          _route('/stem-groups', (_) => const StemGroupsScreen()),
-          _route('/mock-exam', (_) => const MockExamScreen()),
-          _route('/certificates', (_) => const CertificatesScreen()),
-          _route('/exam-analytics', (_) => const ExamAnalyticsScreen()),
-          _route('/study-planner', (_) => const StudyPlannerScreen()),
-          _route('/messages', (_) => const MessagingScreen()),
-          _route('/notification-settings', (_) => const NotificationSettingsScreen()),
-          _route('/forum', (_) => const ForumScreen()),
-          _route('/announcements', (_) => const AnnouncementsScreen()),
-          _route('/content-cms', (_) => const ContentCmsScreen()),
-          _route('/analytics-export', (_) => const AnalyticsExportScreen()),
-          _route('/data-analysis', (_) => const DataAnalysisScreen()),
-          _route('/coding-playground', (_) => const CodingPlaygroundScreen()),
-          _route('/admin', (_) => const AdminDashboardScreen()),
-          _route('/admin/syllabus', (_) => const AdminSyllabusScreen()),
+          _route('/stem-analytics', (_) => StemAnalyticsScreen()),
+          _route('/stem-malawi', (_) => StemMalawiScreen()),
+          _route('/stem-revision', (_) => StemRevisionScreen()),
+          _route('/stem-gamification', (_) => StemGamificationScreen()),
+          _route('/stem-groups', (_) => StemGroupsScreen()),
+          _route('/mock-exam', (_) => MockExamScreen()),
+          _route('/certificates', (_) => CertificatesScreen()),
+          _route('/exam-analytics', (_) => ExamAnalyticsScreen()),
+          _route('/study-planner', (_) => StudyPlannerScreen()),
+          _route('/messages', (_) => MessagingScreen()),
+          _route('/notification-settings', (_) => NotificationSettingsScreen()),
+          _route('/forum', (_) => ForumScreen()),
+          _route('/announcements', (_) => AnnouncementsScreen()),
+          _route('/content-cms', (_) => ContentCmsScreen()),
+          _route('/analytics-export', (_) => AnalyticsExportScreen()),
+          _route('/data-analysis', (_) => DataAnalysisScreen()),
+          _route('/coding-playground', (_) => CodingPlaygroundScreen()),
+          _route('/admin', (_) => AdminDashboardScreen()),
+          _route('/admin/syllabus', (_) => AdminSyllabusScreen()),
           GoRoute(
             path: '/collab-chat/:id',
             pageBuilder: (_, state) {
@@ -328,14 +328,14 @@ class AppRouter {
               );
             },
           ),
-          _route('/classes', (_) => const StudentDashboard()),
-          _route('/assignments', (_) => const StudentDashboard()),
-          _route('/assessments', (_) => const StudentDashboard()),
-          _route('/grades', (_) => const AnalyticsDashboard()),
-          _route('/calendar', (_) => const StudentDashboard()),
-          _route('/notes', (_) => const KnowledgeVaultScreen()),
-          _route('/settings', (_) => const ProfileScreen()),
-          _route('/help', (_) => const StudentDashboard()),
+          _route('/classes', (_) => StudentDashboard()),
+          _route('/assignments', (_) => StudentDashboard()),
+          _route('/assessments', (_) => StudentDashboard()),
+          _route('/grades', (_) => AnalyticsDashboard()),
+          _route('/calendar', (_) => StudentDashboard()),
+          _route('/notes', (_) => KnowledgeVaultScreen()),
+          _route('/settings', (_) => ProfileScreen()),
+          _route('/help', (_) => StudentDashboard()),
           GoRoute(
             path: '/smart-marking',
             pageBuilder: (_, state) {
@@ -361,18 +361,18 @@ class AppRouter {
               );
             },
           ),
-          _route('/bio-topics', (_) => const BiologyTopicsScreen()),
-          _route('/bio-virtual-lab', (_) => const BiologyVirtualLabScreen()),
-          _route('/bio-diagrams', (_) => const BiologyDiagramCentreScreen()),
-          _route('/bio-practicals', (_) => const BiologyPracticalHubScreen()),
-          _route('/bio-practice', (_) => const BiologyPracticeCentreScreen()),
-          _route('/bio-past-papers', (_) => const BiologyPastPapersScreen()),
-          _route('/bio-mock-exam', (_) => const BiologyMockExamScreen()),
-          _route('/bio-syllabus', (_) => const BiologySyllabusScreen()),
-          _route('/bio-ai-tutor', (_) => const BiologyAITutorScreen()),
-          _route('/bio-notebook', (_) => const BiologyNotebookScreen()),
-          _route('/bio-analytics', (_) => const BiologyAnalyticsScreen()),
-          _route('/languages', (_) => const LanguagesHub()),
+          _route('/bio-topics', (_) => BiologyTopicsScreen()),
+          _route('/bio-virtual-lab', (_) => BiologyVirtualLabScreen()),
+          _route('/bio-diagrams', (_) => BiologyDiagramCentreScreen()),
+          _route('/bio-practicals', (_) => BiologyPracticalHubScreen()),
+          _route('/bio-practice', (_) => BiologyPracticeCentreScreen()),
+          _route('/bio-past-papers', (_) => BiologyPastPapersScreen()),
+          _route('/bio-mock-exam', (_) => BiologyMockExamScreen()),
+          _route('/bio-syllabus', (_) => BiologySyllabusScreen()),
+          _route('/bio-ai-tutor', (_) => BiologyAITutorScreen()),
+          _route('/bio-notebook', (_) => BiologyNotebookScreen()),
+          _route('/bio-analytics', (_) => BiologyAnalyticsScreen()),
+          _route('/languages', (_) => LanguagesHub()),
           GoRoute(
             path: '/language/:slug',
             pageBuilder: (_, state) {
@@ -388,7 +388,7 @@ class AppRouter {
             path: '/language/:slug/vocabulary',
             pageBuilder: (_, state) => CustomTransitionPage<void>(
               key: state.pageKey,
-              child: const LanguageVocabulary(),
+              child: LanguageVocabulary(),
               transitionsBuilder: _slideTransition,
             ),
           ),
@@ -396,7 +396,7 @@ class AppRouter {
             path: '/language/:slug/grammar',
             pageBuilder: (_, state) => CustomTransitionPage<void>(
               key: state.pageKey,
-              child: const LanguageGrammar(),
+              child: LanguageGrammar(),
               transitionsBuilder: _slideTransition,
             ),
           ),
@@ -404,7 +404,7 @@ class AppRouter {
             path: '/language/:slug/listening',
             pageBuilder: (_, state) => CustomTransitionPage<void>(
               key: state.pageKey,
-              child: const LanguageListening(),
+              child: LanguageListening(),
               transitionsBuilder: _slideTransition,
             ),
           ),
@@ -412,7 +412,7 @@ class AppRouter {
             path: '/language/:slug/speaking',
             pageBuilder: (_, state) => CustomTransitionPage<void>(
               key: state.pageKey,
-              child: const LanguageSpeaking(),
+              child: LanguageSpeaking(),
               transitionsBuilder: _slideTransition,
             ),
           ),
@@ -420,7 +420,7 @@ class AppRouter {
             path: '/language/:slug/reading',
             pageBuilder: (_, state) => CustomTransitionPage<void>(
               key: state.pageKey,
-              child: const LanguageReading(),
+              child: LanguageReading(),
               transitionsBuilder: _slideTransition,
             ),
           ),
@@ -428,7 +428,7 @@ class AppRouter {
             path: '/language/:slug/writing',
             pageBuilder: (_, state) => CustomTransitionPage<void>(
               key: state.pageKey,
-              child: const LanguageWriting(),
+              child: LanguageWriting(),
               transitionsBuilder: _slideTransition,
             ),
           ),
@@ -436,7 +436,7 @@ class AppRouter {
             path: '/language/:slug/notebook',
             pageBuilder: (_, state) => CustomTransitionPage<void>(
               key: state.pageKey,
-              child: const LanguageNotebook(),
+              child: LanguageNotebook(),
               transitionsBuilder: _slideTransition,
             ),
           ),
@@ -499,7 +499,7 @@ class AppRouter {
             path: '/language/:slug/levels',
             pageBuilder: (_, state) => CustomTransitionPage<void>(
               key: state.pageKey,
-              child: const LanguageLevels(),
+              child: LanguageLevels(),
               transitionsBuilder: _slideTransition,
             ),
           ),
@@ -507,7 +507,7 @@ class AppRouter {
             path: '/language/:slug/levels/:levelSlug',
             pageBuilder: (_, state) => CustomTransitionPage<void>(
               key: state.pageKey,
-              child: const LanguageLevelDetail(),
+              child: LanguageLevelDetail(),
               transitionsBuilder: _slideTransition,
             ),
           ),
@@ -515,7 +515,7 @@ class AppRouter {
             path: '/language/:slug/path',
             pageBuilder: (_, state) => CustomTransitionPage<void>(
               key: state.pageKey,
-              child: const LanguageLearningPath(),
+              child: LanguageLearningPath(),
               transitionsBuilder: _slideTransition,
             ),
           ),
@@ -523,7 +523,7 @@ class AppRouter {
             path: '/language/:slug/pronunciation',
             pageBuilder: (_, state) => CustomTransitionPage<void>(
               key: state.pageKey,
-              child: const LanguagePronunciation(),
+              child: LanguagePronunciation(),
               transitionsBuilder: _slideTransition,
             ),
           ),
@@ -531,7 +531,7 @@ class AppRouter {
             path: '/language/:slug/revision',
             pageBuilder: (_, state) => CustomTransitionPage<void>(
               key: state.pageKey,
-              child: const LanguageRevision(),
+              child: LanguageRevision(),
               transitionsBuilder: _slideTransition,
             ),
           ),
@@ -539,7 +539,7 @@ class AppRouter {
             path: '/language/:slug/culture',
             pageBuilder: (_, state) => CustomTransitionPage<void>(
               key: state.pageKey,
-              child: const LanguageCulture(),
+              child: LanguageCulture(),
               transitionsBuilder: _slideTransition,
             ),
           ),
@@ -547,7 +547,7 @@ class AppRouter {
             path: '/language/:slug/offline',
             pageBuilder: (_, state) => CustomTransitionPage<void>(
               key: state.pageKey,
-              child: const LanguageOffline(),
+              child: LanguageOffline(),
               transitionsBuilder: _slideTransition,
             ),
           ),
@@ -555,7 +555,7 @@ class AppRouter {
             path: '/language/:slug/settings',
             pageBuilder: (_, state) => CustomTransitionPage<void>(
               key: state.pageKey,
-              child: const LanguageSettings(),
+              child: LanguageSettings(),
               transitionsBuilder: _slideTransition,
             ),
           ),

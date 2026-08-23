@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
 import '../../widgets/stem_text.dart';
+import '../../core/theme/theme_colors.dart';
 
 class AssessmentStudio extends StatefulWidget {
-  const AssessmentStudio({super.key});
+  AssessmentStudio({super.key});
 
   @override
   State<AssessmentStudio> createState() => _AssessmentStudioState();
@@ -32,30 +33,30 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('AI Assessment Studio')),
+      appBar: AppBar(title: Text('AI Assessment Studio')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSectionHeader('Configure Assessment'),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             TextField(
               controller: _topicCtrl,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Topic',
                 hintText: 'e.g. Antimicrobial Resistance',
                 prefixIcon: Icon(Icons.topic_outlined),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: DropdownButtonFormField<String>(
                     value: _difficulty,
-                    decoration: const InputDecoration(labelText: 'Difficulty'),
-                    items: const [
+                    decoration: InputDecoration(labelText: 'Difficulty'),
+                    items: [
                       DropdownMenuItem(value: 'easy', child: Text('Easy')),
                       DropdownMenuItem(value: 'medium', child: Text('Medium')),
                       DropdownMenuItem(value: 'hard', child: Text('Hard')),
@@ -63,11 +64,11 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
                     onChanged: (v) => setState(() => _difficulty = v ?? 'medium'),
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: 16),
                 Expanded(
                   child: DropdownButtonFormField<int>(
                     value: _numQuestions,
-                    decoration: const InputDecoration(labelText: 'Questions'),
+                    decoration: InputDecoration(labelText: 'Questions'),
                     items: [5, 10, 15, 20, 25, 30]
                         .map((n) => DropdownMenuItem(value: n, child: Text('$n')))
                         .toList(),
@@ -76,9 +77,9 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             _buildSectionHeader('Question Types'),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -99,27 +100,27 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
                 );
               }).toList(),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: _generating ? null : _generateAssessment,
                 icon: _generating
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
-                    : const Icon(Icons.auto_awesome),
+                    : Icon(Icons.auto_awesome),
                 label: Text(_generating ? 'Generating...' : 'Generate Assessment'),
               ),
             ),
             if (_generatedQuestions.isNotEmpty) ...[
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               _buildSectionHeader('Generated Questions (${_generatedQuestions.length})'),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               ...(_generatedQuestions.asMap().entries.map((e) => _buildQuestionCard(e.key, e.value))),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
@@ -129,12 +130,12 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
                       label: Text(_editing ? 'Done Editing' : 'Review & Edit'),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: _publishAssessment,
-                      icon: const Icon(Icons.publish),
-                      label: const Text('Approve & Publish'),
+                      icon: Icon(Icons.publish),
+                      label: Text('Approve & Publish'),
                     ),
                   ),
                 ],
@@ -149,10 +150,10 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
   Widget _buildSectionHeader(String title) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.bold,
-        color: AppColors.textPrimary,
+        color: context.colors.textPrimary,
       ),
     );
   }
@@ -160,10 +161,10 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
   Widget _buildQuestionCard(int index, dynamic q) {
     final typeColors = {
       'mcq': AppColors.primary,
-      'true_false': AppColors.secondary,
-      'short_answer': AppColors.accent,
-      'essay': AppColors.info,
-      'case_study': AppColors.success,
+      'true_false': context.colors.secondary,
+      'short_answer': context.colors.accent,
+      'essay': context.colors.info,
+      'case_study': context.colors.success,
     };
     final qType = q['question_type'] ?? 'mcq';
     final color = typeColors[qType] ?? AppColors.primary;
@@ -185,7 +186,7 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color),
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
@@ -197,43 +198,43 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
                     style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: color),
                   ),
                 ),
-                const Spacer(),
+                Spacer(),
                 Text(
                   '${q['marks'] ?? 1} mark${(q['marks'] ?? 1) > 1 ? 's' : ''}',
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             if (_editing)
               TextFormField(
                 initialValue: q['question_text'] ?? '',
                 onChanged: (v) => _generatedQuestions[index]['question_text'] = v,
-                decoration: const InputDecoration(isDense: true),
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                decoration: InputDecoration(isDense: true),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               )
             else
               StemText(
                 q['question_text'] ?? '',
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               ),
             if (q['options'] != null && (q['options'] as String).isNotEmpty) ...[
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               if (_editing)
                 TextFormField(
                   initialValue: q['options'] as String,
                   onChanged: (v) => _generatedQuestions[index]['options'] = v,
                   maxLines: null,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     isDense: true,
                     hintText: 'One option per line',
                   ),
-                  style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                  style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
                 )
               else
                 ...((q['options'] as String).split('\n').map((o) => Padding(
                       padding: const EdgeInsets.only(left: 16, top: 4),
-                      child: StemText(o, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                      child: StemText(o, style: TextStyle(fontSize: 13, color: context.colors.textSecondary)),
                     ))),
             ],
           ],
@@ -268,7 +269,7 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
   Future<void> _generateAssessment() async {
     if (_topicCtrl.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a topic')),
+        SnackBar(content: Text('Please enter a topic')),
       );
       return;
     }
@@ -288,7 +289,7 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
       });
       if (_generatedQuestions.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No questions generated. Try a different topic.')),
+          SnackBar(content: Text('No questions generated. Try a different topic.')),
         );
       }
     }

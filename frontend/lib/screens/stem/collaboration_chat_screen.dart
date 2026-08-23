@@ -10,11 +10,12 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import '../../core/constants/api_constants.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/auth_provider.dart';
+import '../../core/theme/theme_colors.dart';
 
 class CollaborationChatScreen extends StatefulWidget {
   final int groupId;
   final String groupName;
-  const CollaborationChatScreen({super.key, required this.groupId, required this.groupName});
+  CollaborationChatScreen({super.key, required this.groupId, required this.groupName});
   @override
   State<CollaborationChatScreen> createState() => _CollaborationChatScreenState();
 }
@@ -128,7 +129,7 @@ class _CollaborationChatScreenState extends State<CollaborationChatScreen> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(data['detail'] as String? ?? 'Unknown error'),
-              backgroundColor: AppColors.error,
+              backgroundColor: context.colors.error,
             ));
           }
       }
@@ -139,7 +140,7 @@ class _CollaborationChatScreenState extends State<CollaborationChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollCtl.hasClients) {
         _scrollCtl.animateTo(_scrollCtl.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+            duration: Duration(milliseconds: 200), curve: Curves.easeOut);
       }
     });
   }
@@ -156,7 +157,7 @@ class _CollaborationChatScreenState extends State<CollaborationChatScreen> {
     _typingTimer?.cancel();
     if (text.isNotEmpty && _connected) {
       _channel?.sink.add(jsonEncode({'type': 'typing', 'content': ''}));
-      _typingTimer = Timer(const Duration(seconds: 1), () {});
+      _typingTimer = Timer(Duration(seconds: 1), () {});
     }
   }
 
@@ -176,7 +177,7 @@ class _CollaborationChatScreenState extends State<CollaborationChatScreen> {
     final auth = context.watch<AuthProvider>();
     final currentUserId = auth.user?['id'] as int?;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       appBar: _buildAppBar(),
       body: Column(children: [
         Expanded(child: _buildBody(currentUserId)),
@@ -188,33 +189,33 @@ class _CollaborationChatScreenState extends State<CollaborationChatScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.colors.surface,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textSecondary),
+        icon: Icon(Icons.arrow_back_rounded, color: context.colors.textSecondary),
         onPressed: () => context.pop(),
       ),
       title: Row(children: [
         Container(
           width: 36, height: 36,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryDark]),
+            gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryDark]),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Center(child: Text(
             widget.groupName.isNotEmpty ? widget.groupName[0].toUpperCase() : '#',
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
           )),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Expanded(child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(widget.groupName,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
                 maxLines: 1, overflow: TextOverflow.ellipsis),
             Text(
               _connected ? '${_onlineUserIds.length} online' : _connecting ? 'Connecting...' : 'Disconnected',
-              style: TextStyle(fontSize: 12, color: _connected ? AppColors.success : _connecting ? AppColors.warning : AppColors.error),
+              style: TextStyle(fontSize: 12, color: _connected ? context.colors.success : _connecting ? context.colors.warning : context.colors.error),
             ),
           ],
         )),
@@ -224,10 +225,10 @@ class _CollaborationChatScreenState extends State<CollaborationChatScreen> {
           Padding(padding: const EdgeInsets.only(right: 16), child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle)),
-              const SizedBox(width: 6),
+              Container(width: 8, height: 8, decoration: BoxDecoration(color: context.colors.success, shape: BoxShape.circle)),
+              SizedBox(width: 6),
               Text('${_onlineUserIds.length}',
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
             ],
           )),
       ],
@@ -238,33 +239,33 @@ class _CollaborationChatScreenState extends State<CollaborationChatScreen> {
     if (_error != null && !_connected && !_connecting) {
       return GestureDetector(onTap: () { _reconnectAttempts = 0; _connect(); }, child: Center(
         child: Padding(padding: const EdgeInsets.all(32), child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.wifi_off_rounded, size: 48, color: AppColors.error.withValues(alpha: 0.7)),
-          const SizedBox(height: 16),
+          Icon(Icons.wifi_off_rounded, size: 48, color: context.colors.error.withValues(alpha: 0.7)),
+          SizedBox(height: 16),
           Text(_error!, textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
-          const SizedBox(height: 12),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
+          SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(10)),
-            child: const Text('Retry', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white)),
+            child: Text('Retry', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white)),
           ),
         ])),
       ));
     }
     if (_connecting) {
-      return const Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+      return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
         CircularProgressIndicator(color: AppColors.primary),
         SizedBox(height: 16),
-        Text('Connecting to chat...', style: TextStyle(fontSize: 15, color: AppColors.textSecondary)),
+        Text('Connecting to chat...', style: TextStyle(fontSize: 15, color: context.colors.textSecondary)),
       ]));
     }
     if (_messages.isEmpty) {
       return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Icon(Icons.forum_outlined, size: 48, color: AppColors.textMuted.withValues(alpha: 0.4)),
-        const SizedBox(height: 12),
-        const Text('No messages yet', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
-        const SizedBox(height: 4),
-        const Text('Start the conversation!', style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
+        Icon(Icons.forum_outlined, size: 48, color: context.colors.textMuted.withValues(alpha: 0.4)),
+        SizedBox(height: 12),
+        Text('No messages yet', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
+        SizedBox(height: 4),
+        Text('Start the conversation!', style: TextStyle(fontSize: 13, color: context.colors.textMuted)),
       ]));
     }
     return ListView.builder(
@@ -298,29 +299,29 @@ class _CollaborationChatScreenState extends State<CollaborationChatScreen> {
                 width: 32, height: 32,
                 decoration: BoxDecoration(color: AppColors.primaryMuted, borderRadius: BorderRadius.circular(10)),
                 child: Center(child: Text(initial,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary))),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary))),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
             ],
             Flexible(child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: isMe ? AppColors.primary : AppColors.surfaceElevated,
+                color: isMe ? AppColors.primary : context.colors.surfaceElevated,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16), topRight: const Radius.circular(16),
                   bottomLeft: Radius.circular(isMe ? 16 : 4), bottomRight: Radius.circular(isMe ? 4 : 16),
                 ),
-                border: Border.all(color: isMe ? AppColors.primary.withValues(alpha: 0.3) : AppColors.border),
+                border: Border.all(color: isMe ? AppColors.primary.withValues(alpha: 0.3) : context.colors.border),
               ),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 if (!isMe) Padding(
                   padding: const EdgeInsets.only(bottom: 4),
-                  child: Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primaryLight)),
+                  child: Text(name, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primaryLight)),
                 ),
-                Text(content, style: TextStyle(fontSize: 14, color: isMe ? Colors.white : AppColors.textPrimary)),
-                const SizedBox(height: 4),
+                Text(content, style: TextStyle(fontSize: 14, color: isMe ? Colors.white : context.colors.textPrimary)),
+                SizedBox(height: 4),
                 Align(alignment: Alignment.bottomRight, child: Text(time,
-                    style: TextStyle(fontSize: 11, color: isMe ? Colors.white.withValues(alpha: 0.6) : AppColors.textMuted))),
+                    style: TextStyle(fontSize: 11, color: isMe ? Colors.white.withValues(alpha: 0.6) : context.colors.textMuted))),
               ]),
             )),
           ],
@@ -336,11 +337,11 @@ class _CollaborationChatScreenState extends State<CollaborationChatScreen> {
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         ...List.generate(3, (_) => Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2),
-          child: Container(width: 4, height: 4, decoration: const BoxDecoration(color: AppColors.textMuted, shape: BoxShape.circle)),
+          child: Container(width: 4, height: 4, decoration: BoxDecoration(color: context.colors.textMuted, shape: BoxShape.circle)),
         )),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         Flexible(child: Text('$_typingUser is typing...',
-            style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: AppColors.textMuted),
+            style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: context.colors.textMuted),
             maxLines: 1, overflow: TextOverflow.ellipsis)),
       ]),
     );
@@ -349,13 +350,13 @@ class _CollaborationChatScreenState extends State<CollaborationChatScreen> {
   Widget _buildInputBar() {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-      decoration: const BoxDecoration(color: AppColors.surface, border: Border(top: BorderSide(color: AppColors.border))),
+      decoration: BoxDecoration(color: context.colors.surface, border: Border(top: BorderSide(color: context.colors.border))),
       child: SafeArea(top: false, child: Row(children: [
         Expanded(child: Container(
-          decoration: BoxDecoration(color: AppColors.surfaceHighest, borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(color: context.colors.surfaceHighest, borderRadius: BorderRadius.circular(12)),
           child: TextField(
             controller: _msgCtl,
-            style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+            style: TextStyle(color: context.colors.textPrimary, fontSize: 14),
             maxLines: null,
             textInputAction: TextInputAction.send,
             enabled: _connected,
@@ -363,15 +364,15 @@ class _CollaborationChatScreenState extends State<CollaborationChatScreen> {
             onSubmitted: (_) => _send(),
             decoration: InputDecoration(
               hintText: _connected ? 'Type a message...' : 'Reconnecting...',
-              hintStyle: const TextStyle(color: AppColors.textMuted),
+              hintStyle: TextStyle(color: context.colors.textMuted),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             ),
           ),
         )),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         Container(
-          decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+          decoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
           child: IconButton(
             onPressed: _connected ? _send : null,
             icon: Icon(Icons.send_rounded,

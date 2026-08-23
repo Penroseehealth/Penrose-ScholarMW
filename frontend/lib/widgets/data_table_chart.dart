@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
+import '../core/theme/theme_colors.dart';
 
 class DataTableRenderer extends StatelessWidget {
   final List<String> headers;
   final List<Map<String, String>> rows;
   final String? title;
 
-  const DataTableRenderer({
+  DataTableRenderer({
     super.key,
     required this.headers,
     required this.rows,
@@ -51,9 +52,9 @@ class DataTableRenderer extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,26 +64,26 @@ class DataTableRenderer extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
               child: Text(
                 title!,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondary,
+                  color: context.colors.textSecondary,
                 ),
               ),
             ),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
-              headingRowColor: WidgetStateProperty.all(AppColors.surfaceElevated),
-              dataRowColor: WidgetStateProperty.all(AppColors.surface),
-              headingTextStyle: const TextStyle(
+              headingRowColor: WidgetStateProperty.all(context.colors.surfaceElevated),
+              dataRowColor: WidgetStateProperty.all(context.colors.surface),
+              headingTextStyle: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: AppColors.primary,
               ),
-              dataTextStyle: const TextStyle(
+              dataTextStyle: TextStyle(
                 fontSize: 11,
-                color: AppColors.textPrimary,
+                color: context.colors.textPrimary,
                 height: 1.4,
               ),
               horizontalMargin: 12,
@@ -99,7 +100,7 @@ class DataTableRenderer extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
             child: Text(
               '${rows.length} rows',
-              style: TextStyle(fontSize: 10, color: AppColors.textMuted.withValues(alpha: 0.7)),
+              style: TextStyle(fontSize: 10, color: context.colors.textMuted.withValues(alpha: 0.7)),
             ),
           ),
         ],
@@ -112,7 +113,7 @@ class SimpleBarChart extends StatelessWidget {
   final String title;
   final List<ChartBar> bars;
 
-  const SimpleBarChart({super.key, required this.title, required this.bars});
+  SimpleBarChart({super.key, required this.title, required this.bars});
 
   @override
   Widget build(BuildContext context) {
@@ -123,22 +124,22 @@ class SimpleBarChart extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: AppColors.textSecondary,
+              color: context.colors.textSecondary,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           ...bars.map((bar) => Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
@@ -147,18 +148,18 @@ class SimpleBarChart extends StatelessWidget {
                       width: 80,
                       child: Text(
                         bar.label,
-                        style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                        style: TextStyle(fontSize: 10, color: context.colors.textSecondary),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Expanded(
                       child: Stack(
                         children: [
                           Container(
                             height: 18,
                             decoration: BoxDecoration(
-                              color: AppColors.surfaceElevated,
+                              color: context.colors.surfaceElevated,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -180,12 +181,12 @@ class SimpleBarChart extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     SizedBox(
                       width: 50,
                       child: Text(
                         bar.value.toStringAsFixed(1),
-                        style: const TextStyle(fontSize: 10, color: AppColors.textPrimary),
+                        style: TextStyle(fontSize: 10, color: context.colors.textPrimary),
                         textAlign: TextAlign.right,
                       ),
                     ),
@@ -225,5 +226,5 @@ class ChartBar {
   final double value;
   final Color? color;
 
-  const ChartBar({required this.label, required this.value, this.color});
+  ChartBar({required this.label, required this.value, this.color});
 }

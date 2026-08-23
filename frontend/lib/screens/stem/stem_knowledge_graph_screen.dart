@@ -4,10 +4,11 @@ import '../../services/stem_service.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
+import '../../core/theme/theme_colors.dart';
 
 class StemKnowledgeGraphScreen extends StatefulWidget {
   final String subjectSlug;
-  const StemKnowledgeGraphScreen({super.key, this.subjectSlug = ''});
+  StemKnowledgeGraphScreen({super.key, this.subjectSlug = ''});
 
   @override
   State<StemKnowledgeGraphScreen> createState() => _StemKnowledgeGraphScreenState();
@@ -83,7 +84,7 @@ class _StemKnowledgeGraphScreenState extends State<StemKnowledgeGraphScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: RefreshIndicator(
         onRefresh: _loadData,
         child: CustomScrollView(
@@ -93,16 +94,16 @@ class _StemKnowledgeGraphScreenState extends State<StemKnowledgeGraphScreen> {
             pinned: true,
             backgroundColor: AppColors.primaryDark,
             flexibleSpace: FlexibleSpaceBar(
-              title: const Text(
+              title: Text(
                 'Knowledge Graph',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: context.colors.textPrimary,
                 ),
               ),
               background: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppColors.primaryDark, AppColors.primaryMuted],
                     begin: Alignment.topLeft,
@@ -125,7 +126,7 @@ class _StemKnowledgeGraphScreenState extends State<StemKnowledgeGraphScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 scrollDirection: Axis.horizontal,
                 itemCount: _relationshipTypes.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                separatorBuilder: (_, __) => SizedBox(width: 8),
                 itemBuilder: (context, index) {
                   final type = _relationshipTypes[index];
                   final selected = _selectedRelationship == type;
@@ -135,14 +136,14 @@ class _StemKnowledgeGraphScreenState extends State<StemKnowledgeGraphScreen> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: selected ? Colors.white : AppColors.textSecondary,
+                        color: selected ? Colors.white : context.colors.textSecondary,
                       ),
                     ),
                     selected: selected,
                     selectedColor: AppColors.primary,
-                    backgroundColor: AppColors.surface,
+                    backgroundColor: context.colors.surface,
                     side: BorderSide(
-                      color: selected ? AppColors.primary : AppColors.border,
+                      color: selected ? AppColors.primary : context.colors.border,
                     ),
                     onSelected: (_) => setState(() => _selectedRelationship = type),
                   );
@@ -161,11 +162,11 @@ class _StemKnowledgeGraphScreenState extends State<StemKnowledgeGraphScreen> {
               padding: const EdgeInsets.all(16),
               sliver: SliverList.separated(
                 itemCount: _filteredConnections.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                separatorBuilder: (_, __) => SizedBox(height: 12),
                 itemBuilder: (context, index) => _buildConnectionCard(_filteredConnections[index]),
               ),
             ),
-          const SliverToBoxAdapter(child: SizedBox(height: 40)),
+          SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
         ),
       ),
@@ -176,22 +177,22 @@ class _StemKnowledgeGraphScreenState extends State<StemKnowledgeGraphScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: DropdownButton<String>(
         value: _selectedSubject.isNotEmpty ? _selectedSubject : null,
-        hint: const Text('All Subjects', style: TextStyle(color: AppColors.textMuted)),
+        hint: Text('All Subjects', style: TextStyle(color: context.colors.textMuted)),
         isExpanded: true,
-        dropdownColor: AppColors.surfaceElevated,
-        underline: const SizedBox(),
-        icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textMuted),
+        dropdownColor: context.colors.surfaceElevated,
+        underline: SizedBox(),
+        icon: Icon(Icons.keyboard_arrow_down_rounded, color: context.colors.textMuted),
         items: [
-          const DropdownMenuItem(value: '', child: Text('All Subjects', style: TextStyle(color: AppColors.textSecondary))),
+          DropdownMenuItem(value: '', child: Text('All Subjects', style: TextStyle(color: context.colors.textSecondary))),
           ..._subjects.map<DropdownMenuItem<String>>((s) => DropdownMenuItem(
                 value: s['slug'] ?? '',
-                child: Text(s['name'] ?? '', style: const TextStyle(color: AppColors.textSecondary)),
+                child: Text(s['name'] ?? '', style: TextStyle(color: context.colors.textSecondary)),
               )),
         ],
         onChanged: (v) => _onSubjectChanged(v ?? ''),
@@ -210,9 +211,9 @@ class _StemKnowledgeGraphScreenState extends State<StemKnowledgeGraphScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,22 +223,22 @@ class _StemKnowledgeGraphScreenState extends State<StemKnowledgeGraphScreen> {
               Expanded(
                 child: Text(
                   source,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryGlow,
+                  color: context.colors.primaryGlow,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   relType,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     color: AppColors.primary,
@@ -245,16 +246,16 @@ class _StemKnowledgeGraphScreenState extends State<StemKnowledgeGraphScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward_rounded, size: 16, color: AppColors.textMuted),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
+              Icon(Icons.arrow_forward_rounded, size: 16, color: context.colors.textMuted),
+              SizedBox(width: 8),
               Expanded(
                 child: Text(
                   target,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                   textAlign: TextAlign.end,
                 ),
@@ -262,21 +263,21 @@ class _StemKnowledgeGraphScreenState extends State<StemKnowledgeGraphScreen> {
             ],
           ),
           if (description.isNotEmpty) ...[
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             Text(
               description,
-              style: const TextStyle(fontSize: 13, color: AppColors.textMuted),
+              style: TextStyle(fontSize: 13, color: context.colors.textMuted),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ],
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           Wrap(
             spacing: 6,
             runSpacing: 4,
             children: [
-              ...sourceTags.map<Widget>((t) => _buildTagChip(t.toString(), AppColors.info)),
-              ...targetTags.map<Widget>((t) => _buildTagChip(t.toString(), AppColors.teal)),
+              ...sourceTags.map<Widget>((t) => _buildTagChip(t.toString(), context.colors.info)),
+              ...targetTags.map<Widget>((t) => _buildTagChip(t.toString(), context.colors.teal)),
             ],
           ),
         ],

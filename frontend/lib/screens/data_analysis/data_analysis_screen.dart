@@ -4,9 +4,10 @@ import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
 import '../../widgets/ai_governance_widgets.dart';
 import '../../widgets/stem_text.dart';
+import '../../core/theme/theme_colors.dart';
 
 class DataAnalysisScreen extends StatefulWidget {
-  const DataAnalysisScreen({super.key});
+  DataAnalysisScreen({super.key});
 
   @override
   State<DataAnalysisScreen> createState() => _DataAnalysisScreenState();
@@ -73,10 +74,10 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        title: const Row(
+        backgroundColor: context.colors.surface,
+        title: Row(
           children: [
             Icon(Icons.insights_rounded, color: AppColors.primary, size: 22),
             SizedBox(width: 10),
@@ -88,7 +89,7 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.textSecondary),
+            icon: Icon(Icons.refresh_rounded, color: context.colors.textSecondary),
             tooltip: 'Load sample data',
             onPressed: _loadSample,
           ),
@@ -100,13 +101,13 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSectionLabel('Dataset (CSV format)'),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             _buildCsvInput(),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             _buildSectionLabel('Ask a question (optional)'),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             _buildQuestionInput(),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Semantics(
               button: true,
               label: 'Analyze data',
@@ -115,12 +116,12 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
                 child: ElevatedButton.icon(
                   onPressed: _isLoading ? null : _analyze,
                   icon: _isLoading
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                         )
-                      : const Icon(Icons.analytics_rounded, size: 18),
+                      : Icon(Icons.analytics_rounded, size: 18),
                   label: Text(_isLoading ? 'Analyzing...' : 'Analyze Data'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
@@ -132,11 +133,11 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
               ),
             ),
             if (_error != null) ...[
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               _buildError(_error!),
             ],
             if (_result != null) ...[
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               _buildResults(),
             ],
           ],
@@ -148,10 +149,10 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
   Widget _buildSectionLabel(String text) {
     return Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 13,
         fontWeight: FontWeight.w600,
-        color: AppColors.textSecondary,
+        color: context.colors.textSecondary,
       ),
     );
   }
@@ -159,22 +160,22 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
   Widget _buildCsvInput() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: TextField(
         controller: _csvCtrl,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: 'monospace',
           fontSize: 12,
-          color: AppColors.textPrimary,
+          color: context.colors.textPrimary,
         ),
         maxLines: 10,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           hintText: 'name,score,grade\nAlice,85,A\nBob,72,B',
           hintStyle: TextStyle(
-            color: AppColors.textMuted,
+            color: context.colors.textMuted,
             fontFamily: 'monospace',
             fontSize: 12,
           ),
@@ -188,16 +189,16 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
   Widget _buildQuestionInput() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: TextField(
         controller: _questionCtrl,
-        style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
-        decoration: const InputDecoration(
+        style: TextStyle(fontSize: 13, color: context.colors.textPrimary),
+        decoration: InputDecoration(
           hintText: 'e.g. What is the average score? Which student performed best?',
-          hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 13),
+          hintStyle: TextStyle(color: context.colors.textMuted, fontSize: 13),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         ),
@@ -209,15 +210,15 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.errorMuted,
+        color: context.colors.errorMuted,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: AppColors.error, size: 18),
-          const SizedBox(width: 8),
+          Icon(Icons.error_outline, color: context.colors.error, size: 18),
+          SizedBox(width: 8),
           Expanded(
-            child: Text(msg, style: const TextStyle(color: AppColors.error, fontSize: 13)),
+            child: Text(msg, style: TextStyle(color: context.colors.error, fontSize: 13)),
           ),
         ],
       ),
@@ -237,21 +238,21 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
       children: [
         AiGovernanceBar(sourcesJson: sources is String ? sources : null, label: 'AI-generated analysis'),
         if (stats.isNotEmpty) ...[
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildSectionLabel('Column Statistics'),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildStatsCards(stats),
         ],
         if (sampleData.isNotEmpty && headers.isNotEmpty) ...[
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildSectionLabel('Sample Data'),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildDataTable(headers.cast<String>(), sampleData),
         ],
         if (analysis.isNotEmpty) ...[
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildSectionLabel('AI Analysis'),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildAnalysisCard(analysis),
         ],
       ],
@@ -268,22 +269,22 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
           width: (MediaQuery.of(context).size.width - 48) / 2,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.colors.surface,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.colors.border),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 e.key,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: AppColors.primary,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               _statRow('Mean', '${s['mean']}'),
               _statRow('Min', '${s['min']}'),
               _statRow('Max', '${s['max']}'),
@@ -302,13 +303,13 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+          Text(label, style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: context.colors.textPrimary,
             ),
           ),
         ],
@@ -320,23 +321,23 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: DataTable(
-          headingRowColor: WidgetStateProperty.all(AppColors.surfaceElevated),
-          dataRowColor: WidgetStateProperty.all(AppColors.surface),
+          headingRowColor: WidgetStateProperty.all(context.colors.surfaceElevated),
+          dataRowColor: WidgetStateProperty.all(context.colors.surface),
           columns: headers
               .map((h) => DataColumn(
                     label: Text(
                       h,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textSecondary,
+                        color: context.colors.textSecondary,
                       ),
                     ),
                   ))
@@ -348,7 +349,7 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
                   .map((h) => DataCell(
                         Text(
                           '${map[h] ?? ''}',
-                          style: const TextStyle(fontSize: 11, color: AppColors.textPrimary),
+                          style: TextStyle(fontSize: 11, color: context.colors.textPrimary),
                         ),
                       ))
                   .toList(),
@@ -364,15 +365,15 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: StemText(
         analysis,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 13,
-          color: AppColors.textPrimary,
+          color: context.colors.textPrimary,
           height: 1.6,
         ),
       ),

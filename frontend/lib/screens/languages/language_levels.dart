@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/language_service.dart';
+import '../../core/theme/theme_colors.dart';
 
 class LanguageLevels extends StatefulWidget {
-  const LanguageLevels({super.key});
+  LanguageLevels({super.key});
 
   @override
   State<LanguageLevels> createState() => _LanguageLevelsState();
@@ -47,19 +48,19 @@ class _LanguageLevelsState extends State<LanguageLevels> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
-        title: const Text('Levels'),
-        backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.textPrimary,
+        title: Text('Levels'),
+        backgroundColor: context.colors.surface,
+        foregroundColor: context.colors.textPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18),
           onPressed: () => context.pop(),
         ),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? Center(child: CircularProgressIndicator(color: AppColors.primary))
           : _levels.isEmpty
               ? _buildEmpty()
               : ListView.builder(
@@ -82,9 +83,9 @@ class _LanguageLevelsState extends State<LanguageLevels> {
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: context.colors.surface,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: context.colors.border),
                       ),
                       child: Row(
                         children: [
@@ -98,7 +99,7 @@ class _LanguageLevelsState extends State<LanguageLevels> {
                             child: Center(
                               child: Text(
                                 '${i + 1}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w800,
                                   color: AppColors.primary,
@@ -106,7 +107,7 @@ class _LanguageLevelsState extends State<LanguageLevels> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: 16),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,26 +119,26 @@ class _LanguageLevelsState extends State<LanguageLevels> {
                                           fontWeight: FontWeight.w800,
                                           letterSpacing: 1.0,
                                           color: AppColors.primary)),
-                                const SizedBox(height: 2),
+                                SizedBox(height: 2),
                                 Text(name,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
-                                        color: AppColors.textPrimary)),
-                                const SizedBox(height: 2),
+                                        color: context.colors.textPrimary)),
+                                SizedBox(height: 2),
                                 Text(desc,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                        fontSize: 12, color: AppColors.textMuted)),
+                                    style: TextStyle(
+                                        fontSize: 12, color: context.colors.textMuted)),
                               ],
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: 12),
                           Column(
                             children: [
                               _statChip('$unitCount', 'Units'),
-                              const SizedBox(height: 4),
+                              SizedBox(height: 4),
                               _statChip('$lessonCount', 'Lessons'),
                             ],
                           ),
@@ -154,11 +155,11 @@ class _LanguageLevelsState extends State<LanguageLevels> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: AppColors.surfaceElevated,
+        color: context.colors.surfaceElevated,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text('$value $label',
-          style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
+          style: TextStyle(fontSize: 10, color: context.colors.textMuted)),
     );
   }
 
@@ -167,10 +168,10 @@ class _LanguageLevelsState extends State<LanguageLevels> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.school_outlined, size: 48, color: AppColors.textMuted),
-          const SizedBox(height: 12),
-          const Text('No levels available',
-              style: TextStyle(fontSize: 16, color: AppColors.textMuted)),
+          Icon(Icons.school_outlined, size: 48, color: context.colors.textMuted),
+          SizedBox(height: 12),
+          Text('No levels available',
+              style: TextStyle(fontSize: 16, color: context.colors.textMuted)),
         ],
       ),
     );

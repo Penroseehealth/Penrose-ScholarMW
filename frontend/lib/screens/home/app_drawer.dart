@@ -4,9 +4,10 @@ import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key});
+  AppDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +17,8 @@ class AppDrawer extends StatelessWidget {
 
     return Drawer(
       width: MediaQuery.of(context).size.width * 0.85,
-      backgroundColor: AppColors.surfaceElevated,
-      shape: const RoundedRectangleBorder(
+      backgroundColor: context.colors.surfaceElevated,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
           bottomLeft: Radius.circular(20),
@@ -31,7 +32,7 @@ class AppDrawer extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 children: [
                   _buildProfileHeader(context, auth),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
                   if (isStaff) ..._buildStaffItems(context, currentPath)
                   else ..._buildStudentItems(context, currentPath),
                 ],
@@ -73,9 +74,9 @@ class AppDrawer extends StatelessWidget {
       _buildDrawerItem(context, Icons.chat_bubble_outline_rounded, 'Messages', '/messages', currentPath),
       _buildDrawerItem(context, Icons.forum_rounded, 'Q&A Forum', '/forum', currentPath),
       _buildDrawerItem(context, Icons.campaign_rounded, 'Announcements', '/announcements', currentPath),
-      const SizedBox(height: 12),
+      SizedBox(height: 12),
       _buildDivider(),
-      const SizedBox(height: 12),
+      SizedBox(height: 12),
       _buildSectionHeader('TOOLS'),
       _buildDrawerItem(context, Icons.edit_note_rounded, 'Notes', '/notes', currentPath),
       _buildDrawerItem(context, Icons.menu_book_rounded, 'Books & Materials', '/vault', currentPath),
@@ -85,9 +86,9 @@ class AppDrawer extends StatelessWidget {
       _buildDrawerItem(context, Icons.code_rounded, 'Coding Playground', '/coding-playground', currentPath),
       _buildDrawerItem(context, Icons.analytics_rounded, 'Analytics Export', '/analytics-export', currentPath),
       _buildDrawerItem(context, Icons.admin_panel_settings_rounded, 'Content Manager', '/content-cms', currentPath),
-      const SizedBox(height: 12),
+      SizedBox(height: 12),
       _buildDivider(),
-      const SizedBox(height: 12),
+      SizedBox(height: 12),
       _buildSectionHeader('ACCOUNT'),
       _buildDrawerItem(context, Icons.person_rounded, 'Profile', '/profile', currentPath),
       _buildDrawerItem(context, Icons.notifications_active_rounded, 'Notification Settings', '/notification-settings', currentPath),
@@ -109,9 +110,9 @@ class AppDrawer extends StatelessWidget {
       _buildDrawerItem(context, Icons.assignment_rounded, 'Assignments', '/assignments', currentPath),
       _buildDrawerItem(context, Icons.analytics_rounded, 'Grades & Analytics', '/analytics', currentPath),
       _buildDrawerItem(context, Icons.admin_panel_settings_rounded, 'Admin Dashboard', '/admin', currentPath),
-      const SizedBox(height: 12),
+      SizedBox(height: 12),
       _buildDivider(),
-      const SizedBox(height: 12),
+      SizedBox(height: 12),
       _buildSectionHeader('AI TOOLS'),
       _buildDrawerItem(context, Icons.auto_awesome_rounded, 'Penrose Teaching Assistant', '/ai-tutor', currentPath),
       _buildDrawerItem(context, Icons.science_rounded, 'STEM Intelligence', '/stem', currentPath),
@@ -120,17 +121,17 @@ class AppDrawer extends StatelessWidget {
       _buildDrawerItem(context, Icons.code_rounded, 'Coding Playground', '/coding-playground', currentPath),
       _buildDrawerItem(context, Icons.admin_panel_settings_rounded, 'Content Manager', '/content-cms', currentPath),
       _buildDrawerItem(context, Icons.analytics_rounded, 'Analytics Export', '/analytics-export', currentPath),
-      const SizedBox(height: 12),
+      SizedBox(height: 12),
       _buildDivider(),
-      const SizedBox(height: 12),
+      SizedBox(height: 12),
       _buildSectionHeader('COMMUNITY'),
       _buildDrawerItem(context, Icons.forum_rounded, 'Q&A Forum', '/forum', currentPath),
       _buildDrawerItem(context, Icons.campaign_rounded, 'Announcements', '/announcements', currentPath),
       _buildDrawerItem(context, Icons.chat_bubble_outline_rounded, 'Messages', '/messages', currentPath),
       _buildDrawerItem(context, Icons.notifications_rounded, 'Notifications', '/smart-notifications', currentPath),
-      const SizedBox(height: 12),
+      SizedBox(height: 12),
       _buildDivider(),
-      const SizedBox(height: 12),
+      SizedBox(height: 12),
       _buildSectionHeader('ACCOUNT'),
       _buildDrawerItem(context, Icons.person_rounded, 'Profile', '/profile', currentPath),
       _buildDrawerItem(context, Icons.settings_rounded, 'Settings', '/settings', currentPath),
@@ -147,9 +148,9 @@ class AppDrawer extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         children: [
@@ -159,7 +160,7 @@ class AppDrawer extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     colors: [AppColors.primary, AppColors.primaryDark],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -169,7 +170,7 @@ class AppDrawer extends StatelessWidget {
                 child: Center(
                   child: Text(
                     firstName.isNotEmpty ? firstName[0].toUpperCase() : 'P',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -184,48 +185,48 @@ class AppDrawer extends StatelessWidget {
                   width: 14,
                   height: 14,
                   decoration: BoxDecoration(
-                    color: AppColors.success,
+                    color: context.colors.success,
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.surfaceElevated, width: 2),
+                    border: Border.all(color: context.colors.surfaceElevated, width: 2),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '$firstName$lastName',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   isStaff
                       ? (auth.user?['department'] ?? 'Computer Science')
                       : (auth.user?['department'] ?? 'Computer Science'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryGlow,
+                    color: context.colors.primaryGlow,
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     auth.userRole.toUpperCase(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: AppColors.primary,
@@ -246,7 +247,7 @@ class AppDrawer extends StatelessWidget {
       padding: const EdgeInsets.only(left: 4, bottom: 8, top: 4),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w700,
           color: AppColors.textMuted,
@@ -259,7 +260,7 @@ class AppDrawer extends StatelessWidget {
   Widget _buildDivider() {
     return Container(
       height: 1,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [Colors.transparent, AppColors.border, Colors.transparent],
         ),
@@ -279,7 +280,7 @@ class AppDrawer extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 2),
       child: Material(
-        color: isSelected ? AppColors.primaryGlow : Colors.transparent,
+        color: isSelected ? context.colors.primaryGlow : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
@@ -294,16 +295,16 @@ class AppDrawer extends StatelessWidget {
                 Icon(
                   icon,
                   size: 20,
-                  color: isSelected ? AppColors.primary : AppColors.textMuted,
+                  color: isSelected ? AppColors.primary : context.colors.textMuted,
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 14),
                 Expanded(
                   child: Text(
                     label,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                      color: isSelected ? AppColors.primary : context.colors.textSecondary,
                     ),
                   ),
                 ),
@@ -311,12 +312,12 @@ class AppDrawer extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppColors.error,
+                      color: context.colors.error,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
                       '$badge',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -335,24 +336,24 @@ class AppDrawer extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: Material(
-        color: AppColors.errorMuted,
+        color: context.colors.errorMuted,
         borderRadius: BorderRadius.circular(12),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: () => _showLogoutDialog(context),
-          child: const Padding(
+          child: Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.logout_rounded, size: 18, color: AppColors.error),
+                Icon(Icons.logout_rounded, size: 18, color: context.colors.error),
                 SizedBox(width: 8),
                 Text(
                   'Log Out',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.error,
+                    color: context.colors.error,
                   ),
                 ),
               ],
@@ -367,12 +368,12 @@ class AppDrawer extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('LOG OUT?'),
-        content: const Text('Are you sure you want to sign out of Penrose ScholarMW?'),
+        title: Text('LOG OUT?'),
+        content: Text('Are you sure you want to sign out of Penrose ScholarMW?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
+            child: Text('Cancel'),
           ),
           TextButton(
             onPressed: () async {
@@ -381,8 +382,8 @@ class AppDrawer extends StatelessWidget {
               await context.read<AuthProvider>().logout();
               if (context.mounted) context.go('/login');
             },
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('Log Out'),
+            style: TextButton.styleFrom(foregroundColor: context.colors.error),
+            child: Text('Log Out'),
           ),
         ],
       ),

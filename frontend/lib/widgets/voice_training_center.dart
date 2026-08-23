@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
 import 'voice_clone_manager.dart';
 import 'voice_selector.dart';
+import '../core/theme/theme_colors.dart';
 
 class VoiceTrainingCenter extends StatelessWidget {
   final String selectedVoiceId;
@@ -12,7 +13,7 @@ class VoiceTrainingCenter extends StatelessWidget {
   final bool autoRead;
   final Function(bool) onAutoReadChanged;
 
-  const VoiceTrainingCenter({
+  VoiceTrainingCenter({
     super.key,
     required this.selectedVoiceId,
     required this.onVoiceSelected,
@@ -25,13 +26,13 @@ class VoiceTrainingCenter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.colors.surface,
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(),
-            const Divider(color: AppColors.border, height: 1),
+            Divider(color: context.colors.border, height: 1),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
@@ -39,23 +40,23 @@ class VoiceTrainingCenter extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildSectionTitle('Default Voice'),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _buildVoicePreview(),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                     _buildSectionTitle('Playback Speed'),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _buildSpeedSelector(),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                     _buildSectionTitle('Auto-Read'),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _buildAutoReadToggle(),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                     _buildSectionTitle('TTS Language'),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _buildLanguageSelector(),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                     _buildSectionTitle('Voice Cloning'),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _buildCloneSection(context),
                   ],
                 ),
@@ -68,7 +69,7 @@ class VoiceTrainingCenter extends StatelessWidget {
   }
 
   Widget _buildHeader() {
-    return const Padding(
+    return Padding(
       padding: EdgeInsets.all(16),
       child: Row(
         children: [
@@ -144,11 +145,11 @@ class VoiceTrainingCenter extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.volume_up_rounded, size: 18, color: AppColors.primary),
+            child: Icon(Icons.volume_up_rounded, size: 18, color: AppColors.primary),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           Expanded(
-            child: Text(name, style: const TextStyle(fontSize: 13, color: AppColors.textPrimary)),
+            child: Text(name, style: TextStyle(fontSize: 13, color: AppColors.textPrimary)),
           ),
           Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textMuted),
         ],
@@ -205,11 +206,11 @@ class VoiceTrainingCenter extends StatelessWidget {
               size: 18,
               color: autoRead ? AppColors.primary : AppColors.textMuted,
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             Expanded(
               child: Text(
                 'Auto-read AI answers',
-                style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+                style: TextStyle(fontSize: 13, color: AppColors.textPrimary),
               ),
             ),
             Switch(
@@ -232,7 +233,7 @@ class VoiceTrainingCenter extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: AppColors.border),
       ),
-      child: const Row(
+      child: Row(
         children: [
           Icon(Icons.language_rounded, size: 18, color: AppColors.textSecondary),
           SizedBox(width: 10),
@@ -256,19 +257,19 @@ class VoiceTrainingCenter extends StatelessWidget {
           context: context,
           backgroundColor: Colors.transparent,
           isScrollControlled: true,
-          builder: (_) => const VoiceCloneManager(),
+          builder: (_) => VoiceCloneManager(),
         );
       },
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: context.colors.surfaceElevated,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
-        child: const Row(
+        child: Row(
           children: [
-            Icon(Icons.fingerprint_rounded, size: 18, color: AppColors.teal),
+            Icon(Icons.fingerprint_rounded, size: 18, color: context.colors.teal),
             SizedBox(width: 10),
             Expanded(
               child: Column(
@@ -276,16 +277,16 @@ class VoiceTrainingCenter extends StatelessWidget {
                 children: [
                   Text(
                     'Manage My Custom Voice',
-                    style: TextStyle(fontSize: 13, color: AppColors.textPrimary),
+                    style: TextStyle(fontSize: 13, color: context.colors.textPrimary),
                   ),
                   Text(
                     'Record, upload, and manage cloned voices',
-                    style: TextStyle(fontSize: 10, color: AppColors.textMuted),
+                    style: TextStyle(fontSize: 10, color: context.colors.textMuted),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textMuted),
+            Icon(Icons.chevron_right_rounded, size: 18, color: context.colors.textMuted),
           ],
         ),
       ),

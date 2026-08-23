@@ -6,9 +6,10 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
 import '../../providers/auth_provider.dart';
+import '../../core/theme/theme_colors.dart';
 
 class GamificationScreen extends StatefulWidget {
-  const GamificationScreen({super.key});
+  GamificationScreen({super.key});
 
   @override
   State<GamificationScreen> createState() => _GamificationScreenState();
@@ -80,7 +81,7 @@ class _GamificationScreenState extends State<GamificationScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: RefreshIndicator(
         onRefresh: _loadData,
         child: CustomScrollView(
@@ -97,7 +98,7 @@ class _GamificationScreenState extends State<GamificationScreen>
                     indicatorColor: Colors.white,
                     labelColor: Colors.white,
                     unselectedLabelColor: Colors.white60,
-                    tabs: const [
+                    tabs: [
                       Tab(text: 'Points'),
                       Tab(text: 'Badges'),
                       Tab(text: 'Leaderboard'),
@@ -107,7 +108,7 @@ class _GamificationScreenState extends State<GamificationScreen>
               ),
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [AppColors.primary, AppColors.primaryDark],
                       begin: Alignment.topLeft,
@@ -121,7 +122,7 @@ class _GamificationScreenState extends State<GamificationScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          const Text(
+                          Text(
                             'Gamification',
                             style: TextStyle(
                               color: Colors.white,
@@ -129,7 +130,7 @@ class _GamificationScreenState extends State<GamificationScreen>
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4),
                           Text(
                             'Track your progress, achievements & rank',
                             style: TextStyle(
@@ -158,7 +159,7 @@ class _GamificationScreenState extends State<GamificationScreen>
 
   Widget _buildBody() {
     if (_loading) {
-      return const SizedBox(
+      return SizedBox(
         height: 300,
         child: Center(child: CircularProgressIndicator()),
       );
@@ -201,35 +202,35 @@ class _GamificationScreenState extends State<GamificationScreen>
                 color: AppColors.primary,
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Expanded(
               child: _buildPointsStatCard(
                 label: 'Total Points',
                 value: '$totalEarned',
                 icon: Icons.star_outline,
-                color: AppColors.secondary,
+                color: context.colors.secondary,
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Expanded(
               child: _buildPointsStatCard(
                 label: 'Streak',
                 value: '$streakDays days',
                 icon: Icons.local_fire_department_outlined,
-                color: AppColors.warning,
+                color: context.colors.warning,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         _buildSectionHeader('Level Progress'),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         _buildLevelProgressCard(level),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         _buildSectionHeader('Activity Summary'),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         _buildActivitySummary(),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         _buildCertificatesButton(),
       ],
     );
@@ -248,7 +249,7 @@ class _GamificationScreenState extends State<GamificationScreen>
         child: Column(
           children: [
             Icon(icon, color: color, size: 26),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               value,
               style: TextStyle(
@@ -257,12 +258,12 @@ class _GamificationScreenState extends State<GamificationScreen>
                 color: color,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
-                color: AppColors.textSecondary,
+                color: context.colors.textSecondary,
                 fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,
@@ -291,37 +292,37 @@ class _GamificationScreenState extends State<GamificationScreen>
               children: [
                 Text(
                   'Level $level',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
                   '$currentPoints / $nextLevelPoints pts',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             ClipRRect(
               borderRadius: BorderRadius.circular(6),
               child: LinearProgressIndicator(
                 value: progress.toDouble(),
                 minHeight: 10,
-                backgroundColor: AppColors.divider,
+                backgroundColor: context.colors.divider,
                 valueColor:
                     const AlwaysStoppedAnimation<Color>(AppColors.primary),
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               '${((1 - progress) * nextLevelPoints).toInt()} points to Level ${level + 1}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: AppColors.textSecondary,
+                color: context.colors.textSecondary,
               ),
             ),
           ],
@@ -342,25 +343,25 @@ class _GamificationScreenState extends State<GamificationScreen>
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: AppColors.info.withOpacity(0.1),
+                color: context.colors.info.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.calendar_today_outlined,
-                  color: AppColors.info, size: 22),
+              child: Icon(Icons.calendar_today_outlined,
+                  color: context.colors.info, size: 22),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Last Activity',
-                    style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(
                     lastActivity.toString(),
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ],
@@ -386,14 +387,14 @@ class _GamificationScreenState extends State<GamificationScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Earned (${earned.length})'),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         if (earned.isEmpty)
           _buildEmptyCard('No badges earned yet. Keep learning!')
         else
           GridView.builder(
             shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            physics: NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               mainAxisSpacing: 8,
               crossAxisSpacing: 8,
@@ -402,16 +403,16 @@ class _GamificationScreenState extends State<GamificationScreen>
             itemCount: earned.length,
             itemBuilder: (context, index) => _buildAchievementBadge(earned[index]),
           ),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         _buildSectionHeader('Locked (${locked.length})'),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         if (locked.isEmpty)
           _buildEmptyCard('All achievements unlocked!')
         else
           GridView.builder(
             shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            physics: NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               mainAxisSpacing: 8,
               crossAxisSpacing: 8,
@@ -432,7 +433,7 @@ class _GamificationScreenState extends State<GamificationScreen>
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: isEarned ? null : AppColors.surfaceHighest,
+      color: isEarned ? null : context.colors.surfaceHighest,
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: Column(
@@ -441,15 +442,15 @@ class _GamificationScreenState extends State<GamificationScreen>
             Icon(
               _badgeIcon(iconStr),
               size: 36,
-              color: isEarned ? AppColors.secondary : AppColors.textMuted,
+              color: isEarned ? context.colors.secondary : context.colors.textMuted,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               name,
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: isEarned ? AppColors.textPrimary : AppColors.textSecondary,
+                color: isEarned ? context.colors.textPrimary : context.colors.textSecondary,
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -498,7 +499,7 @@ class _GamificationScreenState extends State<GamificationScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Top Scholars'),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         ..._leaderboard.map((entry) {
           final isCurrentUser = entry['user_id'] == currentUserId;
           return _buildLeaderboardEntry(entry, isCurrentUser);
@@ -516,13 +517,13 @@ class _GamificationScreenState extends State<GamificationScreen>
 
     Color rankColor;
     if (rank == 1) {
-      rankColor = const Color(0xFFFFD700);
+      rankColor = Color(0xFFFFD700);
     } else if (rank == 2) {
-      rankColor = const Color(0xFFC0C0C0);
+      rankColor = Color(0xFFC0C0C0);
     } else if (rank == 3) {
-      rankColor = const Color(0xFFCD7F32);
+      rankColor = Color(0xFFCD7F32);
     } else {
-      rankColor = AppColors.textSecondary;
+      rankColor = context.colors.textSecondary;
     }
 
     return Card(
@@ -544,21 +545,21 @@ class _GamificationScreenState extends State<GamificationScreen>
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             CircleAvatar(
               radius: 20,
               backgroundColor: isCurrentUser
                   ? AppColors.primary.withOpacity(0.15)
-                  : AppColors.divider,
+                  : context.colors.divider,
               child: Text(
                 displayName.isNotEmpty ? displayName[0].toUpperCase() : '?',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: isCurrentUser ? AppColors.primary : AppColors.textSecondary,
+                  color: isCurrentUser ? AppColors.primary : context.colors.textSecondary,
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -570,24 +571,24 @@ class _GamificationScreenState extends State<GamificationScreen>
                       fontWeight: FontWeight.w600,
                       color: isCurrentUser
                           ? AppColors.primary
-                          : AppColors.textPrimary,
+                          : context.colors.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(
                     'Lv.$level · $streakDays day streak',
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.textSecondary),
+                    style: TextStyle(
+                        fontSize: 12, color: context.colors.textSecondary),
                   ),
                 ],
               ),
             ),
             Text(
               '$totalEarned pts',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: AppColors.secondary,
+                color: context.colors.secondary,
               ),
             ),
           ],
@@ -605,7 +606,7 @@ class _GamificationScreenState extends State<GamificationScreen>
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             colors: [Color(0xFF1A1040), AppColors.primaryDark],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -613,7 +614,7 @@ class _GamificationScreenState extends State<GamificationScreen>
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
         ),
-        child: const Row(
+        child: Row(
           children: [
             Icon(Icons.workspace_premium_outlined, color: AppColors.primaryLight, size: 24),
             SizedBox(width: 14),
@@ -623,17 +624,17 @@ class _GamificationScreenState extends State<GamificationScreen>
                 children: [
                   Text(
                     'My Certificates',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
                   ),
                   SizedBox(height: 2),
                   Text(
                     'View and share your earned certificates',
-                    style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                    style: TextStyle(fontSize: 12, color: context.colors.textMuted),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 20),
+            Icon(Icons.chevron_right_rounded, color: context.colors.textMuted, size: 20),
           ],
         ),
       ),
@@ -643,10 +644,10 @@ class _GamificationScreenState extends State<GamificationScreen>
   Widget _buildSectionHeader(String title) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.bold,
-        color: AppColors.textPrimary,
+        color: context.colors.textPrimary,
       ),
     );
   }
@@ -660,7 +661,7 @@ class _GamificationScreenState extends State<GamificationScreen>
           child: Text(
             message,
             style:
-                const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                TextStyle(fontSize: 13, color: context.colors.textSecondary),
           ),
         ),
       ),
@@ -674,20 +675,20 @@ class _GamificationScreenState extends State<GamificationScreen>
         child: Column(
           children: [
             Icon(Icons.emoji_events_outlined,
-                size: 56, color: AppColors.textMuted.withOpacity(0.3)),
-            const SizedBox(height: 12),
+                size: 56, color: context.colors.textMuted.withOpacity(0.3)),
+            SizedBox(height: 12),
             Text(
               message,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
+                color: context.colors.textSecondary,
               ),
             ),
-            const SizedBox(height: 4),
-            const Text(
+            SizedBox(height: 4),
+            Text(
               'Complete activities to earn points and badges',
-              style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+              style: TextStyle(fontSize: 13, color: context.colors.textMuted),
             ),
           ],
         ),
@@ -701,15 +702,15 @@ class _GamificationScreenState extends State<GamificationScreen>
         padding: const EdgeInsets.all(32),
         child: Column(
           children: [
-            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
-            const SizedBox(height: 12),
+            Icon(Icons.error_outline, size: 48, color: context.colors.error),
+            SizedBox(height: 12),
             Text(
               _error!,
               style:
-                  const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                  TextStyle(fontSize: 14, color: context.colors.textSecondary),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadData,
               style: ElevatedButton.styleFrom(
@@ -719,7 +720,7 @@ class _GamificationScreenState extends State<GamificationScreen>
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text('Retry'),
+              child: Text('Retry'),
             ),
           ],
         ),

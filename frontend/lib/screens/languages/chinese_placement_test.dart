@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 
 class ChinesePlacementTest extends StatefulWidget {
-  const ChinesePlacementTest({super.key});
+  ChinesePlacementTest({super.key});
   @override
   State<ChinesePlacementTest> createState() => _ChinesePlacementTestState();
 }
@@ -164,25 +165,25 @@ class _ChinesePlacementTestState extends State<ChinesePlacementTest> {
     if (_done) return _buildResult();
     final q = _pool[_qi];
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
-        title: const Text('Placement Test'),
-        backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.textPrimary, elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18), onPressed: () => context.pop()),
+        title: Text('Placement Test'),
+        backgroundColor: context.colors.surface,
+        foregroundColor: context.colors.textPrimary, elevation: 0,
+        leading: IconButton(icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18), onPressed: () => context.pop()),
         actions: [Container(
           margin: const EdgeInsets.only(right: 12, top: 8, bottom: 8),
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(color: accent.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.star_rounded, size: 16, color: accent), const SizedBox(width: 6),
+            Icon(Icons.star_rounded, size: 16, color: accent), SizedBox(width: 6),
             Text('$_score/$_cnt', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: accent))]))]),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          _tierBadge(), const SizedBox(height: 12), _progress(), const SizedBox(height: 16),
-          _qCard(q), const SizedBox(height: 16), _opts(q), const SizedBox(height: 16),
-          if (_ans) ...[_feedback(q), const SizedBox(height: 16), _nextBtn()]
+          _tierBadge(), SizedBox(height: 12), _progress(), SizedBox(height: 16),
+          _qCard(q), SizedBox(height: 16), _opts(q), SizedBox(height: 16),
+          if (_ans) ...[_feedback(q), SizedBox(height: 16), _nextBtn()]
         ])),
     );
   }
@@ -198,23 +199,23 @@ class _ChinesePlacementTestState extends State<ChinesePlacementTest> {
     final pct = _pool.isNotEmpty ? (_qi + 1) / _pool.length : 0.0;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text('Question ${_qi+1} of ${_pool.length}', style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
-        Text('${(_pool.isNotEmpty ? (_qi+1)*100~/_pool.length : 0)}%', style: const TextStyle(fontSize: 12, color: AppColors.textMuted))]),
-      const SizedBox(height: 6),
+        Text('Question ${_qi+1} of ${_pool.length}', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+        Text('${(_pool.isNotEmpty ? (_qi+1)*100~/_pool.length : 0)}%', style: TextStyle(fontSize: 12, color: context.colors.textMuted))]),
+      SizedBox(height: 6),
       ClipRRect(borderRadius: BorderRadius.circular(4), child: LinearProgressIndicator(
-        value: pct, backgroundColor: AppColors.surfaceElevated, color: accent, minHeight: 6))]);
+        value: pct, backgroundColor: context.colors.surfaceElevated, color: accent, minHeight: 6))]);
   }
 
   Widget _qCard(Map<String,dynamic> q) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(18), border: Border.all(color: AppColors.border)),
+      decoration: BoxDecoration(color: context.colors.surface, borderRadius: BorderRadius.circular(18), border: Border.all(color: context.colors.border)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(color: accent.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(6)),
           child: Text('${(q['type'] as String).toUpperCase()}', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: accent))),
-        const SizedBox(height: 12),
-        Text(q['q'] as String, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+        SizedBox(height: 12),
+        Text(q['q'] as String, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
       ]));
   }
 
@@ -226,8 +227,8 @@ class _ChinesePlacementTestState extends State<ChinesePlacementTest> {
       final isSel = i == _sel;
       Color bg = AppColors.surfaceElevated;
       Color border = AppColors.border;
-      if (_ans && isCorrect) { bg = AppColors.success.withValues(alpha: 0.15); border = AppColors.success; }
-      else if (_ans && isSel && !isCorrect) { bg = AppColors.error.withValues(alpha: 0.15); border = AppColors.error; }
+      if (_ans && isCorrect) { bg = context.colors.success.withValues(alpha: 0.15); border = context.colors.success; }
+      else if (_ans && isSel && !isCorrect) { bg = context.colors.error.withValues(alpha: 0.15); border = context.colors.error; }
       return GestureDetector(
         onTap: () => _pick(i),
         child: Container(
@@ -238,10 +239,10 @@ class _ChinesePlacementTestState extends State<ChinesePlacementTest> {
             Container(width: 28, height: 28,
               decoration: BoxDecoration(color: accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
               child: Center(child: Text(String.fromCharCode(65 + i), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: accent)))),
-            const SizedBox(width: 12),
-            Expanded(child: Text(opts[i] as String, style: TextStyle(fontSize: 14, fontWeight: isSel ? FontWeight.w700 : FontWeight.w500, color: AppColors.textPrimary))),
-            if (_ans && isCorrect) Icon(Icons.check_circle_rounded, size: 18, color: AppColors.success),
-            if (_ans && isSel && !isCorrect) Icon(Icons.cancel_rounded, size: 18, color: AppColors.error),
+            SizedBox(width: 12),
+            Expanded(child: Text(opts[i] as String, style: TextStyle(fontSize: 14, fontWeight: isSel ? FontWeight.w700 : FontWeight.w500, color: context.colors.textPrimary))),
+            if (_ans && isCorrect) Icon(Icons.check_circle_rounded, size: 18, color: context.colors.success),
+            if (_ans && isSel && !isCorrect) Icon(Icons.cancel_rounded, size: 18, color: context.colors.error),
           ])));
     }));
   }
@@ -251,14 +252,14 @@ class _ChinesePlacementTestState extends State<ChinesePlacementTest> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: ok ? AppColors.success.withValues(alpha: 0.1) : AppColors.error.withValues(alpha: 0.1),
+        color: ok ? context.colors.success.withValues(alpha: 0.1) : context.colors.error.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: ok ? AppColors.success.withValues(alpha: 0.3) : AppColors.error.withValues(alpha: 0.3)),
+        border: Border.all(color: ok ? context.colors.success.withValues(alpha: 0.3) : context.colors.error.withValues(alpha: 0.3)),
       ),
       child: Row(children: [
-        Icon(ok ? Icons.check_circle_rounded : Icons.info_rounded, size: 18, color: ok ? AppColors.success : AppColors.error),
-        const SizedBox(width: 10),
-        Expanded(child: Text(ok ? 'Correct!' : 'Wrong!', style: TextStyle(fontWeight: FontWeight.w700, color: ok ? AppColors.success : AppColors.error)))
+        Icon(ok ? Icons.check_circle_rounded : Icons.info_rounded, size: 18, color: ok ? context.colors.success : context.colors.error),
+        SizedBox(width: 10),
+        Expanded(child: Text(ok ? 'Correct!' : 'Wrong!', style: TextStyle(fontWeight: FontWeight.w700, color: ok ? context.colors.success : context.colors.error)))
       ]));
   }
 
@@ -268,19 +269,19 @@ class _ChinesePlacementTestState extends State<ChinesePlacementTest> {
       child: Container(
         width: double.infinity, padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(color: accent, borderRadius: BorderRadius.circular(12)),
-        child: const Center(child: Text('Next Question', style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)))));
+        child: Center(child: Text('Next Question', style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)))));
   }
 
   Widget _buildResult() {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
-        title: const Text('Results'),
-        backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.textPrimary,
+        title: Text('Results'),
+        backgroundColor: context.colors.surface,
+        foregroundColor: context.colors.textPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18),
           onPressed: () => context.pop(),
         ),
       ),
@@ -291,29 +292,29 @@ class _ChinesePlacementTestState extends State<ChinesePlacementTest> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.emoji_events_rounded, size: 64, color: accent),
-              const SizedBox(height: 16),
-              const Text('Test Complete!',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
-              const SizedBox(height: 8),
+              SizedBox(height: 16),
+              Text('Test Complete!',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
+              SizedBox(height: 8),
               Text('$_score / $_cnt correct',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: accent)),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.colors.surface,
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.colors.border),
                 ),
                 child: Column(children: [
-                  const Text('Recommended Level',
-                    style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
-                  const SizedBox(height: 8),
+                  Text('Recommended Level',
+                    style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+                  SizedBox(height: 8),
                   Text(_rec,
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: accent)),
                 ]),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               GestureDetector(
                 onTap: _reset,
                 child: Container(
@@ -328,7 +329,7 @@ class _ChinesePlacementTestState extends State<ChinesePlacementTest> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.refresh_rounded, size: 18, color: accent),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Text('Retake Test',
                         style: TextStyle(fontWeight: FontWeight.w700, color: accent)),
                     ],

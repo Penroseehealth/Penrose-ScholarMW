@@ -4,9 +4,10 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/api_service.dart';
 import '../../widgets/shimmer_loading.dart';
+import '../../core/theme/theme_colors.dart';
 
 class ContentCmsScreen extends StatefulWidget {
-  const ContentCmsScreen({super.key});
+  ContentCmsScreen({super.key});
   @override
   State<ContentCmsScreen> createState() => _ContentCmsScreenState();
 }
@@ -214,27 +215,27 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
       builder: (_) => Container(
         margin: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 8),
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2))),
-            const SizedBox(height: 16),
+            SizedBox(height: 8),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: context.colors.border, borderRadius: BorderRadius.circular(2))),
+            SizedBox(height: 16),
             ListTile(
-              leading: const Icon(Icons.edit_rounded, color: AppColors.primary),
-              title: Text('Edit $type', style: const TextStyle(color: AppColors.textPrimary)),
+              leading: Icon(Icons.edit_rounded, color: AppColors.primary),
+              title: Text('Edit $type', style: TextStyle(color: context.colors.textPrimary)),
               onTap: () { Navigator.pop(context); _enterEditor(item, type); },
             ),
             ListTile(
-              leading: const Icon(Icons.delete_rounded, color: AppColors.error),
-              title: Text('Delete $type', style: const TextStyle(color: AppColors.error)),
+              leading: Icon(Icons.delete_rounded, color: context.colors.error),
+              title: Text('Delete $type', style: TextStyle(color: context.colors.error)),
               onTap: () { Navigator.pop(context); _confirmDelete(type, id); },
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
           ],
         ),
       ),
@@ -245,15 +246,15 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: const BorderSide(color: AppColors.border)),
-        title: Text('Delete $type?', style: const TextStyle(color: AppColors.textPrimary)),
-        content: Text('This action cannot be undone.', style: const TextStyle(color: AppColors.textSecondary)),
+        backgroundColor: context.colors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: BorderSide(color: context.colors.border)),
+        title: Text('Delete $type?', style: TextStyle(color: context.colors.textPrimary)),
+        content: Text('This action cannot be undone.', style: TextStyle(color: context.colors.textSecondary)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel', style: TextStyle(color: context.colors.textSecondary))),
           TextButton(
             onPressed: () { Navigator.pop(context); _deleteItem(type, id); },
-            child: const Text('Delete', style: TextStyle(color: AppColors.error)),
+            child: Text('Delete', style: TextStyle(color: context.colors.error)),
           ),
         ],
       ),
@@ -270,11 +271,11 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
 
   Widget _buildDashboardView() {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: RefreshIndicator(
         onRefresh: _loadDashboard,
         color: AppColors.primary,
-        backgroundColor: AppColors.surface,
+        backgroundColor: context.colors.surface,
         child: CustomScrollView(
           slivers: [
             _buildAppBar(),
@@ -282,9 +283,9 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
               SliverToBoxAdapter(child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(children: [
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   ShimmerLoading.grid(count: 4, childAspectRatio: 1.8),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                   ShimmerLoading.list(count: 5, height: 56),
                 ]),
               ))
@@ -292,20 +293,20 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
               SliverToBoxAdapter(child: Padding(
                 padding: const EdgeInsets.all(40),
                 child: Column(children: [
-                  const Icon(Icons.error_outline_rounded, size: 48, color: AppColors.error),
-                  const SizedBox(height: 12),
-                  Text('Failed to load content', style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 8),
-                  Text(_error!, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13), textAlign: TextAlign.center),
-                  const SizedBox(height: 16),
-                  TextButton(onPressed: _loadDashboard, child: const Text('Retry', style: TextStyle(color: AppColors.primary))),
+                  Icon(Icons.error_outline_rounded, size: 48, color: context.colors.error),
+                  SizedBox(height: 12),
+                  Text('Failed to load content', style: TextStyle(color: context.colors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
+                  SizedBox(height: 8),
+                  Text(_error!, style: TextStyle(color: context.colors.textSecondary, fontSize: 13), textAlign: TextAlign.center),
+                  SizedBox(height: 16),
+                  TextButton(onPressed: _loadDashboard, child: Text('Retry', style: TextStyle(color: AppColors.primary))),
                 ]),
               ))
             else ...[
               SliverToBoxAdapter(child: _buildStatsRow()),
               SliverToBoxAdapter(child: _buildTreeHeader()),
               _buildTree(),
-              const SliverToBoxAdapter(child: SizedBox(height: 80)),
+              SliverToBoxAdapter(child: SizedBox(height: 80)),
             ],
           ],
         ),
@@ -313,7 +314,7 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: _showCreateSheet,
         backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add_rounded, color: Colors.white),
+        child: Icon(Icons.add_rounded, color: Colors.white),
       ),
     );
   }
@@ -321,13 +322,13 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
   SliverAppBar _buildAppBar() => SliverAppBar(
     expandedHeight: 90, pinned: true, backgroundColor: AppColors.primaryDark,
     leading: IconButton(
-      icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+      icon: Icon(Icons.arrow_back_rounded, color: Colors.white),
       onPressed: () => context.go('/'),
     ),
     flexibleSpace: FlexibleSpaceBar(
-      title: const Text('Content Manager', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
+      title: Text('Content Manager', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
       background: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(colors: [AppColors.primaryDark, AppColors.primary], begin: Alignment.topLeft, end: Alignment.bottomRight),
         ),
       ),
@@ -337,9 +338,9 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
   Widget _buildStatsRow() {
     final items = [
       _StatCard(icon: Icons.book_rounded, label: 'Subjects', value: _stats['total_subjects'] ?? _subjects.length, color: AppColors.primary),
-      _StatCard(icon: Icons.account_tree_rounded, label: 'Disciplines', value: _stats['total_disciplines'] ?? 0, color: AppColors.teal),
-      _StatCard(icon: Icons.menu_book_rounded, label: 'Topics', value: _stats['total_topics'] ?? 0, color: AppColors.warning),
-      _StatCard(icon: Icons.lightbulb_rounded, label: 'Concepts', value: _stats['total_concepts'] ?? 0, color: AppColors.success),
+      _StatCard(icon: Icons.account_tree_rounded, label: 'Disciplines', value: _stats['total_disciplines'] ?? 0, color: context.colors.teal),
+      _StatCard(icon: Icons.menu_book_rounded, label: 'Topics', value: _stats['total_topics'] ?? 0, color: context.colors.warning),
+      _StatCard(icon: Icons.lightbulb_rounded, label: 'Concepts', value: _stats['total_concepts'] ?? 0, color: context.colors.success),
     ];
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
@@ -353,25 +354,25 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
       child: Row(children: [
-        const Icon(Icons.account_tree_rounded, size: 18, color: AppColors.textSecondary),
-        const SizedBox(width: 8),
-        Text('Content Tree', style: TextStyle(color: AppColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
-        const Spacer(),
-        if (_subjects.isNotEmpty) Text('${_subjects.length} subjects', style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+        Icon(Icons.account_tree_rounded, size: 18, color: context.colors.textSecondary),
+        SizedBox(width: 8),
+        Text('Content Tree', style: TextStyle(color: context.colors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
+        Spacer(),
+        if (_subjects.isNotEmpty) Text('${_subjects.length} subjects', style: TextStyle(color: context.colors.textMuted, fontSize: 12)),
       ]),
     );
   }
 
   Widget _buildTree() {
     if (_subjects.isEmpty) {
-      return const SliverToBoxAdapter(child: Padding(
+      return SliverToBoxAdapter(child: Padding(
         padding: EdgeInsets.all(40),
         child: Column(children: [
-          Icon(Icons.folder_open_rounded, size: 48, color: AppColors.textMuted),
+          Icon(Icons.folder_open_rounded, size: 48, color: context.colors.textMuted),
           SizedBox(height: 12),
-          Text('No subjects yet', style: TextStyle(color: AppColors.textSecondary)),
+          Text('No subjects yet', style: TextStyle(color: context.colors.textSecondary)),
           SizedBox(height: 4),
-          Text('Tap + to create your first subject', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+          Text('Tap + to create your first subject', style: TextStyle(color: context.colors.textMuted, fontSize: 12)),
         ]),
       ));
     }
@@ -404,7 +405,7 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
     return Column(
       children: [
         Material(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(borderRadius),
           child: InkWell(
             borderRadius: BorderRadius.circular(borderRadius),
@@ -414,7 +415,7 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
               padding: EdgeInsets.symmetric(horizontal: leftPad, vertical: leftPad),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(borderRadius),
-                border: Border.all(color: AppColors.border.withValues(alpha: borderAlpha)),
+                border: Border.all(color: context.colors.border.withValues(alpha: borderAlpha)),
               ),
               child: Row(
                 children: [
@@ -427,23 +428,23 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
                   Expanded(
                     child: subtitle != null
                         ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                            Text(title, style: TextStyle(color: AppColors.textPrimary, fontSize: fontSize, fontWeight: FontWeight.w500)),
-                            Text(subtitle, style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
+                            Text(title, style: TextStyle(color: context.colors.textPrimary, fontSize: fontSize, fontWeight: FontWeight.w500)),
+                            Text(subtitle, style: TextStyle(color: context.colors.textMuted, fontSize: 10)),
                           ])
-                        : Text(title, style: TextStyle(color: AppColors.textPrimary, fontSize: fontSize, fontWeight: FontWeight.w600)),
+                        : Text(title, style: TextStyle(color: context.colors.textPrimary, fontSize: fontSize, fontWeight: FontWeight.w600)),
                   ),
                   if (nodeCount > 0)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                      decoration: BoxDecoration(color: AppColors.surfaceHighest, borderRadius: BorderRadius.circular(6)),
-                      child: Text('$nodeCount', style: TextStyle(color: AppColors.textMuted, fontSize: fontSize - 3)),
+                      decoration: BoxDecoration(color: context.colors.surfaceHighest, borderRadius: BorderRadius.circular(6)),
+                      child: Text('$nodeCount', style: TextStyle(color: context.colors.textMuted, fontSize: fontSize - 3)),
                     ),
                   if (onExpand != null) ...[
                     SizedBox(width: leftPad - 6),
                     AnimatedRotation(
                       turns: expanded ? 0.25 : 0,
-                      duration: const Duration(milliseconds: 200),
-                      child: Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: fontSize + 2),
+                      duration: Duration(milliseconds: 200),
+                      child: Icon(Icons.chevron_right_rounded, color: context.colors.textMuted, size: fontSize + 2),
                     ),
                   ],
                 ],
@@ -457,7 +458,7 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
             child: children.isEmpty
                 ? Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-                    child: Text('No ${type.toLowerCase()}s', style: const TextStyle(color: AppColors.textMuted, fontSize: 12, fontStyle: FontStyle.italic)),
+                    child: Text('No ${type.toLowerCase()}s', style: TextStyle(color: context.colors.textMuted, fontSize: 12, fontStyle: FontStyle.italic)),
                   )
                 : Column(children: children.cast<Widget>()),
           ),
@@ -471,7 +472,7 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
     final children = (_disciplinesCache[id] ?? []).map((d) => _disciplineNode(d)).toList();
     return _buildTreeNode(
       item: subject, type: 'Subject', icon: Icons.book_rounded,
-      iconColor: AppColors.primary, iconBg: AppColors.primaryGlow,
+      iconColor: AppColors.primary, iconBg: context.colors.primaryGlow,
       borderRadius: 14, iconSize: 18, fontSize: 14, leftPad: 14, borderAlpha: 1.0,
       expanded: expanded, children: children,
       onExpand: () { if (!expanded) _loadDisciplines(id); setState(() { expanded ? _expandedSubjects.remove(id) : _expandedSubjects.add(id); }); },
@@ -484,7 +485,7 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
     final children = (_topicsCache[id] ?? []).map((t) => _topicNode(t)).toList();
     return _buildTreeNode(
       item: discipline, type: 'Discipline', icon: Icons.account_tree_rounded,
-      iconColor: AppColors.success, iconBg: AppColors.successMuted,
+      iconColor: context.colors.success, iconBg: context.colors.successMuted,
       borderRadius: 12, iconSize: 15, fontSize: 13, leftPad: 12, borderAlpha: 0.6,
       expanded: expanded, children: children,
       onExpand: () { if (!expanded) _loadTopics(id); setState(() { expanded ? _expandedDisciplines.remove(id) : _expandedDisciplines.add(id); }); },
@@ -498,7 +499,7 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
     final children = (_subtopicsCache[id] ?? []).map((s) => _subtopicNode(s)).toList();
     return _buildTreeNode(
       item: topic, type: 'Topic', icon: Icons.menu_book_rounded,
-      iconColor: AppColors.warning, iconBg: AppColors.warningMuted,
+      iconColor: context.colors.warning, iconBg: context.colors.warningMuted,
       borderRadius: 10, iconSize: 14, fontSize: 13, leftPad: 12, borderAlpha: 0.4,
       expanded: expanded, children: children, subtitle: diff.isNotEmpty ? diff : null,
       onExpand: () { if (!expanded) _loadSubtopics(id); setState(() { expanded ? _expandedTopics.remove(id) : _expandedTopics.add(id); }); },
@@ -511,7 +512,7 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
     final children = (_conceptsCache[id] ?? []).map((c) => _conceptNode(c)).toList();
     return _buildTreeNode(
       item: subtopic, type: 'Subtopic', icon: Icons.topic_rounded,
-      iconColor: AppColors.info, iconBg: AppColors.infoMuted,
+      iconColor: context.colors.info, iconBg: context.colors.infoMuted,
       borderRadius: 8, iconSize: 13, fontSize: 12, leftPad: 10, borderAlpha: 0.3,
       expanded: expanded, children: children,
       onExpand: () { if (!expanded) _loadConcepts(id); setState(() { expanded ? _expandedSubtopics.remove(id) : _expandedSubtopics.add(id); }); },
@@ -522,26 +523,26 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
     final title = concept['title'] ?? 'Untitled';
     final diff = concept['difficulty_level']?.toString() ?? '';
     return Material(
-      color: AppColors.surface,
+      color: context.colors.surface,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
         onLongPress: () => _showItemActions(concept, 'Concept'),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.border.withValues(alpha: 0.2))),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), border: Border.all(color: context.colors.border.withValues(alpha: 0.2))),
           child: Row(
             children: [
               Container(
                 width: 24, height: 24,
-                decoration: BoxDecoration(color: AppColors.primaryGlow, borderRadius: BorderRadius.circular(6)),
-                child: const Icon(Icons.lightbulb_rounded, size: 12, color: AppColors.primary),
+                decoration: BoxDecoration(color: context.colors.primaryGlow, borderRadius: BorderRadius.circular(6)),
+                child: Icon(Icons.lightbulb_rounded, size: 12, color: AppColors.primary),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(title, style: const TextStyle(color: AppColors.textPrimary, fontSize: 12)),
-                  if (diff.isNotEmpty) Text(diff, style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
+                  Text(title, style: TextStyle(color: context.colors.textPrimary, fontSize: 12)),
+                  if (diff.isNotEmpty) Text(diff, style: TextStyle(color: context.colors.textMuted, fontSize: 10)),
                 ]),
               ),
             ],
@@ -575,18 +576,18 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, size: 18, color: color),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text('$value', style: TextStyle(color: color, fontSize: 20, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 2),
-          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
+          SizedBox(height: 2),
+          Text(label, style: TextStyle(color: context.colors.textMuted, fontSize: 10)),
         ],
       ),
     );
@@ -602,41 +603,41 @@ class _CreatePickerSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = [
       _PickerItem(icon: Icons.book_rounded, label: 'Subject', color: AppColors.primary),
-      _PickerItem(icon: Icons.account_tree_rounded, label: 'Discipline', color: AppColors.success),
-      _PickerItem(icon: Icons.menu_book_rounded, label: 'Topic', color: AppColors.warning),
-      _PickerItem(icon: Icons.topic_rounded, label: 'Subtopic', color: AppColors.info),
-      _PickerItem(icon: Icons.lightbulb_rounded, label: 'Concept', color: AppColors.accent),
+      _PickerItem(icon: Icons.account_tree_rounded, label: 'Discipline', color: context.colors.success),
+      _PickerItem(icon: Icons.menu_book_rounded, label: 'Topic', color: context.colors.warning),
+      _PickerItem(icon: Icons.topic_rounded, label: 'Subtopic', color: context.colors.info),
+      _PickerItem(icon: Icons.lightbulb_rounded, label: 'Concept', color: context.colors.accent),
     ];
 
     return Container(
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 12),
-          Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2))),
-          const SizedBox(height: 16),
-          const Padding(
+          SizedBox(height: 12),
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: context.colors.border, borderRadius: BorderRadius.circular(2))),
+          SizedBox(height: 16),
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text('Create New', style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
+            child: Text('Create New', style: TextStyle(color: context.colors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           ...items.map((item) => ListTile(
             leading: Container(
               width: 36, height: 36,
               decoration: BoxDecoration(color: item.color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10)),
               child: Icon(item.icon, size: 18, color: item.color),
             ),
-            title: Text(item.label, style: const TextStyle(color: AppColors.textPrimary, fontSize: 14)),
-            trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 18),
+            title: Text(item.label, style: TextStyle(color: context.colors.textPrimary, fontSize: 14)),
+            trailing: Icon(Icons.chevron_right_rounded, color: context.colors.textMuted, size: 18),
             onTap: () => onPick(item.label),
           )),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
         ],
       ),
     );
@@ -732,21 +733,21 @@ class _CmsEditorState extends State<_CmsEditor> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-          const SizedBox(height: 8),
+          Text(label, style: TextStyle(color: context.colors.textSecondary, fontSize: 13)),
+          SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: value,
                 isExpanded: true,
-                dropdownColor: AppColors.surfaceElevated,
-                style: const TextStyle(color: AppColors.textPrimary),
+                dropdownColor: context.colors.surfaceElevated,
+                style: TextStyle(color: context.colors.textPrimary),
                 items: items,
                 onChanged: onChanged,
               ),
@@ -795,25 +796,25 @@ class _CmsEditorState extends State<_CmsEditor> {
   Widget build(BuildContext context) {
     final isEditing = widget.item != null;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primaryDark,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          icon: Icon(Icons.arrow_back_rounded, color: Colors.white),
           onPressed: widget.onBack,
         ),
         title: Text(
           '${isEditing ? "Edit" : "Create"} ${widget.type}',
-          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+          style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
         ),
         actions: [
           if (isEditing)
             IconButton(
-              icon: const Icon(Icons.delete_rounded, color: Colors.white70),
+              icon: Icon(Icons.delete_rounded, color: Colors.white70),
               onPressed: () => widget.onDelete(widget.type, widget.item['id']),
             ),
           IconButton(
-            icon: const Icon(Icons.check_rounded, color: Colors.white),
+            icon: Icon(Icons.check_rounded, color: Colors.white),
             onPressed: _handleSave,
           ),
         ],
@@ -824,13 +825,13 @@ class _CmsEditorState extends State<_CmsEditor> {
           padding: const EdgeInsets.all(20),
           children: [
             ..._controllers.keys.map((f) => _buildField(f)),
-            if (_showDifficulty()) _buildDropdown('Difficulty Level', _difficultyLevel, const [
+            if (_showDifficulty()) _buildDropdown('Difficulty Level', _difficultyLevel, [
               DropdownMenuItem(value: 'beginner', child: Text('Beginner')),
               DropdownMenuItem(value: 'intermediate', child: Text('Intermediate')),
               DropdownMenuItem(value: 'advanced', child: Text('Advanced')),
               DropdownMenuItem(value: 'expert', child: Text('Expert')),
             ], (v) => setState(() { _difficultyLevel = v ?? 'beginner'; })),
-            if (widget.type == 'Subject') _buildDropdown('Icon', _icon, const [
+            if (widget.type == 'Subject') _buildDropdown('Icon', _icon, [
               DropdownMenuItem(value: 'book', child: Text('Book')),
               DropdownMenuItem(value: 'science', child: Text('Science')),
               DropdownMenuItem(value: 'calculate', child: Text('Calculator')),
@@ -838,7 +839,7 @@ class _CmsEditorState extends State<_CmsEditor> {
               DropdownMenuItem(value: 'eco', child: Text('Economics')),
               DropdownMenuItem(value: 'psychology', child: Text('Psychology')),
             ], (v) => setState(() { _icon = v ?? 'book'; })),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             SizedBox(
               height: 48,
               child: ElevatedButton(
@@ -849,11 +850,11 @@ class _CmsEditorState extends State<_CmsEditor> {
                 ),
                 child: Text(
                   isEditing ? 'Save Changes' : 'Create ${widget.type}',
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
           ],
         ),
       ),
@@ -869,29 +870,29 @@ class _CmsEditorState extends State<_CmsEditor> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(_labelForField(field), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-          const SizedBox(height: 8),
+          Text(_labelForField(field), style: TextStyle(color: context.colors.textSecondary, fontSize: 13)),
+          SizedBox(height: 8),
           TextFormField(
             controller: ctrl,
             maxLines: _isMultiline(field) ? 4 : 1,
             keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-            style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+            style: TextStyle(color: context.colors.textPrimary, fontSize: 14),
             decoration: InputDecoration(
               hintText: 'Enter ${_labelForField(field).toLowerCase()}',
-              hintStyle: const TextStyle(color: AppColors.textMuted),
+              hintStyle: TextStyle(color: context.colors.textMuted),
               filled: true,
-              fillColor: AppColors.surface,
+              fillColor: context.colors.surface,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.border),
+                borderSide: BorderSide(color: context.colors.border),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.border),
+                borderSide: BorderSide(color: context.colors.border),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.primary),
+                borderSide: BorderSide(color: AppColors.primary),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             ),

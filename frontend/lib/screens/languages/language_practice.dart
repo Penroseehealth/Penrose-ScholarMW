@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 
 const Color _langTeal = Color(0xFF2DD4BF);
 const Color _langTealDark = Color(0xFF14B8A6);
@@ -10,7 +11,7 @@ const Color _langTealGlow = Color(0x222DD4BF);
 class LanguagePracticeScreen extends StatefulWidget {
   final String slug;
 
-  const LanguagePracticeScreen({super.key, required this.slug});
+  LanguagePracticeScreen({super.key, required this.slug});
 
   @override
   State<LanguagePracticeScreen> createState() => _LanguagePracticeScreenState();
@@ -88,10 +89,10 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.surfaceElevated,
+        backgroundColor: context.colors.surfaceElevated,
         content: Text(
           'Starting $type session for ${_languageTitle(widget.slug)}…',
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: context.colors.textPrimary),
         ),
       ),
     );
@@ -103,7 +104,7 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
     final crossAxisCount = width >= 900 ? 3 : 2;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: Column(
         children: [
           _buildHeader(),
@@ -115,17 +116,17 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildBanner(),
-                  const SizedBox(height: 24),
-                  const Text('Practice Types',
+                  SizedBox(height: 24),
+                  Text('Practice Types',
                       style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary)),
-                  const SizedBox(height: 12),
+                          color: context.colors.textPrimary)),
+                  SizedBox(height: 12),
                   GridView.count(
                     crossAxisCount: crossAxisCount,
                     shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
+                    physics: NeverScrollableScrollPhysics(),
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10,
                     childAspectRatio: width >= 900 ? 2.4 : 1.55,
@@ -134,19 +135,19 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
                         _buildPracticeCard(t.$1, t.$2, t.$3, t.$4),
                     ],
                   ),
-                  const SizedBox(height: 28),
+                  SizedBox(height: 28),
                   Row(
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: Text('Recent Sessions',
                             style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w800,
-                                color: AppColors.textPrimary)),
+                                color: context.colors.textPrimary)),
                       ),
                       GestureDetector(
                         onTap: () {},
-                        child: const Text('View all',
+                        child: Text('View all',
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
@@ -154,9 +155,9 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   ..._recentSessions.map(_buildSessionTile),
-                  const SizedBox(height: 40),
+                  SizedBox(height: 40),
                 ],
               ),
             ),
@@ -169,10 +170,10 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: context.colors.surface,
         border:
-            Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
+            Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
       ),
       child: SafeArea(
         bottom: false,
@@ -184,15 +185,15 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
+                  color: context.colors.surfaceElevated,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.colors.border),
                 ),
-                child: const Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: AppColors.textSecondary),
+                child: Icon(Icons.arrow_back_ios_new_rounded,
+                    size: 18, color: context.colors.textSecondary),
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Container(
               width: 40,
               height: 40,
@@ -200,10 +201,10 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
                 color: _langTealGlow,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.fitness_center_rounded,
+              child: Icon(Icons.fitness_center_rounded,
                   color: _langTeal, size: 22),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,10 +213,10 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
                       style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary)),
+                          color: context.colors.textPrimary)),
                   Text('Skill drills & exercises',
                       style:
-                          TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                          TextStyle(fontSize: 12, color: context.colors.textMuted)),
                 ],
               ),
             ),
@@ -226,7 +227,7 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
                 color: _langTealGlow,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text('6 modes',
+              child: Text('6 modes',
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -259,10 +260,10 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
               color: _langTeal.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(13),
             ),
-            child: const Icon(Icons.bolt_rounded, color: _langTeal, size: 26),
+            child: Icon(Icons.bolt_rounded, color: _langTeal, size: 26),
           ),
-          const SizedBox(width: 14),
-          const Expanded(
+          SizedBox(width: 14),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -270,13 +271,13 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
                     style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary)),
+                        color: context.colors.textPrimary)),
                 SizedBox(height: 4),
                 Text(
                     'Complete one session today to keep your streak alive and unlock XP.',
                     style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textMuted,
+                        color: context.colors.textMuted,
                         height: 1.4)),
               ],
             ),
@@ -293,9 +294,9 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -310,20 +311,20 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
               ),
               child: Icon(icon, color: color, size: 18),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             Text(title,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary)),
-            const SizedBox(height: 4),
+                    color: context.colors.textPrimary)),
+            SizedBox(height: 4),
             Flexible(
               child: Text(description,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 11,
-                      color: AppColors.textMuted,
+                      color: context.colors.textMuted,
                       height: 1.35)),
             ),
           ],
@@ -336,18 +337,18 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
     final color = _typeColor(session['type'] as String);
     final score = (session['score'] as double? ?? 0.0);
     final scoreColor = score >= 0.85
-        ? AppColors.success
+        ? context.colors.success
         : score >= 0.7
-            ? AppColors.warning
-            : AppColors.error;
+            ? context.colors.warning
+            : context.colors.error;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         children: [
@@ -361,27 +362,27 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
             child: Icon(_typeIcon(session['type'] as String),
                 color: color, size: 19),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('${session['type']} · ${session['topic']}',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary),
+                        color: context.colors.textPrimary),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                     '${session['items']} items · ${session['when']}',
-                    style: const TextStyle(
-                        fontSize: 11, color: AppColors.textMuted)),
+                    style: TextStyle(
+                        fontSize: 11, color: context.colors.textMuted)),
               ],
             ),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(

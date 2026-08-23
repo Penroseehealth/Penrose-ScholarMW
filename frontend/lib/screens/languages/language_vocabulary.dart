@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/language_service.dart';
+import '../../core/theme/theme_colors.dart';
 
 class LanguageVocabulary extends StatefulWidget {
-  const LanguageVocabulary({super.key});
+  LanguageVocabulary({super.key});
 
   @override
   State<LanguageVocabulary> createState() => _LanguageVocabularyState();
@@ -83,7 +84,7 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -93,7 +94,7 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
             _buildSearchBar(),
             Expanded(
               child: _loading
-                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                  ? Center(child: CircularProgressIndicator(color: AppColors.primary))
                   : _filteredVocab.isEmpty
                       ? _buildEmpty()
                       : _buildVocabList(),
@@ -107,21 +108,21 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: AppColors.divider)),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        border: Border(bottom: BorderSide(color: context.colors.divider)),
       ),
       child: Row(
         children: [
           IconButton(
             onPressed: () => context.pop(),
-            icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary, size: 20),
+            icon: Icon(Icons.arrow_back_ios, color: context.colors.textPrimary, size: 20),
           ),
-          const Icon(Icons.book, color: AppColors.primary, size: 24),
-          const SizedBox(width: 8),
-          const Expanded(
+          Icon(Icons.book, color: AppColors.primary, size: 24),
+          SizedBox(width: 8),
+          Expanded(
             child: Text('Vocabulary', style: TextStyle(
-              color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold,
+              color: context.colors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold,
             )),
           ),
           Container(
@@ -130,7 +131,7 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
               color: AppColors.primary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Text('${_vocabulary.length} words', style: const TextStyle(
+            child: Text('${_vocabulary.length} words', style: TextStyle(
               color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w600,
             )),
           ),
@@ -144,25 +145,25 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
     final total = _vocabulary.length;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      color: AppColors.surface,
+      color: context.colors.surface,
       child: Column(
         children: [
           Row(
             children: [
-              _statChip('Mastered', stats['mastered']!, AppColors.success),
-              const SizedBox(width: 8),
-              _statChip('Learning', stats['learning']!, AppColors.warning),
-              const SizedBox(width: 8),
-              _statChip('New', stats['new']!, AppColors.textSecondary),
+              _statChip('Mastered', stats['mastered']!, context.colors.success),
+              SizedBox(width: 8),
+              _statChip('Learning', stats['learning']!, context.colors.warning),
+              SizedBox(width: 8),
+              _statChip('New', stats['new']!, context.colors.textSecondary),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: total > 0 ? stats['mastered']! / total : 0,
-              backgroundColor: AppColors.surfaceHighest,
-              valueColor: const AlwaysStoppedAnimation(AppColors.success),
+              backgroundColor: context.colors.surfaceHighest,
+              valueColor: AlwaysStoppedAnimation(context.colors.success),
               minHeight: 6,
             ),
           ),
@@ -219,14 +220,14 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           decoration: BoxDecoration(
-            color: selected ? AppColors.primary : AppColors.surfaceHighest,
+            color: selected ? AppColors.primary : context.colors.surfaceHighest,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: selected ? AppColors.primary : AppColors.divider,
+              color: selected ? AppColors.primary : context.colors.divider,
             ),
           ),
           child: Text(label, style: TextStyle(
-            color: selected ? Colors.white : AppColors.textSecondary,
+            color: selected ? Colors.white : context.colors.textSecondary,
             fontSize: 12, fontWeight: FontWeight.w500,
           )),
         ),
@@ -239,13 +240,13 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: TextField(
         onChanged: (v) => setState(() => _search = v),
-        style: const TextStyle(color: AppColors.textPrimary),
+        style: TextStyle(color: context.colors.textPrimary),
         decoration: InputDecoration(
           hintText: 'Search vocabulary...',
-          hintStyle: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.6)),
-          prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary, size: 20),
+          hintStyle: TextStyle(color: context.colors.textSecondary.withValues(alpha: 0.6)),
+          prefixIcon: Icon(Icons.search, color: context.colors.textSecondary, size: 20),
           filled: true,
-          fillColor: AppColors.surfaceHighest,
+          fillColor: context.colors.surfaceHighest,
           contentPadding: const EdgeInsets.symmetric(vertical: 10),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
@@ -261,10 +262,10 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.book_outlined, size: 48, color: AppColors.textSecondary.withValues(alpha: 0.4)),
-          const SizedBox(height: 12),
+          Icon(Icons.book_outlined, size: 48, color: context.colors.textSecondary.withValues(alpha: 0.4)),
+          SizedBox(height: 12),
           Text('No vocabulary found', style: TextStyle(
-            color: AppColors.textSecondary.withValues(alpha: 0.6), fontSize: 14,
+            color: context.colors.textSecondary.withValues(alpha: 0.6), fontSize: 14,
           )),
         ],
       ),
@@ -296,14 +297,14 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
     return GestureDetector(
       onTap: () => setState(() => _expandedIndex = expanded ? null : index),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: Duration(milliseconds: 200),
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: expanded ? AppColors.primary.withValues(alpha: 0.4) : AppColors.divider,
+            color: expanded ? AppColors.primary.withValues(alpha: 0.4) : context.colors.divider,
           ),
         ),
         child: Column(
@@ -315,12 +316,12 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(word, style: const TextStyle(
-                        color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold,
+                      Text(word, style: TextStyle(
+                        color: context.colors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold,
                       )),
                       if (pronunciation.isNotEmpty)
                         Text(pronunciation, style: TextStyle(
-                          color: AppColors.textSecondary.withValues(alpha: 0.7), fontSize: 13,
+                          color: context.colors.textSecondary.withValues(alpha: 0.7), fontSize: 13,
                         )),
                     ],
                   ),
@@ -332,57 +333,57 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
                       color: AppColors.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Text(pos, style: const TextStyle(
+                    child: Text(pos, style: TextStyle(
                       color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w600,
                     )),
                   ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Icon(
                   expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                  color: AppColors.textSecondary, size: 20,
+                  color: context.colors.textSecondary, size: 20,
                 ),
               ],
             ),
-            const SizedBox(height: 6),
-            Text(translation, style: const TextStyle(
-              color: AppColors.textSecondary, fontSize: 14,
+            SizedBox(height: 6),
+            Text(translation, style: TextStyle(
+              color: context.colors.textSecondary, fontSize: 14,
             )),
             if (theme.toString().isNotEmpty) ...[
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceHighest,
+                  color: context.colors.surfaceHighest,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(theme.toString(), style: TextStyle(
-                  color: AppColors.textSecondary.withValues(alpha: 0.7), fontSize: 10,
+                  color: context.colors.textSecondary.withValues(alpha: 0.7), fontSize: 10,
                 )),
               ),
             ],
             if (expanded && example.toString().isNotEmpty) ...[
-              const Divider(color: AppColors.divider, height: 16),
+              Divider(color: context.colors.divider, height: 16),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceHighest.withValues(alpha: 0.5),
+                  color: context.colors.surfaceHighest.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Example:', style: TextStyle(
-                      color: AppColors.textSecondary.withValues(alpha: 0.6), fontSize: 11,
+                      color: context.colors.textSecondary.withValues(alpha: 0.6), fontSize: 11,
                     )),
-                    const SizedBox(height: 4),
-                    Text(example.toString(), style: const TextStyle(
-                      color: AppColors.textPrimary, fontSize: 14, fontStyle: FontStyle.italic,
+                    SizedBox(height: 4),
+                    Text(example.toString(), style: TextStyle(
+                      color: context.colors.textPrimary, fontSize: 14, fontStyle: FontStyle.italic,
                     )),
                     if (exampleTrans.toString().isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Text(exampleTrans.toString(), style: TextStyle(
-                        color: AppColors.textSecondary.withValues(alpha: 0.7), fontSize: 12,
+                        color: context.colors.textSecondary.withValues(alpha: 0.7), fontSize: 12,
                       )),
                     ],
                   ],

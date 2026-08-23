@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
 import '../../widgets/stem_text.dart';
+import '../../core/theme/theme_colors.dart';
 
 class StudyPlanScreen extends StatefulWidget {
   final int courseId;
 
-  const StudyPlanScreen({super.key, required this.courseId});
+  StudyPlanScreen({super.key, required this.courseId});
 
   @override
   State<StudyPlanScreen> createState() => _StudyPlanScreenState();
@@ -42,16 +43,16 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Study Plan'),
+        title: Text('Study Plan'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: Icon(Icons.refresh),
             onPressed: _generatePlan,
           ),
         ],
       ),
       body: _loading
-          ? const Center(
+          ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -62,16 +63,16 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
               ),
             )
           : _plan == null
-              ? const Center(child: Text('Failed to generate plan'))
+              ? Center(child: Text('Failed to generate plan'))
               : SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildWeakTopics(),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
                       _buildSchedule(),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
                       _buildResources(),
                     ],
                   ),
@@ -81,7 +82,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
 
   Widget _buildWeakTopics() {
     final weakTopics = List<String>.from(_plan!['weak_topics'] ?? []);
-    if (weakTopics.isEmpty) return const SizedBox();
+    if (weakTopics.isEmpty) return SizedBox();
 
     return Card(
       child: Padding(
@@ -91,15 +92,15 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.warning_amber, color: AppColors.warning, size: 20),
-                const SizedBox(width: 8),
-                const Text(
+                Icon(Icons.warning_amber, color: context.colors.warning, size: 20),
+                SizedBox(width: 8),
+                Text(
                   'Weak Areas Identified',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             ...weakTopics.map((topic) => Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Row(
@@ -107,12 +108,12 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
                       Container(
                         width: 8,
                         height: 8,
-                        decoration: const BoxDecoration(
-                          color: AppColors.warning,
+                        decoration: BoxDecoration(
+                          color: context.colors.warning,
                           shape: BoxShape.circle,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       Expanded(child: StemText(topic)),
                     ],
                   ),
@@ -125,16 +126,16 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
 
   Widget _buildSchedule() {
     final schedule = List<Map<String, dynamic>>.from(_plan!['schedule'] ?? []);
-    if (schedule.isEmpty) return const SizedBox();
+    if (schedule.isEmpty) return SizedBox();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Study Schedule',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         ...schedule.map((day) => Card(
               margin: const EdgeInsets.only(bottom: 8),
               child: Padding(
@@ -152,30 +153,30 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
                           ),
                           child: Text(
                             day['date'] ?? '',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: AppColors.primary,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Text(
                           '${day['hours'] ?? 0}h',
-                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     StemText(
                       day['topic'] ?? '',
-                      style: const TextStyle(fontWeight: FontWeight.w500),
+                      style: TextStyle(fontWeight: FontWeight.w500),
                     ),
                     if (day['activity'] != null) ...[
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       StemText(
                         day['activity'],
-                        style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                        style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
                       ),
                     ],
                   ],
@@ -188,7 +189,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
 
   Widget _buildResources() {
     final resources = List<String>.from(_plan!['recommended_resources'] ?? []);
-    if (resources.isEmpty) return const SizedBox();
+    if (resources.isEmpty) return SizedBox();
 
     return Card(
       child: Padding(
@@ -196,22 +197,22 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Recommended Resources',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             ...resources.map((r) => Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.link, size: 16, color: AppColors.accent),
-                      const SizedBox(width: 8),
+                      Icon(Icons.link, size: 16, color: context.colors.accent),
+                      SizedBox(width: 8),
                       Expanded(
                         child: StemText(
                           r,
-                          style: const TextStyle(fontSize: 14),
+                          style: TextStyle(fontSize: 14),
                         ),
                       ),
                     ],

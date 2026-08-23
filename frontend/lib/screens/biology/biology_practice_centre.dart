@@ -5,13 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 
 const Color _bioGreen = Color(0xFF10B981);
 const Color _bioGreenDark = Color(0xFF059669);
 const Color _bioGreenGlow = Color(0x2210B981);
 
 class BiologyPracticeCentreScreen extends StatefulWidget {
-  const BiologyPracticeCentreScreen({super.key});
+  BiologyPracticeCentreScreen({super.key});
 
   @override
   State<BiologyPracticeCentreScreen> createState() =>
@@ -381,7 +382,7 @@ class _BiologyPracticeCentreScreenState
 
   void _startTimer() {
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
+    _timer = Timer.periodic(Duration(seconds: 1), (t) {
       if (_timeLeft <= 1) {
         t.cancel();
         _autoAnswer();
@@ -447,7 +448,7 @@ class _BiologyPracticeCentreScreenState
     final isDesktop = width >= 900;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: Column(
         children: [
           _buildHeader(),
@@ -466,9 +467,9 @@ class _BiologyPracticeCentreScreenState
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        border: Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
       ),
       child: SafeArea(
         bottom: false,
@@ -479,24 +480,24 @@ class _BiologyPracticeCentreScreenState
               child: Container(
                 width: 38, height: 38,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
+                  color: context.colors.surfaceElevated,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.colors.border),
                 ),
-                child: const Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: AppColors.textSecondary),
+                child: Icon(Icons.arrow_back_ios_new_rounded,
+                    size: 18, color: context.colors.textSecondary),
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Container(
               width: 40, height: 40,
               decoration: BoxDecoration(
                 color: _bioGreenGlow,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.quiz_rounded, color: _bioGreen, size: 22),
+              child: Icon(Icons.quiz_rounded, color: _bioGreen, size: 22),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -504,8 +505,8 @@ class _BiologyPracticeCentreScreenState
                   Text(_quizActive
                       ? 'Question ${_currentQuestion + 1} of ${_quizQuestions.length}'
                       : 'Practice Centre'),
-                  const Text('MSCE Biology Quiz Engine',
-                      style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                  Text('MSCE Biology Quiz Engine',
+                      style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
                 ],
               ),
             ),
@@ -514,7 +515,7 @@ class _BiologyPracticeCentreScreenState
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: _timeLeft <= 10
-                      ? AppColors.error.withValues(alpha: 0.15)
+                      ? context.colors.error.withValues(alpha: 0.15)
                       : _bioGreenGlow,
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -522,9 +523,9 @@ class _BiologyPracticeCentreScreenState
                     style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
-                        color: _timeLeft <= 10 ? AppColors.error : _bioGreen)),
+                        color: _timeLeft <= 10 ? context.colors.error : _bioGreen)),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
@@ -532,7 +533,7 @@ class _BiologyPracticeCentreScreenState
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text('$_score/${_results.length}',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: _bioGreen)),
@@ -569,44 +570,44 @@ class _BiologyPracticeCentreScreenState
                     color: _bioGreen.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: const Icon(Icons.quiz_rounded, color: _bioGreen, size: 28),
+                  child: Icon(Icons.quiz_rounded, color: _bioGreen, size: 28),
                 ),
-                const SizedBox(width: 16),
-                const Expanded(
+                SizedBox(width: 16),
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('MSCE Biology Practice',
                           style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                              fontSize: 16, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
                       SizedBox(height: 4),
                       Text('200+ MSCE-style questions across 15 chapters. Choose your chapter, difficulty, and number of questions.',
-                          style: TextStyle(fontSize: 12, color: AppColors.textMuted, height: 1.4)),
+                          style: TextStyle(fontSize: 12, color: context.colors.textMuted, height: 1.4)),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           _buildSectionTitle('Select Chapter'),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildChapterDropdown(),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           _buildSectionTitle('Difficulty'),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildDifficultySelector(),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           _buildSectionTitle('Number of Questions'),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildCountSelector(),
-          const SizedBox(height: 28),
+          SizedBox(height: 28),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: _startQuiz,
-              icon: const Icon(Icons.play_arrow_rounded, size: 22),
-              label: const Text('Start Quiz', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+              icon: Icon(Icons.play_arrow_rounded, size: 22),
+              label: Text('Start Quiz', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _bioGreen,
                 foregroundColor: Colors.white,
@@ -615,9 +616,9 @@ class _BiologyPracticeCentreScreenState
               ),
             ),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           _buildSectionTitle('Quick Start by Chapter'),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildChapterCards(isDesktop),
         ],
       ),
@@ -628,18 +629,18 @@ class _BiologyPracticeCentreScreenState
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: DropdownButton<int>(
         value: _selectedChapter,
         isExpanded: true,
         underline: const SizedBox.shrink(),
-        dropdownColor: AppColors.surface,
-        style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+        dropdownColor: context.colors.surface,
+        style: TextStyle(color: context.colors.textPrimary, fontSize: 14),
         items: [
-          const DropdownMenuItem(value: -1, child: Text('All Chapters')),
+          DropdownMenuItem(value: -1, child: Text('All Chapters')),
           for (var i = 0; i < _chapters.length; i++)
             DropdownMenuItem(value: i, child: Text(_chapters[i])),
         ],
@@ -654,11 +655,11 @@ class _BiologyPracticeCentreScreenState
       children: diffs.map((d) {
         final selected = _difficulty == d;
         final color = d == 'Easy'
-            ? AppColors.success
+            ? context.colors.success
             : d == 'Medium'
-                ? AppColors.warning
+                ? context.colors.warning
                 : d == 'Hard'
-                    ? AppColors.error
+                    ? context.colors.error
                     : _bioGreen;
         return Expanded(
           child: GestureDetector(
@@ -667,10 +668,10 @@ class _BiologyPracticeCentreScreenState
               margin: const EdgeInsets.symmetric(horizontal: 4),
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                color: selected ? color.withValues(alpha: 0.15) : AppColors.surface,
+                color: selected ? color.withValues(alpha: 0.15) : context.colors.surface,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: selected ? color : AppColors.border,
+                  color: selected ? color : context.colors.border,
                   width: selected ? 1.5 : 1,
                 ),
               ),
@@ -679,7 +680,7 @@ class _BiologyPracticeCentreScreenState
                     style: TextStyle(
                         fontSize: 13,
                         fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                        color: selected ? color : AppColors.textSecondary)),
+                        color: selected ? color : context.colors.textSecondary)),
               ),
             ),
           ),
@@ -700,10 +701,10 @@ class _BiologyPracticeCentreScreenState
               margin: const EdgeInsets.symmetric(horizontal: 4),
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                color: selected ? _bioGreenGlow : AppColors.surface,
+                color: selected ? _bioGreenGlow : context.colors.surface,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: selected ? _bioGreen : AppColors.border,
+                  color: selected ? _bioGreen : context.colors.border,
                   width: selected ? 1.5 : 1,
                 ),
               ),
@@ -712,7 +713,7 @@ class _BiologyPracticeCentreScreenState
                     style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: selected ? _bioGreen : AppColors.textSecondary)),
+                        color: selected ? _bioGreen : context.colors.textSecondary)),
               ),
             ),
           ),
@@ -739,9 +740,9 @@ class _BiologyPracticeCentreScreenState
               width: isDesktop ? 200 : (MediaQuery.of(context).size.width / 2 - 22),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.colors.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: context.colors.border),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -754,16 +755,16 @@ class _BiologyPracticeCentreScreenState
                     ),
                     child: Center(
                       child: Text('${i + 1}',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 13, fontWeight: FontWeight.w700, color: _bioGreen)),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   Text(_chapters[i],
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                      style: TextStyle(
+                          fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.textPrimary)),
                 ],
               ),
             ),
@@ -786,22 +787,22 @@ class _BiologyPracticeCentreScreenState
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: progress,
-              backgroundColor: AppColors.surfaceHighest,
+              backgroundColor: context.colors.surfaceHighest,
               color: _bioGreen,
               minHeight: 5,
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Row(
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: q.difficulty == 'Easy'
-                      ? AppColors.success.withValues(alpha: 0.15)
+                      ? context.colors.success.withValues(alpha: 0.15)
                       : q.difficulty == 'Medium'
-                          ? AppColors.warning.withValues(alpha: 0.15)
-                          : AppColors.error.withValues(alpha: 0.15),
+                          ? context.colors.warning.withValues(alpha: 0.15)
+                          : context.colors.error.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(q.difficulty,
@@ -809,23 +810,23 @@ class _BiologyPracticeCentreScreenState
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: q.difficulty == 'Easy'
-                            ? AppColors.success
+                            ? context.colors.success
                             : q.difficulty == 'Medium'
-                                ? AppColors.warning
-                                : AppColors.error)),
+                                ? context.colors.warning
+                                : context.colors.error)),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Expanded(
                 child: Text(_quizQuestions[_currentQuestion].question,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: context.colors.textPrimary,
                         height: 1.3)),
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           Expanded(
             child: ListView.builder(
               itemCount: q.options.length,
@@ -836,11 +837,11 @@ class _BiologyPracticeCentreScreenState
                 Color bgColor = AppColors.surface;
                 if (_answered) {
                   if (isCorrect) {
-                    borderColor = AppColors.success;
-                    bgColor = AppColors.success.withValues(alpha: 0.08);
+                    borderColor = context.colors.success;
+                    bgColor = context.colors.success.withValues(alpha: 0.08);
                   } else if (isSelected && !isCorrect) {
-                    borderColor = AppColors.error;
-                    bgColor = AppColors.error.withValues(alpha: 0.08);
+                    borderColor = context.colors.error;
+                    bgColor = context.colors.error.withValues(alpha: 0.08);
                   }
                 } else if (isSelected) {
                   borderColor = _bioGreen;
@@ -864,28 +865,28 @@ class _BiologyPracticeCentreScreenState
                           decoration: BoxDecoration(
                             color: (isSelected || (_answered && isCorrect))
                                 ? borderColor.withValues(alpha: 0.15)
-                                : AppColors.surfaceElevated,
+                                : context.colors.surfaceElevated,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Center(
                             child: _answered && isCorrect
-                                ? const Icon(Icons.check_rounded, size: 18, color: AppColors.success)
+                                ? Icon(Icons.check_rounded, size: 18, color: context.colors.success)
                                 : _answered && isSelected && !isCorrect
-                                    ? const Icon(Icons.close_rounded, size: 18, color: AppColors.error)
+                                    ? Icon(Icons.close_rounded, size: 18, color: context.colors.error)
                                     : Text(String.fromCharCode(65 + i),
                                         style: TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w700,
-                                            color: isSelected ? borderColor : AppColors.textMuted)),
+                                            color: isSelected ? borderColor : context.colors.textMuted)),
                           ),
                         ),
-                        const SizedBox(width: 14),
+                        SizedBox(width: 14),
                         Expanded(
                           child: Text(q.options[i],
                               style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                                  color: AppColors.textPrimary)),
+                                  color: context.colors.textPrimary)),
                         ),
                       ],
                     ),
@@ -899,15 +900,15 @@ class _BiologyPracticeCentreScreenState
               width: double.infinity,
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.colors.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: context.colors.border),
               ),
               child: Text(q.explanation,
-                  style: const TextStyle(
-                      fontSize: 12, color: AppColors.textSecondary, height: 1.5)),
+                  style: TextStyle(
+                      fontSize: 12, color: context.colors.textSecondary, height: 1.5)),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
           ],
           SizedBox(
             width: double.infinity,
@@ -922,8 +923,8 @@ class _BiologyPracticeCentreScreenState
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                disabledBackgroundColor: AppColors.surfaceHighest,
-                disabledForegroundColor: AppColors.textMuted,
+                disabledBackgroundColor: context.colors.surfaceHighest,
+                disabledForegroundColor: context.colors.textMuted,
               ),
               child: Text(
                   _answered
@@ -931,7 +932,7 @@ class _BiologyPracticeCentreScreenState
                           ? 'View Results'
                           : 'Next Question'
                       : 'Submit Answer',
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
             ),
           ),
         ],
@@ -952,10 +953,10 @@ class _BiologyPracticeCentreScreenState
                     ? 'D'
                     : 'F';
     final gradeColor = pct >= 70
-        ? AppColors.success
+        ? context.colors.success
         : pct >= 50
-            ? AppColors.warning
-            : AppColors.error;
+            ? context.colors.warning
+            : context.colors.error;
 
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: isDesktop ? 48 : 16, vertical: 20),
@@ -986,51 +987,51 @@ class _BiologyPracticeCentreScreenState
                             fontSize: 36, fontWeight: FontWeight.w800, color: gradeColor)),
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 Text('$_score / $total',
-                    style: const TextStyle(
-                        fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                    style: TextStyle(
+                        fontSize: 28, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
                 Text('$pct% — $grade',
                     style: TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w600, color: gradeColor)),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildResultStat('Correct', '$_score', AppColors.success),
-                    const SizedBox(width: 24),
-                    _buildResultStat('Wrong', '${total - _score}', AppColors.error),
-                    const SizedBox(width: 24),
-                    _buildResultStat('Time', _formatTotalTime(), AppColors.info),
+                    _buildResultStat('Correct', '$_score', context.colors.success),
+                    SizedBox(width: 24),
+                    _buildResultStat('Wrong', '${total - _score}', context.colors.error),
+                    SizedBox(width: 24),
+                    _buildResultStat('Time', _formatTotalTime(), context.colors.info),
                   ],
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           _buildSectionTitle('Question Review'),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           for (var i = 0; i < _results.length; i++)
             _buildReviewCard(i, _results[i]),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Row(
             children: [
               Expanded(
                 child: ElevatedButton(
                   onPressed: _resetQuiz,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.surface,
-                    foregroundColor: AppColors.textPrimary,
+                    backgroundColor: context.colors.surface,
+                    foregroundColor: context.colors.textPrimary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                        side: const BorderSide(color: AppColors.border)),
+                        side: BorderSide(color: context.colors.border)),
                   ),
-                  child: const Text('New Quiz',
+                  child: Text('New Quiz',
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton(
                   onPressed: _startQuiz,
@@ -1040,13 +1041,13 @@ class _BiologyPracticeCentreScreenState
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('Retry Same Settings',
+                  child: Text('Retry Same Settings',
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 40),
+          SizedBox(height: 40),
         ],
       ),
     );
@@ -1058,9 +1059,9 @@ class _BiologyPracticeCentreScreenState
         Text(value,
             style: TextStyle(
                 fontSize: 20, fontWeight: FontWeight.w800, color: color)),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(label,
-            style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+            style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
       ],
     );
   }
@@ -1073,12 +1074,12 @@ class _BiologyPracticeCentreScreenState
   }
 
   Widget _buildReviewCard(int index, _QuizResult r) {
-    final color = r.correct ? AppColors.success : AppColors.error;
+    final color = r.correct ? context.colors.success : context.colors.error;
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
@@ -1095,28 +1096,28 @@ class _BiologyPracticeCentreScreenState
                 ),
                 child: Center(
                   child: r.correct
-                      ? const Icon(Icons.check_rounded, size: 16, color: AppColors.success)
-                      : const Icon(Icons.close_rounded, size: 16, color: AppColors.error),
+                      ? Icon(Icons.check_rounded, size: 16, color: context.colors.success)
+                      : Icon(Icons.close_rounded, size: 16, color: context.colors.error),
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Expanded(
                 child: Text('${index + 1}. ${r.question.question}',
-                    style: const TextStyle(
-                        fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                    style: TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textPrimary)),
               ),
             ],
           ),
           if (!r.correct) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
                 'Your answer: ${r.selected >= 0 ? r.question.options[r.selected] : 'No answer'}',
-                style: const TextStyle(fontSize: 12, color: AppColors.error)),
+                style: TextStyle(fontSize: 12, color: context.colors.error)),
             Text('Correct answer: ${r.question.options[r.question.correctIndex]}',
-                style: const TextStyle(fontSize: 12, color: AppColors.success)),
-            const SizedBox(height: 6),
+                style: TextStyle(fontSize: 12, color: context.colors.success)),
+            SizedBox(height: 6),
             Text(r.question.explanation,
-                style: const TextStyle(fontSize: 11, color: AppColors.textMuted, height: 1.4)),
+                style: TextStyle(fontSize: 11, color: context.colors.textMuted, height: 1.4)),
           ],
         ],
       ),
@@ -1129,14 +1130,14 @@ class _BiologyPracticeCentreScreenState
         Container(
           width: 4, height: 20,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(colors: [_bioGreen, _bioGreenDark]),
+            gradient: LinearGradient(colors: [_bioGreen, _bioGreenDark]),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Text(title,
-            style: const TextStyle(
-                fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary, letterSpacing: -0.3)),
+            style: TextStyle(
+                fontSize: 18, fontWeight: FontWeight.w800, color: context.colors.textPrimary, letterSpacing: -0.3)),
       ],
     );
   }

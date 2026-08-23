@@ -5,13 +5,14 @@ import '../../core/theme/app_colors.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
+import '../../core/theme/theme_colors.dart';
 
 class StemTopicScreen extends StatefulWidget {
   final int topicId;
   final String title;
   final String difficulty;
 
-  const StemTopicScreen({
+  StemTopicScreen({
     super.key,
     required this.topicId,
     required this.title,
@@ -52,12 +53,12 @@ class _StemTopicScreenState extends State<StemTopicScreen> {
   Color _getDifficultyColor(String? difficulty) {
     switch (difficulty) {
       case 'advanced':
-        return AppColors.error;
+        return context.colors.error;
       case 'intermediate':
-        return AppColors.warning;
+        return context.colors.warning;
       case 'beginner':
       default:
-        return AppColors.success;
+        return context.colors.success;
     }
   }
 
@@ -66,9 +67,9 @@ class _StemTopicScreenState extends State<StemTopicScreen> {
     final diffColor = _getDifficultyColor(widget.difficulty);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
+        backgroundColor: context.colors.surface,
         elevation: 0,
         titleSpacing: 0,
         title: Row(
@@ -76,10 +77,10 @@ class _StemTopicScreenState extends State<StemTopicScreen> {
             Expanded(
               child: Text(
                 widget.title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: context.colors.textPrimary,
                 ),
               ),
             ),
@@ -103,7 +104,7 @@ class _StemTopicScreenState extends State<StemTopicScreen> {
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(color: AppColors.border, height: 1),
+          child: Container(color: context.colors.border, height: 1),
         ),
       ),
       body: _error != null
@@ -126,9 +127,9 @@ class _StemTopicScreenState extends State<StemTopicScreen> {
                             sliver: SliverToBoxAdapter(
                               child: Text(
                                 '${_subtopics.length} subtopic${_subtopics.length == 1 ? '' : 's'}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 13,
-                                  color: AppColors.textMuted,
+                                  color: context.colors.textMuted,
                                 ),
                               ),
                             ),
@@ -140,7 +141,7 @@ class _StemTopicScreenState extends State<StemTopicScreen> {
                               itemBuilder: (context, index) => _buildSubtopicExpansionCard(_subtopics[index]),
                             ),
                           ),
-                          const SliverToBoxAdapter(child: SizedBox(height: 40)),
+                          SliverToBoxAdapter(child: SizedBox(height: 40)),
                         ],
                       ),
                     ),
@@ -211,9 +212,9 @@ class _SubtopicExpansionCardState extends State<_SubtopicExpansionCard> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         children: [
@@ -229,18 +230,18 @@ class _SubtopicExpansionCardState extends State<_SubtopicExpansionCard> {
                       children: [
                         Text(
                           widget.subtopic['name'] ?? '',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
+                            color: context.colors.textPrimary,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2),
                         Text(
                           '$conceptCount concept${conceptCount == 1 ? '' : 's'}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.textMuted,
+                            color: context.colors.textMuted,
                           ),
                         ),
                       ],
@@ -248,10 +249,10 @@ class _SubtopicExpansionCardState extends State<_SubtopicExpansionCard> {
                   ),
                   AnimatedRotation(
                     turns: _expanded ? 0.25 : 0,
-                    duration: const Duration(milliseconds: 200),
-                    child: const Icon(
+                    duration: Duration(milliseconds: 200),
+                    child: Icon(
                       Icons.expand_more_rounded,
-                      color: AppColors.textMuted,
+                      color: context.colors.textMuted,
                       size: 24,
                     ),
                   ),
@@ -260,21 +261,21 @@ class _SubtopicExpansionCardState extends State<_SubtopicExpansionCard> {
             ),
           ),
           if (_expanded) ...[
-            const Divider(height: 1, color: AppColors.border),
+            Divider(height: 1, color: context.colors.border),
             if (_loadingConcepts)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.all(20),
                 child: Center(
                   child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 2),
                 ),
               )
             else if (_concepts.isEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.all(20),
                 child: Center(
                   child: Text(
                     'No concepts available',
-                    style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+                    style: TextStyle(fontSize: 13, color: context.colors.textMuted),
                   ),
                 ),
               )
@@ -291,8 +292,8 @@ class _SubtopicExpansionCardState extends State<_SubtopicExpansionCard> {
                     decoration: BoxDecoration(
                       border: isLast
                           ? null
-                          : const Border(
-                              bottom: BorderSide(color: AppColors.borderLight, width: 0.5),
+                          : Border(
+                              bottom: BorderSide(color: context.colors.borderLight, width: 0.5),
                             ),
                     ),
                     child: Row(
@@ -300,9 +301,9 @@ class _SubtopicExpansionCardState extends State<_SubtopicExpansionCard> {
                         Expanded(
                           child: Text(
                             concept['name'] ?? concept['title'] ?? '',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
-                              color: AppColors.textSecondary,
+                              color: context.colors.textSecondary,
                             ),
                           ),
                         ),
@@ -321,8 +322,8 @@ class _SubtopicExpansionCardState extends State<_SubtopicExpansionCard> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 18),
+                        SizedBox(width: 8),
+                        Icon(Icons.chevron_right_rounded, color: context.colors.textMuted, size: 18),
                       ],
                     ),
                   ),

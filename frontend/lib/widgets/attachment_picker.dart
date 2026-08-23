@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 
 import '../core/theme/app_colors.dart';
+import '../core/theme/theme_colors.dart';
 
 class AttachmentPicker extends StatelessWidget {
   final Function(PlatformFile) onFileSelected;
 
-  const AttachmentPicker({super.key, required this.onFileSelected});
+  AttachmentPicker({super.key, required this.onFileSelected});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: context.colors.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SafeArea(
@@ -26,32 +27,32 @@ class AttachmentPicker extends StatelessWidget {
                 width: 36,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.border,
+                  color: context.colors.border,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            const Text(
+            SizedBox(height: 16),
+            Text(
               'Upload to ScholarAI',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: context.colors.textPrimary,
               ),
             ),
-            const SizedBox(height: 4),
-            const Text(
+            SizedBox(height: 4),
+            Text(
               'Select a file to analyze with ScholarAI',
-              style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+              style: TextStyle(fontSize: 13, color: context.colors.textMuted),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             _buildOption(
               context,
               icon: Icons.picture_as_pdf_rounded,
               label: 'PDF Document',
               subtitle: '.pdf — Summarize, extract, analyze',
-              color: AppColors.error,
+              color: context.colors.error,
               type: 'pdf',
             ),
             _buildOption(
@@ -59,7 +60,7 @@ class AttachmentPicker extends StatelessWidget {
               icon: Icons.image_rounded,
               label: 'Image',
               subtitle: '.png, .jpg, .jpeg, .webp — OCR, equation recognition',
-              color: AppColors.teal,
+              color: context.colors.teal,
               type: 'image',
             ),
             _buildOption(
@@ -67,7 +68,7 @@ class AttachmentPicker extends StatelessWidget {
               icon: Icons.article_rounded,
               label: 'Word Document',
               subtitle: '.doc, .docx — Summarize, extract headings',
-              color: AppColors.info,
+              color: context.colors.info,
               type: 'doc',
             ),
             _buildOption(
@@ -75,7 +76,7 @@ class AttachmentPicker extends StatelessWidget {
               icon: Icons.table_chart_rounded,
               label: 'Excel / Spreadsheet',
               subtitle: '.xls, .xlsx, .csv — Analyze data, trends',
-              color: AppColors.success,
+              color: context.colors.success,
               type: 'spreadsheet',
             ),
             _buildOption(
@@ -83,10 +84,10 @@ class AttachmentPicker extends StatelessWidget {
               icon: Icons.audio_file_rounded,
               label: 'Audio / Voice',
               subtitle: '.mp3, .wav, .m4a, .aac, .ogg — Transcribe',
-              color: AppColors.warning,
+              color: context.colors.warning,
               type: 'audio',
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
           ],
         ),
       ),
@@ -104,7 +105,7 @@ class AttachmentPicker extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
-        color: AppColors.surfaceElevated,
+        color: context.colors.surfaceElevated,
         borderRadius: BorderRadius.circular(12),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
@@ -113,7 +114,7 @@ class AttachmentPicker extends StatelessWidget {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: Row(
               children: [
@@ -126,25 +127,25 @@ class AttachmentPicker extends StatelessWidget {
                   ),
                   child: Icon(icon, size: 20, color: color),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         label,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: context.colors.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         subtitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
-                          color: AppColors.textMuted,
+                          color: context.colors.textMuted,
                         ),
                       ),
                     ],

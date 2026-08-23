@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/language_service.dart';
+import '../../core/theme/theme_colors.dart';
 
 class ChineseCharacterLab extends StatefulWidget {
-  const ChineseCharacterLab({super.key});
+  ChineseCharacterLab({super.key});
 
   @override
   State<ChineseCharacterLab> createState() => _ChineseCharacterLabState();
@@ -30,7 +31,7 @@ class _ChineseCharacterLabState extends State<ChineseCharacterLab>
     super.initState();
     _fadeCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 400),
+      duration: Duration(milliseconds: 400),
     );
     _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut);
     _fadeCtrl.forward();
@@ -67,14 +68,14 @@ class _ChineseCharacterLabState extends State<ChineseCharacterLab>
     return FadeTransition(
       opacity: _fadeAnim,
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.colors.background,
         appBar: AppBar(
-          title: const Text('Character Lab'),
-          backgroundColor: AppColors.surface,
-          foregroundColor: AppColors.textPrimary,
+          title: Text('Character Lab'),
+          backgroundColor: context.colors.surface,
+          foregroundColor: context.colors.textPrimary,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+            icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18),
             onPressed: () => context.pop(),
           ),
           actions: [
@@ -88,11 +89,11 @@ class _ChineseCharacterLabState extends State<ChineseCharacterLab>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.abc_rounded,
+                  Icon(Icons.abc_rounded,
                       size: 14, color: _accent),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6),
                   Text('${_characters.length}',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                           color: _accent)),
@@ -102,7 +103,7 @@ class _ChineseCharacterLabState extends State<ChineseCharacterLab>
           ],
         ),
         body: _loading
-            ? const Center(
+            ? Center(
                 child: CircularProgressIndicator(color: _accent))
             : _showDetail && _selectedChar != null
                 ? _buildDetailView()
@@ -118,30 +119,30 @@ class _ChineseCharacterLabState extends State<ChineseCharacterLab>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.abc_rounded,
-                size: 64, color: AppColors.textMuted.withValues(alpha: 0.3)),
-            const SizedBox(height: 16),
-            const Text('No characters found',
+                size: 64, color: context.colors.textMuted.withValues(alpha: 0.3)),
+            SizedBox(height: 16),
+            Text('No characters found',
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textMuted)),
-            const SizedBox(height: 8),
-            const Text('Start learning to build your character library',
+                    color: context.colors.textMuted)),
+            SizedBox(height: 8),
+            Text('Start learning to build your character library',
                 style: TextStyle(
-                    fontSize: 12, color: AppColors.textMuted)),
+                    fontSize: 12, color: context.colors.textMuted)),
           ],
         ),
       );
     }
 
     return CustomScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
+      physics: AlwaysScrollableScrollPhysics(),
       slivers: [
         SliverToBoxAdapter(child: _buildStatsBar()),
         SliverPadding(
           padding: const EdgeInsets.all(16),
           sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 4,
               crossAxisSpacing: 10,
               mainAxisSpacing: 10,
@@ -167,9 +168,9 @@ class _ChineseCharacterLabState extends State<ChineseCharacterLab>
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         children: [
@@ -177,13 +178,13 @@ class _ChineseCharacterLabState extends State<ChineseCharacterLab>
           Container(
               width: 1,
               height: 36,
-              color: AppColors.border,
+              color: context.colors.border,
               margin: const EdgeInsets.symmetric(horizontal: 12)),
           _buildMiniStat('🧩', '$radicals', 'Radicals'),
           Container(
               width: 1,
               height: 36,
-              color: AppColors.border,
+              color: context.colors.border,
               margin: const EdgeInsets.symmetric(horizontal: 12)),
           _buildMiniStat('📖', '${_characters.length}', 'Total'),
         ],
@@ -195,16 +196,16 @@ class _ChineseCharacterLabState extends State<ChineseCharacterLab>
     return Expanded(
       child: Column(
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 14)),
-          const SizedBox(height: 2),
+          Text(emoji, style: TextStyle(fontSize: 14)),
+          SizedBox(height: 2),
           Text(value,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary)),
+                  color: context.colors.textPrimary)),
           Text(label,
               style:
-                  const TextStyle(fontSize: 10, color: AppColors.textMuted)),
+                  TextStyle(fontSize: 10, color: context.colors.textMuted)),
         ],
       ),
     );
@@ -225,11 +226,11 @@ class _ChineseCharacterLabState extends State<ChineseCharacterLab>
         decoration: BoxDecoration(
           color: isRadical
               ? _accent.withValues(alpha: 0.06)
-              : AppColors.surface,
+              : context.colors.surface,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
               color:
-                  isRadical ? _accent.withValues(alpha: 0.25) : AppColors.border),
+                  isRadical ? _accent.withValues(alpha: 0.25) : context.colors.border),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -238,8 +239,8 @@ class _ChineseCharacterLabState extends State<ChineseCharacterLab>
                 style: TextStyle(
                     fontSize: word.length > 2 ? 24 : 32,
                     fontWeight: FontWeight.w500,
-                    color: isRadical ? _accent : AppColors.textPrimary)),
-            const SizedBox(height: 4),
+                    color: isRadical ? _accent : context.colors.textPrimary)),
+            SizedBox(height: 4),
             Text(pronunciation,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -248,13 +249,13 @@ class _ChineseCharacterLabState extends State<ChineseCharacterLab>
                     fontWeight: FontWeight.w600,
                     color: isRadical
                         ? _accent.withValues(alpha: 0.8)
-                        : AppColors.textMuted)),
+                        : context.colors.textMuted)),
             if (translation.isNotEmpty)
               Text(translation,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                      fontSize: 9, color: AppColors.textMuted)),
+                  style: TextStyle(
+                      fontSize: 9, color: context.colors.textMuted)),
           ],
         ),
       ),
@@ -275,7 +276,7 @@ class _ChineseCharacterLabState extends State<ChineseCharacterLab>
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           GestureDetector(
             onTap: () => setState(() {
               _showDetail = false;
@@ -287,19 +288,19 @@ class _ChineseCharacterLabState extends State<ChineseCharacterLab>
               decoration: BoxDecoration(
                 color: isRadical
                     ? _accent.withValues(alpha: 0.08)
-                    : AppColors.surface,
+                    : context.colors.surface,
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
                     color: isRadical
                         ? _accent.withValues(alpha: 0.3)
-                        : AppColors.border,
+                        : context.colors.border,
                     width: 2),
                 boxShadow: [
                   BoxShadow(
                     color: (isRadical ? _accent : AppColors.primary)
                         .withValues(alpha: 0.1),
                     blurRadius: 32,
-                    offset: const Offset(0, 8),
+                    offset: Offset(0, 8),
                   ),
                 ],
               ),
@@ -308,17 +309,17 @@ class _ChineseCharacterLabState extends State<ChineseCharacterLab>
                     style: TextStyle(
                         fontSize: word.length > 2 ? 56 : 72,
                         fontWeight: FontWeight.w400,
-                        color: isRadical ? _accent : AppColors.textPrimary)),
+                        color: isRadical ? _accent : context.colors.textPrimary)),
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Text(pronunciation,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary)),
-          const SizedBox(height: 6),
+                  color: context.colors.textPrimary)),
+          SizedBox(height: 6),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
@@ -326,65 +327,65 @@ class _ChineseCharacterLabState extends State<ChineseCharacterLab>
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(isRadical ? 'Radical' : 'Character',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: _accent)),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Meaning',
+                Text('Meaning',
                     style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textMuted,
+                        color: context.colors.textMuted,
                         letterSpacing: 0.5)),
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 Text(translation,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary)),
+                        color: context.colors.textPrimary)),
                 if (example.isNotEmpty) ...[
-                  const SizedBox(height: 20),
-                  const Text('Example',
+                  SizedBox(height: 20),
+                  Text('Example',
                       style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textMuted,
+                          color: context.colors.textMuted,
                           letterSpacing: 0.5)),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceElevated,
+                      color: context.colors.surfaceElevated,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(example,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.textPrimary)),
+                                color: context.colors.textPrimary)),
                         if (exampleTrans.isNotEmpty) ...[
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8),
                           Text(exampleTrans,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 13,
-                                  color: AppColors.textMuted)),
+                                  color: context.colors.textMuted)),
                         ],
                       ],
                     ),
@@ -393,7 +394,7 @@ class _ChineseCharacterLabState extends State<ChineseCharacterLab>
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Row(
             children: [
               Expanded(
@@ -405,15 +406,15 @@ class _ChineseCharacterLabState extends State<ChineseCharacterLab>
                   });
                 }),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: _buildActionBtn(
                     'Save to Notebook', Icons.bookmark_add_rounded, AppColors.primary,
                     () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
+                    SnackBar(
                         content: Text('Saved to notebook'),
-                        backgroundColor: AppColors.success),
+                        backgroundColor: context.colors.success),
                   );
                 }),
               ),
@@ -439,7 +440,7 @@ class _ChineseCharacterLabState extends State<ChineseCharacterLab>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, size: 16, color: color),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Text(label,
                 style: TextStyle(
                     fontSize: 13,

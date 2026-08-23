@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
 import 'stem_text.dart';
+import '../core/theme/theme_colors.dart';
 
 class TypewriterRenderer extends StatefulWidget {
   final String content;
@@ -11,7 +12,7 @@ class TypewriterRenderer extends StatefulWidget {
   final VoidCallback? onComplete;
   final Duration charDuration;
 
-  const TypewriterRenderer({
+  TypewriterRenderer({
     super.key,
     required this.content,
     this.style,
@@ -90,7 +91,7 @@ class _TypewriterRendererState extends State<TypewriterRenderer> {
   Widget build(BuildContext context) {
     return StemText(
       _displayed,
-      style: widget.style ?? const TextStyle(color: AppColors.textPrimary, fontSize: 14, height: 1.6),
+      style: widget.style ?? TextStyle(color: context.colors.textPrimary, fontSize: 14, height: 1.6),
       selectable: true,
     );
   }

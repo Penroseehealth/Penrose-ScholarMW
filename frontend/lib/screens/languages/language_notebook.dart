@@ -2,9 +2,10 @@
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/language_service.dart';
+import '../../core/theme/theme_colors.dart';
 
 class LanguageNotebook extends StatefulWidget {
-  const LanguageNotebook({super.key});
+  LanguageNotebook({super.key});
   @override
   State<LanguageNotebook> createState() => _LanguageNotebookState();
 }
@@ -67,7 +68,7 @@ class _LanguageNotebookState extends State<LanguageNotebook>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -75,7 +76,7 @@ class _LanguageNotebookState extends State<LanguageNotebook>
             _buildTabBar(),
             Expanded(
               child: _loading
-                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                  ? Center(child: CircularProgressIndicator(color: AppColors.primary))
                   : TabBarView(
                       controller: _tabController,
                       children: [
@@ -93,7 +94,7 @@ class _LanguageNotebookState extends State<LanguageNotebook>
           _showAddNoteDialog();
         },
         backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add, color: Colors.white),
+        child: Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -101,27 +102,27 @@ class _LanguageNotebookState extends State<LanguageNotebook>
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: AppColors.divider)),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        border: Border(bottom: BorderSide(color: context.colors.divider)),
       ),
       child: Row(
         children: [
           IconButton(
             onPressed: () => context.pop(),
-            icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary, size: 20),
+            icon: Icon(Icons.arrow_back_ios, color: context.colors.textPrimary, size: 20),
           ),
-          const Icon(Icons.note, color: AppColors.primary, size: 24),
-          const SizedBox(width: 8),
+          Icon(Icons.note, color: AppColors.primary, size: 24),
+          SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Language Notebook', style: TextStyle(
-                  color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold,
+                Text('Language Notebook', style: TextStyle(
+                  color: context.colors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold,
                 )),
                 Text('${_vocabulary.length} saved words \u00b7 ${_grammar.length} grammar notes', style: TextStyle(
-                  color: AppColors.textSecondary.withValues(alpha: 0.7), fontSize: 11,
+                  color: context.colors.textSecondary.withValues(alpha: 0.7), fontSize: 11,
                 )),
               ],
             ),
@@ -133,13 +134,13 @@ class _LanguageNotebookState extends State<LanguageNotebook>
 
   Widget _buildTabBar() {
     return Container(
-      color: AppColors.surface,
+      color: context.colors.surface,
       child: TabBar(
         controller: _tabController,
         labelColor: AppColors.primary,
-        unselectedLabelColor: AppColors.textSecondary,
+        unselectedLabelColor: context.colors.textSecondary,
         indicatorColor: AppColors.primary,
-        tabs: const [
+        tabs: [
           Tab(text: 'Saved Words'),
           Tab(text: 'Grammar Notes'),
           Tab(text: 'Custom Notes'),
@@ -194,14 +195,14 @@ class _LanguageNotebookState extends State<LanguageNotebook>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.note_add_outlined, size: 48,
-              color: AppColors.textSecondary.withValues(alpha: 0.4)),
-            const SizedBox(height: 12),
+              color: context.colors.textSecondary.withValues(alpha: 0.4)),
+            SizedBox(height: 12),
             Text('No custom notes yet', style: TextStyle(
-              color: AppColors.textSecondary.withValues(alpha: 0.6), fontSize: 14,
+              color: context.colors.textSecondary.withValues(alpha: 0.6), fontSize: 14,
             )),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text('Tap + to add a note', style: TextStyle(
-              color: AppColors.textSecondary.withValues(alpha: 0.4), fontSize: 12,
+              color: context.colors.textSecondary.withValues(alpha: 0.4), fontSize: 12,
             )),
           ],
         ),
@@ -228,10 +229,10 @@ class _LanguageNotebookState extends State<LanguageNotebook>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.note_add_outlined, size: 48,
-            color: AppColors.textSecondary.withValues(alpha: 0.4)),
-          const SizedBox(height: 12),
+            color: context.colors.textSecondary.withValues(alpha: 0.4)),
+          SizedBox(height: 12),
           Text(msg, style: TextStyle(
-            color: AppColors.textSecondary.withValues(alpha: 0.6), fontSize: 14,
+            color: context.colors.textSecondary.withValues(alpha: 0.6), fontSize: 14,
           )),
         ],
       ),
@@ -248,9 +249,9 @@ class _LanguageNotebookState extends State<LanguageNotebook>
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.divider),
+        border: Border.all(color: context.colors.divider),
       ),
       child: Row(
         children: [
@@ -262,23 +263,23 @@ class _LanguageNotebookState extends State<LanguageNotebook>
             ),
             child: Icon(icon, color: AppColors.primary, size: 18),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(
-                  color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600,
+                Text(title, style: TextStyle(
+                  color: context.colors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600,
                 )),
                 if (subtitle.isNotEmpty) Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: AppColors.textSecondary.withValues(alpha: 0.7), fontSize: 12,
+                    color: context.colors.textSecondary.withValues(alpha: 0.7), fontSize: 12,
                   )),
               ],
             ),
           ),
           if (date.isNotEmpty) Text(date, style: TextStyle(
-            color: AppColors.textSecondary.withValues(alpha: 0.5), fontSize: 11,
+            color: context.colors.textSecondary.withValues(alpha: 0.5), fontSize: 11,
           )),
         ],
       ),
@@ -291,29 +292,29 @@ class _LanguageNotebookState extends State<LanguageNotebook>
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: const Text('Add Custom Note', style: TextStyle(color: AppColors.textPrimary)),
+        backgroundColor: context.colors.surface,
+        title: Text('Add Custom Note', style: TextStyle(color: context.colors.textPrimary)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: titleCtrl,
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: TextStyle(color: context.colors.textPrimary),
               decoration: InputDecoration(
                 hintText: 'Title',
-                hintStyle: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.5)),
-                border: const OutlineInputBorder(),
+                hintStyle: TextStyle(color: context.colors.textSecondary.withValues(alpha: 0.5)),
+                border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             TextField(
               controller: contentCtrl,
               maxLines: 4,
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: TextStyle(color: context.colors.textPrimary),
               decoration: InputDecoration(
                 hintText: 'Note content...',
-                hintStyle: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.5)),
-                border: const OutlineInputBorder(),
+                hintStyle: TextStyle(color: context.colors.textSecondary.withValues(alpha: 0.5)),
+                border: OutlineInputBorder(),
               ),
             ),
           ],
@@ -321,7 +322,7 @@ class _LanguageNotebookState extends State<LanguageNotebook>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
@@ -335,7 +336,7 @@ class _LanguageNotebookState extends State<LanguageNotebook>
               }
               Navigator.pop(ctx);
             },
-            child: const Text('Save', style: TextStyle(color: AppColors.primary)),
+            child: Text('Save', style: TextStyle(color: AppColors.primary)),
           ),
         ],
       ),

@@ -8,9 +8,10 @@ import '../../providers/locale_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
+import '../../core/theme/theme_colors.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,21 +22,21 @@ class ProfileScreen extends StatelessWidget {
     final name = (user['full_name'] ?? 'User').toString();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        title: const Text('Profile', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+        backgroundColor: context.colors.surface,
+        title: Text('Profile', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Container(
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   colors: [AppColors.primary, AppColors.primaryDark],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -45,33 +46,33 @@ class ProfileScreen extends StatelessWidget {
                   BoxShadow(
                     color: AppColors.primary.withOpacity(0.3),
                     blurRadius: 20,
-                    offset: const Offset(0, 6),
+                    offset: Offset(0, 6),
                   ),
                 ],
               ),
               child: Center(
                 child: Text(
                   name.isNotEmpty ? name[0].toUpperCase() : 'U',
-                  style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w700, color: Colors.white),
+                  style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700, color: Colors.white),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               name,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.primaryGlow,
+                color: context.colors.primaryGlow,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: AppColors.primary.withOpacity(0.3)),
               ),
               child: Text(
                 (user['role'] ?? 'student').toString().toUpperCase(),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: AppColors.primary,
@@ -79,7 +80,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             _buildInfoSection([
               _buildInfoRow(Icons.email_outlined, 'Email', user['email'] ?? ''),
               _buildInfoRow(Icons.phone_outlined, 'Phone', user['phone'] ?? 'Not set'),
@@ -87,15 +88,15 @@ class ProfileScreen extends StatelessWidget {
               _buildInfoRow(Icons.category_outlined, 'Department', user['department'] ?? 'Not set'),
             ]),
             if (user['role'] == 'student') ...[
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               _buildInfoSection([
                 _buildInfoRow(Icons.badge_outlined, 'Student ID', user['student_id'] ?? 'Not set'),
                 _buildInfoRow(Icons.calendar_today, 'Year of Study', '${user['year_of_study'] ?? 'N/A'}'),
               ]),
             ],
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             _buildSectionTitle('Settings'),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             _buildSettingsTile(
               icon: Icons.lock_outlined,
               title: 'Change Password',
@@ -127,13 +128,13 @@ class ProfileScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryGlow,
+                    color: context.colors.primaryGlow,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     localeProvider.languageName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.primary,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -154,15 +155,15 @@ class ProfileScreen extends StatelessWidget {
                 context: context,
                 applicationName: 'Penrose ScholarMW',
                 applicationVersion: '1.0.0',
-                applicationIcon: const Icon(Icons.school_rounded, size: 48, color: AppColors.primary),
-                children: const [
+                applicationIcon: Icon(Icons.school_rounded, size: 48, color: AppColors.primary),
+                children: [
                   Text('AI-Powered Academic Intelligence & Learning Platform for Malawi'),
                   SizedBox(height: 16),
                   Text('Learn. Teach. Research. Advance.'),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
           ],
         ),
       ),
@@ -183,10 +184,10 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return ListTile(
       leading: Icon(icon, color: AppColors.textMuted, size: 20),
-      title: Text(label, style: const TextStyle(fontSize: 13, color: AppColors.textMuted)),
+      title: Text(label, style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
       subtitle: Text(
         value.isEmpty ? 'Not set' : value,
-        style: const TextStyle(fontSize: 15, color: AppColors.textPrimary),
+        style: TextStyle(fontSize: 15, color: AppColors.textPrimary),
       ),
     );
   }
@@ -196,7 +197,7 @@ class ProfileScreen extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: AppColors.textPrimary,
@@ -220,8 +221,8 @@ class ProfileScreen extends StatelessWidget {
       ),
       child: ListTile(
         leading: Icon(icon, color: AppColors.textMuted),
-        title: Text(title, style: const TextStyle(color: AppColors.textPrimary)),
-        trailing: trailing ?? const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 20),
+        title: Text(title, style: TextStyle(color: AppColors.textPrimary)),
+        trailing: trailing ?? Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 20),
         onTap: onTap,
       ),
     );
@@ -234,27 +235,27 @@ class ProfileScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Change Password'),
+        title: Text('Change Password'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: currentCtrl,
               obscureText: true,
-              style: const TextStyle(color: AppColors.textPrimary),
-              decoration: const InputDecoration(labelText: 'Current Password'),
+              style: TextStyle(color: context.colors.textPrimary),
+              decoration: InputDecoration(labelText: 'Current Password'),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             TextField(
               controller: newCtrl,
               obscureText: true,
-              style: const TextStyle(color: AppColors.textPrimary),
-              decoration: const InputDecoration(labelText: 'New Password'),
+              style: TextStyle(color: context.colors.textPrimary),
+              decoration: InputDecoration(labelText: 'New Password'),
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Cancel')),
           ElevatedButton(
             onPressed: () async {
               final api = ApiService();
@@ -275,7 +276,7 @@ class ProfileScreen extends StatelessWidget {
                 );
               }
             },
-            child: const Text('Change'),
+            child: Text('Change'),
           ),
         ],
       ),
@@ -307,8 +308,8 @@ class _DataSaverToggleState extends State<_DataSaverToggle> {
                     ? 'Data Saver ON — images will load lazily, auto-sync paused'
                     : 'Data Saver OFF — full experience enabled',
               ),
-              duration: const Duration(seconds: 2),
-              backgroundColor: v ? AppColors.warning : AppColors.success,
+              duration: Duration(seconds: 2),
+              backgroundColor: v ? context.colors.warning : context.colors.success,
             ),
           );
         }

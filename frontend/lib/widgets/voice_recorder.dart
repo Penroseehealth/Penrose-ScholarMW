@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
+import '../core/theme/theme_colors.dart';
 
 class VoiceRecorder extends StatefulWidget {
   final Function(String audioPath) onRecordingComplete;
   final VoidCallback? onCancel;
 
-  const VoiceRecorder({
+  VoiceRecorder({
     super.key,
     required this.onRecordingComplete,
     this.onCancel,
@@ -30,7 +31,7 @@ class _VoiceRecorderState extends State<VoiceRecorder>
     super.initState();
     _pulseCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
+      duration: Duration(milliseconds: 1000),
     );
     _pulseAnim = Tween<double>(begin: 1, end: 1.3).animate(
       CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
@@ -61,7 +62,7 @@ class _VoiceRecorderState extends State<VoiceRecorder>
   }
 
   void _startTimer() {
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(Duration(seconds: 1), () {
       if (_isRecording && !_isPaused && mounted) {
         setState(() => _seconds++);
         _startTimer();
@@ -94,8 +95,8 @@ class _VoiceRecorderState extends State<VoiceRecorder>
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _circleBtn(Icons.close_rounded, AppColors.textSecondary, widget.onCancel),
-        const SizedBox(width: 24),
+        _circleBtn(Icons.close_rounded, context.colors.textSecondary, widget.onCancel),
+        SizedBox(width: 24),
         GestureDetector(
           onTap: _startRecording,
           child: AnimatedBuilder(
@@ -108,22 +109,22 @@ class _VoiceRecorderState extends State<VoiceRecorder>
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                color: AppColors.error,
+                color: context.colors.error,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.error.withValues(alpha: 0.4),
+                    color: context.colors.error.withValues(alpha: 0.4),
                     blurRadius: 20,
-                    offset: const Offset(0, 4),
+                    offset: Offset(0, 4),
                   ),
                 ],
               ),
-              child: const Icon(Icons.mic_rounded, color: Colors.white, size: 28),
+              child: Icon(Icons.mic_rounded, color: Colors.white, size: 28),
             ),
           ),
         ),
-        const SizedBox(width: 24),
-        const SizedBox(width: 40),
+        SizedBox(width: 24),
+        SizedBox(width: 40),
       ],
     );
   }
@@ -137,42 +138,42 @@ class _VoiceRecorderState extends State<VoiceRecorder>
             width: 64 * _pulseAnim.value,
             height: 64 * _pulseAnim.value,
             decoration: BoxDecoration(
-              color: AppColors.error.withValues(alpha: 0.2),
+              color: context.colors.error.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: Center(
               child: Container(
                 width: 48,
                 height: 48,
-                decoration: const BoxDecoration(
-                  color: AppColors.error,
+                decoration: BoxDecoration(
+                  color: context.colors.error,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.mic_rounded, color: Colors.white, size: 24),
+                child: Icon(Icons.mic_rounded, color: Colors.white, size: 24),
               ),
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Text(
           _formatTime(_seconds),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
+            color: context.colors.textPrimary,
             fontFeatures: [FontFeature.tabularFigures()],
           ),
         ),
-        const SizedBox(height: 4),
-        const Text(
+        SizedBox(height: 4),
+        Text(
           'Recording...',
-          style: TextStyle(fontSize: 12, color: AppColors.error),
+          style: TextStyle(fontSize: 12, color: context.colors.error),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _circleBtn(Icons.close_rounded, AppColors.textSecondary, () {
+            _circleBtn(Icons.close_rounded, context.colors.textSecondary, () {
               setState(() {
                 _isRecording = false;
                 _hasRecording = false;
@@ -181,13 +182,13 @@ class _VoiceRecorderState extends State<VoiceRecorder>
               _pulseCtrl.stop();
               widget.onCancel?.call();
             }),
-            const SizedBox(width: 24),
+            SizedBox(width: 24),
             _circleBtn(
               _isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
-              AppColors.warning,
+              context.colors.warning,
               () => setState(() => _isPaused = !_isPaused),
             ),
-            const SizedBox(width: 24),
+            SizedBox(width: 24),
             _circleBtn(Icons.stop_rounded, AppColors.primary, _stopRecording),
           ],
         ),
@@ -202,38 +203,38 @@ class _VoiceRecorderState extends State<VoiceRecorder>
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: AppColors.successMuted,
+            color: context.colors.successMuted,
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 28),
+          child: Icon(Icons.check_circle_rounded, color: context.colors.success, size: 28),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         Text(
           'Recording: ${_formatTime(_seconds)}',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: AppColors.textPrimary,
+            color: context.colors.textPrimary,
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _circleBtn(Icons.close_rounded, AppColors.textSecondary, () {
+            _circleBtn(Icons.close_rounded, context.colors.textSecondary, () {
               setState(() {
                 _hasRecording = false;
                 _seconds = 0;
               });
             }),
-            const SizedBox(width: 24),
+            SizedBox(width: 24),
             GestureDetector(
               onTap: () => widget.onRecordingComplete('recording_${_seconds}s'),
               child: Container(
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     colors: [AppColors.primary, AppColors.primaryDark],
                   ),
                   shape: BoxShape.circle,
@@ -241,11 +242,11 @@ class _VoiceRecorderState extends State<VoiceRecorder>
                     BoxShadow(
                       color: AppColors.primary.withValues(alpha: 0.4),
                       blurRadius: 12,
-                      offset: const Offset(0, 4),
+                      offset: Offset(0, 4),
                     ),
                   ],
                 ),
-                child: const Icon(Icons.send_rounded, color: Colors.white, size: 22),
+                child: Icon(Icons.send_rounded, color: Colors.white, size: 22),
               ),
             ),
           ],

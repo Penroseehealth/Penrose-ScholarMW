@@ -2,9 +2,10 @@
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/language_service.dart';
+import '../../core/theme/theme_colors.dart';
 
 class LanguageReading extends StatefulWidget {
-  const LanguageReading({super.key});
+  LanguageReading({super.key});
   @override
   State<LanguageReading> createState() => _LanguageReadingState();
 }
@@ -67,7 +68,7 @@ class _LanguageReadingState extends State<LanguageReading> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -75,7 +76,7 @@ class _LanguageReadingState extends State<LanguageReading> {
             _buildLevelTabs(),
             Expanded(
               child: _loading
-                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                  ? Center(child: CircularProgressIndicator(color: AppColors.primary))
                   : _filtered.isEmpty
                       ? _buildEmpty()
                       : ListView.builder(
@@ -93,27 +94,27 @@ class _LanguageReadingState extends State<LanguageReading> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: AppColors.divider)),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        border: Border(bottom: BorderSide(color: context.colors.divider)),
       ),
       child: Row(
         children: [
           IconButton(
             onPressed: () => context.pop(),
-            icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary, size: 20),
+            icon: Icon(Icons.arrow_back_ios, color: context.colors.textPrimary, size: 20),
           ),
-          const Icon(Icons.menu_book, color: AppColors.primary, size: 24),
-          const SizedBox(width: 8),
+          Icon(Icons.menu_book, color: AppColors.primary, size: 24),
+          SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Reading', style: TextStyle(
-                  color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold,
+                Text('Reading', style: TextStyle(
+                  color: context.colors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold,
                 )),
                 Text('${_filtered.length} words to read', style: TextStyle(
-                  color: AppColors.textSecondary.withValues(alpha: 0.7), fontSize: 11,
+                  color: context.colors.textSecondary.withValues(alpha: 0.7), fontSize: 11,
                 )),
               ],
             ),
@@ -140,12 +141,12 @@ class _LanguageReadingState extends State<LanguageReading> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
-                  color: selected ? AppColors.primary : AppColors.surfaceHighest,
+                  color: selected ? AppColors.primary : context.colors.surfaceHighest,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: selected ? AppColors.primary : AppColors.divider),
+                  border: Border.all(color: selected ? AppColors.primary : context.colors.divider),
                 ),
                 child: Text(label, style: TextStyle(
-                  color: selected ? Colors.white : AppColors.textSecondary,
+                  color: selected ? Colors.white : context.colors.textSecondary,
                   fontSize: 12, fontWeight: FontWeight.w500,
                 )),
               ),
@@ -162,10 +163,10 @@ class _LanguageReadingState extends State<LanguageReading> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.menu_book_outlined, size: 48,
-            color: AppColors.textSecondary.withValues(alpha: 0.4)),
-          const SizedBox(height: 12),
+            color: context.colors.textSecondary.withValues(alpha: 0.4)),
+          SizedBox(height: 12),
           Text('No passages at this level', style: TextStyle(
-            color: AppColors.textSecondary.withValues(alpha: 0.6), fontSize: 14,
+            color: context.colors.textSecondary.withValues(alpha: 0.6), fontSize: 14,
           )),
         ],
       ),
@@ -183,9 +184,9 @@ class _LanguageReadingState extends State<LanguageReading> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.divider),
+        border: Border.all(color: context.colors.divider),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,8 +194,8 @@ class _LanguageReadingState extends State<LanguageReading> {
           Row(
             children: [
               Expanded(
-                child: Text(word, style: const TextStyle(
-                  color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold,
+                child: Text(word, style: TextStyle(
+                  color: context.colors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold,
                 )),
               ),
               if (pos.isNotEmpty)
@@ -204,18 +205,18 @@ class _LanguageReadingState extends State<LanguageReading> {
                     color: AppColors.primary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Text(pos, style: const TextStyle(
+                  child: Text(pos, style: TextStyle(
                     color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w600,
                   )),
                 ),
             ],
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           Text(translation, style: TextStyle(
-            color: AppColors.textSecondary.withValues(alpha: 0.8), fontSize: 14,
+            color: context.colors.textSecondary.withValues(alpha: 0.8), fontSize: 14,
           )),
           if (example.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(10),
@@ -223,21 +224,21 @@ class _LanguageReadingState extends State<LanguageReading> {
                 color: AppColors.primary.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(example, style: const TextStyle(
-                color: AppColors.textSecondary, fontSize: 13, fontStyle: FontStyle.italic, height: 1.5,
+              child: Text(example, style: TextStyle(
+                color: context.colors.textSecondary, fontSize: 13, fontStyle: FontStyle.italic, height: 1.5,
               )),
             ),
           ],
           if (theme.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: AppColors.surfaceHighest,
+                color: context.colors.surfaceHighest,
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(theme.replaceAll('_', ' '), style: TextStyle(
-                color: AppColors.textSecondary.withValues(alpha: 0.7), fontSize: 11,
+                color: context.colors.textSecondary.withValues(alpha: 0.7), fontSize: 11,
               )),
             ),
           ],

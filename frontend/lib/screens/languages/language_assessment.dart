@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 
 const Color _langTeal = Color(0xFF2DD4BF);
 const Color _langTealDark = Color(0xFF14B8A6);
@@ -10,7 +11,7 @@ const Color _langTealGlow = Color(0x222DD4BF);
 class LanguageAssessmentScreen extends StatefulWidget {
   final String slug;
 
-  const LanguageAssessmentScreen({super.key, required this.slug});
+  LanguageAssessmentScreen({super.key, required this.slug});
 
   @override
   State<LanguageAssessmentScreen> createState() =>
@@ -65,7 +66,7 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: Column(
         children: [
           _buildHeader(),
@@ -76,34 +77,34 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildCurrentLevel(),
-                  const SizedBox(height: 24),
-                  const Text('Assessment Modules',
+                  SizedBox(height: 24),
+                  Text('Assessment Modules',
                       style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary)),
-                  const SizedBox(height: 4),
-                  const Text(
+                          color: context.colors.textPrimary)),
+                  SizedBox(height: 4),
+                  Text(
                       'Each module adapts to your responses and updates your level.',
                       style:
-                          TextStyle(fontSize: 12, color: AppColors.textMuted)),
-                  const SizedBox(height: 12),
+                          TextStyle(fontSize: 12, color: context.colors.textMuted)),
+                  SizedBox(height: 12),
                   ..._modules.map(_buildModuleCard),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
                   _buildStartButton(),
-                  const SizedBox(height: 28),
+                  SizedBox(height: 28),
                   Row(
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: Text('Results History',
                             style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w800,
-                                color: AppColors.textPrimary)),
+                                color: context.colors.textPrimary)),
                       ),
                       GestureDetector(
                         onTap: () {},
-                        child: const Text('Export',
+                        child: Text('Export',
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
@@ -111,9 +112,9 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   ..._resultsHistory.map(_buildHistoryTile),
-                  const SizedBox(height: 40),
+                  SizedBox(height: 40),
                 ],
               ),
             ),
@@ -126,10 +127,10 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: context.colors.surface,
         border:
-            Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
+            Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
       ),
       child: SafeArea(
         bottom: false,
@@ -141,15 +142,15 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
+                  color: context.colors.surfaceElevated,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.colors.border),
                 ),
-                child: const Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: AppColors.textSecondary),
+                child: Icon(Icons.arrow_back_ios_new_rounded,
+                    size: 18, color: context.colors.textSecondary),
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Container(
               width: 40,
               height: 40,
@@ -157,22 +158,22 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
                 color: _langTealGlow,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.assignment_turned_in_rounded,
+              child: Icon(Icons.assignment_turned_in_rounded,
                   color: _langTeal, size: 22),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('${_languageTitle(widget.slug)} Assessment',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary)),
-                  const Text('Placement & level checks',
+                          color: context.colors.textPrimary)),
+                  Text('Placement & level checks',
                       style:
-                          TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                          TextStyle(fontSize: 12, color: context.colors.textMuted)),
                 ],
               ),
             ),
@@ -206,43 +207,43 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
             ),
             child: Center(
               child: Text(_currentLevel,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.w900,
                       color: _langTeal)),
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Current CEFR Level',
+                Text('Current CEFR Level',
                     style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textSecondary)),
-                const SizedBox(height: 4),
-                const Text('Elementary — A2',
+                        color: context.colors.textSecondary)),
+                SizedBox(height: 4),
+                Text('Elementary — A2',
                     style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary)),
-                const SizedBox(height: 8),
+                        color: context.colors.textPrimary)),
+                SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: 0.45,
-                    backgroundColor: AppColors.surfaceHighest,
+                    backgroundColor: context.colors.surfaceHighest,
                     valueColor:
-                        const AlwaysStoppedAnimation<Color>(_langTeal),
+                        AlwaysStoppedAnimation<Color>(_langTeal),
                     minHeight: 6,
                   ),
                 ),
-                const SizedBox(height: 6),
-                const Text('45% of the way to B1 · keep going!',
+                SizedBox(height: 6),
+                Text('45% of the way to B1 · keep going!',
                     style:
-                        TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                        TextStyle(fontSize: 11, color: context.colors.textMuted)),
               ],
             ),
           ),
@@ -261,9 +262,9 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         children: [
@@ -276,7 +277,7 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
             ),
             child: Icon(icon, color: color, size: 21),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,10 +286,10 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(title,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary)),
+                            color: context.colors.textPrimary)),
                     Text('$score%',
                         style: TextStyle(
                             fontSize: 13,
@@ -296,12 +297,12 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
                             color: color)),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(3),
                   child: LinearProgressIndicator(
                     value: score / 100,
-                    backgroundColor: AppColors.surfaceHighest,
+                    backgroundColor: context.colors.surfaceHighest,
                     valueColor: AlwaysStoppedAnimation<Color>(color),
                     minHeight: 5,
                   ),
@@ -320,24 +321,24 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
       child: ElevatedButton.icon(
         onPressed: _assessing ? null : () => setState(() => _assessing = true),
         icon: _assessing
-            ? const SizedBox(
+            ? SizedBox(
                 width: 18,
                 height: 18,
                 child: CircularProgressIndicator(
                     strokeWidth: 2, color: Colors.white))
-            : const Icon(Icons.play_arrow_rounded, size: 22),
+            : Icon(Icons.play_arrow_rounded, size: 22),
         label: Text(
           _assessing ? 'Preparing assessment…' : 'Start Full Assessment',
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: _langTeal,
-          foregroundColor: const Color(0xFF062B27),
+          foregroundColor: Color(0xFF062B27),
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          disabledBackgroundColor: AppColors.surfaceHighest,
-          disabledForegroundColor: AppColors.textMuted,
+          disabledBackgroundColor: context.colors.surfaceHighest,
+          disabledForegroundColor: context.colors.textMuted,
         ),
       ),
     );
@@ -346,15 +347,15 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
   Widget _buildHistoryTile(Map<String, dynamic> result) {
     final delta = result['delta'] as int;
     final deltaColor =
-        delta >= 0 ? AppColors.success : AppColors.error;
+        delta >= 0 ? context.colors.success : context.colors.error;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         children: [
@@ -367,26 +368,26 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
             ),
             child: Center(
               child: Text('${result['score']}%',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
                       color: _langTeal)),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(result['label'] as String,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary)),
-                const SizedBox(height: 2),
+                        color: context.colors.textPrimary)),
+                SizedBox(height: 2),
                 Text('${result['date']} · Level ${result['level']}',
-                    style: const TextStyle(
-                        fontSize: 11, color: AppColors.textMuted)),
+                    style: TextStyle(
+                        fontSize: 11, color: context.colors.textMuted)),
               ],
             ),
           ),
@@ -404,7 +405,7 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
                         ? Icons.trending_up_rounded
                         : Icons.trending_down_rounded,
                     size: 13, color: deltaColor),
-                const SizedBox(width: 3),
+                SizedBox(width: 3),
                 Text('$delta',
                     style: TextStyle(
                         fontSize: 11,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
+import '../core/theme/theme_colors.dart';
 
 class ShimmerLoading extends StatefulWidget {
   final double width;
@@ -7,7 +8,7 @@ class ShimmerLoading extends StatefulWidget {
   final double borderRadius;
   final EdgeInsetsGeometry? margin;
 
-  const ShimmerLoading({
+  ShimmerLoading({
     super.key,
     required this.width,
     required this.height,
@@ -22,7 +23,7 @@ class ShimmerLoading extends StatefulWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: GridView.builder(
-        physics: const NeverScrollableScrollPhysics(),
+        physics: NeverScrollableScrollPhysics(),
         shrinkWrap: true,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
@@ -31,7 +32,7 @@ class ShimmerLoading extends StatefulWidget {
           childAspectRatio: childAspectRatio,
         ),
         itemCount: count,
-        itemBuilder: (_, __) => const ShimmerLoading(
+        itemBuilder: (_, __) => ShimmerLoading(
           width: double.infinity,
           height: double.infinity,
           borderRadius: 14,
@@ -70,7 +71,7 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: Duration(milliseconds: 1500),
     )..repeat();
     _animation = Tween<double>(begin: -2, end: 2).animate(
       CurvedAnimation(parent: _controller, curve: Curves.linear),
@@ -95,10 +96,10 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(widget.borderRadius),
             gradient: LinearGradient(
-              colors: const [
-                AppColors.surfaceElevated,
-                AppColors.surfaceHighest,
-                AppColors.surfaceElevated,
+              colors: [
+                context.colors.surfaceElevated,
+                context.colors.surfaceHighest,
+                context.colors.surfaceElevated,
               ],
               stops: [
                 (_animation.value - 1).clamp(0.0, 1.0),
@@ -114,7 +115,7 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
 }
 
 class ShimmerListTile extends StatelessWidget {
-  const ShimmerListTile({super.key});
+  ShimmerListTile({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -122,8 +123,8 @@ class ShimmerListTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       child: Row(
         children: [
-          const ShimmerLoading(width: 44, height: 44, borderRadius: 12),
-          const SizedBox(width: 14),
+          ShimmerLoading(width: 44, height: 44, borderRadius: 12),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,7 +134,7 @@ class ShimmerListTile extends StatelessWidget {
                   height: 14,
                   borderRadius: 7,
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 ShimmerLoading(
                   width: MediaQuery.of(context).size.width * 0.3,
                   height: 12,

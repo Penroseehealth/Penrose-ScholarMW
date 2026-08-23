@@ -4,9 +4,10 @@ import '../../core/theme/app_colors.dart';
 import '../../services/stem_service.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/error_state.dart';
+import '../../core/theme/theme_colors.dart';
 
 class StemAnalyticsScreen extends StatefulWidget {
-  const StemAnalyticsScreen({super.key});
+  StemAnalyticsScreen({super.key});
 
   @override
   State<StemAnalyticsScreen> createState() => _StemAnalyticsScreenState();
@@ -54,7 +55,7 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: RefreshIndicator(
         onRefresh: _loadData,
         color: AppColors.primary,
@@ -65,16 +66,16 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
             pinned: true,
             backgroundColor: AppColors.primaryDark,
             flexibleSpace: FlexibleSpaceBar(
-              title: const Text(
+              title: Text(
                 'STEM Analytics',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: context.colors.textPrimary,
                 ),
               ),
               background: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppColors.primaryDark, AppColors.primaryMuted],
                     begin: Alignment.topLeft,
@@ -100,7 +101,7 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
             SliverToBoxAdapter(child: _buildSubjectProgress()),
             SliverToBoxAdapter(child: _buildWeakestConcepts()),
             SliverToBoxAdapter(child: _buildHeatmap()),
-            const SliverToBoxAdapter(child: SizedBox(height: 40)),
+            SliverToBoxAdapter(child: SizedBox(height: 40)),
           ],
         ],
         ),
@@ -118,17 +119,17 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
 
     final cards = [
       _StatData('Total Study Hours', totalHours.toStringAsFixed(1), Icons.schedule_rounded, AppColors.primary),
-      _StatData('Current Streak', '$streak days', Icons.local_fire_department_rounded, AppColors.warning),
-      _StatData('Concepts Mastered', '$mastered', Icons.check_circle_rounded, AppColors.success),
-      _StatData('Average Mastery', '${(avgMastery * 100).round()}%', Icons.insights_rounded, AppColors.accent),
+      _StatData('Current Streak', '$streak days', Icons.local_fire_department_rounded, context.colors.warning),
+      _StatData('Concepts Mastered', '$mastered', Icons.check_circle_rounded, context.colors.success),
+      _StatData('Average Mastery', '${(avgMastery * 100).round()}%', Icons.insights_rounded, context.colors.accent),
     ];
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: GridView.builder(
         shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        physics: NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
@@ -140,28 +141,28 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
           return Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(c.icon, size: 20, color: c.color),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   c.value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   c.label,
-                  style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                  style: TextStyle(fontSize: 11, color: context.colors.textMuted),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -202,7 +203,7 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
                   width: 30,
                   child: Text(
                     dayLabels[i],
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textMuted),
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.textMuted),
                   ),
                 ),
                 Expanded(
@@ -212,7 +213,7 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
                     child: Container(
                       height: 20,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
+                        gradient: LinearGradient(
                           colors: [AppColors.primaryDark, AppColors.primary],
                         ),
                         borderRadius: BorderRadius.circular(6),
@@ -221,7 +222,7 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
                       padding: const EdgeInsets.only(right: 8),
                       child: Text(
                         '${dayMinutes[i]}m',
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
                       ),
                     ),
                   ),
@@ -230,9 +231,9 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
             ),
           );
         }) : [
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
-            child: Text('No activity data yet. Start studying to see your weekly activity!', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+            child: Text('No activity data yet. Start studying to see your weekly activity!', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
           ),
         ],
       ),
@@ -260,24 +261,24 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
                     Expanded(
                       child: Text(
                         s['subject_title'] ?? '',
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     Text(
                       '$masteredCount / $totalCount',
-                      style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                      style: TextStyle(fontSize: 11, color: context.colors.textMuted),
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: mastery,
                     minHeight: 8,
-                    backgroundColor: AppColors.surfaceHighest,
+                    backgroundColor: context.colors.surfaceHighest,
                     valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
                   ),
                 ),
@@ -299,19 +300,19 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
           final mastery = ((c['mastery_level'] ?? 0) as num) * 100;
           final Color badgeColor;
           if (mastery < 30) {
-            badgeColor = AppColors.error;
+            badgeColor = context.colors.error;
           } else if (mastery < 60) {
-            badgeColor = AppColors.warning;
+            badgeColor = context.colors.warning;
           } else {
-            badgeColor = AppColors.success;
+            badgeColor = context.colors.success;
           }
           return Container(
             margin: const EdgeInsets.only(bottom: 8),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: Row(
               children: [
@@ -321,18 +322,18 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
                     children: [
                       Text(
                         c['title'] ?? '',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: context.colors.textPrimary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         c['subject_slug'] ?? '',
-                        style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                        style: TextStyle(fontSize: 11, color: context.colors.textMuted),
                       ),
                     ],
                   ),
@@ -372,7 +373,7 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
           final minutes = (h['study_minutes'] ?? 0) as int;
           final Color cellColor;
           if (minutes == 0) {
-            cellColor = AppColors.surfaceHighest;
+            cellColor = context.colors.surfaceHighest;
           } else if (minutes < 15) {
             cellColor = AppColors.primaryDark.withValues(alpha: 0.4);
           } else if (minutes < 30) {
@@ -405,9 +406,9 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -415,18 +416,18 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
             Row(
               children: [
                 Icon(icon, size: 16, color: AppColors.primary),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
             child,
           ],
         ),

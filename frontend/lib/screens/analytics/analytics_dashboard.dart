@@ -5,9 +5,10 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
 import '../../providers/auth_provider.dart';
+import '../../core/theme/theme_colors.dart';
 
 class AnalyticsDashboard extends StatefulWidget {
-  const AnalyticsDashboard({super.key});
+  AnalyticsDashboard({super.key});
 
   @override
   State<AnalyticsDashboard> createState() => _AnalyticsDashboardState();
@@ -71,7 +72,7 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
     final isLecturer = auth.userRole == 'lecturer';
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: RefreshIndicator(
         onRefresh: _loadData,
         child: CustomScrollView(
@@ -81,7 +82,7 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
               pinned: true,
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [AppColors.primary, AppColors.primaryDark],
                       begin: Alignment.topLeft,
@@ -99,13 +100,13 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
                             isLecturer
                                 ? 'Lecturer Analytics'
                                 : 'Learning Analytics',
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4),
                           Text(
                             isLecturer
                                 ? 'Class performance & insights'
@@ -136,7 +137,7 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
 
   Widget _buildBody() {
     if (_loading) {
-      return const SizedBox(
+      return SizedBox(
         height: 300,
         child: Center(child: CircularProgressIndicator()),
       );
@@ -167,35 +168,35 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Overall Progress'),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         _buildOverallProgress(overallProgress),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         _buildSectionHeader('Course Performance'),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         if (courses.isEmpty)
           _buildEmptyCard('No course data yet')
         else
           ...courses.map((c) => _buildCoursePerformanceCard(c)),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         _buildSectionHeader('AI Identified Weak Areas'),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         if (weakAreas.isEmpty)
           _buildEmptyCard('No weak areas identified')
         else
           ...weakAreas.map((w) => _buildWeakAreaChip(w)),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         _buildSectionHeader('Recommended Action'),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         _buildRecommendationCard(recommendation),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: () {},
-            icon: const Icon(Icons.play_arrow_rounded),
-            label: const Text('Start AI Revision Session'),
+            icon: Icon(Icons.play_arrow_rounded),
+            label: Text('Start AI Revision Session'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.secondary,
+              backgroundColor: context.colors.secondary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
@@ -224,7 +225,7 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Class Statistics'),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         LayoutBuilder(
           builder: (context, constraints) {
             final isWide = constraints.maxWidth >= 600;
@@ -238,13 +239,13 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
               _buildStatCard(
                 label: 'Attendance',
                 value: '${attendanceRate.toStringAsFixed(1)}%',
-                color: AppColors.info,
+                color: context.colors.info,
                 icon: Icons.how_to_reg_outlined,
               ),
               _buildStatCard(
                 label: 'Assignments',
                 value: '${assignmentCompletion.toStringAsFixed(1)}%',
-                color: AppColors.secondary,
+                color: context.colors.secondary,
                 icon: Icons.assignment_turned_in_outlined,
               ),
             ];
@@ -253,7 +254,7 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
                 children: [
                   for (var i = 0; i < stats.length; i++) ...[
                     Expanded(child: stats[i]),
-                    if (i < stats.length - 1) const SizedBox(width: 8),
+                    if (i < stats.length - 1) SizedBox(width: 8),
                   ],
                 ],
               );
@@ -262,15 +263,15 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
               children: [
                 for (var i = 0; i < stats.length; i++) ...[
                   stats[i],
-                  if (i < stats.length - 1) const SizedBox(height: 8),
+                  if (i < stats.length - 1) SizedBox(height: 8),
                 ],
               ],
             );
           },
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         _buildSectionHeader('Difficult Topics'),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         if (difficultTopics.isEmpty)
           _buildEmptyCard('No difficult topics detected')
         else
@@ -280,31 +281,31 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
             children: difficultTopics.map((t) {
               final topic = t is String ? t : (t['topic'] ?? t.toString());
               return Chip(
-                avatar: const Icon(Icons.warning_amber_rounded,
-                    color: AppColors.error, size: 18),
-                label: Text(topic, style: const TextStyle(fontSize: 13)),
-                backgroundColor: AppColors.error.withOpacity(0.08),
-                side: BorderSide(color: AppColors.error.withOpacity(0.2)),
+                avatar: Icon(Icons.warning_amber_rounded,
+                    color: context.colors.error, size: 18),
+                label: Text(topic, style: TextStyle(fontSize: 13)),
+                backgroundColor: context.colors.error.withOpacity(0.08),
+                side: BorderSide(color: context.colors.error.withOpacity(0.2)),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               );
             }).toList(),
           ),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         _buildSectionHeader('Students Requiring Support'),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         if (studentsNeedingSupport.isEmpty)
           _buildEmptyCard('No students flagged')
         else
           ...studentsNeedingSupport.map((s) => _buildSupportStudentCard(s)),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         _buildSectionHeader('AI Generated Insights'),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         _buildInsightsCard(aiInsights),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         _buildSectionHeader('Engagement Trends'),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         if (engagementTrends.isEmpty)
           _buildEmptyCard('No engagement data yet')
         else
@@ -316,10 +317,10 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
   Widget _buildSectionHeader(String title) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.bold,
-        color: AppColors.textPrimary,
+        color: context.colors.textPrimary,
       ),
     );
   }
@@ -336,23 +337,23 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Progress',
+                Text('Progress',
                     style: TextStyle(
                         fontSize: 14, fontWeight: FontWeight.w600)),
                 Text('${clamped.toStringAsFixed(0)}%',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: AppColors.primary)),
               ],
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             ClipRRect(
               borderRadius: BorderRadius.circular(6),
               child: LinearProgressIndicator(
                 value: clamped / 100,
                 minHeight: 10,
-                backgroundColor: AppColors.divider,
+                backgroundColor: context.colors.divider,
                 valueColor:
                     const AlwaysStoppedAnimation<Color>(AppColors.primary),
               ),
@@ -372,13 +373,13 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
     Color trendColor;
     if (trend == 'up') {
       trendIcon = Icons.trending_up;
-      trendColor = AppColors.success;
+      trendColor = context.colors.success;
     } else if (trend == 'down') {
       trendIcon = Icons.trending_down;
-      trendColor = AppColors.error;
+      trendColor = context.colors.error;
     } else {
       trendIcon = Icons.trending_flat;
-      trendColor = AppColors.textSecondary;
+      trendColor = context.colors.textSecondary;
     }
 
     return Card(
@@ -395,21 +396,21 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
                 color: AppColors.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.book_outlined,
+              child: Icon(Icons.book_outlined,
                   color: AppColors.primary, size: 22),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(name,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 14, fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text('Score: ${score.toStringAsFixed(1)}%',
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.textSecondary)),
+                      style: TextStyle(
+                          fontSize: 12, color: context.colors.textSecondary)),
                 ],
               ),
             ),
@@ -427,10 +428,10 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
       padding: const EdgeInsets.only(bottom: 6),
       child: Chip(
         avatar:
-            const Icon(Icons.warning_amber_rounded, color: AppColors.warning, size: 18),
-        label: Text(topic, style: const TextStyle(fontSize: 13)),
-        backgroundColor: AppColors.warning.withOpacity(0.08),
-        side: BorderSide(color: AppColors.warning.withOpacity(0.3)),
+            Icon(Icons.warning_amber_rounded, color: context.colors.warning, size: 18),
+        label: Text(topic, style: TextStyle(fontSize: 13)),
+        backgroundColor: context.colors.warning.withOpacity(0.08),
+        side: BorderSide(color: context.colors.warning.withOpacity(0.3)),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
@@ -441,21 +442,21 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
   Widget _buildRecommendationCard(String text) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: AppColors.secondary.withOpacity(0.06),
+      color: context.colors.secondary.withOpacity(0.06),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.lightbulb_outline,
-                color: AppColors.secondary, size: 22),
-            const SizedBox(width: 10),
+            Icon(Icons.lightbulb_outline,
+                color: context.colors.secondary, size: 22),
+            SizedBox(width: 10),
             Expanded(
               child: Text(
                 text.isNotEmpty
                     ? text
                     : 'No recommendation available yet. Complete more activities to receive AI suggestions.',
-                style: const TextStyle(fontSize: 13, height: 1.4),
+                style: TextStyle(fontSize: 13, height: 1.4),
               ),
             ),
           ],
@@ -477,17 +478,17 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
         child: Column(
           children: [
             Icon(icon, color: color, size: 26),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(value,
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: color)),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(label,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.textSecondary,
+                    color: context.colors.textSecondary,
                     fontWeight: FontWeight.w500),
                 textAlign: TextAlign.center),
           ],
@@ -506,21 +507,21 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         leading: CircleAvatar(
-          backgroundColor: AppColors.error.withOpacity(0.1),
-          child: const Icon(Icons.person_outline,
-              color: AppColors.error, size: 20),
+          backgroundColor: context.colors.error.withOpacity(0.1),
+          child: Icon(Icons.person_outline,
+              color: context.colors.error, size: 20),
         ),
         title: Text(name,
             style:
-                const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
         subtitle: reason.isNotEmpty
             ? Text(reason,
-                style: const TextStyle(
-                    fontSize: 12, color: AppColors.textSecondary),
+                style: TextStyle(
+                    fontSize: 12, color: context.colors.textSecondary),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis)
             : null,
-        trailing: const Icon(Icons.chevron_right, size: 20),
+        trailing: Icon(Icons.chevron_right, size: 20),
       ),
     );
   }
@@ -528,21 +529,21 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
   Widget _buildInsightsCard(String insights) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: AppColors.accent.withOpacity(0.05),
+      color: context.colors.accent.withOpacity(0.05),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.auto_awesome,
-                color: AppColors.accent, size: 22),
-            const SizedBox(width: 10),
+            Icon(Icons.auto_awesome,
+                color: context.colors.accent, size: 22),
+            SizedBox(width: 10),
             Expanded(
               child: Text(
                 insights.isNotEmpty
                     ? insights
                     : 'AI is analysing class data. Insights will appear shortly.',
-                style: const TextStyle(fontSize: 13, height: 1.4),
+                style: TextStyle(fontSize: 13, height: 1.4),
               ),
             ),
           ],
@@ -569,20 +570,20 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
                       size: 8,
                       color: _engagementColor(i),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         trends[i]['label'] ?? trends[i]['period'] ?? '',
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 13, fontWeight: FontWeight.w500),
                       ),
                     ),
                     Text(
                       '${(trends[i]['value'] ?? 0)}%',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary),
+                          color: context.colors.textPrimary),
                     ),
                   ],
                 ),
@@ -612,8 +613,8 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
         child: Center(
           child: Text(
             message,
-            style: const TextStyle(
-                fontSize: 13, color: AppColors.textSecondary),
+            style: TextStyle(
+                fontSize: 13, color: context.colors.textSecondary),
           ),
         ),
       ),
@@ -626,13 +627,13 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
         padding: const EdgeInsets.all(32),
         child: Column(
           children: [
-            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
-            const SizedBox(height: 12),
+            Icon(Icons.error_outline, size: 48, color: context.colors.error),
+            SizedBox(height: 12),
             Text(_error!,
-                style: const TextStyle(
-                    fontSize: 14, color: AppColors.textSecondary),
+                style: TextStyle(
+                    fontSize: 14, color: context.colors.textSecondary),
                 textAlign: TextAlign.center),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadData,
               style: ElevatedButton.styleFrom(
@@ -642,7 +643,7 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text('Retry'),
+              child: Text('Retry'),
             ),
           ],
         ),
@@ -657,17 +658,17 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
         child: Column(
           children: [
             Icon(Icons.analytics_outlined,
-                size: 56, color: AppColors.textMuted.withOpacity(0.3)),
-            const SizedBox(height: 12),
+                size: 56, color: context.colors.textMuted.withOpacity(0.3)),
+            SizedBox(height: 12),
             Text('No analytics data',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary)),
-            const SizedBox(height: 4),
+                    color: context.colors.textSecondary)),
+            SizedBox(height: 4),
             Text('Data will appear once you start engaging with courses',
                 style:
-                    const TextStyle(fontSize: 13, color: AppColors.textMuted)),
+                    TextStyle(fontSize: 13, color: context.colors.textMuted)),
           ],
         ),
       ),

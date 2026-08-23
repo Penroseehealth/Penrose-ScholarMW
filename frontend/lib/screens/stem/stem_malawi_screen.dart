@@ -4,9 +4,10 @@ import '../../services/stem_service.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
+import '../../core/theme/theme_colors.dart';
 
 class StemMalawiScreen extends StatefulWidget {
-  const StemMalawiScreen({super.key});
+  StemMalawiScreen({super.key});
 
   @override
   State<StemMalawiScreen> createState() => _StemMalawiScreenState();
@@ -59,7 +60,7 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: RefreshIndicator(
         onRefresh: _loadData,
         color: AppColors.primary,
@@ -73,13 +74,13 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
               title: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
                     'Malawi STEM',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: context.colors.textPrimary,
                     ),
                   ),
                   SizedBox(height: 2),
@@ -88,13 +89,13 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w400,
-                      color: AppColors.textMuted,
+                      color: context.colors.textMuted,
                     ),
                   ),
                 ],
               ),
               background: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppColors.primaryDark, AppColors.primaryMuted],
                     begin: Alignment.topLeft,
@@ -106,33 +107,33 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
           ),
           SliverToBoxAdapter(
             child: _loading
-                ? const SizedBox()
+                ? SizedBox()
                 : _buildStatsRow(),
           ),
           SliverToBoxAdapter(
             child: Container(
               margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.colors.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: context.colors.border),
               ),
               child: TabBar(
                 controller: _tabController,
                 indicatorColor: AppColors.primary,
-                labelColor: AppColors.textPrimary,
-                unselectedLabelColor: AppColors.textMuted,
-                labelStyle: const TextStyle(
+                labelColor: context.colors.textPrimary,
+                unselectedLabelColor: context.colors.textMuted,
+                labelStyle: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
-                unselectedLabelStyle: const TextStyle(
+                unselectedLabelStyle: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
                 ),
                 indicatorSize: TabBarIndicatorSize.label,
                 dividerColor: Colors.transparent,
-                tabs: const [
+                tabs: [
                   Tab(text: 'Local Examples'),
                   Tab(text: 'MSCE Curriculum'),
                 ],
@@ -159,7 +160,7 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
                 ],
               ),
             ),
-          const SliverToBoxAdapter(child: SizedBox(height: 40)),
+          SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
         ),
       ),
@@ -176,9 +177,9 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
       child: Row(
         children: [
           _buildStatChip('$totalExamples', 'Examples'),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           _buildStatChip('$totalAlignments', 'MSCE Alignments'),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           _buildStatChip('$subjectsCovered', 'Regions'),
         ],
       ),
@@ -190,27 +191,27 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Column(
           children: [
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: AppColors.primary,
               ),
             ),
-            const SizedBox(height: 2),
+            SizedBox(height: 2),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
-                color: AppColors.textMuted,
+                color: context.colors.textMuted,
               ),
               textAlign: TextAlign.center,
             ),
@@ -225,7 +226,7 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: _examples.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      separatorBuilder: (_, __) => SizedBox(height: 10),
       itemBuilder: (context, index) => _buildExampleCard(index, _examples[index]),
     );
   }
@@ -243,13 +244,13 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
         });
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: Duration(milliseconds: 200),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: expanded ? AppColors.primary : AppColors.border,
+            color: expanded ? AppColors.primary : context.colors.border,
           ),
         ),
         child: Column(
@@ -260,10 +261,10 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
                 Expanded(
                   child: Text(
                     example['title'] ?? '',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: context.colors.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -273,69 +274,69 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppColors.successMuted,
+                      color: context.colors.successMuted,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
                       example['region'],
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.success,
+                        color: context.colors.success,
                       ),
                     ),
                   ),
               ],
             ),
             if (example['concept_name'] != null) ...[
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 example['concept_name'],
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: AppColors.primaryLight,
                 ),
               ),
             ],
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               example['description'] ?? '',
-              style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+              style: TextStyle(fontSize: 11, color: context.colors.textMuted),
               maxLines: expanded ? 20 : 2,
               overflow: TextOverflow.ellipsis,
             ),
             if (expanded) ...[
               if (example['local_context'] != null) ...[
-                const SizedBox(height: 10),
-                const Text(
+                SizedBox(height: 10),
+                Text(
                   'Local Context',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   example['local_context'],
-                  style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                  style: TextStyle(fontSize: 11, color: context.colors.textMuted),
                 ),
               ],
               if (example['real_world_application'] != null) ...[
-                const SizedBox(height: 10),
-                const Text(
+                SizedBox(height: 10),
+                Text(
                   'Real-World Application',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   example['real_world_application'],
-                  style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                  style: TextStyle(fontSize: 11, color: context.colors.textMuted),
                 ),
               ],
             ],
@@ -375,19 +376,19 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.primaryGlow,
+              color: context.colors.primaryGlow,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               'Form $formLevel',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: AppColors.primary,
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           ...items.map((item) => _buildCurriculumCard(item)),
         ],
       ),
@@ -399,9 +400,9 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -411,10 +412,10 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
               Expanded(
                 child: Text(
                   item['concept_name'] ?? '',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
               ),
@@ -422,36 +423,36 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppColors.infoMuted,
+                    color: context.colors.infoMuted,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     item['syllabus_code'],
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.info,
+                      color: context.colors.info,
                     ),
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Row(
             children: [
               if (item['form_level'] != null)
                 _buildMetaTag('Form ${item['form_level']}'),
               if (item['exam_board'] != null) ...[
-                const SizedBox(width: 6),
+                SizedBox(width: 6),
                 _buildMetaTag(item['exam_board']),
               ],
             ],
           ),
           if (item['learning_outcome'] != null) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               item['learning_outcome'],
-              style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+              style: TextStyle(fontSize: 11, color: context.colors.textMuted),
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
@@ -465,15 +466,15 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: AppColors.surfaceHighest,
+        color: context.colors.surfaceHighest,
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 9,
           fontWeight: FontWeight.w600,
-          color: AppColors.textSecondary,
+          color: context.colors.textSecondary,
         ),
       ),
     );

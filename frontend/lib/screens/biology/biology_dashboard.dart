@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 
 const Color _bioGreen = Color(0xFF10B981);
 const Color _bioGreenDark = Color(0xFF059669);
 const Color _bioGreenGlow = Color(0x2210B981);
 
 class BiologyDashboard extends StatefulWidget {
-  const BiologyDashboard({super.key});
+  BiologyDashboard({super.key});
 
   @override
   State<BiologyDashboard> createState() => _BiologyDashboardState();
@@ -42,7 +43,7 @@ class _BiologyDashboardState extends State<BiologyDashboard>
     super.initState();
     _fadeCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: Duration(milliseconds: 500),
     );
     _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut);
     _fadeCtrl.forward();
@@ -74,7 +75,7 @@ class _BiologyDashboardState extends State<BiologyDashboard>
     return FadeTransition(
       opacity: _fadeAnim,
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.colors.background,
         body: Column(
           children: [
             _buildHeader(),
@@ -86,17 +87,17 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildContinueLearning(),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                     _buildQuickStats(isDesktop),
-                    const SizedBox(height: 28),
+                    SizedBox(height: 28),
                     _buildSectionTitle('Biology Module'),
-                    const SizedBox(height: 14),
+                    SizedBox(height: 14),
                     _buildModuleGrid(isDesktop),
-                    const SizedBox(height: 28),
+                    SizedBox(height: 28),
                     _buildSectionTitle('MSCE Chapter Progress'),
-                    const SizedBox(height: 14),
+                    SizedBox(height: 14),
                     _buildChapterProgress(),
-                    const SizedBox(height: 40),
+                    SizedBox(height: 40),
                   ],
                 ),
               ),
@@ -110,9 +111,9 @@ class _BiologyDashboardState extends State<BiologyDashboard>
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        border: Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
       ),
       child: SafeArea(
         bottom: false,
@@ -124,15 +125,15 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
+                  color: context.colors.surfaceElevated,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.colors.border),
                 ),
-                child: const Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: AppColors.textSecondary),
+                child: Icon(Icons.arrow_back_ios_new_rounded,
+                    size: 18, color: context.colors.textSecondary),
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Container(
               width: 40,
               height: 40,
@@ -140,11 +141,11 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                 color: _bioGreenGlow,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.biotech_rounded,
+              child: Icon(Icons.biotech_rounded,
                   color: _bioGreen, size: 22),
             ),
-            const SizedBox(width: 14),
-            const Expanded(
+            SizedBox(width: 14),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -152,11 +153,11 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                          color: context.colors.textPrimary,
                           letterSpacing: -0.3)),
                   Text('MSCE Learning Journey',
                       style: TextStyle(
-                          fontSize: 12, color: AppColors.textMuted)),
+                          fontSize: 12, color: context.colors.textMuted)),
                 ],
               ),
             ),
@@ -176,13 +177,13 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                       value: _overallProgress,
                       strokeWidth: 2.5,
                       color: _bioGreen,
-                      backgroundColor: AppColors.surfaceHighest,
+                      backgroundColor: context.colors.surfaceHighest,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Text(
                     '${(_overallProgress * 100).toInt()}% Mastery',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: _bioGreen),
@@ -224,42 +225,42 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                   color: _bioGreen.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Icon(Icons.play_arrow_rounded,
+                child: Icon(Icons.play_arrow_rounded,
                     color: _bioGreen, size: 30),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Continue Learning',
+                    Text('Continue Learning',
                         style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textMuted,
+                            color: context.colors.textMuted,
                             letterSpacing: 0.5)),
-                    const SizedBox(height: 4),
-                    const Text('Cell Biology — Plant and Animal Cells',
+                    SizedBox(height: 4),
+                    Text('Cell Biology — Plant and Animal Cells',
                         style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary)),
-                    const SizedBox(height: 8),
+                            color: context.colors.textPrimary)),
+                    SizedBox(height: 8),
                     Row(
                       children: [
                         Expanded(
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(4),
-                            child: const LinearProgressIndicator(
+                            child: LinearProgressIndicator(
                               value: 0.72,
-                              backgroundColor: AppColors.surfaceHighest,
+                              backgroundColor: context.colors.surfaceHighest,
                               color: _bioGreen,
                               minHeight: 5,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 10),
-                        const Text('72%',
+                        SizedBox(width: 10),
+                        Text('72%',
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
@@ -269,8 +270,8 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
-              const Icon(Icons.arrow_forward_ios_rounded,
+              SizedBox(width: 12),
+              Icon(Icons.arrow_forward_ios_rounded,
                   size: 16, color: _bioGreen),
             ],
           ),
@@ -283,7 +284,7 @@ class _BiologyDashboardState extends State<BiologyDashboard>
     return GridView.count(
       crossAxisCount: isDesktop ? 4 : 2,
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      physics: NeverScrollableScrollPhysics(),
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
       childAspectRatio: isDesktop ? 2.0 : 1.6,
@@ -291,11 +292,11 @@ class _BiologyDashboardState extends State<BiologyDashboard>
         _buildStatCard('15', 'MSCE Chapters', Icons.menu_book_rounded,
             _bioGreen, '5 in progress'),
         _buildStatCard('$_masteredCount', 'Mastered', Icons.check_circle_rounded,
-            AppColors.success, '$_inProgressCount in progress'),
+            context.colors.success, '$_inProgressCount in progress'),
         _buildStatCard('42', 'Practical Skills', Icons.science_rounded,
-            AppColors.info, '8 completed'),
+            context.colors.info, '8 completed'),
         _buildStatCard('76%', 'Quiz Average', Icons.quiz_rounded,
-            AppColors.warning, '+6% this week'),
+            context.colors.warning, '+6% this week'),
       ],
     );
   }
@@ -305,9 +306,9 @@ class _BiologyDashboardState extends State<BiologyDashboard>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -324,7 +325,7 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                 ),
                 child: Icon(icon, size: 18, color: color),
               ),
-              const Spacer(),
+              Spacer(),
               Text(value,
                   style: TextStyle(
                       fontSize: 24,
@@ -333,16 +334,16 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                       letterSpacing: -0.5)),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary)),
-          const SizedBox(height: 2),
+                  color: context.colors.textSecondary)),
+          SizedBox(height: 2),
           Text(sub,
               style:
-                  const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                  TextStyle(fontSize: 11, color: context.colors.textMuted)),
         ],
       ),
     );
@@ -355,17 +356,17 @@ class _BiologyDashboardState extends State<BiologyDashboard>
           width: 4,
           height: 20,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
                 colors: [_bioGreen, _bioGreenDark]),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Text(title,
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
+                color: context.colors.textPrimary,
                 letterSpacing: -0.3)),
       ],
     );
@@ -409,7 +410,7 @@ class _BiologyDashboardState extends State<BiologyDashboard>
   Widget _buildModuleGrid(bool isDesktop) {
     return GridView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      physics: NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: isDesktop ? 3 : 2,
         crossAxisSpacing: 12,
@@ -432,9 +433,9 @@ class _BiologyDashboardState extends State<BiologyDashboard>
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -449,18 +450,18 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                   ),
                   child: Icon(mod.icon, size: 20, color: _bioGreen),
                 ),
-                const Spacer(),
+                Spacer(),
                 Text(mod.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary)),
-                const SizedBox(height: 3),
+                        color: context.colors.textPrimary)),
+                SizedBox(height: 3),
                 Text(mod.description,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontSize: 11, color: AppColors.textMuted)),
+                    style: TextStyle(
+                        fontSize: 11, color: context.colors.textMuted)),
               ],
             ),
           ),
@@ -473,17 +474,17 @@ class _BiologyDashboardState extends State<BiologyDashboard>
     final chapters = _chapterProgress.entries.toList();
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         children: [
           for (var i = 0; i < chapters.length; i++) ...[
             _buildChapterRow(chapters[i].key, chapters[i].value, i + 1),
             if (i < chapters.length - 1)
-              const Divider(
-                  height: 1, indent: 20, endIndent: 20, color: AppColors.border),
+              Divider(
+                  height: 1, indent: 20, endIndent: 20, color: context.colors.border),
           ],
         ],
       ),
@@ -492,12 +493,12 @@ class _BiologyDashboardState extends State<BiologyDashboard>
 
   Widget _buildChapterRow(String name, double progress, int number) {
     final color = progress >= 0.8
-        ? AppColors.success
+        ? context.colors.success
         : progress >= 0.4
             ? _bioGreen
             : progress > 0
-                ? AppColors.warning
-                : AppColors.textMuted;
+                ? context.colors.warning
+                : context.colors.textMuted;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -522,17 +523,17 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                           color: color)),
                 ),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(name,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary)),
-                    const SizedBox(height: 6),
+                            color: context.colors.textPrimary)),
+                    SizedBox(height: 6),
                     Row(
                       children: [
                         Expanded(
@@ -540,13 +541,13 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                             borderRadius: BorderRadius.circular(3),
                             child: LinearProgressIndicator(
                               value: progress,
-                              backgroundColor: AppColors.surfaceHighest,
+                              backgroundColor: context.colors.surfaceHighest,
                               color: color,
                               minHeight: 4,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        SizedBox(width: 10),
                         Text('${(progress * 100).toInt()}%',
                             style: TextStyle(
                                 fontSize: 11,
@@ -557,9 +558,9 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                   ],
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Icon(Icons.chevron_right_rounded,
-                  size: 18, color: AppColors.textMuted),
+                  size: 18, color: context.colors.textMuted),
             ],
           ),
         ),

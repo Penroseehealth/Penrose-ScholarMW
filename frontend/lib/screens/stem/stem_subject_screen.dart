@@ -5,12 +5,13 @@ import '../../core/theme/app_colors.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
+import '../../core/theme/theme_colors.dart';
 
 class StemSubjectScreen extends StatefulWidget {
   final String slug;
   final String title;
 
-  const StemSubjectScreen({
+  StemSubjectScreen({
     super.key,
     required this.slug,
     this.title = 'Subject',
@@ -64,7 +65,7 @@ class _StemSubjectScreenState extends State<StemSubjectScreen> {
     final subjectColor = _getSubjectColor();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: RefreshIndicator(
         onRefresh: _loadData,
         color: AppColors.primary,
@@ -77,10 +78,10 @@ class _StemSubjectScreenState extends State<StemSubjectScreen> {
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 widget.title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: context.colors.textPrimary,
                 ),
               ),
               background: Container(
@@ -98,7 +99,7 @@ class _StemSubjectScreenState extends State<StemSubjectScreen> {
                           padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                           child: Text(
                             _subject!['description'] ?? '',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               color: Colors.white70,
                             ),
@@ -116,10 +117,10 @@ class _StemSubjectScreenState extends State<StemSubjectScreen> {
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
               child: Text(
                 'Disciplines',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: context.colors.textPrimary,
                 ),
               ),
             ),
@@ -144,7 +145,7 @@ class _StemSubjectScreenState extends State<StemSubjectScreen> {
                 itemBuilder: (context, index) => _buildDisciplineCard(_disciplines[index]),
               ),
             ),
-          const SliverToBoxAdapter(child: SizedBox(height: 40)),
+          SliverToBoxAdapter(child: SizedBox(height: 40)),
           ],
         ),
       ),
@@ -209,12 +210,12 @@ class _DisciplineExpansionCardState extends State<_DisciplineExpansionCard> {
   Color _getDifficultyColor(String? difficulty) {
     switch (difficulty) {
       case 'advanced':
-        return AppColors.error;
+        return context.colors.error;
       case 'intermediate':
-        return AppColors.warning;
+        return context.colors.warning;
       case 'beginner':
       default:
-        return AppColors.success;
+        return context.colors.success;
     }
   }
 
@@ -225,9 +226,9 @@ class _DisciplineExpansionCardState extends State<_DisciplineExpansionCard> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         children: [
@@ -243,18 +244,18 @@ class _DisciplineExpansionCardState extends State<_DisciplineExpansionCard> {
                       children: [
                         Text(
                           widget.discipline['name'] ?? '',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
+                            color: context.colors.textPrimary,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2),
                         Text(
                           '$topicCount topics',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.textMuted,
+                            color: context.colors.textMuted,
                           ),
                         ),
                       ],
@@ -262,10 +263,10 @@ class _DisciplineExpansionCardState extends State<_DisciplineExpansionCard> {
                   ),
                   AnimatedRotation(
                     turns: _expanded ? 0.25 : 0,
-                    duration: const Duration(milliseconds: 200),
-                    child: const Icon(
+                    duration: Duration(milliseconds: 200),
+                    child: Icon(
                       Icons.expand_more_rounded,
-                      color: AppColors.textMuted,
+                      color: context.colors.textMuted,
                       size: 24,
                     ),
                   ),
@@ -274,21 +275,21 @@ class _DisciplineExpansionCardState extends State<_DisciplineExpansionCard> {
             ),
           ),
           if (_expanded) ...[
-            const Divider(height: 1, color: AppColors.border),
+            Divider(height: 1, color: context.colors.border),
             if (_loadingTopics)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.all(20),
                 child: Center(
                   child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 2),
                 ),
               )
             else if (_topics.isEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.all(20),
                 child: Center(
                   child: Text(
                     'No topics available',
-                    style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+                    style: TextStyle(fontSize: 13, color: context.colors.textMuted),
                   ),
                 ),
               )
@@ -305,8 +306,8 @@ class _DisciplineExpansionCardState extends State<_DisciplineExpansionCard> {
                     decoration: BoxDecoration(
                       border: isLast
                           ? null
-                          : const Border(
-                              bottom: BorderSide(color: AppColors.borderLight, width: 0.5),
+                          : Border(
+                              bottom: BorderSide(color: context.colors.borderLight, width: 0.5),
                             ),
                     ),
                     child: Row(
@@ -314,9 +315,9 @@ class _DisciplineExpansionCardState extends State<_DisciplineExpansionCard> {
                         Expanded(
                           child: Text(
                             topic['name'] ?? '',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
-                              color: AppColors.textSecondary,
+                              color: context.colors.textSecondary,
                             ),
                           ),
                         ),
@@ -335,8 +336,8 @@ class _DisciplineExpansionCardState extends State<_DisciplineExpansionCard> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 18),
+                        SizedBox(width: 8),
+                        Icon(Icons.chevron_right_rounded, color: context.colors.textMuted, size: 18),
                       ],
                     ),
                   ),

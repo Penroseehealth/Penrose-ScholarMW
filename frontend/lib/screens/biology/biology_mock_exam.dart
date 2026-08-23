@@ -5,13 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 
 const Color _bioGreen = Color(0xFF10B981);
 const Color _bioGreenDark = Color(0xFF059669);
 const Color _bioGreenGlow = Color(0x2210B981);
 
 class BiologyMockExamScreen extends StatefulWidget {
-  const BiologyMockExamScreen({super.key});
+  BiologyMockExamScreen({super.key});
 
   @override
   State<BiologyMockExamScreen> createState() => _BiologyMockExamScreenState();
@@ -352,7 +353,7 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
 
   void _startTimer() {
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
+    _timer = Timer.periodic(Duration(seconds: 1), (t) {
       if (!mounted) {
         t.cancel();
         return;
@@ -431,7 +432,7 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
     final isDesktop = width >= 900;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: Column(
         children: [
           _buildHeader(),
@@ -450,9 +451,9 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        border: Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
       ),
       child: SafeArea(
         bottom: false,
@@ -463,24 +464,24 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
               child: Container(
                 width: 38, height: 38,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
+                  color: context.colors.surfaceElevated,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.colors.border),
                 ),
-                child: const Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: AppColors.textSecondary),
+                child: Icon(Icons.arrow_back_ios_new_rounded,
+                    size: 18, color: context.colors.textSecondary),
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Container(
               width: 40, height: 40,
               decoration: BoxDecoration(
                 color: _bioGreenGlow,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.fact_check_rounded, color: _bioGreen, size: 22),
+              child: Icon(Icons.fact_check_rounded, color: _bioGreen, size: 22),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -488,13 +489,13 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
                   Text(_headerTitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
-                  const SizedBox(height: 2),
+                      style: TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
+                  SizedBox(height: 2),
                   Text(_headerSubtitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                      style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
                 ],
               ),
             ),
@@ -503,7 +504,7 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: _timeLeft <= 15
-                      ? AppColors.error.withValues(alpha: 0.15)
+                      ? context.colors.error.withValues(alpha: 0.15)
                       : _bioGreenGlow,
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -511,9 +512,9 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
                     style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
-                        color: _timeLeft <= 15 ? AppColors.error : _bioGreen)),
+                        color: _timeLeft <= 15 ? context.colors.error : _bioGreen)),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
@@ -521,7 +522,7 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text('$_score/${_results.length}',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: _bioGreen)),
@@ -558,30 +559,30 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
                     color: _bioGreen.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: const Icon(Icons.assignment_rounded, color: _bioGreen, size: 28),
+                  child: Icon(Icons.assignment_rounded, color: _bioGreen, size: 28),
                 ),
-                const SizedBox(width: 16),
-                const Expanded(
+                SizedBox(width: 16),
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('MSCE Biology Mock Exams',
                           style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                              fontSize: 16, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
                       SizedBox(height: 4),
                       Text('Three full-length mock examinations covering all 15 syllabus chapters. Each exam has 30 timed multiple choice questions worth 100 marks.',
-                          style: TextStyle(fontSize: 12, color: AppColors.textMuted, height: 1.4)),
+                          style: TextStyle(fontSize: 12, color: context.colors.textMuted, height: 1.4)),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           _buildSectionTitle('Select Your Exam'),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           for (var i = 0; i < _mockExams.length; i++) _buildExamCard(i),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
         ],
       ),
     );
@@ -596,9 +597,9 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -613,41 +614,41 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
                   ),
                   child: Center(
                     child: Text('${index + 1}',
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.w800, color: _bioGreen)),
                   ),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('MOCK EXAM ${index + 1}',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 1.2,
                               color: _bioGreen)),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(exam.title,
-                          style: const TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
-                      const SizedBox(height: 2),
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
+                      SizedBox(height: 2),
                       Text('100 Marks Â· 2 Hours Â· ${exam.questions.length} Questions',
-                          style: const TextStyle(
-                              fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textMuted)),
+                          style: TextStyle(
+                              fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.textMuted)),
                     ],
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios_rounded,
-                    size: 16, color: AppColors.textMuted),
+                Icon(Icons.arrow_forward_ios_rounded,
+                    size: 16, color: context.colors.textMuted),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Text(exam.description,
-                style: const TextStyle(
-                    fontSize: 12, color: AppColors.textSecondary, height: 1.45)),
-            const SizedBox(height: 12),
+                style: TextStyle(
+                    fontSize: 12, color: context.colors.textSecondary, height: 1.45)),
+            SizedBox(height: 12),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -668,18 +669,18 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surfaceElevated,
+        color: context.colors.surfaceElevated,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 13, color: _bioGreen),
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
           Text(label,
-              style: const TextStyle(
-                  fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+              style: TextStyle(
+                  fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
         ],
       ),
     );
@@ -699,12 +700,12 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: progress,
-              backgroundColor: AppColors.surfaceHighest,
+              backgroundColor: context.colors.surfaceHighest,
               color: _bioGreen,
               minHeight: 5,
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -712,10 +713,10 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: q.difficulty == 'Easy'
-                      ? AppColors.success.withValues(alpha: 0.15)
+                      ? context.colors.success.withValues(alpha: 0.15)
                       : q.difficulty == 'Medium'
-                          ? AppColors.warning.withValues(alpha: 0.15)
-                          : AppColors.error.withValues(alpha: 0.15),
+                          ? context.colors.warning.withValues(alpha: 0.15)
+                          : context.colors.error.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(q.difficulty,
@@ -723,23 +724,23 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: q.difficulty == 'Easy'
-                            ? AppColors.success
+                            ? context.colors.success
                             : q.difficulty == 'Medium'
-                                ? AppColors.warning
-                                : AppColors.error)),
+                                ? context.colors.warning
+                                : context.colors.error)),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Expanded(
                 child: Text(q.question,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: context.colors.textPrimary,
                         height: 1.3)),
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           Expanded(
             child: ListView.builder(
               itemCount: q.options.length,
@@ -750,11 +751,11 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
                 Color bgColor = AppColors.surface;
                 if (_answered) {
                   if (isCorrect) {
-                    borderColor = AppColors.success;
-                    bgColor = AppColors.success.withValues(alpha: 0.08);
+                    borderColor = context.colors.success;
+                    bgColor = context.colors.success.withValues(alpha: 0.08);
                   } else if (isSelected && !isCorrect) {
-                    borderColor = AppColors.error;
-                    bgColor = AppColors.error.withValues(alpha: 0.08);
+                    borderColor = context.colors.error;
+                    bgColor = context.colors.error.withValues(alpha: 0.08);
                   }
                 } else if (isSelected) {
                   borderColor = _bioGreen;
@@ -778,28 +779,28 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
                           decoration: BoxDecoration(
                             color: (isSelected || (_answered && isCorrect))
                                 ? borderColor.withValues(alpha: 0.15)
-                                : AppColors.surfaceElevated,
+                                : context.colors.surfaceElevated,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Center(
                             child: _answered && isCorrect
-                                ? const Icon(Icons.check_rounded, size: 18, color: AppColors.success)
+                                ? Icon(Icons.check_rounded, size: 18, color: context.colors.success)
                                 : _answered && isSelected && !isCorrect
-                                    ? const Icon(Icons.close_rounded, size: 18, color: AppColors.error)
+                                    ? Icon(Icons.close_rounded, size: 18, color: context.colors.error)
                                     : Text(String.fromCharCode(65 + i),
                                         style: TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w700,
-                                            color: isSelected ? borderColor : AppColors.textMuted)),
+                                            color: isSelected ? borderColor : context.colors.textMuted)),
                           ),
                         ),
-                        const SizedBox(width: 14),
+                        SizedBox(width: 14),
                         Expanded(
                           child: Text(q.options[i],
                               style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                                  color: AppColors.textPrimary)),
+                                  color: context.colors.textPrimary)),
                         ),
                       ],
                     ),
@@ -809,20 +810,20 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
             ),
           ),
           if (_answered) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.colors.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: context.colors.border),
               ),
               child: Text(q.explanation,
-                  style: const TextStyle(
-                      fontSize: 12, color: AppColors.textSecondary, height: 1.5)),
+                  style: TextStyle(
+                      fontSize: 12, color: context.colors.textSecondary, height: 1.5)),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
           ],
           SizedBox(
             width: double.infinity,
@@ -837,8 +838,8 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                disabledBackgroundColor: AppColors.surfaceHighest,
-                disabledForegroundColor: AppColors.textMuted,
+                disabledBackgroundColor: context.colors.surfaceHighest,
+                disabledForegroundColor: context.colors.textMuted,
               ),
               child: Text(
                   _answered
@@ -846,7 +847,7 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
                           ? 'View Results'
                           : 'Next Question'
                       : 'Submit Answer',
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
             ),
           ),
         ],
@@ -867,10 +868,10 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
                     ? 'D'
                     : 'F';
     final gradeColor = pct >= 70
-        ? AppColors.success
+        ? context.colors.success
         : pct >= 50
-            ? AppColors.warning
-            : AppColors.error;
+            ? context.colors.warning
+            : context.colors.error;
 
     var easyTotal = 0, easyCorrect = 0;
     var mediumTotal = 0, mediumCorrect = 0;
@@ -918,69 +919,69 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
                             fontSize: 48, fontWeight: FontWeight.w800, color: gradeColor)),
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 Text('$_score / $total',
-                    style: const TextStyle(
-                        fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                    style: TextStyle(
+                        fontSize: 28, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
                 Text('$pct% â€” Grade $grade',
                     style: TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w600, color: gradeColor)),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildResultStat('Correct', '$_score', AppColors.success),
-                    const SizedBox(width: 24),
-                    _buildResultStat('Wrong', '${total - _score}', AppColors.error),
-                    const SizedBox(width: 24),
-                    _buildResultStat('Time Taken', _formatTotalTime(), AppColors.info),
+                    _buildResultStat('Correct', '$_score', context.colors.success),
+                    SizedBox(width: 24),
+                    _buildResultStat('Wrong', '${total - _score}', context.colors.error),
+                    SizedBox(width: 24),
+                    _buildResultStat('Time Taken', _formatTotalTime(), context.colors.info),
                   ],
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           _buildSectionTitle('Performance by Difficulty'),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: Column(
               children: [
-                _buildDifficultyRow('Easy', easyCorrect, easyTotal, AppColors.success),
-                _buildDifficultyRow('Medium', mediumCorrect, mediumTotal, AppColors.warning),
-                _buildDifficultyRow('Hard', hardCorrect, hardTotal, AppColors.error),
+                _buildDifficultyRow('Easy', easyCorrect, easyTotal, context.colors.success),
+                _buildDifficultyRow('Medium', mediumCorrect, mediumTotal, context.colors.warning),
+                _buildDifficultyRow('Hard', hardCorrect, hardTotal, context.colors.error),
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           _buildSectionTitle('Question Review'),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           for (var i = 0; i < _results.length; i++) _buildReviewCard(i, _results[i]),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Row(
             children: [
               Expanded(
                 child: ElevatedButton(
                   onPressed: _resetToSelection,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.surface,
-                    foregroundColor: AppColors.textPrimary,
+                    backgroundColor: context.colors.surface,
+                    foregroundColor: context.colors.textPrimary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                        side: const BorderSide(color: AppColors.border)),
+                        side: BorderSide(color: context.colors.border)),
                   ),
-                  child: const Text('New Exam',
+                  child: Text('New Exam',
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton(
                   onPressed: _retryExam,
@@ -990,13 +991,13 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('Retry',
+                  child: Text('Retry',
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 40),
+          SizedBox(height: 40),
         ],
       ),
     );
@@ -1008,9 +1009,9 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
         Text(value,
             style: TextStyle(
                 fontSize: 20, fontWeight: FontWeight.w800, color: color)),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(label,
-            style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+            style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
       ],
     );
   }
@@ -1025,20 +1026,20 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
           Row(
             children: [
               Text(label,
-                  style: const TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
-              const Spacer(),
+                  style: TextStyle(
+                      fontSize: 12, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+              Spacer(),
               Text('$correct/$total ($pct%)',
                   style: TextStyle(
                       fontSize: 12, fontWeight: FontWeight.w700, color: color)),
             ],
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: total > 0 ? correct / total : 0,
-              backgroundColor: AppColors.surfaceHighest,
+              backgroundColor: context.colors.surfaceHighest,
               color: color,
               minHeight: 6,
             ),
@@ -1056,12 +1057,12 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
   }
 
   Widget _buildReviewCard(int index, _ExamResult r) {
-    final color = r.correct ? AppColors.success : AppColors.error;
+    final color = r.correct ? context.colors.success : context.colors.error;
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
@@ -1079,34 +1080,34 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
                 ),
                 child: Center(
                   child: r.correct
-                      ? const Icon(Icons.check_rounded, size: 16, color: AppColors.success)
-                      : const Icon(Icons.close_rounded, size: 16, color: AppColors.error),
+                      ? Icon(Icons.check_rounded, size: 16, color: context.colors.success)
+                      : Icon(Icons.close_rounded, size: 16, color: context.colors.error),
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Expanded(
                 child: Text('${index + 1}. ${r.question.question}',
-                    style: const TextStyle(
-                        fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                    style: TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textPrimary)),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
               r.selected >= 0
                   ? 'Your answer: ${r.question.options[r.selected]}'
                   : 'Your answer: Not answered',
               style: TextStyle(
                   fontSize: 12,
-                  color: r.correct ? AppColors.textSecondary : AppColors.error)),
+                  color: r.correct ? context.colors.textSecondary : context.colors.error)),
           Text('Correct answer: ${r.question.options[r.question.correctIndex]}',
-              style: const TextStyle(fontSize: 12, color: AppColors.success)),
-          const SizedBox(height: 6),
+              style: TextStyle(fontSize: 12, color: context.colors.success)),
+          SizedBox(height: 6),
           Text(r.question.explanation,
-              style: const TextStyle(fontSize: 11, color: AppColors.textMuted, height: 1.4)),
-          const SizedBox(height: 6),
+              style: TextStyle(fontSize: 11, color: context.colors.textMuted, height: 1.4)),
+          SizedBox(height: 6),
           Text('Time taken: ${r.timeTaken}s',
-              style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
+              style: TextStyle(fontSize: 10, color: context.colors.textMuted)),
         ],
       ),
     );
@@ -1118,14 +1119,14 @@ class _BiologyMockExamScreenState extends State<BiologyMockExamScreen> {
         Container(
           width: 4, height: 20,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(colors: [_bioGreen, _bioGreenDark]),
+            gradient: LinearGradient(colors: [_bioGreen, _bioGreenDark]),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Text(title,
-            style: const TextStyle(
-                fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary, letterSpacing: -0.3)),
+            style: TextStyle(
+                fontSize: 18, fontWeight: FontWeight.w800, color: context.colors.textPrimary, letterSpacing: -0.3)),
       ],
     );
   }

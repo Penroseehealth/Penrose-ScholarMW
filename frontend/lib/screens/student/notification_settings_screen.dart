@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
+import '../../core/theme/theme_colors.dart';
 
 class NotificationSettingsScreen extends StatefulWidget {
-  const NotificationSettingsScreen({super.key});
+  NotificationSettingsScreen({super.key});
 
   @override
   State<NotificationSettingsScreen> createState() => _NotificationSettingsScreenState();
@@ -20,8 +21,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   bool _resourceAlerts = true;
   bool _weeklySummary = true;
   bool _aiInsights = true;
-  TimeOfDay _quietStart = const TimeOfDay(hour: 22, minute: 0);
-  TimeOfDay _quietEnd = const TimeOfDay(hour: 7, minute: 0);
+  TimeOfDay _quietStart = TimeOfDay(hour: 22, minute: 0);
+  TimeOfDay _quietEnd = TimeOfDay(hour: 7, minute: 0);
 
   @override
   void initState() {
@@ -76,8 +77,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Settings saved'),
-            backgroundColor: AppColors.success,
+            content: Text('Settings saved'),
+            backgroundColor: context.colors.success,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
@@ -87,8 +88,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Failed to save settings'),
-            backgroundColor: AppColors.error,
+            content: Text('Failed to save settings'),
+            backgroundColor: context.colors.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
@@ -113,11 +114,11 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         return Theme(
           data: Theme.of(context).copyWith(
             timePickerTheme: TimePickerThemeData(
-              backgroundColor: AppColors.surfaceElevated,
-              hourMinuteColor: AppColors.surfaceHighest,
-              dialBackgroundColor: AppColors.surface,
+              backgroundColor: context.colors.surfaceElevated,
+              hourMinuteColor: context.colors.surfaceHighest,
+              dialBackgroundColor: context.colors.surface,
               dialHandColor: AppColors.primary,
-              dialTextColor: AppColors.textPrimary,
+              dialTextColor: context.colors.textPrimary,
               entryModeIconColor: AppColors.primary,
             ),
           ),
@@ -139,40 +140,40 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
+        backgroundColor: context.colors.surface,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textSecondary),
+          icon: Icon(Icons.arrow_back_rounded, color: context.colors.textSecondary),
           onPressed: () => context.go('/'),
         ),
-        title: const Text(
+        title: Text(
           'Notification Settings',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
         ),
         actions: [
           TextButton(
             onPressed: _saving ? null : _savePreferences,
             child: _saving
-                ? const SizedBox(
+                ? SizedBox(
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
                   )
-                : const Text('Save', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
+                : Text('Save', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
           ),
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? Center(child: CircularProgressIndicator(color: AppColors.primary))
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: context.colors.surface,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: context.colors.border),
                   ),
                   child: Column(
                     children: [
@@ -183,7 +184,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                         value: _assessmentReminders,
                         onChanged: (v) => setState(() => _assessmentReminders = v),
                       ),
-                      const Divider(height: 1, color: AppColors.border),
+                      Divider(height: 1, color: context.colors.border),
                       _buildToggle(
                         icon: Icons.psychology_rounded,
                         title: 'Study Nudges',
@@ -191,7 +192,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                         value: _studyNudges,
                         onChanged: (v) => setState(() => _studyNudges = v),
                       ),
-                      const Divider(height: 1, color: AppColors.border),
+                      Divider(height: 1, color: context.colors.border),
                       _buildToggle(
                         icon: Icons.menu_book_rounded,
                         title: 'Resource Alerts',
@@ -199,7 +200,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                         value: _resourceAlerts,
                         onChanged: (v) => setState(() => _resourceAlerts = v),
                       ),
-                      const Divider(height: 1, color: AppColors.border),
+                      Divider(height: 1, color: context.colors.border),
                       _buildToggle(
                         icon: Icons.summarize_rounded,
                         title: 'Weekly Summary',
@@ -207,7 +208,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                         value: _weeklySummary,
                         onChanged: (v) => setState(() => _weeklySummary = v),
                       ),
-                      const Divider(height: 1, color: AppColors.border),
+                      Divider(height: 1, color: context.colors.border),
                       _buildToggle(
                         icon: Icons.auto_awesome_rounded,
                         title: 'AI Insights',
@@ -218,24 +219,24 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 Container(
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: context.colors.surface,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: context.colors.border),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
                         child: Text(
                           'Quiet Hours',
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
+                            color: context.colors.textPrimary,
                           ),
                         ),
                       ),
@@ -243,26 +244,26 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                         child: Text(
                           'No notifications during these hours',
-                          style: const TextStyle(fontSize: 13, color: AppColors.textMuted),
+                          style: TextStyle(fontSize: 13, color: context.colors.textMuted),
                         ),
                       ),
-                      const Divider(height: 1, color: AppColors.border),
+                      Divider(height: 1, color: context.colors.border),
                       ListTile(
-                        leading: const Icon(Icons.nightlight_round, color: AppColors.textMuted, size: 22),
-                        title: const Text('Start', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                        leading: Icon(Icons.nightlight_round, color: context.colors.textMuted, size: 22),
+                        title: Text('Start', style: TextStyle(color: context.colors.textSecondary, fontSize: 14)),
                         trailing: Text(
                           _formatTime(_quietStart),
-                          style: const TextStyle(color: AppColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
+                          style: TextStyle(color: context.colors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
                         ),
                         onTap: () => _pickTime(true),
                       ),
-                      const Divider(height: 1, color: AppColors.border),
+                      Divider(height: 1, color: context.colors.border),
                       ListTile(
-                        leading: const Icon(Icons.wb_sunny_rounded, color: AppColors.textMuted, size: 22),
-                        title: const Text('End', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                        leading: Icon(Icons.wb_sunny_rounded, color: context.colors.textMuted, size: 22),
+                        title: Text('End', style: TextStyle(color: context.colors.textSecondary, fontSize: 14)),
                         trailing: Text(
                           _formatTime(_quietEnd),
-                          style: const TextStyle(color: AppColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
+                          style: TextStyle(color: context.colors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
                         ),
                         onTap: () => _pickTime(false),
                       ),
@@ -282,13 +283,13 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     required ValueChanged<bool> onChanged,
   }) {
     return SwitchListTile(
-      secondary: Icon(icon, color: value ? AppColors.primary : AppColors.textMuted, size: 22),
-      title: Text(title, style: const TextStyle(color: AppColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w500)),
-      subtitle: Text(subtitle, style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+      secondary: Icon(icon, color: value ? AppColors.primary : context.colors.textMuted, size: 22),
+      title: Text(title, style: TextStyle(color: context.colors.textPrimary, fontSize: 15, fontWeight: FontWeight.w500)),
+      subtitle: Text(subtitle, style: TextStyle(color: context.colors.textMuted, fontSize: 12)),
       value: value,
       onChanged: onChanged,
       activeColor: AppColors.primary,
-      inactiveTrackColor: AppColors.surfaceHighest,
+      inactiveTrackColor: context.colors.surfaceHighest,
     );
   }
 }

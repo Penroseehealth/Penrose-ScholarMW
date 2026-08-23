@@ -5,9 +5,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
+import '../../core/theme/theme_colors.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
-  const AdminDashboardScreen({super.key});
+  AdminDashboardScreen({super.key});
 
   @override
   State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
@@ -65,9 +66,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? Center(child: CircularProgressIndicator(color: AppColors.primary))
           : _error != null
               ? _buildError()
               : RefreshIndicator(
@@ -77,21 +78,21 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       SliverAppBar(
                         expandedHeight: 70,
                         floating: true,
-                        backgroundColor: AppColors.surface,
+                        backgroundColor: context.colors.surface,
                         title: Semantics(
                           header: true,
-                          child: const Text(
+                          child: Text(
                             'Admin Dashboard',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                              color: context.colors.textPrimary,
                             ),
                           ),
                         ),
                         actions: [
                           IconButton(
-                            icon: const Icon(Icons.refresh_rounded, color: AppColors.textSecondary),
+                            icon: Icon(Icons.refresh_rounded, color: context.colors.textSecondary),
                             tooltip: 'Refresh data',
                             onPressed: _loadData,
                           ),
@@ -107,7 +108,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             : _selectedTab == 1
                                 ? _buildUsersTab()
                                 : _selectedTab == 99
-                                    ? const SizedBox()
+                                    ? SizedBox()
                                     : _buildCoursesTab(),
                       ),
                     ],
@@ -118,7 +119,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Widget _buildTabBar() {
     return Container(
-      color: AppColors.surface,
+      color: context.colors.surface,
       padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
         children: [
@@ -156,7 +157,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           style: TextStyle(
             fontSize: 13,
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected ? AppColors.primary : AppColors.textMuted,
+            color: isSelected ? AppColors.primary : context.colors.textMuted,
           ),
         ),
       ),
@@ -174,44 +175,44 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const _SectionHeader('SYSTEM OVERVIEW'),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildStatsGrid([
             _StatItem('Total Users', '${overview['total_users'] ?? 0}', Icons.people_rounded, AppColors.primary),
-            _StatItem('Students', '${overview['total_students'] ?? 0}', Icons.school_rounded, AppColors.success),
-            _StatItem('Lecturers', '${overview['total_lecturers'] ?? 0}', Icons.badge_rounded, AppColors.warning),
-            _StatItem('Courses', '${overview['total_courses'] ?? 0}', Icons.menu_book_rounded, AppColors.accent),
-            _StatItem('Enrollments', '${overview['total_enrollments'] ?? 0}', Icons.assignment_rounded, AppColors.info),
-            _StatItem('Submissions', '${overview['total_submissions'] ?? 0}', Icons.quiz_rounded, AppColors.lavender),
+            _StatItem('Students', '${overview['total_students'] ?? 0}', Icons.school_rounded, context.colors.success),
+            _StatItem('Lecturers', '${overview['total_lecturers'] ?? 0}', Icons.badge_rounded, context.colors.warning),
+            _StatItem('Courses', '${overview['total_courses'] ?? 0}', Icons.menu_book_rounded, context.colors.accent),
+            _StatItem('Enrollments', '${overview['total_enrollments'] ?? 0}', Icons.assignment_rounded, context.colors.info),
+            _StatItem('Submissions', '${overview['total_submissions'] ?? 0}', Icons.quiz_rounded, context.colors.lavender),
           ]),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           const _SectionHeader('ENGAGEMENT (30 DAYS)'),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildStatsGrid([
-            _StatItem('New Users', '${engagement['new_users_30d'] ?? 0}', Icons.person_add_rounded, AppColors.success),
+            _StatItem('New Users', '${engagement['new_users_30d'] ?? 0}', Icons.person_add_rounded, context.colors.success),
             _StatItem('Active (7d)', '${engagement['active_users_7d'] ?? 0}', Icons.access_time_rounded, AppColors.primary),
-            _StatItem('Recent Submissions', '${engagement['recent_submissions'] ?? 0}', Icons.upload_rounded, AppColors.info),
-            _StatItem('Avg Score', '${engagement['avg_score'] ?? 0}%', Icons.star_rounded, AppColors.warning),
+            _StatItem('Recent Submissions', '${engagement['recent_submissions'] ?? 0}', Icons.upload_rounded, context.colors.info),
+            _StatItem('Avg Score', '${engagement['avg_score'] ?? 0}%', Icons.star_rounded, context.colors.warning),
           ]),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           const _SectionHeader('ACADEMIC PERFORMANCE'),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildStatCard(
             'Avg Enrollment Progress',
             '${academics['avg_enrollment_progress'] ?? 0}%',
             Icons.trending_up_rounded,
             AppColors.primary,
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildStatCard(
             'Course Completion Rate',
             '${academics['completion_rate'] ?? 0}%',
             Icons.check_circle_rounded,
-            AppColors.success,
+            context.colors.success,
           ),
           if ((academics['department_breakdown'] as List?)?.isNotEmpty == true) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             const _SectionHeader('DEPARTMENT BREAKDOWN'),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             _buildDepartmentBreakdown(academics['department_breakdown']),
           ],
         ],
@@ -221,16 +222,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Widget _buildUsersTab() {
     if (_users.isEmpty) {
-      return const Padding(
+      return Padding(
         padding: EdgeInsets.all(32),
         child: Center(
-          child: Text('No users found', style: TextStyle(color: AppColors.textMuted)),
+          child: Text('No users found', style: TextStyle(color: context.colors.textMuted)),
         ),
       );
     }
     return ListView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      physics: NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       itemCount: _users.length,
       itemBuilder: (ctx, i) => _buildUserCard(_users[i]),
@@ -239,16 +240,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Widget _buildCoursesTab() {
     if (_courses.isEmpty) {
-      return const Padding(
+      return Padding(
         padding: EdgeInsets.all(32),
         child: Center(
-          child: Text('No courses found', style: TextStyle(color: AppColors.textMuted)),
+          child: Text('No courses found', style: TextStyle(color: context.colors.textMuted)),
         ),
       );
     }
     return ListView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      physics: NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       itemCount: _courses.length,
       itemBuilder: (ctx, i) => _buildCourseCard(_courses[i]),
@@ -258,8 +259,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget _buildStatsGrid(List<_StatItem> items) {
     return GridView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      physics: NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
@@ -273,16 +274,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(item.icon, size: 18, color: item.color),
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 Text(
                   item.value,
                   style: TextStyle(
@@ -291,12 +292,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     color: item.color,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   item.label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.textMuted,
+                    color: context.colors.textMuted,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -312,9 +313,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         children: [
@@ -326,7 +327,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
             child: Icon(icon, size: 22, color: color),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,9 +342,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ),
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textMuted,
+                    color: context.colors.textMuted,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -358,15 +359,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget _buildDepartmentBreakdown(List<dynamic> departments) {
     final total = departments.fold<int>(0, (sum, d) => sum + ((d['count'] as int?) ?? 0));
     final colors = [
-      AppColors.primary, AppColors.success, AppColors.warning,
-      AppColors.info, AppColors.lavender, AppColors.accent,
+      AppColors.primary, context.colors.success, context.colors.warning,
+      context.colors.info, context.colors.lavender, context.colors.accent,
     ];
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         children: [
@@ -393,7 +394,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           Wrap(
             spacing: 12,
             runSpacing: 6,
@@ -409,10 +410,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       borderRadius: BorderRadius.circular(3),
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
                   Text(
                     '${departments[i]['department']} (${departments[i]['count']})',
-                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                    style: TextStyle(fontSize: 11, color: context.colors.textSecondary),
                   ),
                 ],
               );
@@ -427,9 +428,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     final role = (user['role'] ?? 'student').toString();
     final isActive = user['is_active'] == true;
     final roleColor = role == 'admin'
-        ? AppColors.error
+        ? context.colors.error
         : role == 'lecturer'
-            ? AppColors.warning
+            ? context.colors.warning
             : AppColors.primary;
 
     return Semantics(
@@ -438,9 +439,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Row(
           children: [
@@ -462,23 +463,23 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     user['full_name'] ?? 'Unknown',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      color: context.colors.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(
                     user['email'] ?? '',
-                    style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                    style: TextStyle(fontSize: 12, color: context.colors.textMuted),
                   ),
                 ],
               ),
@@ -501,7 +502,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -509,16 +510,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       width: 7,
                       height: 7,
                       decoration: BoxDecoration(
-                        color: isActive ? AppColors.success : AppColors.error,
+                        color: isActive ? context.colors.success : context.colors.error,
                         shape: BoxShape.circle,
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Text(
                       isActive ? 'Active' : 'Inactive',
                       style: TextStyle(
                         fontSize: 10,
-                        color: isActive ? AppColors.success : AppColors.error,
+                        color: isActive ? context.colors.success : context.colors.error,
                       ),
                     ),
                   ],
@@ -539,9 +540,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Row(
           children: [
@@ -549,32 +550,32 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: AppColors.primaryGlow,
+                color: context.colors.primaryGlow,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Center(
+              child: Center(
                 child: Icon(Icons.menu_book_rounded, size: 20, color: AppColors.primary),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     course['code'] ?? '',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textMuted,
+                      color: context.colors.textMuted,
                     ),
                   ),
                   Text(
                     course['title'] ?? 'Untitled',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      color: context.colors.textPrimary,
                     ),
                   ),
                 ],
@@ -584,7 +585,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               width: 7,
               height: 7,
               decoration: BoxDecoration(
-                color: isActive ? AppColors.success : AppColors.error,
+                color: isActive ? context.colors.success : context.colors.error,
                 shape: BoxShape.circle,
               ),
             ),
@@ -601,18 +602,18 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline_rounded, size: 48, color: AppColors.error),
-            const SizedBox(height: 12),
+            Icon(Icons.error_outline_rounded, size: 48, color: context.colors.error),
+            SizedBox(height: 12),
             Text(
               _error!,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textMuted),
+              style: TextStyle(color: context.colors.textMuted),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: _loadData,
-              icon: const Icon(Icons.refresh_rounded, size: 16),
-              label: const Text('Retry'),
+              icon: Icon(Icons.refresh_rounded, size: 16),
+              label: Text('Retry'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -633,10 +634,10 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w700,
-        color: AppColors.textMuted,
+        color: context.colors.textMuted,
         letterSpacing: 1.5,
       ),
     );

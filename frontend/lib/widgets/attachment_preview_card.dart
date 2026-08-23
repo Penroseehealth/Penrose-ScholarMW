@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 
 import '../core/theme/app_colors.dart';
+import '../core/theme/theme_colors.dart';
 
 enum AttachmentStatus { uploading, ready, processing, error }
 
@@ -16,7 +17,7 @@ class AttachmentPreviewCard extends StatelessWidget {
   final VoidCallback? onRemove;
   final VoidCallback? onView;
 
-  const AttachmentPreviewCard({
+  AttachmentPreviewCard({
     super.key,
     required this.filename,
     this.filePath,
@@ -32,19 +33,19 @@ class AttachmentPreviewCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppColors.surfaceElevated,
+        color: context.colors.surfaceElevated,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: status == AttachmentStatus.error
-              ? AppColors.error
-              : AppColors.border,
+              ? context.colors.error
+              : context.colors.border,
         ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildIcon(),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,14 +53,14 @@ class AttachmentPreviewCard extends StatelessWidget {
               children: [
                 Text(
                   filename,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   _getStatusText(),
                   style: TextStyle(
@@ -70,7 +71,7 @@ class AttachmentPreviewCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           if (status == AttachmentStatus.ready && onView != null)
             _actionBtn(Icons.visibility_rounded, onView!),
           if (status != AttachmentStatus.uploading && onRemove != null)

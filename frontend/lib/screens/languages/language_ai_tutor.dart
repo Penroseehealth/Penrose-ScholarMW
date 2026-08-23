@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 
 const Color _langTeal = Color(0xFF2DD4BF);
 const Color _langTealDark = Color(0xFF14B8A6);
@@ -10,7 +11,7 @@ const Color _langTealGlow = Color(0x222DD4BF);
 class LanguageAITutorScreen extends StatefulWidget {
   final String slug;
 
-  const LanguageAITutorScreen({super.key, required this.slug});
+  LanguageAITutorScreen({super.key, required this.slug});
 
   @override
   State<LanguageAITutorScreen> createState() => _LanguageAITutorScreenState();
@@ -53,7 +54,7 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
+          duration: Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
       }
@@ -79,7 +80,7 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
     });
     _scrollToBottom();
 
-    await Future.delayed(const Duration(milliseconds: 900));
+    await Future.delayed(Duration(milliseconds: 900));
 
     final response = _generateResponse(text);
 
@@ -162,7 +163,7 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: Column(
         children: [
           _buildHeader(),
@@ -176,10 +177,10 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: context.colors.surface,
         border:
-            Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
+            Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
       ),
       child: SafeArea(
         bottom: false,
@@ -191,15 +192,15 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
+                  color: context.colors.surfaceElevated,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.colors.border),
                 ),
-                child: const Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: AppColors.textSecondary),
+                child: Icon(Icons.arrow_back_ios_new_rounded,
+                    size: 18, color: context.colors.textSecondary),
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Container(
               width: 40,
               height: 40,
@@ -207,22 +208,22 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
                 color: _langTealGlow,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.smart_toy_rounded,
+              child: Icon(Icons.smart_toy_rounded,
                   color: _langTeal, size: 22),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('${_languageTitle(widget.slug)} AI Tutor',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary)),
-                  const Text('Context-aware language coaching',
+                          color: context.colors.textPrimary)),
+                  Text('Context-aware language coaching',
                       style: TextStyle(
-                          fontSize: 12, color: AppColors.textMuted)),
+                          fontSize: 12, color: context.colors.textMuted)),
                 ],
               ),
             ),
@@ -234,7 +235,7 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text('${_userTurnCount()} turns',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: _langTeal)),
@@ -265,29 +266,29 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
         .toList();
     return Container(
       width: 260,
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(right: BorderSide(color: AppColors.border, width: 0.5)),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        border: Border(right: BorderSide(color: context.colors.border, width: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
+          Padding(
             padding: EdgeInsets.all(16),
             child: Text('Chat History',
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textSecondary)),
+                    color: context.colors.textSecondary)),
           ),
           Expanded(
             child: sessions.isEmpty
-                ? const Center(
+                ? Center(
                     child: Padding(
                       padding: EdgeInsets.all(16),
                       child: Text('No history yet',
                           style:
-                              TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                              TextStyle(fontSize: 12, color: context.colors.textMuted)),
                     ),
                   )
                 : ListView.builder(
@@ -304,14 +305,14 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
                           m.text.length > 42
                               ? '${m.text.substring(0, 42)}…'
                               : m.text,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 12,
-                              color: AppColors.textSecondary),
+                              color: context.colors.textSecondary),
                         ),
                         subtitle: Text(
                           '${m.time.hour.toString().padLeft(2, '0')}:${m.time.minute.toString().padLeft(2, '0')}',
-                          style: const TextStyle(
-                              fontSize: 10, color: AppColors.textMuted),
+                          style: TextStyle(
+                              fontSize: 10, color: context.colors.textMuted),
                         ),
                         onTap: () => _messageController.text = m.text,
                       );
@@ -349,20 +350,20 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
                   color: _langTeal.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.translate_rounded,
+                child: Icon(Icons.translate_rounded,
                     color: _langTeal, size: 40),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               Text('${_languageTitle(widget.slug)} AI Tutor',
-                  style: const TextStyle(
-                      color: AppColors.textPrimary,
+                  style: TextStyle(
+                      color: context.colors.textPrimary,
                       fontSize: 22,
                       fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              const Text(
+              SizedBox(height: 8),
+              Text(
                 'Grammar · Writing · Conversation · Quizzes',
                 style:
-                    TextStyle(color: AppColors.textMuted, fontSize: 13),
+                    TextStyle(color: context.colors.textMuted, fontSize: 13),
               ),
             ],
           ),
@@ -387,18 +388,18 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
         child: Container(
           margin: const EdgeInsets.only(bottom: 8),
           padding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.accent.withValues(alpha: 0.15),
+            color: context.colors.accent.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-                color: AppColors.accent.withValues(alpha: 0.3)),
+                color: context.colors.accent.withValues(alpha: 0.3)),
           ),
           child: Text(msg.text.replaceAll('__action__', ''),
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.accent)),
+                  color: context.colors.accent)),
         ),
       );
     }
@@ -437,29 +438,29 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.smart_toy_rounded,
+                  Icon(Icons.smart_toy_rounded,
                       size: 13, color: AppColors.primaryLight),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6),
                   Text('${_languageTitle(widget.slug)} AI',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: AppColors.primaryLight)),
                 ],
               ),
-            if (!isUser) const SizedBox(height: 6),
+            if (!isUser) SizedBox(height: 6),
             SelectableText(
               msg.text,
-              style: const TextStyle(
-                  color: AppColors.textPrimary,
+              style: TextStyle(
+                  color: context.colors.textPrimary,
                   fontSize: 14,
                   height: 1.5),
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Text(
               '${msg.time.hour.toString().padLeft(2, '0')}:${msg.time.minute.toString().padLeft(2, '0')}',
-              style: const TextStyle(
-                  color: AppColors.textMuted, fontSize: 10),
+              style: TextStyle(
+                  color: context.colors.textMuted, fontSize: 10),
             ),
           ],
         ),
@@ -483,9 +484,9 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.smart_toy_rounded,
+            Icon(Icons.smart_toy_rounded,
                 color: AppColors.primaryLight, size: 14),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             ...List.generate(3, (i) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -504,7 +505,7 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
   Widget _buildQuickActions() {
     return Container(
       height: 52,
-      color: AppColors.surface,
+      color: context.colors.surface,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -521,10 +522,10 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
                 decoration: BoxDecoration(
                   color: active
                       ? _langTeal.withValues(alpha: 0.15)
-                      : AppColors.surfaceElevated,
+                      : context.colors.surfaceElevated,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: active ? _langTeal : AppColors.border,
+                    color: active ? _langTeal : context.colors.border,
                     width: active ? 1.5 : 1,
                   ),
                 ),
@@ -534,8 +535,8 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
                     Icon(a.$3,
                         size: 15,
                         color:
-                            active ? _langTeal : AppColors.textMuted),
-                    const SizedBox(width: 6),
+                            active ? _langTeal : context.colors.textMuted),
+                    SizedBox(width: 6),
                     Text(a.$2,
                         style: TextStyle(
                             fontSize: 12,
@@ -544,7 +545,7 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
                                 : FontWeight.w500,
                             color: active
                                 ? _langTeal
-                                : AppColors.textSecondary)),
+                                : context.colors.textSecondary)),
                   ],
                 ),
               ),
@@ -558,9 +559,9 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
   Widget _buildInputArea() {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.border, width: 0.5)),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        border: Border(top: BorderSide(color: context.colors.border, width: 0.5)),
       ),
       child: SafeArea(
         top: false,
@@ -569,15 +570,15 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
             Expanded(
               child: TextField(
                 controller: _messageController,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: TextStyle(color: context.colors.textPrimary),
                 textInputAction: TextInputAction.send,
                 onSubmitted: _sendMessage,
                 decoration: InputDecoration(
                   hintText: 'Ask your tutor anything...',
-                  hintStyle: const TextStyle(
-                      color: AppColors.textMuted, fontSize: 13),
+                  hintStyle: TextStyle(
+                      color: context.colors.textMuted, fontSize: 13),
                   filled: true,
-                  fillColor: AppColors.surfaceElevated,
+                  fillColor: context.colors.surfaceElevated,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide:
@@ -590,19 +591,19 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: _langTeal),
+                    borderSide: BorderSide(color: _langTeal),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16, vertical: 12),
                 ),
               ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             Container(
               decoration: BoxDecoration(
                   color: _langTeal, borderRadius: BorderRadius.circular(12)),
               child: IconButton(
-                icon: const Icon(Icons.send_rounded, color: Color(0xFF062B27)),
+                icon: Icon(Icons.send_rounded, color: Color(0xFF062B27)),
                 onPressed: () => _sendMessage(_messageController.text),
               ),
             ),

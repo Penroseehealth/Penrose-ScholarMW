@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../core/theme/app_colors.dart';
 import 'stem_symbol_palette.dart';
 import 'stem_text.dart';
+import '../core/theme/theme_colors.dart';
 
 class EquationEditor extends StatefulWidget {
   final TextEditingController controller;
@@ -10,7 +11,7 @@ class EquationEditor extends StatefulWidget {
   final bool showPreview;
   final int maxLines;
 
-  const EquationEditor({
+  EquationEditor({
     super.key,
     required this.controller,
     this.hintText = 'Type equation or use templates below...',
@@ -70,9 +71,9 @@ class _EquationEditorState extends State<EquationEditor> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -92,9 +93,9 @@ class _EquationEditorState extends State<EquationEditor> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.surfaceElevated,
+        color: context.colors.surfaceElevated,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-        border: Border(bottom: BorderSide(color: AppColors.border)),
+        border: Border(bottom: BorderSide(color: context.colors.border)),
       ),
       child: Row(
         children: [
@@ -110,27 +111,27 @@ class _EquationEditorState extends State<EquationEditor> {
               if (_showPalette) _showTemplates = false;
             });
           }),
-          const Spacer(),
+          Spacer(),
           IconButton(
-            icon: const Icon(Icons.clear_all, size: 18),
+            icon: Icon(Icons.clear_all, size: 18),
             tooltip: 'Clear',
             onPressed: () => widget.controller.clear(),
-            color: AppColors.textSecondary,
+            color: context.colors.textSecondary,
             padding: const EdgeInsets.all(4),
-            constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+            constraints: BoxConstraints(minWidth: 28, minHeight: 28),
           ),
           IconButton(
-            icon: const Icon(Icons.content_copy, size: 18),
+            icon: Icon(Icons.content_copy, size: 18),
             tooltip: 'Copy LaTeX',
             onPressed: () {
               Clipboard.setData(ClipboardData(text: widget.controller.text));
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('LaTeX copied'), duration: Duration(seconds: 1)),
+                SnackBar(content: Text('LaTeX copied'), duration: Duration(seconds: 1)),
               );
             },
-            color: AppColors.textSecondary,
+            color: context.colors.textSecondary,
             padding: const EdgeInsets.all(4),
-            constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+            constraints: BoxConstraints(minWidth: 28, minHeight: 28),
           ),
         ],
       ),
@@ -142,9 +143,9 @@ class _EquationEditorState extends State<EquationEditor> {
       icon: Icon(icon, size: 18),
       tooltip: tooltip,
       onPressed: onPressed,
-      color: AppColors.textSecondary,
+      color: context.colors.textSecondary,
       padding: const EdgeInsets.all(4),
-      constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+      constraints: BoxConstraints(minWidth: 28, minHeight: 28),
     );
   }
 
@@ -155,15 +156,15 @@ class _EquationEditorState extends State<EquationEditor> {
         controller: widget.controller,
         maxLines: widget.maxLines,
         minLines: 2,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: 'monospace',
           fontSize: 14,
-          color: AppColors.textPrimary,
+          color: context.colors.textPrimary,
           height: 1.5,
         ),
         decoration: InputDecoration(
           hintText: widget.hintText,
-          hintStyle: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.5)),
+          hintStyle: TextStyle(color: context.colors.textSecondary.withValues(alpha: 0.5)),
           border: InputBorder.none,
           isDense: true,
           contentPadding: EdgeInsets.zero,
@@ -176,8 +177,8 @@ class _EquationEditorState extends State<EquationEditor> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.background,
-        border: Border(top: BorderSide(color: AppColors.border)),
+        color: context.colors.background,
+        border: Border(top: BorderSide(color: context.colors.border)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,16 +187,16 @@ class _EquationEditorState extends State<EquationEditor> {
             'Preview',
             style: TextStyle(
               fontSize: 11,
-              color: AppColors.textSecondary.withValues(alpha: 0.7),
+              color: context.colors.textSecondary.withValues(alpha: 0.7),
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           StemText(
             widget.controller.text,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
-              color: AppColors.textPrimary,
+              color: context.colors.textPrimary,
               height: 1.5,
             ),
           ),
@@ -208,8 +209,8 @@ class _EquationEditorState extends State<EquationEditor> {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: AppColors.background,
-        border: Border(top: BorderSide(color: AppColors.border)),
+        color: context.colors.background,
+        border: Border(top: BorderSide(color: context.colors.border)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,7 +221,7 @@ class _EquationEditorState extends State<EquationEditor> {
               'Quick Templates',
               style: TextStyle(
                 fontSize: 11,
-                color: AppColors.textSecondary.withValues(alpha: 0.7),
+                color: context.colors.textSecondary.withValues(alpha: 0.7),
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -232,11 +233,11 @@ class _EquationEditorState extends State<EquationEditor> {
               return ActionChip(
                 label: Text(
                   entry.key,
-                  style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+                  style: TextStyle(fontSize: 12, color: context.colors.textPrimary),
                 ),
                 onPressed: () => _insertTemplate(entry.value),
-                backgroundColor: AppColors.surfaceElevated,
-                side: BorderSide(color: AppColors.border),
+                backgroundColor: context.colors.surfaceElevated,
+                side: BorderSide(color: context.colors.border),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 visualDensity: VisualDensity.compact,

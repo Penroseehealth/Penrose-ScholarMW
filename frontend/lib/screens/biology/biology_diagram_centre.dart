@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 
 const Color _bioGreen = Color(0xFF10B981);
 const Color _bioGreenDark = Color(0xFF059669);
 const Color _bioGreenGlow = Color(0x2210B981);
 
 class BiologyDiagramCentreScreen extends StatefulWidget {
-  const BiologyDiagramCentreScreen({super.key});
+  BiologyDiagramCentreScreen({super.key});
 
   @override
   State<BiologyDiagramCentreScreen> createState() =>
@@ -59,7 +60,7 @@ class _BiologyDiagramCentreScreenState extends State<BiologyDiagramCentreScreen>
     final isDesktop = width >= 900;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: Column(
         children: [
           _buildHeader(),
@@ -77,9 +78,9 @@ class _BiologyDiagramCentreScreenState extends State<BiologyDiagramCentreScreen>
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        border: Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
       ),
       child: SafeArea(
         bottom: false,
@@ -97,31 +98,31 @@ class _BiologyDiagramCentreScreenState extends State<BiologyDiagramCentreScreen>
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
+                  color: context.colors.surfaceElevated,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.colors.border),
                 ),
-                child: const Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: AppColors.textSecondary),
+                child: Icon(Icons.arrow_back_ios_new_rounded,
+                    size: 18, color: context.colors.textSecondary),
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Expanded(
               child: Text(
                   _selectedDiagram != null
                       ? _diagrams[_selectedDiagram!].name
                       : 'Diagram Centre',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimary,
+                      color: context.colors.textPrimary,
                       letterSpacing: -0.3)),
             ),
             if (_selectedDiagram != null) ...[
               _buildModeChip('Labels', !_hideLabels, () {
                 setState(() => _hideLabels = !_hideLabels);
               }),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               _buildModeChip('Test', _testMode, () {
                 setState(() => _testMode = !_testMode);
               }),
@@ -138,17 +139,17 @@ class _BiologyDiagramCentreScreenState extends State<BiologyDiagramCentreScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: active ? _bioGreen.withValues(alpha: 0.12) : AppColors.surfaceElevated,
+          color: active ? _bioGreen.withValues(alpha: 0.12) : context.colors.surfaceElevated,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: active ? _bioGreen.withValues(alpha: 0.3) : AppColors.border,
+            color: active ? _bioGreen.withValues(alpha: 0.3) : context.colors.border,
           ),
         ),
         child: Text(label,
             style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: active ? _bioGreen : AppColors.textMuted)),
+                color: active ? _bioGreen : context.colors.textMuted)),
       ),
     );
   }
@@ -160,9 +161,9 @@ class _BiologyDiagramCentreScreenState extends State<BiologyDiagramCentreScreen>
       height: 280,
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Stack(
         children: [
@@ -171,7 +172,7 @@ class _BiologyDiagramCentreScreenState extends State<BiologyDiagramCentreScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(diagram.icon, size: 80, color: _bioGreen.withValues(alpha: 0.3)),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 if (_testMode)
                   ...diagram.labels.take(3).map((label) => Padding(
                         padding: const EdgeInsets.only(bottom: 6),
@@ -183,7 +184,7 @@ class _BiologyDiagramCentreScreenState extends State<BiologyDiagramCentreScreen>
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text('Tap the position of: $label',
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: _bioGreen)),
@@ -203,7 +204,7 @@ class _BiologyDiagramCentreScreenState extends State<BiologyDiagramCentreScreen>
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(label,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
                                 color: _bioGreen)),
@@ -219,9 +220,9 @@ class _BiologyDiagramCentreScreenState extends State<BiologyDiagramCentreScreen>
             child: Row(
               children: [
                 _buildViewerAction(Icons.zoom_in_rounded, () {}),
-                const SizedBox(width: 6),
+                SizedBox(width: 6),
                 _buildViewerAction(Icons.zoom_out_rounded, () {}),
-                const SizedBox(width: 6),
+                SizedBox(width: 6),
                 _buildViewerAction(Icons.fullscreen_rounded, () {}),
               ],
             ),
@@ -238,11 +239,11 @@ class _BiologyDiagramCentreScreenState extends State<BiologyDiagramCentreScreen>
         width: 32,
         height: 32,
         decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: context.colors.surfaceElevated,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
-        child: Icon(icon, size: 16, color: AppColors.textSecondary),
+        child: Icon(icon, size: 16, color: context.colors.textSecondary),
       ),
     );
   }
@@ -265,10 +266,10 @@ class _BiologyDiagramCentreScreenState extends State<BiologyDiagramCentreScreen>
   Widget _buildDiagramCard(int index) {
     final d = _diagrams[index];
     final color = d.progress >= 0.8
-        ? AppColors.success
+        ? context.colors.success
         : d.progress > 0
             ? _bioGreen
-            : AppColors.textMuted;
+            : context.colors.textMuted;
 
     return Semantics(
       button: true,
@@ -280,31 +281,31 @@ class _BiologyDiagramCentreScreenState extends State<BiologyDiagramCentreScreen>
           child: Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(d.icon, size: 32, color: _bioGreen.withValues(alpha: 0.6)),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Text(d.name,
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary)),
-                const SizedBox(height: 6),
+                        color: context.colors.textPrimary)),
+                SizedBox(height: 6),
                 Text('${d.labels.length} labels',
-                    style: const TextStyle(
-                        fontSize: 10, color: AppColors.textMuted)),
-                const SizedBox(height: 6),
+                    style: TextStyle(
+                        fontSize: 10, color: context.colors.textMuted)),
+                SizedBox(height: 6),
                 LinearProgressIndicator(
                   value: d.progress,
-                  backgroundColor: AppColors.surfaceHighest,
+                  backgroundColor: context.colors.surfaceHighest,
                   color: color,
                   minHeight: 3,
                 ),
@@ -321,12 +322,12 @@ class _BiologyDiagramCentreScreenState extends State<BiologyDiagramCentreScreen>
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text('Labels',
+        Text('Labels',
             style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary)),
-        const SizedBox(height: 12),
+                color: context.colors.textPrimary)),
+        SizedBox(height: 12),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -338,21 +339,21 @@ class _BiologyDiagramCentreScreenState extends State<BiologyDiagramCentreScreen>
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(label,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: _bioGreen)),
             );
           }).toList(),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         Row(
           children: [
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: () => setState(() => _testMode = !_testMode),
-                icon: const Icon(Icons.quiz_rounded, size: 18),
-                label: const Text('Test Yourself'),
+                icon: Icon(Icons.quiz_rounded, size: 18),
+                label: Text('Test Yourself'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _bioGreen,
                   foregroundColor: Colors.white,
@@ -362,7 +363,7 @@ class _BiologyDiagramCentreScreenState extends State<BiologyDiagramCentreScreen>
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () => setState(() => _hideLabels = !_hideLabels),
@@ -374,7 +375,7 @@ class _BiologyDiagramCentreScreenState extends State<BiologyDiagramCentreScreen>
                 label: Text(_hideLabels ? 'Show Labels' : 'Hide Labels'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: _bioGreen,
-                  side: const BorderSide(color: AppColors.border),
+                  side: BorderSide(color: context.colors.border),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
@@ -383,33 +384,33 @@ class _BiologyDiagramCentreScreenState extends State<BiologyDiagramCentreScreen>
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.surfaceElevated,
+            color: context.colors.surfaceElevated,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Mastery Progress',
+              Text('Mastery Progress',
                   style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary)),
-              const SizedBox(height: 10),
+                      color: context.colors.textPrimary)),
+              SizedBox(height: 10),
               LinearProgressIndicator(
                 value: d.progress,
-                backgroundColor: AppColors.surfaceHighest,
+                backgroundColor: context.colors.surfaceHighest,
                 color: _bioGreen,
                 minHeight: 6,
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               Text('${(d.progress * 100).toInt()}% of labels mastered',
-                  style: const TextStyle(
-                      fontSize: 11, color: AppColors.textMuted)),
+                  style: TextStyle(
+                      fontSize: 11, color: context.colors.textMuted)),
             ],
           ),
         ),

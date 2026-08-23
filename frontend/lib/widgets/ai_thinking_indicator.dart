@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
+import '../core/theme/theme_colors.dart';
 
 enum ThinkingState {
   analyzing,
@@ -14,7 +15,7 @@ class AIThinkingIndicator extends StatefulWidget {
   final ThinkingState state;
   final String? customMessage;
 
-  const AIThinkingIndicator({
+  AIThinkingIndicator({
     super.key,
     this.state = ThinkingState.analyzing,
     this.customMessage,
@@ -36,16 +37,16 @@ class _AIThinkingIndicatorState extends State<AIThinkingIndicator>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: Duration(milliseconds: 1200),
     )..repeat();
     _dot1 = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0, 0.3)),
+      CurvedAnimation(parent: _controller, curve: Interval(0, 0.3)),
     );
     _dot2 = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.2, 0.5)),
+      CurvedAnimation(parent: _controller, curve: Interval(0.2, 0.5)),
     );
     _dot3 = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.4, 0.7)),
+      CurvedAnimation(parent: _controller, curve: Interval(0.4, 0.7)),
     );
   }
 
@@ -111,7 +112,7 @@ class _AIThinkingIndicatorState extends State<AIThinkingIndicator>
             ),
             child: Icon(_getIcon(), size: 16, color: AppColors.primary),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,13 +120,13 @@ class _AIThinkingIndicatorState extends State<AIThinkingIndicator>
               children: [
                 Text(
                   _getMessage(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.textSecondary,
+                    color: context.colors.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 AnimatedBuilder(
                   animation: _controller,
                   builder: (ctx, _) {
@@ -133,9 +134,9 @@ class _AIThinkingIndicatorState extends State<AIThinkingIndicator>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _buildDot(_dot1.value),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4),
                         _buildDot(_dot2.value),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4),
                         _buildDot(_dot3.value),
                       ],
                     );

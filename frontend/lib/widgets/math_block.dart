@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
 import '../../core/theme/app_colors.dart';
+import '../core/theme/theme_colors.dart';
 
 class MathBlock extends StatelessWidget {
   final String latex;
   final TextStyle? textStyle;
 
-  const MathBlock({super.key, required this.latex, this.textStyle});
+  MathBlock({super.key, required this.latex, this.textStyle});
 
   @override
   Widget build(BuildContext context) {
     final effectiveStyle = textStyle ??
         TextStyle(
-          color: AppColors.textPrimary,
+          color: context.colors.textPrimary,
           fontSize: 16,
         );
 
@@ -22,9 +23,9 @@ class MathBlock extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         margin: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: context.colors.surfaceElevated,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Center(
           child: Math.tex(

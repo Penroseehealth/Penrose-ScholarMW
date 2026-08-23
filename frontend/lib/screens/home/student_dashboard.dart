@@ -5,9 +5,10 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
+import '../../core/theme/theme_colors.dart';
 
 class StudentDashboard extends StatefulWidget {
-  const StudentDashboard({super.key});
+  StudentDashboard({super.key});
 
   @override
   State<StudentDashboard> createState() => _StudentDashboardState();
@@ -53,12 +54,12 @@ class _StudentDashboardState extends State<StudentDashboard> {
     final firstName = (auth.userName.isNotEmpty ? auth.userName : 'Scholar').split(' ').first;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _loadData,
           color: AppColors.primary,
-          backgroundColor: AppColors.surface,
+          backgroundColor: context.colors.surface,
           child: CustomScrollView(
             slivers: [
               SliverToBoxAdapter(child: _buildHeader(context, greeting, firstName)),
@@ -70,7 +71,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                 ),
               ),
               if (_loading)
-                const SliverToBoxAdapter(
+                SliverToBoxAdapter(
                   child: Center(
                     child: Padding(
                       padding: EdgeInsets.all(40),
@@ -85,7 +86,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   sliver: SliverList.separated(
                     itemCount: _courses.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
+                    separatorBuilder: (_, __) => SizedBox(height: 8),
                     itemBuilder: (context, index) => _buildCourseCard(_courses[index]),
                   ),
                 ),
@@ -107,7 +108,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
                   sliver: SliverList.separated(
                     itemCount: _notifications.length.clamp(0, 5),
-                    separatorBuilder: (_, __) => const SizedBox(height: 6),
+                    separatorBuilder: (_, __) => SizedBox(height: 6),
                     itemBuilder: (context, index) => _buildActivityCard(_notifications[index]),
                   ),
                 ),
@@ -129,10 +130,10 @@ class _StudentDashboardState extends State<StudentDashboard> {
               children: [
                 Text(
                   '$greeting, $firstName',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
               ],
@@ -151,13 +152,13 @@ class _StudentDashboardState extends State<StudentDashboard> {
         width: 38,
         height: 38,
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
-        child: const Icon(
+        child: Icon(
           Icons.menu_rounded,
-          color: AppColors.textSecondary,
+          color: context.colors.textSecondary,
           size: 20,
         ),
       ),
@@ -173,31 +174,31 @@ class _StudentDashboardState extends State<StudentDashboard> {
             context,
             icon: Icons.psychology_rounded,
             label: 'Penrose Learning Assistant',
-            gradient: const [Color(0xFF7C3AED), Color(0xFF6D28D9)],
+            gradient: [Color(0xFF7C3AED), Color(0xFF6D28D9)],
             onTap: () => context.go('/ai-tutor'),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           _buildActionCard(
             context,
             icon: Icons.translate_rounded,
             label: 'Language Hubs',
-            gradient: const [Color(0xFF2563EB), Color(0xFF1D4ED8)],
+            gradient: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
             onTap: () => context.go('/languages'),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           _buildActionCard(
             context,
             icon: Icons.quiz_rounded,
             label: 'Tasks',
-            gradient: const [Color(0xFF059669), Color(0xFF047857)],
+            gradient: [Color(0xFF059669), Color(0xFF047857)],
             onTap: () => context.go('/assignments'),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           _buildActionCard(
             context,
             icon: Icons.insights_rounded,
             label: 'Grades',
-            gradient: const [Color(0xFF0EA5E9), Color(0xFF0284C7)],
+            gradient: [Color(0xFF0EA5E9), Color(0xFF0284C7)],
             onTap: () => context.go('/grades'),
           ),
         ],
@@ -228,17 +229,17 @@ class _StudentDashboardState extends State<StudentDashboard> {
               BoxShadow(
                 color: gradient[0].withOpacity(0.3),
                 blurRadius: 10,
-                offset: const Offset(0, 3),
+                offset: Offset(0, 3),
               ),
             ],
           ),
           child: Column(
             children: [
               Icon(icon, color: Colors.white, size: 20),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -254,10 +255,10 @@ class _StudentDashboardState extends State<StudentDashboard> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w700,
-        color: AppColors.textPrimary,
+        color: context.colors.textPrimary,
       ),
     );
   }
@@ -267,9 +268,9 @@ class _StudentDashboardState extends State<StudentDashboard> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         children: [
@@ -277,31 +278,31 @@ class _StudentDashboardState extends State<StudentDashboard> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.primaryGlow,
+              color: context.colors.primaryGlow,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.menu_book_rounded, color: AppColors.primary, size: 24),
+            child: Icon(Icons.menu_book_rounded, color: AppColors.primary, size: 24),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   course['title'] ?? '',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   '${course['code'] ?? ''} · ${course['level'] ?? ''}',
-                  style: const TextStyle(fontSize: 13, color: AppColors.textMuted),
+                  style: TextStyle(fontSize: 13, color: context.colors.textMuted),
                 ),
                 if (progress > 0) ...[
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Row(
                     children: [
                       Expanded(
@@ -309,16 +310,16 @@ class _StudentDashboardState extends State<StudentDashboard> {
                           borderRadius: BorderRadius.circular(4),
                           child: LinearProgressIndicator(
                             value: progress / 100,
-                            backgroundColor: AppColors.surfaceHighest,
-                            valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                            backgroundColor: context.colors.surfaceHighest,
+                            valueColor: AlwaysStoppedAnimation(AppColors.primary),
                             minHeight: 4,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Text(
                         '${progress.toInt()}%',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: AppColors.primary,
@@ -330,7 +331,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
               ],
             ),
           ),
-          const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 20),
+          Icon(Icons.chevron_right_rounded, color: context.colors.textMuted, size: 20),
         ],
       ),
     );
@@ -340,9 +341,9 @@ class _StudentDashboardState extends State<StudentDashboard> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: context.colors.borderLight),
       ),
       child: Row(
         children: [
@@ -350,26 +351,26 @@ class _StudentDashboardState extends State<StudentDashboard> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: AppColors.infoMuted,
+              color: context.colors.infoMuted,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.info_outline_rounded, size: 18, color: AppColors.info),
+            child: Icon(Icons.info_outline_rounded, size: 18, color: context.colors.info),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   notif['title'] ?? '',
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   notif['message'] ?? '',
-                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                  style: TextStyle(fontSize: 12, color: context.colors.textMuted),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -387,18 +388,18 @@ class _StudentDashboardState extends State<StudentDashboard> {
       child: Container(
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Center(
           child: Column(
             children: [
-              Icon(Icons.inbox_outlined, size: 44, color: AppColors.textMuted.withOpacity(0.4)),
-              const SizedBox(height: 12),
-              Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
-              const SizedBox(height: 4),
-              Text(subtitle, style: const TextStyle(fontSize: 13, color: AppColors.textMuted)),
+              Icon(Icons.inbox_outlined, size: 44, color: context.colors.textMuted.withOpacity(0.4)),
+              SizedBox(height: 12),
+              Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
+              SizedBox(height: 4),
+              Text(subtitle, style: TextStyle(fontSize: 13, color: context.colors.textMuted)),
             ],
           ),
         ),

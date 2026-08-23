@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../core/theme/app_colors.dart';
 import 'stem_text.dart';
+import '../core/theme/theme_colors.dart';
 
 class CompleteResponseRenderer extends StatelessWidget {
   final String content;
@@ -13,7 +14,7 @@ class CompleteResponseRenderer extends StatelessWidget {
   final Function(bool)? onFeedback;
   final VoidCallback? onSave;
 
-  const CompleteResponseRenderer({
+  CompleteResponseRenderer({
     super.key,
     required this.content,
     this.sources,
@@ -31,18 +32,18 @@ class CompleteResponseRenderer extends StatelessWidget {
       children: [
         StemText(
           content,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: AppColors.textPrimary,
+            color: context.colors.textPrimary,
             height: 1.6,
           ),
           selectable: true,
         ),
         if (sources != null && sources!.isNotEmpty) ...[
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildSources(),
         ],
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         _buildActions(),
       ],
     );
@@ -59,7 +60,7 @@ class CompleteResponseRenderer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(Icons.source_rounded, size: 12, color: AppColors.textMuted),
               SizedBox(width: 4),
@@ -73,12 +74,12 @@ class CompleteResponseRenderer extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           ...sources!.map((s) => Padding(
                 padding: const EdgeInsets.only(bottom: 2),
                 child: Text(
                   '• $s',
-                  style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
+                  style: TextStyle(fontSize: 10, color: AppColors.textMuted),
                 ),
               )),
         ],
@@ -136,10 +137,10 @@ class CompleteResponseRenderer extends StatelessWidget {
             children: [
               Icon(icon, size: 13, color: AppColors.textSecondary),
               if (label.isNotEmpty) ...[
-                const SizedBox(width: 4),
+                SizedBox(width: 4),
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.w500,

@@ -6,10 +6,11 @@ import '../../services/stem_service.dart';
 import '../../widgets/stem_text.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/error_state.dart';
+import '../../core/theme/theme_colors.dart';
 
 class StemTutorScreen extends StatefulWidget {
   final int conceptId;
-  const StemTutorScreen({super.key, this.conceptId = 0});
+  StemTutorScreen({super.key, this.conceptId = 0});
 
   @override
   State<StemTutorScreen> createState() => _StemTutorScreenState();
@@ -166,7 +167,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
+          duration: Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
       }
@@ -176,7 +177,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: Column(
         children: [
           _buildAppBar(),
@@ -198,14 +199,14 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
   Widget _buildAppBar() {
     return Container(
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [AppColors.primaryDark, AppColors.primaryMuted],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
       ),
-      child: const SizedBox(
+      child: SizedBox(
         height: 56,
         child: Center(
           child: Text(
@@ -213,7 +214,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: context.colors.textPrimary,
             ),
           ),
         ),
@@ -224,23 +225,23 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
   Widget _buildConceptSelector() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: AppColors.border)),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        border: Border(bottom: BorderSide(color: context.colors.border)),
       ),
       child: DropdownButton<int>(
         value: _selectedConceptId != 0 ? _selectedConceptId : null,
-        hint: const Text('Select a concept', style: TextStyle(color: AppColors.textMuted)),
+        hint: Text('Select a concept', style: TextStyle(color: context.colors.textMuted)),
         isExpanded: true,
-        dropdownColor: AppColors.surfaceElevated,
-        underline: const SizedBox(),
-        icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textMuted),
+        dropdownColor: context.colors.surfaceElevated,
+        underline: SizedBox(),
+        icon: Icon(Icons.keyboard_arrow_down_rounded, color: context.colors.textMuted),
         items: _concepts.map<DropdownMenuItem<int>>((c) {
           return DropdownMenuItem(
             value: c['id'] ?? 0,
             child: Text(
               c['title'] ?? c['name'] ?? '',
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+              style: TextStyle(color: context.colors.textSecondary, fontSize: 13),
             ),
           );
         }).toList(),
@@ -256,7 +257,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         scrollDirection: Axis.horizontal,
         itemCount: _modes.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, __) => SizedBox(width: 8),
         itemBuilder: (context, index) {
           final mode = _modes[index];
           final selected = _selectedMode == mode;
@@ -266,14 +267,14 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: selected ? Colors.white : AppColors.textSecondary,
+                color: selected ? Colors.white : context.colors.textSecondary,
               ),
             ),
             selected: selected,
             selectedColor: AppColors.primary,
-            backgroundColor: AppColors.surface,
+            backgroundColor: context.colors.surface,
             side: BorderSide(
-              color: selected ? AppColors.primary : AppColors.border,
+              color: selected ? AppColors.primary : context.colors.border,
             ),
             onSelected: (_) => setState(() => _selectedMode = mode),
           );
@@ -288,16 +289,16 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.psychology_rounded, size: 48, color: AppColors.textMuted.withOpacity(0.4)),
-            const SizedBox(height: 12),
-            const Text(
+            Icon(Icons.psychology_rounded, size: 48, color: context.colors.textMuted.withOpacity(0.4)),
+            SizedBox(height: 12),
+            Text(
               'Ask me anything about STEM',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textSecondary),
             ),
-            const SizedBox(height: 4),
-            const Text(
+            SizedBox(height: 4),
+            Text(
               'Select a concept and start chatting',
-              style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+              style: TextStyle(fontSize: 13, color: context.colors.textMuted),
             ),
           ],
         ),
@@ -328,14 +329,14 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
           maxWidth: MediaQuery.of(context).size.width * 0.8,
         ),
         decoration: BoxDecoration(
-          color: isUser ? AppColors.primary : AppColors.surfaceElevated,
+          color: isUser ? AppColors.primary : context.colors.surfaceElevated,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
             bottomLeft: Radius.circular(isUser ? 16 : 4),
             bottomRight: Radius.circular(isUser ? 4 : 16),
           ),
-          border: isUser ? null : Border.all(color: AppColors.border),
+          border: isUser ? null : Border.all(color: context.colors.border),
         ),
         child: isUser
             ? Text(
@@ -350,7 +351,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
                 msg.text,
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: context.colors.textSecondary,
                   height: 1.4,
                 ),
                 selectable: true,
@@ -366,9 +367,9 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: context.colors.surfaceElevated,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -381,10 +382,10 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
                 color: AppColors.primary,
               ),
             ),
-            const SizedBox(width: 10),
-            const Text(
+            SizedBox(width: 10),
+            Text(
               'Thinking...',
-              style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+              style: TextStyle(fontSize: 13, color: context.colors.textMuted),
             ),
           ],
         ),
@@ -395,9 +396,9 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
   Widget _buildInputBar() {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.border)),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        border: Border(top: BorderSide(color: context.colors.border)),
       ),
       child: SafeArea(
         top: false,
@@ -407,32 +408,32 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
               child: TextField(
                 controller: _messageController,
                 enabled: !_sending && _selectedConceptId != 0,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: TextStyle(color: context.colors.textPrimary),
                 maxLines: null,
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => _sendMessage(),
                 decoration: InputDecoration(
                   hintText: _selectedConceptId == 0 ? 'Select a concept first...' : 'Ask a question...',
-                  hintStyle: const TextStyle(color: AppColors.textMuted),
+                  hintStyle: TextStyle(color: context.colors.textMuted),
                   filled: true,
-                  fillColor: AppColors.surfaceElevated,
+                  fillColor: context.colors.surfaceElevated,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: BorderSide(color: context.colors.border),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: BorderSide(color: context.colors.border),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary),
+                    borderSide: BorderSide(color: AppColors.primary),
                   ),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             GestureDetector(
               onTap: _sending ? null : _sendMessage,
               child: Container(
@@ -440,11 +441,11 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
                 height: 44,
                 decoration: BoxDecoration(
                   color: _sending || _selectedConceptId == 0
-                      ? AppColors.surfaceHighest
+                      ? context.colors.surfaceHighest
                       : AppColors.primary,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.send_rounded,
                   color: Colors.white,
                   size: 20,

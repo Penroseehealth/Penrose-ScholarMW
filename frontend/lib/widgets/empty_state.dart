@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
+import '../core/theme/theme_colors.dart';
 
 class EmptyState extends StatelessWidget {
   final IconData icon;
@@ -10,7 +11,7 @@ class EmptyState extends StatelessWidget {
   final double iconSize;
   final EdgeInsetsGeometry padding;
 
-  const EmptyState({
+  EmptyState({
     super.key,
     required this.icon,
     required this.title,
@@ -28,36 +29,36 @@ class EmptyState extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: iconSize, color: AppColors.textMuted.withValues(alpha: 0.4)),
-              const SizedBox(height: 16),
+              Icon(icon, size: iconSize, color: context.colors.textMuted.withValues(alpha: 0.4)),
+              SizedBox(height: 16),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
+                  color: context.colors.textSecondary,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               Text(
                 subtitle,
-                style: const TextStyle(fontSize: 13, color: AppColors.textMuted),
+                style: TextStyle(fontSize: 13, color: context.colors.textMuted),
                 textAlign: TextAlign.center,
               ),
               if (buttonText != null && onButtonPressed != null) ...[
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 ElevatedButton.icon(
                   onPressed: onButtonPressed,
-                  icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                  icon: Icon(Icons.arrow_forward_rounded, size: 18),
                   label: Text(buttonText!),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,

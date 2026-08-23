@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 
 const Color _bioGreen = Color(0xFF10B981);
 const Color _bioGreenDark = Color(0xFF059669);
 const Color _bioGreenGlow = Color(0x2210B981);
 
 class BiologyPracticalHubScreen extends StatefulWidget {
-  const BiologyPracticalHubScreen({super.key});
+  BiologyPracticalHubScreen({super.key});
 
   @override
   State<BiologyPracticalHubScreen> createState() =>
@@ -207,7 +208,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
     final isDesktop = width >= 900;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: Column(
         children: [
           _buildHeader(),
@@ -230,9 +231,9 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        border: Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
       ),
       child: SafeArea(
         bottom: false,
@@ -244,15 +245,15 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
+                  color: context.colors.surfaceElevated,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.colors.border),
                 ),
-                child: const Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: AppColors.textSecondary),
+                child: Icon(Icons.arrow_back_ios_new_rounded,
+                    size: 18, color: context.colors.textSecondary),
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Container(
               width: 40,
               height: 40,
@@ -260,11 +261,11 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
                 color: _bioGreenGlow,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.science_outlined,
+              child: Icon(Icons.science_outlined,
                   color: _bioGreen, size: 22),
             ),
-            const SizedBox(width: 14),
-            const Expanded(
+            SizedBox(width: 14),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -272,10 +273,10 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                          color: context.colors.textPrimary,
                           letterSpacing: -0.3)),
                   Text('12 MSCE practicals',
-                      style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                      style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
                 ],
               ),
             ),
@@ -307,24 +308,24 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
               color: _bioGreen.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(Icons.science_outlined,
+            child: Icon(Icons.science_outlined,
                 color: _bioGreen, size: 26),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('MSCE Practical Skills',
+                Text('MSCE Practical Skills',
                     style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary)),
-                const SizedBox(height: 4),
+                        color: context.colors.textPrimary)),
+                SizedBox(height: 4),
                 Text(
                     '$completed of ${_practicals.length} practicals completed. Each includes aim, hypothesis, method, results, and evaluation.',
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.textMuted, height: 1.4)),
+                    style: TextStyle(
+                        fontSize: 12, color: context.colors.textMuted, height: 1.4)),
               ],
             ),
           ),
@@ -336,15 +337,15 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
   Widget _buildPracticalCard(_Practical p, int index) {
     final isExpanded = _expandedPractical == index;
     final hasProgress = p.progress != '0/5';
-    final color = hasProgress ? _bioGreen : AppColors.textMuted;
+    final color = hasProgress ? _bioGreen : context.colors.textMuted;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isExpanded ? _bioGreen.withValues(alpha: 0.3) : AppColors.border,
+          color: isExpanded ? _bioGreen.withValues(alpha: 0.3) : context.colors.border,
           width: isExpanded ? 1.5 : 1,
         ),
       ),
@@ -371,17 +372,17 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
                               color: color)),
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(p.title,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary)),
-                        const SizedBox(height: 3),
+                                color: context.colors.textPrimary)),
+                        SizedBox(height: 3),
                         Text(p.category,
                             style: TextStyle(
                                 fontSize: 11,
@@ -402,12 +403,12 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
                             fontWeight: FontWeight.w700,
                             color: color)),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   AnimatedRotation(
                     turns: isExpanded ? 0.25 : 0,
-                    duration: const Duration(milliseconds: 200),
-                    child: const Icon(Icons.keyboard_arrow_down_rounded,
-                        color: AppColors.textMuted, size: 22),
+                    duration: Duration(milliseconds: 200),
+                    child: Icon(Icons.keyboard_arrow_down_rounded,
+                        color: context.colors.textMuted, size: 22),
                   ),
                 ],
               ),
@@ -418,7 +419,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
             secondChild: _buildPracticalDetail(p),
             crossFadeState:
                 isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-            duration: const Duration(milliseconds: 250),
+            duration: Duration(milliseconds: 250),
           ),
         ],
       ),
@@ -432,27 +433,27 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildDetailSection('Aim', [p.aim], Icons.flag_rounded),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildDetailSection('Hypothesis', [p.hypothesis], Icons.lightbulb_rounded),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildDetailSection('Apparatus', p.apparatus, Icons.build_rounded),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildDetailSection('Safety', p.safety, Icons.shield_rounded),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildDetailSection('Method', p.method, Icons.format_list_numbered_rounded),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildDetailSection('Key Variables', p.variables, Icons.tune_rounded),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildDetailSection('Expected Results', [p.expectedResults], Icons.insights_rounded),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildDetailSection('Conclusion', [p.conclusion], Icons.check_circle_outline_rounded),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () {},
-              icon: const Icon(Icons.play_arrow_rounded, size: 20),
-              label: const Text('Start Practical'),
+              icon: Icon(Icons.play_arrow_rounded, size: 20),
+              label: Text('Start Practical'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _bioGreen,
                 foregroundColor: Colors.white,
@@ -474,15 +475,15 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
         Row(
           children: [
             Icon(icon, size: 14, color: _bioGreen),
-            const SizedBox(width: 6),
+            SizedBox(width: 6),
             Text(title,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: _bioGreen)),
           ],
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         ...items.map((item) => Padding(
               padding: const EdgeInsets.only(bottom: 6),
               child: Row(
@@ -492,14 +493,14 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
                     width: 5,
                     height: 5,
                     margin: const EdgeInsets.only(top: 6, right: 10),
-                    decoration: const BoxDecoration(
-                        color: AppColors.textMuted, shape: BoxShape.circle),
+                    decoration: BoxDecoration(
+                        color: context.colors.textMuted, shape: BoxShape.circle),
                   ),
                   Expanded(
                     child: Text(item,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.textSecondary,
+                            color: context.colors.textSecondary,
                             height: 1.4)),
                   ),
                 ],

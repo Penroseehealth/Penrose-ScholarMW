@@ -3,9 +3,10 @@ import 'package:flutter/services.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
+import '../../core/theme/theme_colors.dart';
 
 class CodingPlaygroundScreen extends StatefulWidget {
-  const CodingPlaygroundScreen({super.key});
+  CodingPlaygroundScreen({super.key});
 
   @override
   State<CodingPlaygroundScreen> createState() => _CodingPlaygroundScreenState();
@@ -105,10 +106,10 @@ console.log("Evens:", evens);''',
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        title: const Row(
+        backgroundColor: context.colors.surface,
+        title: Row(
           children: [
             Icon(Icons.code_rounded, color: AppColors.primary, size: 22),
             SizedBox(width: 10),
@@ -123,17 +124,17 @@ console.log("Evens:", evens);''',
             margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
             padding: const EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
-              color: AppColors.surfaceElevated,
+              color: context.colors.surfaceElevated,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: _language,
                 isDense: true,
-                style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
-                dropdownColor: AppColors.surfaceElevated,
-                items: const [
+                style: TextStyle(fontSize: 13, color: context.colors.textPrimary),
+                dropdownColor: context.colors.surfaceElevated,
+                items: [
                   DropdownMenuItem(value: 'python', child: Text('Python')),
                   DropdownMenuItem(value: 'javascript', child: Text('JavaScript')),
                   DropdownMenuItem(value: 'html', child: Text('HTML')),
@@ -152,7 +153,7 @@ console.log("Evens:", evens);''',
           IconButton(
             icon: Icon(
               _isRunning ? Icons.hourglass_top_rounded : Icons.play_arrow_rounded,
-              color: _isRunning ? AppColors.textMuted : AppColors.success,
+              color: _isRunning ? context.colors.textMuted : context.colors.success,
             ),
             tooltip: 'Run code',
             onPressed: _isRunning ? null : _runCode,
@@ -167,7 +168,7 @@ console.log("Evens:", evens);''',
           ),
           Container(
             height: 4,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [AppColors.primary, AppColors.primaryDark],
               ),
@@ -184,42 +185,42 @@ console.log("Evens:", evens);''',
 
   Widget _buildCodeEditor() {
     return Container(
-      color: const Color(0xFF1E1E2E),
+      color: Color(0xFF1E1E2E),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            color: const Color(0xFF181825),
+            color: Color(0xFF181825),
             child: Row(
               children: [
-                const Icon(Icons.code_rounded, size: 14, color: AppColors.textMuted),
-                const SizedBox(width: 6),
+                Icon(Icons.code_rounded, size: 14, color: context.colors.textMuted),
+                SizedBox(width: 6),
                 Text(
                   'Code Editor — $_language',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.textMuted,
+                    color: context.colors.textMuted,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const Spacer(),
+                Spacer(),
                 GestureDetector(
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: _codeCtrl.text));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
+                      SnackBar(
                         content: Text('Code copied to clipboard'),
                         duration: Duration(seconds: 1),
                       ),
                     );
                   },
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.copy_rounded, size: 12, color: AppColors.textMuted),
+                      Icon(Icons.copy_rounded, size: 12, color: context.colors.textMuted),
                       SizedBox(width: 4),
-                      Text('Copy', style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
+                      Text('Copy', style: TextStyle(fontSize: 10, color: context.colors.textMuted)),
                     ],
                   ),
                 ),
@@ -231,7 +232,7 @@ console.log("Evens:", evens);''',
               label: 'Code editor',
               child: TextField(
                 controller: _codeCtrl,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'monospace',
                   fontSize: 13,
                   color: Color(0xFFCDD6F4),
@@ -240,7 +241,7 @@ console.log("Evens:", evens);''',
                 maxLines: null,
                 expands: true,
                 textAlignVertical: TextAlignVertical.top,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.all(12),
                 ),
@@ -254,38 +255,38 @@ console.log("Evens:", evens);''',
 
   Widget _buildOutputPanel() {
     return Container(
-      color: const Color(0xFF11111B),
+      color: Color(0xFF11111B),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            color: const Color(0xFF181825),
+            color: Color(0xFF181825),
             child: Row(
               children: [
-                const Icon(Icons.terminal_rounded, size: 14, color: AppColors.textMuted),
-                const SizedBox(width: 6),
-                const Text(
+                Icon(Icons.terminal_rounded, size: 14, color: context.colors.textMuted),
+                SizedBox(width: 6),
+                Text(
                   'Output',
                   style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.textMuted,
+                    color: context.colors.textMuted,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const Spacer(),
+                Spacer(),
                 if (_output.isNotEmpty || _error != null)
                   GestureDetector(
                     onTap: () {
                       final text = _error != null ? 'ERROR: $_error' : _output;
                       Clipboard.setData(ClipboardData(text: text));
                     },
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.copy_rounded, size: 12, color: AppColors.textMuted),
+                        Icon(Icons.copy_rounded, size: 12, color: context.colors.textMuted),
                         SizedBox(width: 4),
-                        Text('Copy', style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
+                        Text('Copy', style: TextStyle(fontSize: 10, color: context.colors.textMuted)),
                       ],
                     ),
                   ),
@@ -296,7 +297,7 @@ console.log("Evens:", evens);''',
             child: Semantics(
               label: 'Code output panel',
               child: _isRunning
-                  ? const Center(
+                  ? Center(
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -306,7 +307,7 @@ console.log("Evens:", evens);''',
                             child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
                           ),
                           SizedBox(width: 8),
-                          Text('Running...', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                          Text('Running...', style: TextStyle(color: context.colors.textMuted, fontSize: 12)),
                         ],
                       ),
                     )
@@ -325,7 +326,7 @@ console.log("Evens:", evens);''',
       padding: const EdgeInsets.all(12),
       child: SelectableText(
         'ERROR:\n$_error',
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: 'monospace',
           fontSize: 12,
           color: Color(0xFFF38BA8),
@@ -337,10 +338,10 @@ console.log("Evens:", evens);''',
 
   Widget _buildSuccessOutput() {
     if (_output.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'Click Run to execute your code',
-          style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+          style: TextStyle(color: context.colors.textMuted, fontSize: 12),
         ),
       );
     }
@@ -349,7 +350,7 @@ console.log("Evens:", evens);''',
       padding: const EdgeInsets.all(12),
       child: SelectableText(
         _output,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: 'monospace',
           fontSize: 12,
           color: Color(0xFFA6E3A1),

@@ -4,9 +4,10 @@ import '../../services/stem_service.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
+import '../../core/theme/theme_colors.dart';
 
 class StemRevisionScreen extends StatefulWidget {
-  const StemRevisionScreen({super.key});
+  StemRevisionScreen({super.key});
 
   @override
   State<StemRevisionScreen> createState() => _StemRevisionScreenState();
@@ -79,14 +80,14 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          backgroundColor: AppColors.surfaceElevated,
+          backgroundColor: context.colors.surfaceElevated,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: const BorderSide(color: AppColors.border),
+            side: BorderSide(color: context.colors.border),
           ),
-          title: const Text(
+          title: Text(
             'New Flashcard',
-            style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w700),
+            style: TextStyle(color: context.colors.textPrimary, fontSize: 16, fontWeight: FontWeight.w700),
           ),
           content: SingleChildScrollView(
             child: Column(
@@ -95,98 +96,98 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
                 TextField(
                   controller: conceptIdController,
                   keyboardType: TextInputType.number,
-                  style: const TextStyle(color: AppColors.textPrimary),
+                  style: TextStyle(color: context.colors.textPrimary),
                   decoration: InputDecoration(
                     hintText: 'Concept ID',
-                    hintStyle: const TextStyle(color: AppColors.textMuted),
+                    hintStyle: TextStyle(color: context.colors.textMuted),
                     filled: true,
-                    fillColor: AppColors.surface,
+                    fillColor: context.colors.surface,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: context.colors.border),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: context.colors.border),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: AppColors.primary),
+                      borderSide: BorderSide(color: AppColors.primary),
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 TextField(
                   controller: frontController,
                   maxLines: 2,
-                  style: const TextStyle(color: AppColors.textPrimary),
+                  style: TextStyle(color: context.colors.textPrimary),
                   decoration: InputDecoration(
                     hintText: 'Front (question)',
-                    hintStyle: const TextStyle(color: AppColors.textMuted),
+                    hintStyle: TextStyle(color: context.colors.textMuted),
                     filled: true,
-                    fillColor: AppColors.surface,
+                    fillColor: context.colors.surface,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: context.colors.border),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: context.colors.border),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: AppColors.primary),
+                      borderSide: BorderSide(color: AppColors.primary),
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 TextField(
                   controller: backController,
                   maxLines: 3,
-                  style: const TextStyle(color: AppColors.textPrimary),
+                  style: TextStyle(color: context.colors.textPrimary),
                   decoration: InputDecoration(
                     hintText: 'Back (answer)',
-                    hintStyle: const TextStyle(color: AppColors.textMuted),
+                    hintStyle: TextStyle(color: context.colors.textMuted),
                     filled: true,
-                    fillColor: AppColors.surface,
+                    fillColor: context.colors.surface,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: context.colors.border),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: context.colors.border),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: AppColors.primary),
+                      borderSide: BorderSide(color: AppColors.primary),
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   value: difficulty,
-                  dropdownColor: AppColors.surfaceElevated,
-                  style: const TextStyle(color: AppColors.textPrimary),
+                  dropdownColor: context.colors.surfaceElevated,
+                  style: TextStyle(color: context.colors.textPrimary),
                   decoration: InputDecoration(
                     labelText: 'Difficulty',
-                    labelStyle: const TextStyle(color: AppColors.textMuted),
+                    labelStyle: TextStyle(color: context.colors.textMuted),
                     filled: true,
-                    fillColor: AppColors.surface,
+                    fillColor: context.colors.surface,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: context.colors.border),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: context.colors.border),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: AppColors.primary),
+                      borderSide: BorderSide(color: AppColors.primary),
                     ),
                   ),
-                  items: const [
+                  items: [
                     DropdownMenuItem(value: 'easy', child: Text('Easy')),
                     DropdownMenuItem(value: 'medium', child: Text('Medium')),
                     DropdownMenuItem(value: 'hard', child: Text('Hard')),
@@ -199,7 +200,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('Cancel', style: TextStyle(color: AppColors.textMuted)),
+              child: Text('Cancel', style: TextStyle(color: context.colors.textMuted)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -214,7 +215,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
                 foregroundColor: AppColors.textOnPrimary,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              child: const Text('Create'),
+              child: Text('Create'),
             ),
           ],
         ),
@@ -240,14 +241,14 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceElevated,
+        backgroundColor: context.colors.surfaceElevated,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.border),
+          side: BorderSide(color: context.colors.border),
         ),
-        title: const Text(
+        title: Text(
           'New Study Plan',
-          style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w700),
+          style: TextStyle(color: context.colors.textPrimary, fontSize: 16, fontWeight: FontWeight.w700),
         ),
         content: SingleChildScrollView(
           child: Column(
@@ -255,70 +256,70 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
             children: [
               TextField(
                 controller: titleController,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: TextStyle(color: context.colors.textPrimary),
                 decoration: InputDecoration(
                   hintText: 'Title',
-                  hintStyle: const TextStyle(color: AppColors.textMuted),
+                  hintStyle: TextStyle(color: context.colors.textMuted),
                   filled: true,
-                  fillColor: AppColors.surface,
+                  fillColor: context.colors.surface,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: BorderSide(color: context.colors.border),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: BorderSide(color: context.colors.border),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppColors.primary),
+                    borderSide: BorderSide(color: AppColors.primary),
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               TextField(
                 controller: descController,
                 maxLines: 2,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: TextStyle(color: context.colors.textPrimary),
                 decoration: InputDecoration(
                   hintText: 'Description (optional)',
-                  hintStyle: const TextStyle(color: AppColors.textMuted),
+                  hintStyle: TextStyle(color: context.colors.textMuted),
                   filled: true,
-                  fillColor: AppColors.surface,
+                  fillColor: context.colors.surface,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: BorderSide(color: context.colors.border),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: BorderSide(color: context.colors.border),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppColors.primary),
+                    borderSide: BorderSide(color: AppColors.primary),
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               TextField(
                 controller: subjectController,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: TextStyle(color: context.colors.textPrimary),
                 decoration: InputDecoration(
                   hintText: 'Subject slug (optional)',
-                  hintStyle: const TextStyle(color: AppColors.textMuted),
+                  hintStyle: TextStyle(color: context.colors.textMuted),
                   filled: true,
-                  fillColor: AppColors.surface,
+                  fillColor: context.colors.surface,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: BorderSide(color: context.colors.border),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: BorderSide(color: context.colors.border),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppColors.primary),
+                    borderSide: BorderSide(color: AppColors.primary),
                   ),
                 ),
               ),
@@ -328,7 +329,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel', style: TextStyle(color: AppColors.textMuted)),
+            child: Text('Cancel', style: TextStyle(color: context.colors.textMuted)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -341,7 +342,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
               foregroundColor: AppColors.textOnPrimary,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
-            child: const Text('Create'),
+            child: Text('Create'),
           ),
         ],
       ),
@@ -364,8 +365,8 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surfaceElevated,
-      shape: const RoundedRectangleBorder(
+      backgroundColor: context.colors.surfaceElevated,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) => DraggableScrollableSheet(
@@ -380,7 +381,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.border,
+                color: context.colors.border,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -388,10 +389,10 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
               padding: const EdgeInsets.all(16),
               child: Text(
                 detail['title'] ?? '',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: context.colors.textPrimary,
                 ),
               ),
             ),
@@ -400,10 +401,10 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
                   detail['description'],
-                  style: const TextStyle(fontSize: 13, color: AppColors.textMuted),
+                  style: TextStyle(fontSize: 13, color: context.colors.textMuted),
                 ),
               ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Expanded(
               child: ListView.builder(
                 controller: scrollController,
@@ -416,9 +417,9 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
                     margin: const EdgeInsets.only(bottom: 8),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: completed ? AppColors.surfaceHighest : AppColors.surface,
+                      color: completed ? context.colors.surfaceHighest : context.colors.surface,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColors.border),
+                      border: Border.all(color: context.colors.border),
                     ),
                     child: Row(
                       children: [
@@ -437,23 +438,23 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
                               color: completed ? AppColors.primary : Colors.transparent,
                               borderRadius: BorderRadius.circular(6),
                               border: Border.all(
-                                color: completed ? AppColors.primary : AppColors.border,
+                                color: completed ? AppColors.primary : context.colors.border,
                                 width: 2,
                               ),
                             ),
                             child: completed
-                                ? const Icon(Icons.check_rounded, size: 16, color: AppColors.textOnPrimary)
+                                ? Icon(Icons.check_rounded, size: 16, color: AppColors.textOnPrimary)
                                 : null,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             item['title'] ?? '',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: completed ? AppColors.textMuted : AppColors.textPrimary,
+                              color: completed ? context.colors.textMuted : context.colors.textPrimary,
                               decoration: completed ? TextDecoration.lineThrough : null,
                             ),
                           ),
@@ -473,7 +474,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: RefreshIndicator(
         onRefresh: _loadData,
         color: AppColors.primary,
@@ -484,16 +485,16 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
             pinned: true,
             backgroundColor: AppColors.primaryDark,
             flexibleSpace: FlexibleSpaceBar(
-              title: const Text(
+              title: Text(
                 'Revision Tools',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: context.colors.textPrimary,
                 ),
               ),
               background: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppColors.primaryDark, AppColors.primaryMuted],
                     begin: Alignment.topLeft,
@@ -504,12 +505,12 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
             ),
             bottom: TabBar(
               controller: _tabController,
-              indicatorColor: AppColors.textPrimary,
+              indicatorColor: context.colors.textPrimary,
               indicatorWeight: 3,
-              labelColor: AppColors.textPrimary,
-              unselectedLabelColor: AppColors.textMuted,
-              labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-              tabs: const [
+              labelColor: context.colors.textPrimary,
+              unselectedLabelColor: context.colors.textMuted,
+              labelStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+              tabs: [
                 Tab(text: 'Flashcards'),
                 Tab(text: 'Study Plans'),
               ],
@@ -529,7 +530,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
             // Flashcards tab
             if (_tabController.index == 0) ...[
               if (_dueCards.isNotEmpty) ...[
-                const SliverToBoxAdapter(
+                SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
                     child: Text(
@@ -537,7 +538,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: context.colors.textPrimary,
                       ),
                     ),
                   ),
@@ -551,9 +552,9 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
                     ),
                   ),
                 ),
-                const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                SliverToBoxAdapter(child: SizedBox(height: 20)),
               ],
-              const SliverToBoxAdapter(
+              SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
                   child: Text(
@@ -561,7 +562,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: context.colors.textPrimary,
                     ),
                   ),
                 ),
@@ -578,7 +579,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
                     ),
                   ),
                 ),
-              const SliverToBoxAdapter(child: SizedBox(height: 40)),
+              SliverToBoxAdapter(child: SizedBox(height: 40)),
             ],
             // Study Plans tab
             if (_tabController.index == 1) ...[
@@ -589,8 +590,8 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: _showCreatePlanDialog,
-                      icon: const Icon(Icons.add_rounded, size: 18),
-                      label: const Text('Create Plan', style: TextStyle(fontWeight: FontWeight.w700)),
+                      icon: Icon(Icons.add_rounded, size: 18),
+                      label: Text('Create Plan', style: TextStyle(fontWeight: FontWeight.w700)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: AppColors.textOnPrimary,
@@ -613,7 +614,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
                     ),
                   ),
                 ),
-              const SliverToBoxAdapter(child: SizedBox(height: 40)),
+              SliverToBoxAdapter(child: SizedBox(height: 40)),
             ],
           ],
         ],
@@ -624,7 +625,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
               onPressed: _showCreateFlashcardDialog,
               backgroundColor: AppColors.primary,
               foregroundColor: AppColors.textOnPrimary,
-              child: const Icon(Icons.add_rounded),
+              child: Icon(Icons.add_rounded),
             )
           : null,
     );
@@ -636,32 +637,32 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.primaryGlow),
+        border: Border.all(color: context.colors.primaryGlow),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             card['front'] ?? '',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: context.colors.textPrimary,
             ),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           if (!isRevealed)
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () => setState(() => _revealedCards.add(card['id'])),
-                icon: const Icon(Icons.visibility_rounded, size: 16),
-                label: const Text('Reveal'),
+                icon: Icon(Icons.visibility_rounded, size: 16),
+                label: Text('Reveal'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primary,
-                  side: const BorderSide(color: AppColors.primary),
+                  side: BorderSide(color: AppColors.primary),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   padding: const EdgeInsets.symmetric(vertical: 10),
                 ),
@@ -672,31 +673,31 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
               width: double.infinity,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppColors.surfaceHighest,
+                color: context.colors.surfaceHighest,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 card['back'] ?? '',
-                style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
               ),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
-                  child: _qualityButton('Again', 1, AppColors.error, AppColors.errorMuted),
+                  child: _qualityButton('Again', 1, context.colors.error, context.colors.errorMuted),
                 ),
-                const SizedBox(width: 6),
+                SizedBox(width: 6),
                 Expanded(
-                  child: _qualityButton('Hard', 2, AppColors.warning, AppColors.warningMuted),
+                  child: _qualityButton('Hard', 2, context.colors.warning, context.colors.warningMuted),
                 ),
-                const SizedBox(width: 6),
+                SizedBox(width: 6),
                 Expanded(
-                  child: _qualityButton('Good', 3, AppColors.info, AppColors.infoMuted),
+                  child: _qualityButton('Good', 3, context.colors.info, context.colors.infoMuted),
                 ),
-                const SizedBox(width: 6),
+                SizedBox(width: 6),
                 Expanded(
-                  child: _qualityButton('Easy', 5, AppColors.success, AppColors.successMuted),
+                  child: _qualityButton('Easy', 5, context.colors.success, context.colors.successMuted),
                 ),
               ],
             ),
@@ -723,7 +724,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
       ),
       child: Text(
         label,
-        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
       ),
     );
   }
@@ -733,19 +734,19 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         children: [
           Expanded(
             child: Text(
               card['front'] ?? '',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: context.colors.textPrimary,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -760,10 +761,10 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
               ),
               child: Text(
                 card['difficulty'],
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: context.colors.textPrimary,
                 ),
               ),
             ),
@@ -784,9 +785,9 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -796,10 +797,10 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
                 Expanded(
                   child: Text(
                     plan['title'] ?? '',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: context.colors.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -813,23 +814,23 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
                   ),
                   child: Text(
                     status,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: context.colors.textPrimary,
                     ),
                   ),
                 ),
               ],
             ),
             if (plan['subject_slug'] != null) ...[
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               Text(
                 plan['subject_slug'],
-                style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                style: TextStyle(fontSize: 12, color: context.colors.textMuted),
               ),
             ],
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
@@ -837,16 +838,16 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: progress,
-                      backgroundColor: AppColors.surfaceHighest,
-                      valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                      backgroundColor: context.colors.surfaceHighest,
+                      valueColor: AlwaysStoppedAnimation(AppColors.primary),
                       minHeight: 6,
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Text(
                   '$completed / $total',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.textSecondary),
                 ),
               ],
             ),
@@ -859,22 +860,22 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
   Color _difficultyColor(String difficulty) {
     switch (difficulty) {
       case 'hard':
-        return AppColors.errorMuted;
+        return context.colors.errorMuted;
       case 'easy':
-        return AppColors.successMuted;
+        return context.colors.successMuted;
       default:
-        return AppColors.primaryGlow;
+        return context.colors.primaryGlow;
     }
   }
 
   Color _statusColor(String status) {
     switch (status) {
       case 'completed':
-        return AppColors.successMuted;
+        return context.colors.successMuted;
       case 'paused':
-        return AppColors.warningMuted;
+        return context.colors.warningMuted;
       default:
-        return AppColors.primaryGlow;
+        return context.colors.primaryGlow;
     }
   }
 }

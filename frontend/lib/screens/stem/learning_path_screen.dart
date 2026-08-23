@@ -5,12 +5,13 @@ import '../../core/theme/app_colors.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/error_state.dart';
 import '../../modules/subject_module.dart';
+import '../../core/theme/theme_colors.dart';
 
 class LearningPathScreen extends StatefulWidget {
   final String slug;
   final String title;
 
-  const LearningPathScreen({super.key, required this.slug, required this.title});
+  LearningPathScreen({super.key, required this.slug, required this.title});
 
   @override
   State<LearningPathScreen> createState() => _LearningPathScreenState();
@@ -54,7 +55,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final accentColor = module?.color ?? AppColors.primary;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: RefreshIndicator(
         onRefresh: _loadData,
         color: accentColor,
@@ -64,14 +65,14 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
               expandedHeight: 100,
               pinned: true,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimary, size: 18),
+                icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.colors.textPrimary, size: 18),
                 onPressed: () => Navigator.maybePop(context),
               ),
               backgroundColor: AppColors.primaryDark,
               flexibleSpace: FlexibleSpaceBar(
                 title: Text(
                   '${widget.title} Learning Path',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
                 ),
                 background: Container(
                   decoration: BoxDecoration(
@@ -97,12 +98,12 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
                   child: Text(
                     'All Concepts',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
                   ),
                 ),
               ),
               _buildStepsList(accentColor),
-              const SliverToBoxAdapter(child: SizedBox(height: 40)),
+              SliverToBoxAdapter(child: SizedBox(height: 40)),
             ],
           ],
         ),
@@ -115,24 +116,24 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.warningMuted,
+        color: context.colors.warningMuted,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
+        border: Border.all(color: context.colors.warning.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.alarm_rounded, color: AppColors.warning, size: 20),
-              const SizedBox(width: 8),
+              Icon(Icons.alarm_rounded, color: context.colors.warning, size: 20),
+              SizedBox(width: 8),
               Text(
                 '${_dueReviews.length} concept${_dueReviews.length == 1 ? '' : 's'} due for review',
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.warning),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.warning),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           ...(_dueReviews.take(3).map((r) => Padding(
             padding: const EdgeInsets.only(bottom: 6),
             child: GestureDetector(
@@ -142,14 +143,14 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                   Expanded(
                     child: Text(
                       r['concept_title'] ?? '',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   Text(
                     '${((r['mastery_level'] as num?)?.toDouble() ?? 0 * 100).round()}%',
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.warning),
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.warning),
                   ),
                 ],
               ),
@@ -174,9 +175,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,33 +185,33 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Progress', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                Text('Progress', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
                 Text(
                   '${(progress * 100).round()}%',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: accent),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
                 value: progress,
-                backgroundColor: AppColors.surfaceHighest,
+                backgroundColor: context.colors.surfaceHighest,
                 valueColor: AlwaysStoppedAnimation<Color>(accent),
                 minHeight: 6,
               ),
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
             Row(
               children: [
-                _buildMiniStat('Completed', '$completed', AppColors.success),
-                const SizedBox(width: 12),
-                _buildMiniStat('In Progress', '$inProgress', AppColors.info),
-                const SizedBox(width: 12),
-                _buildMiniStat('Not Started', '$notStarted', AppColors.textMuted),
-                const SizedBox(width: 12),
-                _buildMiniStat('Est.', '~${minutes}m', AppColors.lavender),
+                _buildMiniStat('Completed', '$completed', context.colors.success),
+                SizedBox(width: 12),
+                _buildMiniStat('In Progress', '$inProgress', context.colors.info),
+                SizedBox(width: 12),
+                _buildMiniStat('Not Started', '$notStarted', context.colors.textMuted),
+                SizedBox(width: 12),
+                _buildMiniStat('Est.', '~${minutes}m', context.colors.lavender),
               ],
             ),
           ],
@@ -224,8 +225,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       child: Column(
         children: [
           Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: color)),
-          const SizedBox(height: 2),
-          Text(label, style: const TextStyle(fontSize: 10, color: AppColors.textMuted), textAlign: TextAlign.center),
+          SizedBox(height: 2),
+          Text(label, style: TextStyle(fontSize: 10, color: context.colors.textMuted), textAlign: TextAlign.center),
         ],
       ),
     );
@@ -234,11 +235,11 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   Widget _buildStepsList(Color accent) {
     final steps = (_path?['steps'] as List?) ?? [];
     if (steps.isEmpty) {
-      return const SliverToBoxAdapter(
+      return SliverToBoxAdapter(
         child: Padding(
           padding: EdgeInsets.all(40),
           child: Center(
-            child: Text('No concepts found', style: TextStyle(color: AppColors.textMuted)),
+            child: Text('No concepts found', style: TextStyle(color: context.colors.textMuted)),
           ),
         ),
       );
@@ -268,10 +269,10 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final isCompleted = status == 'completed';
     final isInProgress = status == 'in_progress';
     final color = isCompleted
-        ? AppColors.success
+        ? context.colors.success
         : isInProgress
-            ? AppColors.info
-            : AppColors.textMuted;
+            ? context.colors.info
+            : context.colors.textMuted;
 
     return GestureDetector(
       onTap: () => context.push('/stem-concept/$conceptId?title=${Uri.encodeComponent(title)}'),
@@ -279,10 +280,10 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isInProgress ? accent.withValues(alpha: 0.3) : AppColors.border,
+            color: isInProgress ? accent.withValues(alpha: 0.3) : context.colors.border,
           ),
         ),
         child: Row(
@@ -303,7 +304,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                       ),
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -313,25 +314,25 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: isCompleted ? AppColors.textMuted : AppColors.textPrimary,
+                      color: isCompleted ? context.colors.textMuted : context.colors.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Row(
                     children: [
                       if (topicTitle.isNotEmpty) ...[
-                        Text(topicTitle, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
-                        const SizedBox(width: 8),
+                        Text(topicTitle, style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
+                        SizedBox(width: 8),
                       ],
-                      Text('~${est}m', style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                      Text('~${est}m', style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
                     ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             if (masteryLevel > 0)
               SizedBox(
                 width: 32,
@@ -342,7 +343,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                     CircularProgressIndicator(
                       value: masteryLevel / 100,
                       strokeWidth: 3,
-                      backgroundColor: AppColors.surfaceHighest,
+                      backgroundColor: context.colors.surfaceHighest,
                       valueColor: AlwaysStoppedAnimation<Color>(color),
                     ),
                     Center(
@@ -358,10 +359,10 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: AppColors.warningMuted,
+                  color: context.colors.warningMuted,
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: const Text('Start', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.warning)),
+                child: Text('Start', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: context.colors.warning)),
               ),
           ],
         ),

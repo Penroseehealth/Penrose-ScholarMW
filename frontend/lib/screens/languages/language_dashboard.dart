@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../services/language_service.dart';
+import '../../core/theme/theme_colors.dart';
 
 const Color _pathGreen = Color(0xFF22C55E);
 const Color _pathGreenDark = Color(0xFF15803D);
@@ -11,7 +12,7 @@ const Color _pathGreenGlow = Color(0x2222C55E);
 class LanguageDashboard extends StatefulWidget {
   final String? slug;
 
-  const LanguageDashboard({super.key, this.slug});
+  LanguageDashboard({super.key, this.slug});
 
   @override
   State<LanguageDashboard> createState() => _LanguageDashboardState();
@@ -121,7 +122,7 @@ class _LanguageDashboardState extends State<LanguageDashboard>
     super.initState();
     _fadeCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: Duration(milliseconds: 500),
     );
     _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut);
     _fadeCtrl.forward();
@@ -237,16 +238,16 @@ class _LanguageDashboardState extends State<LanguageDashboard>
     return FadeTransition(
       opacity: _fadeAnim,
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.colors.background,
         body: _loading
-            ? const Center(
+            ? Center(
                 child: CircularProgressIndicator(color: AppColors.primary))
             : RefreshIndicator(
                 color: accent,
-                backgroundColor: AppColors.surface,
+                backgroundColor: context.colors.surface,
                 onRefresh: _load,
                 child: CustomScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
+                  physics: AlwaysScrollableScrollPhysics(),
                   slivers: [
                     SliverToBoxAdapter(child: _buildHeader(accent)),
                     SliverPadding(
@@ -254,15 +255,15 @@ class _LanguageDashboardState extends State<LanguageDashboard>
                       sliver: SliverList(
                         delegate: SliverChildListDelegate([
                           _buildContinueLearning(),
-                          const SizedBox(height: 28),
+                          SizedBox(height: 28),
                           _buildSectionTitle(
                               'Learning Path', '🗺️', accent),
-                          const SizedBox(height: 14),
+                          SizedBox(height: 14),
                           _buildLearningPath(accent),
-                          const SizedBox(height: 28),
+                          SizedBox(height: 28),
                           _buildSectionTitle(
                               'Modules & Quick Actions', '⚡', accent),
-                          const SizedBox(height: 14),
+                          SizedBox(height: 14),
                           _buildModuleGrid(accent),
                         ]),
                       ),
@@ -277,10 +278,10 @@ class _LanguageDashboardState extends State<LanguageDashboard>
   Widget _buildHeader(Color accent) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: context.colors.surface,
         border:
-            Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
+            Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
       ),
       child: SafeArea(
         bottom: false,
@@ -292,15 +293,15 @@ class _LanguageDashboardState extends State<LanguageDashboard>
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
+                  color: context.colors.surfaceElevated,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.colors.border),
                 ),
-                child: const Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: AppColors.textSecondary),
+                child: Icon(Icons.arrow_back_ios_new_rounded,
+                    size: 18, color: context.colors.textSecondary),
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Container(
               width: 46,
               height: 46,
@@ -311,9 +312,9 @@ class _LanguageDashboardState extends State<LanguageDashboard>
                 border: Border.all(color: accent.withValues(alpha: 0.25)),
               ),
               child: Text(_langIcon,
-                  style: const TextStyle(fontSize: 24, height: 1.1)),
+                  style: TextStyle(fontSize: 24, height: 1.1)),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,17 +322,17 @@ class _LanguageDashboardState extends State<LanguageDashboard>
                   Text(_langName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                          color: context.colors.textPrimary,
                           letterSpacing: -0.3)),
                   Text(
                     _nativeName.isEmpty ? 'Language Dashboard' : _nativeName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style:
-                        const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                        TextStyle(fontSize: 12, color: context.colors.textMuted),
                   ),
                 ],
               ),
@@ -352,10 +353,10 @@ class _LanguageDashboardState extends State<LanguageDashboard>
                       value: _overallProgress,
                       strokeWidth: 2.5,
                       color: accent,
-                      backgroundColor: AppColors.surfaceHighest,
+                      backgroundColor: context.colors.surfaceHighest,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Text('${(_overallProgress * 100).toInt()}%',
                       style: TextStyle(
                           fontSize: 12,
@@ -381,16 +382,16 @@ class _LanguageDashboardState extends State<LanguageDashboard>
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Expanded(
           child: Text(title,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                  color: context.colors.textPrimary,
                   letterSpacing: -0.3)),
         ),
-        Text(emoji, style: const TextStyle(fontSize: 15)),
+        Text(emoji, style: TextStyle(fontSize: 15)),
       ],
     );
   }
@@ -405,7 +406,7 @@ class _LanguageDashboardState extends State<LanguageDashboard>
           width: double.infinity,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [_pathGreen, _pathGreenDark],
@@ -415,7 +416,7 @@ class _LanguageDashboardState extends State<LanguageDashboard>
               BoxShadow(
                 color: _pathGreenGlow.withValues(alpha: 0.35),
                 blurRadius: 24,
-                offset: const Offset(0, 8),
+                offset: Offset(0, 8),
               ),
             ],
           ),
@@ -428,10 +429,10 @@ class _LanguageDashboardState extends State<LanguageDashboard>
                   color: Colors.white.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Icon(Icons.play_arrow_rounded,
+                child: Icon(Icons.play_arrow_rounded,
                     color: Colors.white, size: 32),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -442,21 +443,21 @@ class _LanguageDashboardState extends State<LanguageDashboard>
                             fontWeight: FontWeight.w800,
                             color: Colors.white.withValues(alpha: 0.75),
                             letterSpacing: 1.2)),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(_lastLesson,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
                             color: Colors.white)),
-                    const SizedBox(height: 3),
+                    SizedBox(height: 3),
                     Text(_lastLevelName,
                         style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: Colors.white.withValues(alpha: 0.8))),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10),
                     Row(
                       children: [
                         Expanded(
@@ -472,9 +473,9 @@ class _LanguageDashboardState extends State<LanguageDashboard>
                             ),
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        SizedBox(width: 10),
                         Text('${(_lastLessonProgress * 100).toInt()}%',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w800,
                                 color: Colors.white)),
@@ -483,8 +484,8 @@ class _LanguageDashboardState extends State<LanguageDashboard>
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
-              const Icon(Icons.arrow_forward_ios_rounded,
+              SizedBox(width: 12),
+              Icon(Icons.arrow_forward_ios_rounded,
                   size: 16, color: Colors.white),
             ],
           ),
@@ -499,9 +500,9 @@ class _LanguageDashboardState extends State<LanguageDashboard>
       height: 168,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
+        physics: BouncingScrollPhysics(),
         itemCount: _levels.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, __) => SizedBox(width: 12),
         itemBuilder: (ctx, i) => _buildLevelCard(
           _levels[i],
           i < progress.length ? progress[i] : 0.0,
@@ -516,7 +517,7 @@ class _LanguageDashboardState extends State<LanguageDashboard>
     final completed = progress >= 1.0;
     final current = progress > 0 && !completed;
     final statusColor =
-        completed ? AppColors.success : (current ? accent : AppColors.textSecondary);
+        completed ? context.colors.success : (current ? accent : context.colors.textSecondary);
     final levelSlug = level['slug'] ?? '';
 
     return Semantics(
@@ -536,12 +537,12 @@ class _LanguageDashboardState extends State<LanguageDashboard>
             width: 190,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: current
                     ? accent.withValues(alpha: 0.45)
-                    : AppColors.border,
+                    : context.colors.border,
                 width: current ? 1.2 : 1,
               ),
             ),
@@ -559,12 +560,12 @@ class _LanguageDashboardState extends State<LanguageDashboard>
                         borderRadius: BorderRadius.circular(11),
                       ),
                       child: Text(level['icon']!,
-                          style: const TextStyle(fontSize: 19)),
+                          style: TextStyle(fontSize: 19)),
                     ),
-                    const Spacer(),
+                    Spacer(),
                     if (completed)
                       Icon(Icons.check_circle_rounded,
-                          size: 18, color: AppColors.success)
+                          size: 18, color: context.colors.success)
                     else if (current)
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -582,29 +583,29 @@ class _LanguageDashboardState extends State<LanguageDashboard>
                       )
                     else
                       Icon(Icons.arrow_forward_ios_rounded,
-                          size: 14, color: AppColors.textMuted),
+                          size: 14, color: context.colors.textMuted),
                   ],
                 ),
-                const Spacer(),
+                Spacer(),
                 Text(level['form']!,
                     style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 1.0,
                         color: statusColor)),
-                const SizedBox(height: 3),
+                SizedBox(height: 3),
                 Text(level['name']!,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary)),
-                const SizedBox(height: 2),
+                        color: context.colors.textPrimary)),
+                SizedBox(height: 2),
                 Text(level['desc']!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontSize: 11, color: AppColors.textMuted)),
-                const SizedBox(height: 10),
+                    style: TextStyle(
+                        fontSize: 11, color: context.colors.textMuted)),
+                SizedBox(height: 10),
                 Row(
                   children: [
                     Expanded(
@@ -612,13 +613,13 @@ class _LanguageDashboardState extends State<LanguageDashboard>
                         borderRadius: BorderRadius.circular(4),
                         child: LinearProgressIndicator(
                           value: progress,
-                          backgroundColor: AppColors.surfaceHighest,
+                          backgroundColor: context.colors.surfaceHighest,
                           color: statusColor,
                           minHeight: 4,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Text('${(progress * 100).toInt()}%',
                         style: TextStyle(
                             fontSize: 11,
@@ -637,9 +638,9 @@ class _LanguageDashboardState extends State<LanguageDashboard>
   Widget _buildModuleGrid(Color accent) {
     return GridView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      physics: NeverScrollableScrollPhysics(),
       padding: EdgeInsets.zero,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
@@ -662,9 +663,9 @@ class _LanguageDashboardState extends State<LanguageDashboard>
           child: Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -677,26 +678,26 @@ class _LanguageDashboardState extends State<LanguageDashboard>
                       height: 36,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceElevated,
+                        color: context.colors.surfaceElevated,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppColors.borderLight),
+                        border: Border.all(color: context.colors.borderLight),
                       ),
                       child: Text(mod.emoji,
-                          style: const TextStyle(fontSize: 17)),
+                          style: TextStyle(fontSize: 17)),
                     ),
-                    const Spacer(),
+                    Spacer(),
                     Icon(Icons.chevron_right_rounded,
-                        size: 18, color: AppColors.textMuted),
+                        size: 18, color: context.colors.textMuted),
                   ],
                 ),
-                const Spacer(),
+                Spacer(),
                 Text(mod.label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary)),
+                        color: context.colors.textPrimary)),
               ],
             ),
           ),

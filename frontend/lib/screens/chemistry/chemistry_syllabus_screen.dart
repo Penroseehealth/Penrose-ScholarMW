@@ -5,9 +5,10 @@ import 'package:flutter_math_fork/flutter_math.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
+import '../../core/theme/theme_colors.dart';
 
 class ChemistrySyllabusScreen extends StatefulWidget {
-  const ChemistrySyllabusScreen({super.key});
+  ChemistrySyllabusScreen({super.key});
 
   @override
   State<ChemistrySyllabusScreen> createState() =>
@@ -90,10 +91,10 @@ class _ChemistrySyllabusScreenState extends State<ChemistrySyllabusScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        title: const Row(
+        backgroundColor: context.colors.surface,
+        title: Row(
           children: [
             Icon(Icons.science_rounded, size: 22, color: Color(0xFFF59E0B)),
             SizedBox(width: 10),
@@ -109,7 +110,7 @@ class _ChemistrySyllabusScreenState extends State<ChemistrySyllabusScreen>
                 isScrollable: true,
                 tabAlignment: TabAlignment.start,
                 labelColor: _chemAmber,
-                unselectedLabelColor: AppColors.textMuted,
+                unselectedLabelColor: context.colors.textMuted,
                 indicatorColor: _chemAmber,
                 tabs: List.generate(4, (i) {
                   final formNum = i + 1;
@@ -123,10 +124,10 @@ class _ChemistrySyllabusScreenState extends State<ChemistrySyllabusScreen>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(_formIcons[formNum], size: 16),
-                        const SizedBox(width: 6),
+                        SizedBox(width: 6),
                         Text('Form $formNum'),
                         if (count > 0) ...[
-                          const SizedBox(width: 4),
+                          SizedBox(width: 4),
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 6, vertical: 1),
@@ -136,7 +137,7 @@ class _ChemistrySyllabusScreenState extends State<ChemistrySyllabusScreen>
                             ),
                             child: Text(
                               '$count',
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 9, fontWeight: FontWeight.w700),
                             ),
                           ),
@@ -149,7 +150,7 @@ class _ChemistrySyllabusScreenState extends State<ChemistrySyllabusScreen>
             : null,
       ),
       body: _loading
-          ? const Center(
+          ? Center(
               child: CircularProgressIndicator(color: Color(0xFFF59E0B)))
           : _forms.isEmpty
               ? _buildEmptyState()
@@ -167,33 +168,33 @@ class _ChemistrySyllabusScreenState extends State<ChemistrySyllabusScreen>
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: TextField(
         onChanged: (v) => setState(() => _searchQuery = v),
-        style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+        style: TextStyle(color: context.colors.textPrimary, fontSize: 14),
         decoration: InputDecoration(
           hintText: 'Search themes, topics, subtopics...',
           hintStyle:
-              const TextStyle(color: AppColors.textMuted, fontSize: 13),
-          prefixIcon: const Icon(Icons.search_rounded,
-              size: 20, color: AppColors.textMuted),
+              TextStyle(color: context.colors.textMuted, fontSize: 13),
+          prefixIcon: Icon(Icons.search_rounded,
+              size: 20, color: context.colors.textMuted),
           suffixIcon: _searchQuery.isNotEmpty
               ? GestureDetector(
                   onTap: () => setState(() => _searchQuery = ''),
-                  child: const Icon(Icons.close_rounded,
-                      size: 18, color: AppColors.textMuted),
+                  child: Icon(Icons.close_rounded,
+                      size: 18, color: context.colors.textMuted),
                 )
               : null,
           filled: true,
-          fillColor: AppColors.surface,
+          fillColor: context.colors.surface,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.border),
+            borderSide: BorderSide(color: context.colors.border),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.border),
+            borderSide: BorderSide(color: context.colors.border),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFF59E0B)),
+            borderSide: BorderSide(color: Color(0xFFF59E0B)),
           ),
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -209,20 +210,20 @@ class _ChemistrySyllabusScreenState extends State<ChemistrySyllabusScreen>
         children: [
           Icon(Icons.science_rounded,
               size: 64,
-              color: AppColors.textMuted.withValues(alpha: 0.3)),
-          const SizedBox(height: 16),
-          const Text(
+              color: context.colors.textMuted.withValues(alpha: 0.3)),
+          SizedBox(height: 16),
+          Text(
             'Chemistry Syllabus',
             style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary),
+                color: context.colors.textPrimary),
           ),
-          const SizedBox(height: 8),
-          const Text(
+          SizedBox(height: 8),
+          Text(
             'The Malawi MSCE Chemistry syllabus\nwill appear here once seeded.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: AppColors.textMuted),
+            style: TextStyle(fontSize: 14, color: context.colors.textMuted),
           ),
         ],
       ),
@@ -238,14 +239,14 @@ class _ChemistrySyllabusScreenState extends State<ChemistrySyllabusScreen>
           children: [
             Icon(Icons.search_off_rounded,
                 size: 48,
-                color: AppColors.textMuted.withValues(alpha: 0.4)),
-            const SizedBox(height: 12),
+                color: context.colors.textMuted.withValues(alpha: 0.4)),
+            SizedBox(height: 12),
             Text(
               _searchQuery.isNotEmpty
                   ? 'No results for "$_searchQuery"'
                   : 'No content for this form yet',
               style:
-                  const TextStyle(fontSize: 14, color: AppColors.textMuted),
+                  TextStyle(fontSize: 14, color: context.colors.textMuted),
             ),
           ],
         ),
@@ -289,9 +290,9 @@ class _ThemeCardState extends State<_ThemeCard> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         children: [
@@ -319,27 +320,27 @@ class _ThemeCardState extends State<_ThemeCard> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
+                            color: context.colors.textPrimary,
                           ),
                         ),
                         if (description.isNotEmpty) ...[
-                          const SizedBox(height: 2),
+                          SizedBox(height: 2),
                           Text(
                             description,
                             style: TextStyle(
                               fontSize: 11,
                               color:
-                                  AppColors.textMuted.withValues(alpha: 0.8),
+                                  context.colors.textMuted.withValues(alpha: 0.8),
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -348,37 +349,37 @@ class _ThemeCardState extends State<_ThemeCard> {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceElevated,
+                      color: context.colors.surfaceElevated,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       '${topics.length} topic${topics.length != 1 ? 's' : ''}',
-                      style: const TextStyle(
-                          fontSize: 10, color: AppColors.textMuted),
+                      style: TextStyle(
+                          fontSize: 10, color: context.colors.textMuted),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Icon(
                     _expanded
                         ? Icons.keyboard_arrow_up_rounded
                         : Icons.keyboard_arrow_down_rounded,
                     size: 20,
-                    color: AppColors.textMuted,
+                    color: context.colors.textMuted,
                   ),
                 ],
               ),
             ),
           ),
           if (_expanded) ...[
-            const Divider(height: 1, color: AppColors.border),
+            Divider(height: 1, color: context.colors.border),
             ...topics.map<Widget>((t) => _TopicTile(
                 topic: t, formNumber: widget.formNumber)),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
           ],
         ],
       ),
@@ -418,28 +419,28 @@ class _TopicTileState extends State<_TopicTile> {
                       ? Icons.folder_open_rounded
                       : Icons.folder_rounded,
                   size: 18,
-                  color: const Color(0xFFF59E0B).withValues(alpha: 0.7),
+                  color: Color(0xFFF59E0B).withValues(alpha: 0.7),
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: context.colors.textPrimary,
                         ),
                       ),
                       if (description.isNotEmpty && _expanded) ...[
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2),
                         Text(
                           description,
                           style: TextStyle(
                               fontSize: 11,
-                              color: AppColors.textMuted
+                              color: context.colors.textMuted
                                   .withValues(alpha: 0.8)),
                         ),
                       ],
@@ -451,22 +452,22 @@ class _TopicTileState extends State<_TopicTile> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceElevated,
+                      color: context.colors.surfaceElevated,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
                       '${subtopics.length}',
-                      style: const TextStyle(
-                          fontSize: 9, color: AppColors.textMuted),
+                      style: TextStyle(
+                          fontSize: 9, color: context.colors.textMuted),
                     ),
                   ),
-                const SizedBox(width: 6),
+                SizedBox(width: 6),
                 Icon(
                   _expanded
                       ? Icons.expand_less_rounded
                       : Icons.expand_more_rounded,
                   size: 18,
-                  color: AppColors.textMuted,
+                  color: context.colors.textMuted,
                 ),
               ],
             ),
@@ -509,17 +510,17 @@ class _SubtopicTileState extends State<_SubtopicTile> {
                   Container(
                     width: 6,
                     height: 6,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: Color(0xFFF59E0B),
                       shape: BoxShape.circle,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       title,
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.textSecondary),
+                      style: TextStyle(
+                          fontSize: 12, color: context.colors.textSecondary),
                     ),
                   ),
                   if (los.isNotEmpty)
@@ -527,16 +528,16 @@ class _SubtopicTileState extends State<_SubtopicTile> {
                       '${los.length} LO',
                       style: TextStyle(
                         fontSize: 9,
-                        color: AppColors.textMuted.withValues(alpha: 0.7),
+                        color: context.colors.textMuted.withValues(alpha: 0.7),
                       ),
                     ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6),
                   Icon(
                     _expanded
                         ? Icons.expand_less_rounded
                         : Icons.expand_more_rounded,
                     size: 16,
-                    color: AppColors.textMuted,
+                    color: context.colors.textMuted,
                   ),
                 ],
               ),
@@ -566,10 +567,10 @@ class _LearningObjectiveCard extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(32, 0, 0, 8),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppColors.surfaceElevated.withValues(alpha: 0.5),
+        color: context.colors.surfaceElevated.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-            color: AppColors.border.withValues(alpha: 0.5)),
+            color: context.colors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -594,15 +595,15 @@ class _LearningObjectiveCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Expanded(
                 child: _containsLatex(objective)
                     ? _buildLatexText(objective)
                     : Text(
                         objective,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textPrimary,
+                          color: context.colors.textPrimary,
                           height: 1.4,
                         ),
                       ),
@@ -610,38 +611,38 @@ class _LearningObjectiveCard extends StatelessWidget {
             ],
           ),
           if (teachingActivity.isNotEmpty) ...[
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Row(
               children: [
                 Icon(Icons.school_rounded,
                     size: 12,
-                    color: AppColors.textMuted.withValues(alpha: 0.6)),
-                const SizedBox(width: 4),
+                    color: context.colors.textMuted.withValues(alpha: 0.6)),
+                SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     teachingActivity,
                     style: TextStyle(
                         fontSize: 10,
-                        color: AppColors.textMuted.withValues(alpha: 0.8)),
+                        color: context.colors.textMuted.withValues(alpha: 0.8)),
                   ),
                 ),
               ],
             ),
           ],
           if (teachingMethod.isNotEmpty) ...[
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Row(
               children: [
                 Icon(Icons.build_rounded,
                     size: 12,
-                    color: AppColors.textMuted.withValues(alpha: 0.6)),
-                const SizedBox(width: 4),
+                    color: context.colors.textMuted.withValues(alpha: 0.6)),
+                SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     teachingMethod,
                     style: TextStyle(
                         fontSize: 10,
-                        color: AppColors.textMuted.withValues(alpha: 0.8)),
+                        color: context.colors.textMuted.withValues(alpha: 0.8)),
                   ),
                 ),
               ],
@@ -666,19 +667,19 @@ class _LearningObjectiveCard extends StatelessWidget {
       return Math.tex(
         text,
         textStyle:
-            const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+            TextStyle(fontSize: 12, color: AppColors.textPrimary),
         mathStyle: MathStyle.text,
         onErrorFallback: (err) => Text(
           text,
           style:
-              const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+              TextStyle(fontSize: 12, color: AppColors.textPrimary),
         ),
       );
     } catch (_) {
       return Text(
         text,
         style:
-            const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+            TextStyle(fontSize: 12, color: AppColors.textPrimary),
       );
     }
   }
@@ -686,17 +687,17 @@ class _LearningObjectiveCard extends StatelessWidget {
   Color _cognitiveColor(String level) {
     switch (level.toLowerCase()) {
       case 'knowledge':
-        return const Color(0xFF3B82F6);
+        return Color(0xFF3B82F6);
       case 'comprehension':
-        return const Color(0xFF10B981);
+        return Color(0xFF10B981);
       case 'application':
-        return const Color(0xFFF59E0B);
+        return Color(0xFFF59E0B);
       case 'analysis':
-        return const Color(0xFFEF4444);
+        return Color(0xFFEF4444);
       case 'evaluation':
-        return const Color(0xFF8B5CF6);
+        return Color(0xFF8B5CF6);
       case 'synthesis':
-        return const Color(0xFFEC4899);
+        return Color(0xFFEC4899);
       default:
         return AppColors.textMuted;
     }

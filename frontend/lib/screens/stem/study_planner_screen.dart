@@ -4,9 +4,10 @@ import '../../core/theme/app_colors.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
+import '../../core/theme/theme_colors.dart';
 
 class StudyPlannerScreen extends StatefulWidget {
-  const StudyPlannerScreen({super.key});
+  StudyPlannerScreen({super.key});
 
   @override
   State<StudyPlannerScreen> createState() => _StudyPlannerScreenState();
@@ -68,14 +69,14 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Study plan generated!'), backgroundColor: AppColors.success),
+          SnackBar(content: Text('Study plan generated!'), backgroundColor: context.colors.success),
         );
         await _loadData();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to generate plan: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text('Failed to generate plan: $e'), backgroundColor: context.colors.error),
         );
       }
     } finally {
@@ -86,7 +87,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: RefreshIndicator(
         onRefresh: _loadData,
         color: AppColors.primary,
@@ -96,17 +97,17 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
               expandedHeight: 100,
               pinned: true,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimary, size: 18),
+                icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.colors.textPrimary, size: 18),
                 onPressed: () => Navigator.maybePop(context),
               ),
               backgroundColor: AppColors.primaryDark,
               flexibleSpace: FlexibleSpaceBar(
-                title: const Text(
+                title: Text(
                   'Study Planner',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
                 ),
                 background: Container(
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [AppColors.primaryDark, AppColors.primaryMuted],
                       begin: Alignment.topLeft,
@@ -124,7 +125,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
               SliverToBoxAdapter(child: _buildTodaysTasks()),
               SliverToBoxAdapter(child: _buildGeneratePlan()),
               SliverToBoxAdapter(child: _buildPlanOverview()),
-              const SliverToBoxAdapter(child: SizedBox(height: 40)),
+              SliverToBoxAdapter(child: SizedBox(height: 40)),
             ],
           ],
         ),
@@ -136,13 +137,13 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
     return Row(
       children: [
         Icon(icon, color: AppColors.primary, size: 18),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
+            color: context.colors.textPrimary,
           ),
         ),
       ],
@@ -158,17 +159,17 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSectionHeader('Today\'s Study Tasks', Icons.calendar_today_outlined),
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
             if (activeTasks.isEmpty)
-              const EmptyState(
+              EmptyState(
                 icon: Icons.task_alt_rounded,
                 title: 'No tasks for today',
                 subtitle: 'Generate a study plan to get started!',
@@ -192,9 +193,9 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
     final isDone = _completedTasks.contains(taskId);
 
     final priorityColor = switch (priority) {
-      'high' => AppColors.error,
-      'review' => AppColors.success,
-      _ => AppColors.warning,
+      'high' => context.colors.error,
+      'review' => context.colors.success,
+      _ => context.colors.warning,
     };
     final priorityLabel = switch (priority) {
       'high' => 'High',
@@ -208,10 +209,10 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
         margin: EdgeInsets.only(bottom: index < _dailyTasks.length - 1 ? 8 : 0),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isDone ? AppColors.success.withValues(alpha: 0.05) : AppColors.surfaceElevated,
+          color: isDone ? context.colors.success.withValues(alpha: 0.05) : context.colors.surfaceElevated,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isDone ? AppColors.success.withValues(alpha: 0.2) : Colors.transparent,
+            color: isDone ? context.colors.success.withValues(alpha: 0.2) : Colors.transparent,
           ),
         ),
         child: Row(
@@ -230,19 +231,19 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                 width: 22,
                 height: 22,
                 decoration: BoxDecoration(
-                  color: isDone ? AppColors.success.withValues(alpha: 0.15) : Colors.transparent,
+                  color: isDone ? context.colors.success.withValues(alpha: 0.15) : Colors.transparent,
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color: isDone ? AppColors.success : AppColors.border,
+                    color: isDone ? context.colors.success : context.colors.border,
                     width: 1.5,
                   ),
                 ),
                 child: isDone
-                    ? const Icon(Icons.check_rounded, size: 14, color: AppColors.success)
+                    ? Icon(Icons.check_rounded, size: 14, color: context.colors.success)
                     : null,
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,17 +253,17 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: isDone ? AppColors.textMuted : AppColors.textPrimary,
+                      color: isDone ? context.colors.textMuted : context.colors.textPrimary,
                       decoration: isDone ? TextDecoration.lineThrough : null,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (topicName.isNotEmpty) ...[
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2),
                     Text(
                       topicName,
-                      style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                      style: TextStyle(fontSize: 11, color: context.colors.textMuted),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -270,9 +271,9 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             _MiniMasteryRing(mastery: mastery, color: priorityColor),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -292,10 +293,10 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                   ),
                 ),
                 if (minutes > 0) ...[
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     '${minutes}m',
-                    style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
+                    style: TextStyle(fontSize: 10, color: context.colors.textMuted),
                   ),
                 ],
               ],
@@ -312,22 +313,22 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSectionHeader('Generate Study Plan', Icons.auto_awesome_outlined),
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
             if (_subjects.isNotEmpty) ...[
               SizedBox(
                 height: 38,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: _subjects.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  separatorBuilder: (_, __) => SizedBox(width: 8),
                   itemBuilder: (ctx, i) {
                     final s = _subjects[i];
                     final slug = s['slug'] ?? '';
@@ -338,10 +339,10 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
-                          color: selected ? AppColors.primary.withValues(alpha: 0.2) : AppColors.surfaceElevated,
+                          color: selected ? AppColors.primary.withValues(alpha: 0.2) : context.colors.surfaceElevated,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: selected ? AppColors.primary.withValues(alpha: 0.4) : AppColors.border,
+                            color: selected ? AppColors.primary.withValues(alpha: 0.4) : context.colors.border,
                           ),
                         ),
                         child: Text(
@@ -349,7 +350,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: selected ? AppColors.primary : AppColors.textSecondary,
+                            color: selected ? AppColors.primary : context.colors.textSecondary,
                           ),
                         ),
                       ),
@@ -358,26 +359,26 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                 ),
               ),
             ],
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Daily Minutes',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.textSecondary),
                 ),
                 Text(
                   '${_dailyMinutes.round()} min',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary),
                 ),
               ],
             ),
             SliderTheme(
-              data: const SliderThemeData(
+              data: SliderThemeData(
                 activeTrackColor: AppColors.primary,
-                inactiveTrackColor: AppColors.surfaceHighest,
+                inactiveTrackColor: context.colors.surfaceHighest,
                 thumbColor: AppColors.primary,
-                overlayColor: AppColors.primaryGlow,
+                overlayColor: context.colors.primaryGlow,
                 trackHeight: 4,
                 thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8),
               ),
@@ -389,28 +390,28 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                 onChanged: (v) => setState(() { _dailyMinutes = v; }),
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Duration',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.textSecondary),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceElevated,
+                    color: context.colors.surfaceElevated,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: context.colors.border),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<int>(
                       value: _daysAhead,
-                      dropdownColor: AppColors.surfaceHighest,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+                      dropdownColor: context.colors.surfaceHighest,
+                      style: TextStyle(fontSize: 12, color: context.colors.textPrimary),
                       isDense: true,
-                      items: const [
+                      items: [
                         DropdownMenuItem(value: 7, child: Text('7 days')),
                         DropdownMenuItem(value: 14, child: Text('14 days')),
                         DropdownMenuItem(value: 21, child: Text('21 days')),
@@ -424,7 +425,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: GestureDetector(
@@ -436,19 +437,19 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                         ? LinearGradient(
                             colors: [AppColors.primary.withValues(alpha: 0.4), AppColors.primaryMuted.withValues(alpha: 0.4)],
                           )
-                        : const LinearGradient(
+                        : LinearGradient(
                             colors: [AppColors.primary, AppColors.primaryDark],
                           ),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
                     child: _generating
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.textOnPrimary),
                           )
-                        : const Row(
+                        : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.auto_awesome_outlined, color: AppColors.textOnPrimary, size: 18),
@@ -482,26 +483,26 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSectionHeader('Plan Overview', Icons.bar_chart_rounded),
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
             _buildOverviewStats(stats),
             if (plans.isNotEmpty) ...[
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               ...plans.asMap().entries.map((entry) => _buildPlanCard(entry.value, entry.key, plans.length)),
             ] else
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),
                 child: Center(
                   child: Text(
                     'No plans yet. Generate one above!',
-                    style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+                    style: TextStyle(fontSize: 13, color: context.colors.textMuted),
                   ),
                 ),
               ),
@@ -520,13 +521,13 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
 
     return Row(
       children: [
-        _buildStatChip('$totalPlans', 'Plans', AppColors.info),
-        const SizedBox(width: 8),
-        _buildStatChip('$activePlans', 'Active', AppColors.warning),
-        const SizedBox(width: 8),
-        _buildStatChip('$completedPlans', 'Done', AppColors.success),
-        const SizedBox(width: 8),
-        _buildStatChip('$totalItems', 'Items', AppColors.lavender),
+        _buildStatChip('$totalPlans', 'Plans', context.colors.info),
+        SizedBox(width: 8),
+        _buildStatChip('$activePlans', 'Active', context.colors.warning),
+        SizedBox(width: 8),
+        _buildStatChip('$completedPlans', 'Done', context.colors.success),
+        SizedBox(width: 8),
+        _buildStatChip('$totalItems', 'Items', context.colors.lavender),
       ],
     );
   }
@@ -543,7 +544,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
         child: Column(
           children: [
             Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: color)),
-            const SizedBox(height: 2),
+            SizedBox(height: 2),
             Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: color.withValues(alpha: 0.8)), textAlign: TextAlign.center),
           ],
         ),
@@ -561,10 +562,10 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
     final progressPercent = (progress * 100).round();
 
     final statusColor = switch (status) {
-      'completed' => AppColors.success,
-      'active' => AppColors.info,
-      'paused' => AppColors.warning,
-      _ => AppColors.textMuted,
+      'completed' => context.colors.success,
+      'active' => context.colors.info,
+      'paused' => context.colors.warning,
+      _ => context.colors.textMuted,
     };
 
     return GestureDetector(
@@ -573,7 +574,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
         margin: EdgeInsets.only(bottom: index < total - 1 ? 8 : 0),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: context.colors.surfaceElevated,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(
@@ -587,13 +588,13 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       if (subject.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(subject, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                        SizedBox(height: 2),
+                        Text(subject, style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
                       ],
                     ],
                   ),
@@ -611,7 +612,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
@@ -619,16 +620,16 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: progress,
-                      backgroundColor: AppColors.surfaceHighest,
+                      backgroundColor: context.colors.surfaceHighest,
                       valueColor: AlwaysStoppedAnimation<Color>(statusColor),
                       minHeight: 6,
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Text(
                   '$completed/$totalItems ($progressPercent%)',
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.textSecondary),
                 ),
               ],
             ),
@@ -642,8 +643,8 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
+      backgroundColor: context.colors.surface,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) => _PlanDetailSheet(plan: plan),
@@ -667,7 +668,7 @@ class _MiniMasteryRing extends StatelessWidget {
           CircularProgressIndicator(
             value: mastery / 100,
             strokeWidth: 3.5,
-            backgroundColor: AppColors.surfaceHighest,
+            backgroundColor: context.colors.surfaceHighest,
             valueColor: AlwaysStoppedAnimation<Color>(color),
           ),
           Center(
@@ -727,8 +728,8 @@ class _PlanDetailSheetState extends State<_PlanDetailSheet> {
       expand: false,
       builder: (ctx, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            color: AppColors.surface,
+          decoration: BoxDecoration(
+            color: context.colors.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: ListView(
@@ -739,22 +740,22 @@ class _PlanDetailSheetState extends State<_PlanDetailSheet> {
                 child: Container(
                   width: 40,
                   height: 4,
-                  decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)),
+                  decoration: BoxDecoration(color: context.colors.border, borderRadius: BorderRadius.circular(2)),
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Center(
                 child: Text(
                   title,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               if (_loading)
-                const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                Center(child: CircularProgressIndicator(color: AppColors.primary))
               else if (items.isEmpty)
-                const Center(
-                  child: Text('No items in this plan', style: TextStyle(color: AppColors.textMuted)),
+                Center(
+                  child: Text('No items in this plan', style: TextStyle(color: context.colors.textMuted)),
                 )
               else
                 ...items.asMap().entries.map((entry) => _buildDetailItem(entry.value, entry.key, items.length)),
@@ -775,10 +776,10 @@ class _PlanDetailSheetState extends State<_PlanDetailSheet> {
       margin: EdgeInsets.only(bottom: index < total - 1 ? 8 : 0),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: completed ? AppColors.success.withValues(alpha: 0.05) : AppColors.surfaceElevated,
+        color: completed ? context.colors.success.withValues(alpha: 0.05) : context.colors.surfaceElevated,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: completed ? AppColors.success.withValues(alpha: 0.2) : Colors.transparent,
+          color: completed ? context.colors.success.withValues(alpha: 0.2) : Colors.transparent,
         ),
       ),
       child: Row(
@@ -787,23 +788,23 @@ class _PlanDetailSheetState extends State<_PlanDetailSheet> {
             width: 24,
             height: 24,
             decoration: BoxDecoration(
-              color: completed ? AppColors.success.withValues(alpha: 0.15) : Colors.transparent,
+              color: completed ? context.colors.success.withValues(alpha: 0.15) : Colors.transparent,
               borderRadius: BorderRadius.circular(6),
               border: Border.all(
-                color: completed ? AppColors.success : AppColors.border,
+                color: completed ? context.colors.success : context.colors.border,
                 width: 1.5,
               ),
             ),
             child: completed
-                ? const Icon(Icons.check_rounded, size: 14, color: AppColors.success)
+                ? Icon(Icons.check_rounded, size: 14, color: context.colors.success)
                 : Center(
                     child: Text(
                       '${index + 1}',
-                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textMuted),
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: context.colors.textMuted),
                     ),
                   ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -813,24 +814,24 @@ class _PlanDetailSheetState extends State<_PlanDetailSheet> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: completed ? AppColors.textMuted : AppColors.textPrimary,
+                    color: completed ? context.colors.textMuted : context.colors.textPrimary,
                     decoration: completed ? TextDecoration.lineThrough : null,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (scheduledDate.toString().isNotEmpty) ...[
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(
                     '${scheduledDate.toString().length > 10 ? scheduledDate.toString().substring(0, 10) : scheduledDate}',
-                    style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                    style: TextStyle(fontSize: 11, color: context.colors.textMuted),
                   ),
                 ],
               ],
             ),
           ),
           if (minutes > 0)
-            Text('${minutes}m', style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
+            Text('${minutes}m', style: TextStyle(fontSize: 10, color: context.colors.textMuted)),
         ],
       ),
     );

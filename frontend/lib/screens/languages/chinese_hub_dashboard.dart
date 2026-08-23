@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/language_service.dart';
+import '../../core/theme/theme_colors.dart';
 
 class ChineseHubDashboard extends StatefulWidget {
   final String slug;
-  const ChineseHubDashboard({super.key, this.slug = 'chinese'});
+  ChineseHubDashboard({super.key, this.slug = 'chinese'});
 
   @override
   State<ChineseHubDashboard> createState() => _ChineseHubDashboardState();
@@ -28,7 +29,7 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
     super.initState();
     _fadeCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: Duration(milliseconds: 500),
     );
     _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut);
     _fadeCtrl.forward();
@@ -92,16 +93,16 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
     return FadeTransition(
       opacity: _fadeAnim,
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.colors.background,
         body: _loading
-            ? const Center(
+            ? Center(
                 child: CircularProgressIndicator(color: _chineseRed))
             : RefreshIndicator(
                 color: _chineseRed,
-                backgroundColor: AppColors.surface,
+                backgroundColor: context.colors.surface,
                 onRefresh: _load,
                 child: CustomScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
+                  physics: AlwaysScrollableScrollPhysics(),
                   slivers: [
                     SliverToBoxAdapter(child: _buildHeader()),
                     SliverPadding(
@@ -109,21 +110,21 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
                       sliver: SliverList(
                         delegate: SliverChildListDelegate([
                           _buildPlacementCard(),
-                          const SizedBox(height: 24),
+                          SizedBox(height: 24),
                           _buildSectionTitle('Chinese Labs', '🔬'),
-                          const SizedBox(height: 14),
+                          SizedBox(height: 14),
                           _buildLabGrid(),
-                          const SizedBox(height: 24),
+                          SizedBox(height: 24),
                           _buildSectionTitle('Your Learning Path', '🗺️'),
-                          const SizedBox(height: 14),
+                          SizedBox(height: 14),
                           _buildLevelsList(),
-                          const SizedBox(height: 24),
+                          SizedBox(height: 24),
                           _buildSectionTitle('Vocabulary Themes', '📚'),
-                          const SizedBox(height: 14),
+                          SizedBox(height: 14),
                           _buildThemesGrid(),
-                          const SizedBox(height: 24),
+                          SizedBox(height: 24),
                           _buildSectionTitle('Quick Actions', '⚡'),
-                          const SizedBox(height: 14),
+                          SizedBox(height: 14),
                           _buildQuickActions(),
                         ]),
                       ),
@@ -138,9 +139,9 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        border: Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
       ),
       child: SafeArea(
         bottom: false,
@@ -154,15 +155,15 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
                     width: 38,
                     height: 38,
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceElevated,
+                      color: context.colors.surfaceElevated,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColors.border),
+                      border: Border.all(color: context.colors.border),
                     ),
-                    child: const Icon(Icons.arrow_back_ios_new_rounded,
-                        size: 18, color: AppColors.textSecondary),
+                    child: Icon(Icons.arrow_back_ios_new_rounded,
+                        size: 18, color: context.colors.textSecondary),
                   ),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 14),
                 Container(
                   width: 46,
                   height: 46,
@@ -172,30 +173,30 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
                     borderRadius: BorderRadius.circular(13),
                     border: Border.all(color: _chineseRed.withValues(alpha: 0.25)),
                   ),
-                  child: const Text('🇨🇳', style: TextStyle(fontSize: 24)),
+                  child: Text('🇨🇳', style: TextStyle(fontSize: 24)),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Chinese Hub',
+                      Text('Chinese Hub',
                           style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.textPrimary,
+                              color: context.colors.textPrimary,
                               letterSpacing: -0.3)),
                       Text(_nativeName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              fontSize: 12, color: AppColors.textMuted)),
+                          style: TextStyle(
+                              fontSize: 12, color: context.colors.textMuted)),
                     ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             _buildStatsRow(),
           ],
         ),
@@ -207,13 +208,13 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
     return Row(
       children: [
         _buildStatBadge('$_totalVocab', 'Words', Icons.abc_rounded, _chineseRed),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         _buildStatBadge(
             '${_levels.length}', 'Levels', Icons.stairs_rounded, _chineseGold),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         _buildStatBadge(
-            '${_vocabThemes.length}', 'Themes', Icons.category_rounded, AppColors.teal),
-        const SizedBox(width: 10),
+            '${_vocabThemes.length}', 'Themes', Icons.category_rounded, context.colors.teal),
+        SizedBox(width: 10),
         _buildStatBadge('6', 'Tones', Icons.graphic_eq_rounded, AppColors.primary),
       ],
     );
@@ -231,15 +232,15 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
         child: Column(
           children: [
             Icon(icon, size: 16, color: color),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(value,
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                     color: color)),
             Text(label,
-                style: const TextStyle(
-                    fontSize: 10, color: AppColors.textMuted)),
+                style: TextStyle(
+                    fontSize: 10, color: context.colors.textMuted)),
           ],
         ),
       ),
@@ -253,7 +254,7 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [Color(0xFFDC2626), Color(0xFF991B1B)],
@@ -263,7 +264,7 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
             BoxShadow(
               color: _chineseRed.withValues(alpha: 0.3),
               blurRadius: 24,
-              offset: const Offset(0, 8),
+              offset: Offset(0, 8),
             ),
           ],
         ),
@@ -276,10 +277,10 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
                 color: Colors.white.withValues(alpha: 0.18),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Icon(Icons.play_arrow_rounded,
+              child: Icon(Icons.play_arrow_rounded,
                   color: Colors.white, size: 32),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -290,15 +291,15 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
                           fontWeight: FontWeight.w800,
                           color: Colors.white.withValues(alpha: 0.75),
                           letterSpacing: 1.2)),
-                  const SizedBox(height: 4),
-                  const Text('Continue Your Chinese Journey',
+                  SizedBox(height: 4),
+                  Text('Continue Your Chinese Journey',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                           color: Colors.white)),
-                  const SizedBox(height: 3),
+                  SizedBox(height: 3),
                   Text(
                       _levels.isNotEmpty
                           ? '${_levels.first['form']} · ${_levels.first['name']}'
@@ -310,7 +311,7 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios_rounded,
+            Icon(Icons.arrow_forward_ios_rounded,
                 size: 16, color: Colors.white),
           ],
         ),
@@ -329,16 +330,16 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Expanded(
           child: Text(title,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                  color: context.colors.textPrimary,
                   letterSpacing: -0.3)),
         ),
-        Text(emoji, style: const TextStyle(fontSize: 15)),
+        Text(emoji, style: TextStyle(fontSize: 15)),
       ],
     );
   }
@@ -350,22 +351,22 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
       _LabItem('🎵', 'Tone Lab', 'Practice the 4 tones + neutral',
           '/language/${widget.slug}/tone-lab', _chineseGold),
       _LabItem('✍️', 'Character Lab', 'Stroke order, radicals & components',
-          '/language/${widget.slug}/character-lab', AppColors.teal),
+          '/language/${widget.slug}/character-lab', context.colors.teal),
       _LabItem('🧩', 'Sentence Builder', 'Construct sentences with word bank',
           '/language/${widget.slug}/sentence-builder', AppColors.primary),
       _LabItem('📝', 'Placement Test', 'Adaptive HSK level assessment',
-          '/language/${widget.slug}/placement-test', const Color(0xFF8B5CF6)),
+          '/language/${widget.slug}/placement-test', Color(0xFF8B5CF6)),
       _LabItem('🔄', 'SRS Review', 'Spaced repetition flashcards',
-          '/language/${widget.slug}/srs-review', const Color(0xFF10B981)),
+          '/language/${widget.slug}/srs-review', Color(0xFF10B981)),
       _LabItem('Rad', 'Radical Lab', 'Explore radicals & components',
-          '/language/${widget.slug}/radical-lab', const Color(0xFFEC4899)),
+          '/language/${widget.slug}/radical-lab', Color(0xFFEC4899)),
     ];
 
     return GridView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      physics: NeverScrollableScrollPhysics(),
       padding: EdgeInsets.zero,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
@@ -382,9 +383,9 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -401,26 +402,26 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: lab.color.withValues(alpha: 0.2)),
                   ),
-                  child: Text(lab.emoji, style: const TextStyle(fontSize: 17)),
+                  child: Text(lab.emoji, style: TextStyle(fontSize: 17)),
                 ),
-                const Spacer(),
+                Spacer(),
                 Icon(Icons.chevron_right_rounded,
-                    size: 18, color: AppColors.textMuted),
+                    size: 18, color: context.colors.textMuted),
               ],
             ),
-            const Spacer(),
+            Spacer(),
             Text(lab.title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary)),
+                    color: context.colors.textPrimary)),
             Text(lab.subtitle,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                    fontSize: 10, color: AppColors.textMuted)),
+                style: TextStyle(
+                    fontSize: 10, color: context.colors.textMuted)),
           ],
         ),
       ),
@@ -429,11 +430,11 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
 
   Widget _buildLevelsList() {
     if (_levels.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
           padding: EdgeInsets.all(20),
           child: Text('No levels available yet',
-              style: TextStyle(color: AppColors.textMuted)),
+              style: TextStyle(color: context.colors.textMuted)),
         ),
       );
     }
@@ -450,9 +451,9 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
             margin: const EdgeInsets.only(bottom: 10),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: Row(
               children: [
@@ -464,36 +465,36 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
-                      child: Text(icon, style: const TextStyle(fontSize: 20))),
+                      child: Text(icon, style: TextStyle(fontSize: 20))),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(level['form'].toString().toUpperCase(),
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 1.0,
                               color: _chineseRed)),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(level['name'],
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary)),
-                      const SizedBox(height: 2),
+                              color: context.colors.textPrimary)),
+                      SizedBox(height: 2),
                       Text(level['description'],
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              fontSize: 11, color: AppColors.textMuted)),
+                          style: TextStyle(
+                              fontSize: 11, color: context.colors.textMuted)),
                     ],
                   ),
                 ),
                 Icon(Icons.arrow_forward_ios_rounded,
-                    size: 14, color: AppColors.textMuted),
+                    size: 14, color: context.colors.textMuted),
               ],
             ),
           ),
@@ -551,21 +552,21 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(icon, style: const TextStyle(fontSize: 14)),
-                const SizedBox(width: 8),
+                Text(icon, style: TextStyle(fontSize: 14)),
+                SizedBox(width: 8),
                 Text(name.replaceAll('_', ' '),
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary)),
-                const SizedBox(width: 6),
+                        color: context.colors.textPrimary)),
+                SizedBox(width: 6),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -574,7 +575,7 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text('$count',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           color: _chineseRed)),
@@ -611,23 +612,23 @@ class _ChineseHubDashboardState extends State<ChineseHubDashboard>
             width: (MediaQuery.of(context).size.width - 42) / 2,
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: Row(
               children: [
-                Text(action.emoji, style: const TextStyle(fontSize: 18)),
-                const SizedBox(width: 10),
+                Text(action.emoji, style: TextStyle(fontSize: 18)),
+                SizedBox(width: 10),
                 Expanded(
                   child: Text(action.label,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary)),
+                          color: context.colors.textPrimary)),
                 ),
                 Icon(Icons.chevron_right_rounded,
-                    size: 16, color: AppColors.textMuted),
+                    size: 16, color: context.colors.textMuted),
               ],
             ),
           ),
