@@ -4,7 +4,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 
 class LanguageSettings extends StatefulWidget {
-  LanguageSettings({super.key});
+  const LanguageSettings({super.key});
 
   @override
   State<LanguageSettings> createState() => _LanguageSettingsState();
@@ -22,12 +22,12 @@ class _LanguageSettingsState extends State<LanguageSettings> {
     return Scaffold(
       backgroundColor: context.colors.background,
       appBar: AppBar(
-        title: Text('Settings'),
+        title: const Text('Settings'),
         backgroundColor: context.colors.surface,
         foregroundColor: context.colors.textPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
           onPressed: () => context.pop(),
         ),
       ),
@@ -35,17 +35,17 @@ class _LanguageSettingsState extends State<LanguageSettings> {
         padding: const EdgeInsets.all(16),
         children: [
           _buildSectionHeader('Learning Preferences'),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildSettingCard(
             Icons.speed_rounded,
             'Difficulty Level',
             _difficulty,
-            Color(0xFF2196F3),
+            const Color(0xFF2196F3),
             trailing: DropdownButton<String>(
               value: _difficulty,
               dropdownColor: context.colors.surface,
               style: TextStyle(color: context.colors.textPrimary, fontSize: 13),
-              underline: SizedBox(),
+              underline: const SizedBox(),
               items: ['Beginner', 'Intermediate', 'Advanced'].map((d) {
                 return DropdownMenuItem(value: d, child: Text(d));
               }).toList(),
@@ -53,29 +53,29 @@ class _LanguageSettingsState extends State<LanguageSettings> {
             ),
           ),
           _buildSwitchCard(Icons.record_voice_over_rounded, 'Auto-play Audio',
-              'Automatically play pronunciation audio', Color(0xFF4CAF50), _autoPlayAudio,
+              'Automatically play pronunciation audio', const Color(0xFF4CAF50), _autoPlayAudio,
               (v) => setState(() => _autoPlayAudio = v)),
-          SizedBox(height: 28),
+          const SizedBox(height: 28),
           _buildSectionHeader('Notifications'),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildSwitchCard(Icons.notifications_active_rounded, 'Daily Reminder',
-              'Get reminded to practice every day', Color(0xFFFF9800), _dailyReminder,
+              'Get reminded to practice every day', const Color(0xFFFF9800), _dailyReminder,
               (v) => setState(() => _dailyReminder = v)),
-          SizedBox(height: 28),
+          const SizedBox(height: 28),
           _buildSectionHeader('Appearance'),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildSwitchCard(Icons.dark_mode_rounded, 'Dark Mode',
-              'Use dark theme', Color(0xFF9C27B0), _darkMode,
+              'Use dark theme', const Color(0xFF9C27B0), _darkMode,
               (v) => setState(() => _darkMode = v)),
-          SizedBox(height: 28),
+          const SizedBox(height: 28),
           _buildSectionHeader('Audio'),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildSwitchCard(Icons.volume_up_rounded, 'Sound Effects',
-              'Play sounds during exercises', Color(0xFF607D8B), _soundEffects,
+              'Play sounds during exercises', const Color(0xFF607D8B), _soundEffects,
               (v) => setState(() => _soundEffects = v)),
-          SizedBox(height: 28),
+          const SizedBox(height: 28),
           _buildSectionHeader('Data'),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildActionCard(Icons.refresh_rounded, 'Reset Progress', 'Clear all learning progress',
               context.colors.error, () {}),
           _buildActionCard(Icons.delete_outline_rounded, 'Clear Cache', 'Remove downloaded content',
@@ -94,9 +94,9 @@ class _LanguageSettingsState extends State<LanguageSettings> {
             color: AppColors.primary, borderRadius: BorderRadius.circular(2),
           ),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Text(title,
-            style: TextStyle(
+            style: const TextStyle(
                 fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
       ],
     );
@@ -122,10 +122,10 @@ class _LanguageSettingsState extends State<LanguageSettings> {
             ),
             child: Icon(icon, color: color, size: 20),
           ),
-          SizedBox(width: 14),
+          const SizedBox(width: 14),
           Expanded(
             child: Text(title,
-                style: TextStyle(
+                style: const TextStyle(
                     fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
           ),
           if (trailing != null) trailing,
@@ -154,24 +154,24 @@ class _LanguageSettingsState extends State<LanguageSettings> {
             ),
             child: Icon(icon, color: color, size: 20),
           ),
-          SizedBox(width: 14),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title,
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(subtitle,
-                    style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                    style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
               ],
             ),
           ),
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: color,
+            activeThumbColor: color,
           ),
         ],
       ),
@@ -200,7 +200,7 @@ class _LanguageSettingsState extends State<LanguageSettings> {
               ),
               child: Icon(icon, color: color, size: 20),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,9 +208,9 @@ class _LanguageSettingsState extends State<LanguageSettings> {
                   Text(title,
                       style: TextStyle(
                           fontSize: 15, fontWeight: FontWeight.w600, color: color)),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(subtitle,
-                      style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                      style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
                 ],
               ),
             ),

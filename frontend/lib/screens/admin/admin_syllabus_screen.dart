@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
 
 const Color _bioGreen = Color(0xFF10B981);
@@ -23,7 +22,6 @@ class _AdminSyllabusScreenState extends State<AdminSyllabusScreen> {
   List<dynamic> _subjects = [];
   Map<String, dynamic>? _syllabusTree;
   int? _expandedCE;
-  int? _expandedTopic;
 
   @override
   void initState() {
@@ -421,7 +419,6 @@ class _AdminSyllabusScreenState extends State<AdminSyllabusScreen> {
             borderRadius: BorderRadius.circular(16),
             onTap: () => setState(() {
               _expandedCE = expanded ? null : index;
-              _expandedTopic = null;
             }),
             child: Padding(
               padding: const EdgeInsets.all(16),

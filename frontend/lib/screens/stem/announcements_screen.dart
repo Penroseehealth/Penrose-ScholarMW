@@ -7,7 +7,7 @@ import '../../widgets/error_state.dart';
 import '../../core/theme/theme_colors.dart';
 
 class AnnouncementsScreen extends StatefulWidget {
-  AnnouncementsScreen({super.key});
+  const AnnouncementsScreen({super.key});
   @override
   State<AnnouncementsScreen> createState() => _AnnouncementsScreenState();
 }
@@ -86,27 +86,27 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
               expandedHeight: 90, pinned: true,
               backgroundColor: AppColors.primaryDark,
               leading: IconButton(
-                icon: Icon(Icons.arrow_back_rounded, color: Colors.white),
+                icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
                 onPressed: () => context.go('/'),
               ),
               flexibleSpace: FlexibleSpaceBar(
-                title: Text('Announcements', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
+                title: const Text('Announcements', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
                 background: Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     gradient: LinearGradient(colors: [AppColors.primaryDark, AppColors.primary], begin: Alignment.topLeft, end: Alignment.bottomRight),
                   ),
                 ),
               ),
             ),
             if (_loading)
-              SliverToBoxAdapter(child: Padding(
+              const SliverToBoxAdapter(child: Padding(
                 padding: EdgeInsets.all(40),
                 child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
               ))
             else if (_error != null)
               SliverToBoxAdapter(child: ErrorState(message: 'Failed to load announcements', onRetry: _load))
             else if (_announcements.isEmpty)
-              SliverToBoxAdapter(child: EmptyState(
+              const SliverToBoxAdapter(child: EmptyState(
                 icon: Icons.campaign_rounded,
                 title: 'No announcements',
                 subtitle: 'There are no announcements at this time',
@@ -116,7 +116,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
                 sliver: SliverList.separated(
                   itemCount: _announcements.length,
-                  separatorBuilder: (_, __) => SizedBox(height: 10),
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (ctx, i) => _card(_announcements[i]),
                 ),
               ),
@@ -158,11 +158,11 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                   child: Text(priority.toString().toUpperCase(), style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: _priorityColor(priority.toString()))),
                 ),
                 if (pinned) ...[
-                  SizedBox(width: 6),
+                  const SizedBox(width: 6),
                   Icon(Icons.push_pin_rounded, size: 14, color: context.colors.warning),
                 ],
                 if (subject.toString().isNotEmpty) ...[
-                  SizedBox(width: 6),
+                  const SizedBox(width: 6),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(color: context.colors.infoMuted, borderRadius: BorderRadius.circular(6)),
@@ -170,11 +170,11 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                   ),
                 ],
               ]),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Text(title.toString(), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               Text(excerpt, style: TextStyle(fontSize: 13, color: context.colors.textMuted, height: 1.4), maxLines: 3, overflow: TextOverflow.ellipsis),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Row(children: [
                 if (author.toString().isNotEmpty)
                   Text(author.toString(), style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
@@ -182,7 +182,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                   Text(' \u00b7 ', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
                 if (ago.isNotEmpty)
                   Text(ago, style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
-                Spacer(),
+                const Spacer(),
                 Icon(Icons.chevron_right_rounded, size: 18, color: context.colors.textMuted),
               ]),
             ],
@@ -229,7 +229,7 @@ class _AnnouncementDetail extends StatelessWidget {
       constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
       decoration: BoxDecoration(
         color: context.colors.surfaceElevated,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -248,11 +248,11 @@ class _AnnouncementDetail extends StatelessWidget {
                 child: Text(priority.toString().toUpperCase(), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: _priorityColor(priority.toString()))),
               ),
               if (pinned) ...[
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Icon(Icons.push_pin_rounded, size: 14, color: context.colors.warning),
               ],
               if (subject.toString().isNotEmpty) ...[
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(color: context.colors.infoMuted, borderRadius: BorderRadius.circular(6)),
@@ -266,7 +266,7 @@ class _AnnouncementDetail extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
               children: [
                 Text(title.toString(), style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 if (author.toString().isNotEmpty || created.toString().isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16),

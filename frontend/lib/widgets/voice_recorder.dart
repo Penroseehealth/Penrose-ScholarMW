@@ -7,7 +7,7 @@ class VoiceRecorder extends StatefulWidget {
   final Function(String audioPath) onRecordingComplete;
   final VoidCallback? onCancel;
 
-  VoiceRecorder({
+  const VoiceRecorder({
     super.key,
     required this.onRecordingComplete,
     this.onCancel,
@@ -31,7 +31,7 @@ class _VoiceRecorderState extends State<VoiceRecorder>
     super.initState();
     _pulseCtrl = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
     );
     _pulseAnim = Tween<double>(begin: 1, end: 1.3).animate(
       CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
@@ -62,7 +62,7 @@ class _VoiceRecorderState extends State<VoiceRecorder>
   }
 
   void _startTimer() {
-    Future.delayed(Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 1), () {
       if (_isRecording && !_isPaused && mounted) {
         setState(() => _seconds++);
         _startTimer();
@@ -96,7 +96,7 @@ class _VoiceRecorderState extends State<VoiceRecorder>
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _circleBtn(Icons.close_rounded, context.colors.textSecondary, widget.onCancel),
-        SizedBox(width: 24),
+        const SizedBox(width: 24),
         GestureDetector(
           onTap: _startRecording,
           child: AnimatedBuilder(
@@ -115,16 +115,16 @@ class _VoiceRecorderState extends State<VoiceRecorder>
                   BoxShadow(
                     color: context.colors.error.withValues(alpha: 0.4),
                     blurRadius: 20,
-                    offset: Offset(0, 4),
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
-              child: Icon(Icons.mic_rounded, color: Colors.white, size: 28),
+              child: const Icon(Icons.mic_rounded, color: Colors.white, size: 28),
             ),
           ),
         ),
-        SizedBox(width: 24),
-        SizedBox(width: 40),
+        const SizedBox(width: 24),
+        const SizedBox(width: 40),
       ],
     );
   }
@@ -149,27 +149,27 @@ class _VoiceRecorderState extends State<VoiceRecorder>
                   color: context.colors.error,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.mic_rounded, color: Colors.white, size: 24),
+                child: const Icon(Icons.mic_rounded, color: Colors.white, size: 24),
               ),
             ),
           ),
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         Text(
           _formatTime(_seconds),
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w600,
             color: context.colors.textPrimary,
-            fontFeatures: [FontFeature.tabularFigures()],
+            fontFeatures: [const FontFeature.tabularFigures()],
           ),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
           'Recording...',
           style: TextStyle(fontSize: 12, color: context.colors.error),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -182,13 +182,13 @@ class _VoiceRecorderState extends State<VoiceRecorder>
               _pulseCtrl.stop();
               widget.onCancel?.call();
             }),
-            SizedBox(width: 24),
+            const SizedBox(width: 24),
             _circleBtn(
               _isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
               context.colors.warning,
               () => setState(() => _isPaused = !_isPaused),
             ),
-            SizedBox(width: 24),
+            const SizedBox(width: 24),
             _circleBtn(Icons.stop_rounded, AppColors.primary, _stopRecording),
           ],
         ),
@@ -208,7 +208,7 @@ class _VoiceRecorderState extends State<VoiceRecorder>
           ),
           child: Icon(Icons.check_circle_rounded, color: context.colors.success, size: 28),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Text(
           'Recording: ${_formatTime(_seconds)}',
           style: TextStyle(
@@ -217,7 +217,7 @@ class _VoiceRecorderState extends State<VoiceRecorder>
             fontWeight: FontWeight.w500,
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -227,14 +227,14 @@ class _VoiceRecorderState extends State<VoiceRecorder>
                 _seconds = 0;
               });
             }),
-            SizedBox(width: 24),
+            const SizedBox(width: 24),
             GestureDetector(
               onTap: () => widget.onRecordingComplete('recording_${_seconds}s'),
               child: Container(
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     colors: [AppColors.primary, AppColors.primaryDark],
                   ),
                   shape: BoxShape.circle,
@@ -242,11 +242,11 @@ class _VoiceRecorderState extends State<VoiceRecorder>
                     BoxShadow(
                       color: AppColors.primary.withValues(alpha: 0.4),
                       blurRadius: 12,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-                child: Icon(Icons.send_rounded, color: Colors.white, size: 22),
+                child: const Icon(Icons.send_rounded, color: Colors.white, size: 22),
               ),
             ),
           ],

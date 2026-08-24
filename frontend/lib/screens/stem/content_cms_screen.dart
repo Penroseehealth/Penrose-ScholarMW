@@ -7,7 +7,7 @@ import '../../widgets/shimmer_loading.dart';
 import '../../core/theme/theme_colors.dart';
 
 class ContentCmsScreen extends StatefulWidget {
-  ContentCmsScreen({super.key});
+  const ContentCmsScreen({super.key});
   @override
   State<ContentCmsScreen> createState() => _ContentCmsScreenState();
 }
@@ -66,7 +66,7 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
         setState(() { _disciplinesCache[subjectId] = jsonDecode(res.body); });
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load disciplines')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to load disciplines')));
     }
   }
 
@@ -78,7 +78,7 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
         setState(() { _topicsCache[disciplineId] = jsonDecode(res.body); });
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load topics')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to load topics')));
     }
   }
 
@@ -90,7 +90,7 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
         setState(() { _subtopicsCache[topicId] = jsonDecode(res.body); });
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load subtopics')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to load subtopics')));
     }
   }
 
@@ -102,7 +102,7 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
         setState(() { _conceptsCache[subtopicId] = jsonDecode(res.body); });
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load concepts')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to load concepts')));
     }
   }
 
@@ -164,7 +164,7 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
           _loadDashboard();
         }
       } else {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Delete failed')));
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Delete failed')));
       }
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
@@ -222,11 +222,11 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Container(width: 40, height: 4, decoration: BoxDecoration(color: context.colors.border, borderRadius: BorderRadius.circular(2))),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             ListTile(
-              leading: Icon(Icons.edit_rounded, color: AppColors.primary),
+              leading: const Icon(Icons.edit_rounded, color: AppColors.primary),
               title: Text('Edit $type', style: TextStyle(color: context.colors.textPrimary)),
               onTap: () { Navigator.pop(context); _enterEditor(item, type); },
             ),
@@ -235,7 +235,7 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
               title: Text('Delete $type', style: TextStyle(color: context.colors.error)),
               onTap: () { Navigator.pop(context); _confirmDelete(type, id); },
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
           ],
         ),
       ),
@@ -283,9 +283,9 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
               SliverToBoxAdapter(child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(children: [
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   ShimmerLoading.grid(count: 4, childAspectRatio: 1.8),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   ShimmerLoading.list(count: 5, height: 56),
                 ]),
               ))
@@ -294,19 +294,19 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
                 padding: const EdgeInsets.all(40),
                 child: Column(children: [
                   Icon(Icons.error_outline_rounded, size: 48, color: context.colors.error),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Text('Failed to load content', style: TextStyle(color: context.colors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(_error!, style: TextStyle(color: context.colors.textSecondary, fontSize: 13), textAlign: TextAlign.center),
-                  SizedBox(height: 16),
-                  TextButton(onPressed: _loadDashboard, child: Text('Retry', style: TextStyle(color: AppColors.primary))),
+                  const SizedBox(height: 16),
+                  TextButton(onPressed: _loadDashboard, child: const Text('Retry', style: TextStyle(color: AppColors.primary))),
                 ]),
               ))
             else ...[
               SliverToBoxAdapter(child: _buildStatsRow()),
               SliverToBoxAdapter(child: _buildTreeHeader()),
               _buildTree(),
-              SliverToBoxAdapter(child: SizedBox(height: 80)),
+              const SliverToBoxAdapter(child: SizedBox(height: 80)),
             ],
           ],
         ),
@@ -314,7 +314,7 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: _showCreateSheet,
         backgroundColor: AppColors.primary,
-        child: Icon(Icons.add_rounded, color: Colors.white),
+        child: const Icon(Icons.add_rounded, color: Colors.white),
       ),
     );
   }
@@ -322,13 +322,13 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
   SliverAppBar _buildAppBar() => SliverAppBar(
     expandedHeight: 90, pinned: true, backgroundColor: AppColors.primaryDark,
     leading: IconButton(
-      icon: Icon(Icons.arrow_back_rounded, color: Colors.white),
+      icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
       onPressed: () => context.go('/'),
     ),
     flexibleSpace: FlexibleSpaceBar(
-      title: Text('Content Manager', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
+      title: const Text('Content Manager', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
       background: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(colors: [AppColors.primaryDark, AppColors.primary], begin: Alignment.topLeft, end: Alignment.bottomRight),
         ),
       ),
@@ -355,9 +355,9 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
       child: Row(children: [
         Icon(Icons.account_tree_rounded, size: 18, color: context.colors.textSecondary),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Text('Content Tree', style: TextStyle(color: context.colors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
-        Spacer(),
+        const Spacer(),
         if (_subjects.isNotEmpty) Text('${_subjects.length} subjects', style: TextStyle(color: context.colors.textMuted, fontSize: 12)),
       ]),
     );
@@ -366,12 +366,12 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
   Widget _buildTree() {
     if (_subjects.isEmpty) {
       return SliverToBoxAdapter(child: Padding(
-        padding: EdgeInsets.all(40),
+        padding: const EdgeInsets.all(40),
         child: Column(children: [
           Icon(Icons.folder_open_rounded, size: 48, color: context.colors.textMuted),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text('No subjects yet', style: TextStyle(color: context.colors.textSecondary)),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text('Tap + to create your first subject', style: TextStyle(color: context.colors.textMuted, fontSize: 12)),
         ]),
       ));
@@ -443,7 +443,7 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
                     SizedBox(width: leftPad - 6),
                     AnimatedRotation(
                       turns: expanded ? 0.25 : 0,
-                      duration: Duration(milliseconds: 200),
+                      duration: const Duration(milliseconds: 200),
                       child: Icon(Icons.chevron_right_rounded, color: context.colors.textMuted, size: fontSize + 2),
                     ),
                   ],
@@ -536,9 +536,9 @@ class _ContentCmsScreenState extends State<ContentCmsScreen> {
               Container(
                 width: 24, height: 24,
                 decoration: BoxDecoration(color: context.colors.primaryGlow, borderRadius: BorderRadius.circular(6)),
-                child: Icon(Icons.lightbulb_rounded, size: 12, color: AppColors.primary),
+                child: const Icon(Icons.lightbulb_rounded, size: 12, color: AppColors.primary),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(title, style: TextStyle(color: context.colors.textPrimary, fontSize: 12)),
@@ -584,9 +584,9 @@ class _StatCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, size: 18, color: color),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text('$value', style: TextStyle(color: color, fontSize: 20, fontWeight: FontWeight.w700)),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(label, style: TextStyle(color: context.colors.textMuted, fontSize: 10)),
         ],
       ),
@@ -602,7 +602,7 @@ class _CreatePickerSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = [
-      _PickerItem(icon: Icons.book_rounded, label: 'Subject', color: AppColors.primary),
+      const _PickerItem(icon: Icons.book_rounded, label: 'Subject', color: AppColors.primary),
       _PickerItem(icon: Icons.account_tree_rounded, label: 'Discipline', color: context.colors.success),
       _PickerItem(icon: Icons.menu_book_rounded, label: 'Topic', color: context.colors.warning),
       _PickerItem(icon: Icons.topic_rounded, label: 'Subtopic', color: context.colors.info),
@@ -619,14 +619,14 @@ class _CreatePickerSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Container(width: 40, height: 4, decoration: BoxDecoration(color: context.colors.border, borderRadius: BorderRadius.circular(2))),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text('Create New', style: TextStyle(color: context.colors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           ...items.map((item) => ListTile(
             leading: Container(
               width: 36, height: 36,
@@ -637,7 +637,7 @@ class _CreatePickerSheet extends StatelessWidget {
             trailing: Icon(Icons.chevron_right_rounded, color: context.colors.textMuted, size: 18),
             onTap: () => onPick(item.label),
           )),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
         ],
       ),
     );
@@ -734,7 +734,7 @@ class _CmsEditorState extends State<_CmsEditor> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label, style: TextStyle(color: context.colors.textSecondary, fontSize: 13)),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14),
             decoration: BoxDecoration(
@@ -800,21 +800,21 @@ class _CmsEditorState extends State<_CmsEditor> {
       appBar: AppBar(
         backgroundColor: AppColors.primaryDark,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
           onPressed: widget.onBack,
         ),
         title: Text(
           '${isEditing ? "Edit" : "Create"} ${widget.type}',
-          style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
         ),
         actions: [
           if (isEditing)
             IconButton(
-              icon: Icon(Icons.delete_rounded, color: Colors.white70),
+              icon: const Icon(Icons.delete_rounded, color: Colors.white70),
               onPressed: () => widget.onDelete(widget.type, widget.item['id']),
             ),
           IconButton(
-            icon: Icon(Icons.check_rounded, color: Colors.white),
+            icon: const Icon(Icons.check_rounded, color: Colors.white),
             onPressed: _handleSave,
           ),
         ],
@@ -826,20 +826,20 @@ class _CmsEditorState extends State<_CmsEditor> {
           children: [
             ..._controllers.keys.map((f) => _buildField(f)),
             if (_showDifficulty()) _buildDropdown('Difficulty Level', _difficultyLevel, [
-              DropdownMenuItem(value: 'beginner', child: Text('Beginner')),
-              DropdownMenuItem(value: 'intermediate', child: Text('Intermediate')),
-              DropdownMenuItem(value: 'advanced', child: Text('Advanced')),
-              DropdownMenuItem(value: 'expert', child: Text('Expert')),
+              const DropdownMenuItem(value: 'beginner', child: Text('Beginner')),
+              const DropdownMenuItem(value: 'intermediate', child: Text('Intermediate')),
+              const DropdownMenuItem(value: 'advanced', child: Text('Advanced')),
+              const DropdownMenuItem(value: 'expert', child: Text('Expert')),
             ], (v) => setState(() { _difficultyLevel = v ?? 'beginner'; })),
             if (widget.type == 'Subject') _buildDropdown('Icon', _icon, [
-              DropdownMenuItem(value: 'book', child: Text('Book')),
-              DropdownMenuItem(value: 'science', child: Text('Science')),
-              DropdownMenuItem(value: 'calculate', child: Text('Calculator')),
-              DropdownMenuItem(value: 'code', child: Text('Code')),
-              DropdownMenuItem(value: 'eco', child: Text('Economics')),
-              DropdownMenuItem(value: 'psychology', child: Text('Psychology')),
+              const DropdownMenuItem(value: 'book', child: Text('Book')),
+              const DropdownMenuItem(value: 'science', child: Text('Science')),
+              const DropdownMenuItem(value: 'calculate', child: Text('Calculator')),
+              const DropdownMenuItem(value: 'code', child: Text('Code')),
+              const DropdownMenuItem(value: 'eco', child: Text('Economics')),
+              const DropdownMenuItem(value: 'psychology', child: Text('Psychology')),
             ], (v) => setState(() { _icon = v ?? 'book'; })),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
             SizedBox(
               height: 48,
               child: ElevatedButton(
@@ -850,11 +850,11 @@ class _CmsEditorState extends State<_CmsEditor> {
                 ),
                 child: Text(
                   isEditing ? 'Save Changes' : 'Create ${widget.type}',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -871,7 +871,7 @@ class _CmsEditorState extends State<_CmsEditor> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(_labelForField(field), style: TextStyle(color: context.colors.textSecondary, fontSize: 13)),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           TextFormField(
             controller: ctrl,
             maxLines: _isMultiline(field) ? 4 : 1,
@@ -892,7 +892,7 @@ class _CmsEditorState extends State<_CmsEditor> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.primary),
+                borderSide: const BorderSide(color: AppColors.primary),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             ),

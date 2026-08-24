@@ -6,7 +6,7 @@ import '../../widgets/stem_text.dart';
 import '../../core/theme/theme_colors.dart';
 
 class AssessmentStudio extends StatefulWidget {
-  AssessmentStudio({super.key});
+  const AssessmentStudio({super.key});
 
   @override
   State<AssessmentStudio> createState() => _AssessmentStudioState();
@@ -17,7 +17,7 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
   final _topicCtrl = TextEditingController();
   String _difficulty = 'medium';
   int _numQuestions = 10;
-  List<String> _selectedTypes = ['mcq', 'short_answer'];
+  final List<String> _selectedTypes = ['mcq', 'short_answer'];
   List<dynamic> _generatedQuestions = [];
   bool _generating = false;
   bool _editing = false;
@@ -33,42 +33,42 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('AI Assessment Studio')),
+      appBar: AppBar(title: const Text('AI Assessment Studio')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSectionHeader('Configure Assessment'),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             TextField(
               controller: _topicCtrl,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Topic',
                 hintText: 'e.g. Antimicrobial Resistance',
                 prefixIcon: Icon(Icons.topic_outlined),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _difficulty,
-                    decoration: InputDecoration(labelText: 'Difficulty'),
+                    initialValue: _difficulty,
+                    decoration: const InputDecoration(labelText: 'Difficulty'),
                     items: [
-                      DropdownMenuItem(value: 'easy', child: Text('Easy')),
-                      DropdownMenuItem(value: 'medium', child: Text('Medium')),
-                      DropdownMenuItem(value: 'hard', child: Text('Hard')),
+                      const DropdownMenuItem(value: 'easy', child: Text('Easy')),
+                      const DropdownMenuItem(value: 'medium', child: Text('Medium')),
+                      const DropdownMenuItem(value: 'hard', child: Text('Hard')),
                     ],
                     onChanged: (v) => setState(() => _difficulty = v ?? 'medium'),
                   ),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Expanded(
                   child: DropdownButtonFormField<int>(
-                    value: _numQuestions,
-                    decoration: InputDecoration(labelText: 'Questions'),
+                    initialValue: _numQuestions,
+                    decoration: const InputDecoration(labelText: 'Questions'),
                     items: [5, 10, 15, 20, 25, 30]
                         .map((n) => DropdownMenuItem(value: n, child: Text('$n')))
                         .toList(),
@@ -77,9 +77,9 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _buildSectionHeader('Question Types'),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -100,27 +100,27 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
                 );
               }).toList(),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: _generating ? null : _generateAssessment,
                 icon: _generating
-                    ? SizedBox(
+                    ? const SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
-                    : Icon(Icons.auto_awesome),
+                    : const Icon(Icons.auto_awesome),
                 label: Text(_generating ? 'Generating...' : 'Generate Assessment'),
               ),
             ),
             if (_generatedQuestions.isNotEmpty) ...[
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               _buildSectionHeader('Generated Questions (${_generatedQuestions.length})'),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               ...(_generatedQuestions.asMap().entries.map((e) => _buildQuestionCard(e.key, e.value))),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
@@ -130,12 +130,12 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
                       label: Text(_editing ? 'Done Editing' : 'Review & Edit'),
                     ),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: _publishAssessment,
-                      icon: Icon(Icons.publish),
-                      label: Text('Approve & Publish'),
+                      icon: const Icon(Icons.publish),
+                      label: const Text('Approve & Publish'),
                     ),
                   ),
                 ],
@@ -180,17 +180,17 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
               children: [
                 CircleAvatar(
                   radius: 14,
-                  backgroundColor: color.withOpacity(0.1),
+                  backgroundColor: color.withValues(alpha: 0.1),
                   child: Text(
                     '${index + 1}',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color),
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -198,34 +198,34 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
                     style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: color),
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 Text(
                   '${q['marks'] ?? 1} mark${(q['marks'] ?? 1) > 1 ? 's' : ''}',
                   style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             if (_editing)
               TextFormField(
                 initialValue: q['question_text'] ?? '',
                 onChanged: (v) => _generatedQuestions[index]['question_text'] = v,
-                decoration: InputDecoration(isDense: true),
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                decoration: const InputDecoration(isDense: true),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               )
             else
               StemText(
                 q['question_text'] ?? '',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               ),
             if (q['options'] != null && (q['options'] as String).isNotEmpty) ...[
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               if (_editing)
                 TextFormField(
                   initialValue: q['options'] as String,
                   onChanged: (v) => _generatedQuestions[index]['options'] = v,
                   maxLines: null,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     isDense: true,
                     hintText: 'One option per line',
                   ),
@@ -269,7 +269,7 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
   Future<void> _generateAssessment() async {
     if (_topicCtrl.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter a topic')),
+        const SnackBar(content: Text('Please enter a topic')),
       );
       return;
     }
@@ -289,7 +289,7 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
       });
       if (_generatedQuestions.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No questions generated. Try a different topic.')),
+          const SnackBar(content: Text('No questions generated. Try a different topic.')),
         );
       }
     }

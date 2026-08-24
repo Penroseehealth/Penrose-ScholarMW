@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../core/theme/app_colors.dart';
 import '../../services/stem_service.dart';
 import '../../core/theme/theme_colors.dart';
 
@@ -12,7 +11,7 @@ class ProctorOverlay extends StatefulWidget {
   final Widget child;
   final GlobalKey<ProctorOverlayState>? overlayKey;
 
-  ProctorOverlay({
+  const ProctorOverlay({
     super.key,
     required this.examType,
     required this.examId,
@@ -119,7 +118,7 @@ class ProctorOverlayState extends State<ProctorOverlay> with WidgetsBindingObser
       _warningMessage = message;
     });
     _warningTimer?.cancel();
-    _warningTimer = Timer(Duration(seconds: 3), () {
+    _warningTimer = Timer(const Duration(seconds: 3), () {
       if (mounted) setState(() { _showWarning = false; });
     });
   }
@@ -140,24 +139,24 @@ class ProctorOverlayState extends State<ProctorOverlay> with WidgetsBindingObser
               right: 0,
               child: AnimatedOpacity(
                 opacity: _showWarning ? 1.0 : 0.0,
-                duration: Duration(milliseconds: 250),
+                duration: const Duration(milliseconds: 250),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [context.colors.warning, Color(0xFFE8A317)],
+                      colors: [context.colors.warning, const Color(0xFFE8A317)],
                     ),
                   ),
                   child: SafeArea(
                     bottom: false,
                     child: Row(
                       children: [
-                        Icon(Icons.shield_outlined, color: Colors.black87, size: 16),
-                        SizedBox(width: 8),
+                        const Icon(Icons.shield_outlined, color: Colors.black87, size: 16),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             _warningMessage,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: Colors.black87,
@@ -166,7 +165,7 @@ class ProctorOverlayState extends State<ProctorOverlay> with WidgetsBindingObser
                         ),
                         Text(
                           'Events: $_focusLostCount',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: Colors.black54,
@@ -193,7 +192,7 @@ class ProctorOverlayState extends State<ProctorOverlay> with WidgetsBindingObser
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.verified_outlined, color: context.colors.success, size: 12),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                     Text(
                       'Proctored',
                       style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: context.colors.success),

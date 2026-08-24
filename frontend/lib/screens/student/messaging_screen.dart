@@ -7,7 +7,7 @@ import '../../widgets/error_state.dart';
 import '../../core/theme/theme_colors.dart';
 
 class MessagingScreen extends StatefulWidget {
-  MessagingScreen({super.key});
+  const MessagingScreen({super.key});
 
   @override
   State<MessagingScreen> createState() => _MessagingScreenState();
@@ -142,7 +142,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
               ),
             ),
             if (_loading)
-              SliverToBoxAdapter(
+              const SliverToBoxAdapter(
                 child: Center(
                   child: Padding(
                     padding: EdgeInsets.all(40),
@@ -172,7 +172,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 sliver: SliverList.separated(
                   itemCount: _filtered.length,
-                  separatorBuilder: (_, __) => SizedBox(height: 6),
+                  separatorBuilder: (_, __) => const SizedBox(height: 6),
                   itemBuilder: (context, index) {
                     final conv = _filtered[index];
                     return _buildConversationCard(conv);
@@ -185,7 +185,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: _startNewConversation,
         backgroundColor: AppColors.primary,
-        child: Icon(Icons.edit_rounded, color: Colors.white),
+        child: const Icon(Icons.edit_rounded, color: Colors.white),
       ),
     );
   }
@@ -218,7 +218,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     colors: [AppColors.primary, AppColors.primaryDark],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -228,7 +228,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
                 child: Center(
                   child: Text(
                     avatar,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -236,7 +236,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
                   ),
                 ),
               ),
-              SizedBox(width: 14),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,7 +266,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
                           ),
                       ],
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Row(
                       children: [
                         Expanded(
@@ -282,7 +282,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
                           ),
                         ),
                         if (unread > 0) ...[
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                             decoration: BoxDecoration(
@@ -291,7 +291,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
                             ),
                             child: Text(
                               '$unread',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
@@ -374,11 +374,11 @@ class _NewConversationDialogState extends State<_NewConversationDialog> {
               onChanged: _searchUsers,
             ),
             if (_searching) ...[
-              SizedBox(height: 16),
-              Center(child: CircularProgressIndicator(color: AppColors.primary)),
+              const SizedBox(height: 16),
+              const Center(child: CircularProgressIndicator(color: AppColors.primary)),
             ],
             if (_selectedUserId != null) ...[
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
@@ -387,8 +387,8 @@ class _NewConversationDialogState extends State<_NewConversationDialog> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.person_rounded, size: 18, color: AppColors.primary),
-                    SizedBox(width: 8),
+                    const Icon(Icons.person_rounded, size: 18, color: AppColors.primary),
+                    const SizedBox(width: 8),
                     Expanded(child: Text(_selectedUserName, style: TextStyle(color: context.colors.textPrimary, fontSize: 14))),
                     IconButton(
                       icon: Icon(Icons.close_rounded, size: 16, color: context.colors.textMuted),
@@ -402,7 +402,7 @@ class _NewConversationDialogState extends State<_NewConversationDialog> {
               ),
             ],
             if (_users.isNotEmpty && _selectedUserId == null) ...[
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               SizedBox(
                 height: 160,
                 child: ListView.builder(
@@ -417,7 +417,7 @@ class _NewConversationDialogState extends State<_NewConversationDialog> {
                         backgroundColor: context.colors.primaryGlow,
                         child: Text(
                           name.toString().isNotEmpty ? name.toString()[0].toUpperCase() : '?',
-                          style: TextStyle(color: AppColors.primary, fontSize: 13),
+                          style: const TextStyle(color: AppColors.primary, fontSize: 13),
                         ),
                       ),
                       title: Text(name.toString(), style: TextStyle(color: context.colors.textPrimary, fontSize: 14)),
@@ -434,12 +434,12 @@ class _NewConversationDialogState extends State<_NewConversationDialog> {
                 ),
               ),
             ],
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             TextField(
               controller: _messageController,
               style: TextStyle(color: context.colors.textPrimary),
               maxLines: 2,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'First message (optional)...',
               ),
             ),
@@ -460,7 +460,7 @@ class _NewConversationDialogState extends State<_NewConversationDialog> {
                     'message': _messageController.text.isNotEmpty ? _messageController.text : null,
                   });
                 },
-          child: Text('Start', style: TextStyle(color: AppColors.primary)),
+          child: const Text('Start', style: TextStyle(color: AppColors.primary)),
         ),
       ],
     );

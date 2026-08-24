@@ -9,7 +9,7 @@ import '../../core/theme/theme_colors.dart';
 class StemLabScreen extends StatefulWidget {
   final String subjectSlug;
   final String labType;
-  StemLabScreen({super.key, this.subjectSlug = '', this.labType = ''});
+  const StemLabScreen({super.key, this.subjectSlug = '', this.labType = ''});
 
   @override
   State<StemLabScreen> createState() => _StemLabScreenState();
@@ -23,7 +23,7 @@ class _StemLabScreenState extends State<StemLabScreen> {
   String _selectedSubject = '';
   String _selectedLabType = '';
   String? _error;
-  Set<int> _expandedIndices = {};
+  final Set<int> _expandedIndices = {};
 
   static const _labTypes = ['all', 'virtual', 'physical', 'simulation', 'field'];
 
@@ -79,7 +79,7 @@ class _StemLabScreenState extends State<StemLabScreen> {
                 ),
               ),
               background: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppColors.primaryDark, AppColors.primaryMuted],
                     begin: Alignment.topLeft,
@@ -96,12 +96,12 @@ class _StemLabScreenState extends State<StemLabScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 scrollDirection: Axis.horizontal,
                 itemCount: _subjects.length + 1,
-                separatorBuilder: (_, __) => SizedBox(width: 8),
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
                   if (index == 0) {
                     final selected = _selectedSubject.isEmpty;
                     return ChoiceChip(
-                      label: Text('All', style: TextStyle(fontSize: 12)),
+                      label: const Text('All', style: TextStyle(fontSize: 12)),
                       selected: selected,
                       selectedColor: AppColors.primary,
                       backgroundColor: context.colors.surface,
@@ -142,7 +142,7 @@ class _StemLabScreenState extends State<StemLabScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 scrollDirection: Axis.horizontal,
                 itemCount: _labTypes.length,
-                separatorBuilder: (_, __) => SizedBox(width: 8),
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
                   final type = _labTypes[index];
                   final selected = _selectedLabType == type ||
@@ -173,17 +173,17 @@ class _StemLabScreenState extends State<StemLabScreen> {
           else if (_loading)
             SliverToBoxAdapter(child: ShimmerLoading.list(count: 5))
           else if (_labs.isEmpty)
-            SliverToBoxAdapter(child: EmptyState(icon: Icons.science_rounded, title: 'No labs found', subtitle: 'Try adjusting your filters'))
+            const SliverToBoxAdapter(child: EmptyState(icon: Icons.science_rounded, title: 'No labs found', subtitle: 'Try adjusting your filters'))
           else
             SliverPadding(
               padding: const EdgeInsets.all(16),
               sliver: SliverList.separated(
                 itemCount: _labs.length,
-                separatorBuilder: (_, __) => SizedBox(height: 12),
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (context, index) => _buildLabCard(index, _labs[index]),
               ),
             ),
-          SliverToBoxAdapter(child: SizedBox(height: 40)),
+          const SliverToBoxAdapter(child: SizedBox(height: 40)),
           ],
         ),
       ),
@@ -237,7 +237,7 @@ class _StemLabScreenState extends State<StemLabScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: diffColor.withOpacity(0.15),
+                  color: diffColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -252,7 +252,7 @@ class _StemLabScreenState extends State<StemLabScreen> {
               ),
             ],
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Row(
             children: [
               if (lab['subject'] != null)
@@ -272,9 +272,9 @@ class _StemLabScreenState extends State<StemLabScreen> {
                   ),
                 ),
               if (lab['duration'] != null) ...[
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Icon(Icons.schedule_rounded, size: 12, color: context.colors.textMuted),
-                SizedBox(width: 3),
+                const SizedBox(width: 3),
                 Text(
                   lab['duration'].toString(),
                   style: TextStyle(fontSize: 11, color: context.colors.textMuted),
@@ -282,7 +282,7 @@ class _StemLabScreenState extends State<StemLabScreen> {
               ],
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             lab['description'] ?? '',
             style: TextStyle(fontSize: 13, color: context.colors.textMuted),
@@ -290,12 +290,12 @@ class _StemLabScreenState extends State<StemLabScreen> {
             overflow: TextOverflow.ellipsis,
           ),
           if ((lab['materials'] as List?)?.isNotEmpty == true) ...[
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               'Materials Needed',
               style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: context.colors.textSecondary),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Wrap(
               spacing: 6,
               runSpacing: 4,
@@ -314,7 +314,7 @@ class _StemLabScreenState extends State<StemLabScreen> {
               }).toList(),
             ),
           ],
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           GestureDetector(
             onTap: () {
               setState(() {
@@ -329,7 +329,7 @@ class _StemLabScreenState extends State<StemLabScreen> {
               children: [
                 Text(
                   expanded ? 'Hide steps' : 'Show steps',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: AppColors.primary,
@@ -363,7 +363,7 @@ class _StemLabScreenState extends State<StemLabScreen> {
                       child: Center(
                         child: Text(
                           '${i + 1}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             color: AppColors.primary,

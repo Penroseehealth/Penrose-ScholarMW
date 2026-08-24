@@ -1,11 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/language_service.dart';
 import '../../core/theme/theme_colors.dart';
 
 class LanguageReading extends StatefulWidget {
-  LanguageReading({super.key});
+  const LanguageReading({super.key});
   @override
   State<LanguageReading> createState() => _LanguageReadingState();
 }
@@ -13,7 +13,6 @@ class LanguageReading extends StatefulWidget {
 class _LanguageReadingState extends State<LanguageReading> {
   final LanguageService _service = LanguageService();
   List<dynamic> _vocabulary = [];
-  List<dynamic> _grammar = [];
   bool _loading = true;
   bool _didLoad = false;
   int _selectedLevel = 0;
@@ -55,7 +54,6 @@ class _LanguageReadingState extends State<LanguageReading> {
       if (!mounted) return;
       setState(() {
         _vocabulary = results[0];
-        _grammar = results[1];
         _loading = false;
       });
     } catch (e) {
@@ -76,7 +74,7 @@ class _LanguageReadingState extends State<LanguageReading> {
             _buildLevelTabs(),
             Expanded(
               child: _loading
-                  ? Center(child: CircularProgressIndicator(color: AppColors.primary))
+                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
                   : _filtered.isEmpty
                       ? _buildEmpty()
                       : ListView.builder(
@@ -104,8 +102,8 @@ class _LanguageReadingState extends State<LanguageReading> {
             onPressed: () => context.pop(),
             icon: Icon(Icons.arrow_back_ios, color: context.colors.textPrimary, size: 20),
           ),
-          Icon(Icons.menu_book, color: AppColors.primary, size: 24),
-          SizedBox(width: 8),
+          const Icon(Icons.menu_book, color: AppColors.primary, size: 24),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -164,7 +162,7 @@ class _LanguageReadingState extends State<LanguageReading> {
         children: [
           Icon(Icons.menu_book_outlined, size: 48,
             color: context.colors.textSecondary.withValues(alpha: 0.4)),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text('No passages at this level', style: TextStyle(
             color: context.colors.textSecondary.withValues(alpha: 0.6), fontSize: 14,
           )),
@@ -205,18 +203,18 @@ class _LanguageReadingState extends State<LanguageReading> {
                     color: AppColors.primary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Text(pos, style: TextStyle(
+                  child: Text(pos, style: const TextStyle(
                     color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w600,
                   )),
                 ),
             ],
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(translation, style: TextStyle(
             color: context.colors.textSecondary.withValues(alpha: 0.8), fontSize: 14,
           )),
           if (example.isNotEmpty) ...[
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(10),
@@ -230,7 +228,7 @@ class _LanguageReadingState extends State<LanguageReading> {
             ),
           ],
           if (theme.isNotEmpty) ...[
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(

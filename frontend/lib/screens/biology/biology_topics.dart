@@ -16,7 +16,7 @@ class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
   static const _forms = ['All', 'Form 1', 'Form 2', 'Form 3', 'Form 4'];
 
   static final _coreElements = [
-    _CoreElement(
+    const _CoreElement(
       'Research Skills',
       'Scientific Method, Observation & Laboratory Safety',
       Icons.science_rounded,
@@ -31,7 +31,7 @@ class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
         _TopicData('First Aid and Safety in the Field', 3),
       ],
     ),
-    _CoreElement(
+    const _CoreElement(
       'Environment',
       'Ecosystems, Ecology & Conservation in Malawi',
       Icons.eco_rounded,
@@ -46,7 +46,7 @@ class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
         _TopicData('Mineral Resources and Land Use', 3),
       ],
     ),
-    _CoreElement(
+    const _CoreElement(
       'Plant Biology',
       'Structure, Nutrition, Transport & Reproduction',
       Icons.local_florist_rounded,
@@ -60,7 +60,7 @@ class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
         _TopicData('Plant Responses and Adaptations', 4),
       ],
     ),
-    _CoreElement(
+    const _CoreElement(
       'Animal Biology',
       'Classification, Structure, Coordination & Behaviour',
       Icons.pets_rounded,
@@ -73,7 +73,7 @@ class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
         _TopicData('Animal Coordination and Behaviour', 3),
       ],
     ),
-    _CoreElement(
+    const _CoreElement(
       'Human Biology',
       'Body Systems, Health, Nutrition & Disease',
       Icons.person_rounded,
@@ -97,7 +97,7 @@ class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
         _TopicData('Human Diseases and Health Education', 3),
       ],
     ),
-    _CoreElement(
+    const _CoreElement(
       'Micro-organisms',
       'Roles in Disease, Food Production & Biotechnology',
       Icons.bug_report_rounded,
@@ -110,7 +110,7 @@ class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
         _TopicData('Micro-organisms and Waste Management', 4),
       ],
     ),
-    _CoreElement(
+    const _CoreElement(
       'Genetics & Evolution',
       'Inheritance, DNA, Variation & Natural Selection',
       Icons.scatter_plot_rounded,

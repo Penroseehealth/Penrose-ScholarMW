@@ -6,7 +6,7 @@ import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
 
 class ExaminationHall extends StatefulWidget {
-  ExaminationHall({super.key});
+  const ExaminationHall({super.key});
 
   @override
   State<ExaminationHall> createState() => _ExaminationHallState();
@@ -24,7 +24,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
 
   Map<String, dynamic>? _selectedExam;
   List<Map<String, dynamic>> _questions = [];
-  Map<String, String> _answers = {};
+  final Map<String, String> _answers = {};
   Timer? _timer;
   int _remainingSeconds = 0;
   int _currentView = 0; // 0=list, 1=detail, 2=take exam
@@ -131,7 +131,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
 
   void _startTimer() {
     _timer?.cancel();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remainingSeconds <= 0) {
         timer.cancel();
         _submitExam();
@@ -163,7 +163,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Exam submitted successfully!')),
+          const SnackBar(content: Text('Exam submitted successfully!')),
         );
         setState(() => _currentView = 0);
         _loadExams();
@@ -205,7 +205,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
         elevation: 0,
         leading: _currentView != 0
             ? IconButton(
-                icon: Icon(Icons.arrow_back),
+                icon: const Icon(Icons.arrow_back),
                 onPressed: () {
                   _timer?.cancel();
                   setState(() => _currentView = 0);
@@ -226,12 +226,12 @@ class _ExaminationHallState extends State<ExaminationHall> {
         actions: [
           if (_currentView == 0)
             IconButton(
-              icon: Icon(Icons.history),
+              icon: const Icon(Icons.history),
               onPressed: _showSubmissionsSheet,
             ),
           if (_currentView == 0)
             IconButton(
-              icon: Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh),
               onPressed: () {
                 _loadExams();
                 _loadSubmissions();
@@ -251,7 +251,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
   }
 
   Widget _buildSpinner() {
-    return Center(
+    return const Center(
       child: CircularProgressIndicator(color: AppColors.primary),
     );
   }
@@ -264,13 +264,13 @@ class _ExaminationHallState extends State<ExaminationHall> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 64, color: context.colors.textSecondary),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(title,
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: context.colors.textPrimary)),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(subtitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, color: context.colors.textSecondary)),
@@ -334,7 +334,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: _statusColor(status).withOpacity(0.1),
+                      color: _statusColor(status).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(status.toUpperCase(),
@@ -345,24 +345,24 @@ class _ExaminationHallState extends State<ExaminationHall> {
                   ),
                 ],
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Row(
                 children: [
                   _infoChip(Icons.timer_outlined, '$duration min'),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   _infoChip(Icons.grade_outlined, '$totalMarks marks'),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   _infoChip(Icons.help_outline, '$questionCount questions'),
                 ],
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               if (canTake)
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () => _viewExamDetail(exam['id'].toString()),
-                    icon: Icon(Icons.play_arrow, size: 18),
-                    label: Text('Start Exam'),
+                    icon: const Icon(Icons.play_arrow, size: 18),
+                    label: const Text('Start Exam'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: context.colors.surface,
@@ -383,7 +383,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 14, color: context.colors.textSecondary),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         Text(text,
             style: TextStyle(fontSize: 13, color: context.colors.textSecondary)),
       ],
@@ -410,7 +410,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [AppColors.primary, AppColors.primaryDark],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -421,20 +421,20 @@ class _ExaminationHallState extends State<ExaminationHall> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title,
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                         color: Colors.white)),
                 if (description.isNotEmpty) ...[
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(description,
                       style: TextStyle(
-                          fontSize: 14, color: Colors.white.withOpacity(0.9))),
+                          fontSize: 14, color: Colors.white.withValues(alpha: 0.9))),
                 ],
               ],
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Card(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             color: context.colors.surface,
@@ -451,7 +451,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
               ),
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Card(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             color: context.colors.surface,
@@ -465,7 +465,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: context.colors.textPrimary)),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(instructions.toString(),
                       style: TextStyle(
                           fontSize: 14, color: context.colors.textSecondary)),
@@ -473,7 +473,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
               ),
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
@@ -481,12 +481,12 @@ class _ExaminationHallState extends State<ExaminationHall> {
                   ? null
                   : () => _startExam(exam['id'].toString()),
               icon: _loadingQuestions
-                  ? SizedBox(
+                  ? const SizedBox(
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(
                           strokeWidth: 2, color: Colors.white))
-                  : Icon(Icons.play_arrow),
+                  : const Icon(Icons.play_arrow),
               label: Text(_loadingQuestions ? 'Loading...' : 'Begin Examination'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
@@ -506,7 +506,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
     return Column(
       children: [
         Icon(icon, color: AppColors.primary, size: 24),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(value,
             style: TextStyle(
                 fontSize: 18,
@@ -523,13 +523,13 @@ class _ExaminationHallState extends State<ExaminationHall> {
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          color: _remainingSeconds < 300 ? context.colors.error.withOpacity(0.1) : context.colors.surface,
+          color: _remainingSeconds < 300 ? context.colors.error.withValues(alpha: 0.1) : context.colors.surface,
           child: Row(
             children: [
               Icon(Icons.timer,
                   color: _remainingSeconds < 300 ? context.colors.error : AppColors.primary,
                   size: 20),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 _formatDuration(_remainingSeconds),
                 style: TextStyle(
@@ -538,7 +538,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
                   color: _remainingSeconds < 300 ? context.colors.error : context.colors.textPrimary,
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               Text(
                 '${_answers.length}/${_questions.length} answered',
                 style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
@@ -546,7 +546,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
             ],
           ),
         ),
-        Divider(height: 1),
+        const Divider(height: 1),
         Expanded(
           child: _questions.isEmpty
               ? _buildEmptyState('No Questions', 'This exam has no questions yet', Icons.help_outline)
@@ -563,11 +563,11 @@ class _ExaminationHallState extends State<ExaminationHall> {
             child: ElevatedButton.icon(
               onPressed: _submitting ? null : _showSubmitConfirmation,
               icon: _submitting
-                  ? SizedBox(
+                  ? const SizedBox(
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : Icon(Icons.send),
+                  : const Icon(Icons.send),
               label: Text(_submitting ? 'Submitting...' : 'Submit Examination'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
@@ -606,7 +606,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
                   radius: 14,
                   backgroundColor: _answers[qId.toString()] != null
                       ? AppColors.primary
-                      : context.colors.textSecondary.withOpacity(0.2),
+                      : context.colors.textSecondary.withValues(alpha: 0.2),
                   child: Text('${index + 1}',
                       style: TextStyle(
                           fontSize: 12,
@@ -615,7 +615,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
                               ? Colors.white
                               : context.colors.textSecondary)),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(questionText,
                       style: TextStyle(
@@ -627,37 +627,46 @@ class _ExaminationHallState extends State<ExaminationHall> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text('${marks}m',
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: AppColors.primary)),
                   ),
               ],
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             if (type == 'multiple_choice' && options.isNotEmpty)
-              ...options.map((opt) => RadioListTile<String>(
-                    contentPadding: EdgeInsets.zero,
-                    dense: true,
-                    title: Text(opt,
-                        style: TextStyle(fontSize: 14, color: context.colors.textPrimary)),
-                    value: opt,
-                    groupValue: _answers[qId.toString()],
-                    activeColor: AppColors.primary,
-                    onChanged: (val) {
-                      setState(() => _answers[qId.toString()] = val ?? '');
-                    },
-                  ))
+              RadioGroup<String>(
+                groupValue: _answers[qId.toString()],
+                onChanged: (val) {
+                  setState(() => _answers[qId.toString()] = val ?? '');
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: options
+                      .map((opt) => RadioListTile<String>(
+                            contentPadding: EdgeInsets.zero,
+                            dense: true,
+                            title: Text(opt,
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: context.colors.textPrimary)),
+                            value: opt,
+                            activeColor: AppColors.primary,
+                          ))
+                      .toList(),
+                ),
+              )
             else if (type == 'true_false')
               Row(
                 children: [
                   Expanded(
                     child: ChoiceChip(
-                      label: Text('True'),
+                      label: const Text('True'),
                       selected: _answers[qId.toString()] == 'true',
                       selectedColor: AppColors.primary,
                       labelStyle: TextStyle(
@@ -670,10 +679,10 @@ class _ExaminationHallState extends State<ExaminationHall> {
                       },
                     ),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: ChoiceChip(
-                      label: Text('False'),
+                      label: const Text('False'),
                       selected: _answers[qId.toString()] == 'false',
                       selectedColor: AppColors.primary,
                       labelStyle: TextStyle(
@@ -700,7 +709,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: AppColors.primary),
+                    borderSide: const BorderSide(color: AppColors.primary),
                   ),
                   filled: true,
                   fillColor: context.colors.background,
@@ -722,7 +731,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Submit Examination'),
+        title: const Text('Submit Examination'),
         content: Text(
           unanswered > 0
               ? 'You have $unanswered unanswered question(s). Are you sure you want to submit?'
@@ -742,7 +751,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
-            child: Text('Submit'),
+            child: const Text('Submit'),
           ),
         ],
       ),
@@ -753,7 +762,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) => DraggableScrollableSheet(
@@ -772,13 +781,13 @@ class _ExaminationHallState extends State<ExaminationHall> {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text('My Submissions',
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: context.colors.textPrimary)),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Expanded(
               child: _submissions.isEmpty
                   ? Center(
@@ -816,7 +825,7 @@ class _ExaminationHallState extends State<ExaminationHall> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color: context.colors.success.withOpacity(0.1),
+                                color: context.colors.success.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(

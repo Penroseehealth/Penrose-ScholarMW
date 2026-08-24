@@ -6,7 +6,7 @@ import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
 
 class OfflineSyncScreen extends StatefulWidget {
-  OfflineSyncScreen({super.key});
+  const OfflineSyncScreen({super.key});
 
   @override
   State<OfflineSyncScreen> createState() => _OfflineSyncScreenState();
@@ -39,7 +39,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
     try {
       final statusRes = await _api.get('/sync/status');
       final pullRes = await _api.get(
-        '/sync/pull?since=${DateTime.now().toUtc().subtract(Duration(days: 7)).toIso8601String()}',
+        '/sync/pull?since=${DateTime.now().toUtc().subtract(const Duration(days: 7)).toIso8601String()}',
       );
 
       if (!mounted) return;
@@ -90,7 +90,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Sync completed successfully'),
+            content: const Text('Sync completed successfully'),
             backgroundColor: context.colors.success,
           ),
         );
@@ -141,13 +141,13 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
         await _loadData();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to resolve conflict')),
+          const SnackBar(content: Text('Failed to resolve conflict')),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('An error occurred')),
+          const SnackBar(content: Text('An error occurred')),
         );
       }
     }
@@ -192,7 +192,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
               pinned: true,
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [AppColors.primary, AppColors.primaryDark],
                       begin: Alignment.topLeft,
@@ -206,7 +206,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text(
+                          const Text(
                             'Offline Sync',
                             style: TextStyle(
                               color: Colors.white,
@@ -214,11 +214,11 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             'Manage data synchronisation & conflicts',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.white.withValues(alpha: 0.8),
                               fontSize: 14,
                             ),
                           ),
@@ -243,7 +243,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
 
   Widget _buildBody() {
     if (_loading) {
-      return SizedBox(
+      return const SizedBox(
         height: 300,
         child: Center(child: CircularProgressIndicator()),
       );
@@ -257,22 +257,22 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Sync Status'),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         _buildStatusOverview(),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         _buildSyncButton(),
         if (_error != null) ...[
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _buildErrorBanner(),
         ],
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         _buildSectionHeader('Sync History'),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         _buildSyncHistory(),
         if (_conflictCount > 0) ...[
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           _buildSectionHeader('Conflicts'),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _buildConflictResolution(),
         ],
       ],
@@ -290,7 +290,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
             color: context.colors.warning,
           ),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Expanded(
           child: _buildStatusCard(
             label: 'Synced',
@@ -299,7 +299,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
             color: context.colors.success,
           ),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Expanded(
           child: _buildStatusCard(
             label: 'Conflicts',
@@ -325,7 +325,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
         child: Column(
           children: [
             Icon(icon, color: color, size: 26),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               value,
               style: TextStyle(
@@ -334,7 +334,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
                 color: color,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
@@ -356,7 +356,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
       child: ElevatedButton.icon(
         onPressed: _syncing ? null : _pushSync,
         icon: _syncing
-            ? SizedBox(
+            ? const SizedBox(
                 width: 18,
                 height: 18,
                 child: CircularProgressIndicator(
@@ -364,12 +364,12 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
                   color: Colors.white,
                 ),
               )
-            : Icon(Icons.sync, size: 20),
+            : const Icon(Icons.sync, size: 20),
         label: Text(_syncing ? 'Syncing...' : 'Sync Now'),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
-          disabledBackgroundColor: AppColors.primary.withOpacity(0.5),
+          disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -381,7 +381,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
 
   Widget _buildErrorBanner() {
     return Card(
-      color: context.colors.error.withOpacity(0.06),
+      color: context.colors.error.withValues(alpha: 0.06),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -389,7 +389,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
           children: [
             Icon(Icons.warning_amber_rounded,
                 color: context.colors.error, size: 20),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
                 _error!,
@@ -427,7 +427,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: _statusColor(status).withOpacity(0.1),
+                color: _statusColor(status).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -439,7 +439,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
             title: Text(
               '$entityType #$entityId',
               style:
-                  TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -454,7 +454,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
               padding:
                   const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: _statusColor(status).withOpacity(0.1),
+                color: _statusColor(status).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -500,11 +500,11 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
                   children: [
                     Icon(Icons.sync_problem_outlined,
                         color: context.colors.error, size: 20),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         '$entityType #$entityId',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -512,15 +512,15 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () =>
                             _resolveConflict(recordId, 'keep_local', payload),
-                        icon: Icon(Icons.phone_android, size: 16),
-                        label: Text('Keep Local',
+                        icon: const Icon(Icons.phone_android, size: 16),
+                        label: const Text('Keep Local',
                             style: TextStyle(fontSize: 12)),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: context.colors.info,
@@ -532,13 +532,13 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () =>
                             _resolveConflict(recordId, 'keep_remote', payload),
-                        icon: Icon(Icons.cloud_outlined, size: 16),
-                        label: Text('Keep Remote',
+                        icon: const Icon(Icons.cloud_outlined, size: 16),
+                        label: const Text('Keep Remote',
                             style: TextStyle(fontSize: 12)),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: context.colors.success,
@@ -550,13 +550,13 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () =>
                             _resolveConflict(recordId, 'merge', payload),
-                        icon: Icon(Icons.merge, size: 16),
-                        label: Text('Merge',
+                        icon: const Icon(Icons.merge, size: 16),
+                        label: const Text('Merge',
                             style: TextStyle(fontSize: 12)),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: context.colors.secondary,
@@ -614,14 +614,14 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
         child: Column(
           children: [
             Icon(Icons.error_outline, size: 48, color: context.colors.error),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               _error!,
               style:
                   TextStyle(fontSize: 14, color: context.colors.textSecondary),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadData,
               style: ElevatedButton.styleFrom(
@@ -631,7 +631,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text('Retry'),
+              child: const Text('Retry'),
             ),
           ],
         ),

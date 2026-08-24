@@ -75,7 +75,7 @@ class WebSpeechServiceImpl implements WebSpeechService {
     rec.setProperty('onerror'.toJS, ((JSAny? event) {
       final e = event as JSObject?;
       final errorType =
-          e?.getProperty<JSString>('error'.toJS)?.toDart ?? 'unknown';
+          e?.getProperty<JSString>('error'.toJS).toDart ?? 'unknown';
       _recognition = null;
 
       String message;

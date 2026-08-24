@@ -8,7 +8,7 @@ class SmartMarkingScreen extends StatefulWidget {
   final int assessmentId;
   final List<dynamic> submissions;
 
-  SmartMarkingScreen({
+  const SmartMarkingScreen({
     super.key,
     required this.assessmentId,
     required this.submissions,
@@ -25,8 +25,8 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
   Widget build(BuildContext context) {
     if (widget.submissions.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: Text('Smart Marking')),
-        body: Center(child: Text('No submissions to mark')),
+        appBar: AppBar(title: const Text('Smart Marking')),
+        body: const Center(child: Text('No submissions to mark')),
       );
     }
 
@@ -34,14 +34,14 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Smart Marking Assistant'),
+        title: const Text('Smart Marking Assistant'),
         actions: [
           Center(
             child: Padding(
               padding: const EdgeInsets.only(right: 16),
               child: Text(
                 '${_currentIndex + 1}/${widget.submissions.length}',
-                style: TextStyle(fontSize: 14),
+                style: const TextStyle(fontSize: 14),
               ),
             ),
           ),
@@ -53,13 +53,13 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildStudentInfo(sub),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildSubmissionContent(sub),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildAIAnalysis(sub),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildMarkingDecision(sub),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildNavigation(),
           ],
         ),
@@ -71,17 +71,17 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
     return Card(
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: AppColors.primary.withOpacity(0.1),
-          child: Icon(Icons.person, color: AppColors.primary),
+          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+          child: const Icon(Icons.person, color: AppColors.primary),
         ),
-        title: Text('Student #${sub['student_id']}', style: TextStyle(fontWeight: FontWeight.w600)),
+        title: Text('Student #${sub['student_id']}', style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: Text('Submitted: ${sub['submitted_at'] ?? 'N/A'}'),
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
             color: sub['status'] == 'graded'
-                ? context.colors.success.withOpacity(0.1)
-                : context.colors.warning.withOpacity(0.1),
+                ? context.colors.success.withValues(alpha: 0.1)
+                : context.colors.warning.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
@@ -108,12 +108,12 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Student Answers',
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
-            Text(answers, style: TextStyle(fontSize: 14, height: 1.5)),
+            const SizedBox(height: 8),
+            Text(answers, style: const TextStyle(fontSize: 14, height: 1.5)),
           ],
         ),
       ),
@@ -125,7 +125,7 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
     final aiFeedback = sub['ai_feedback'] ?? 'AI analysis pending...';
 
     return Card(
-      color: context.colors.info.withOpacity(0.05),
+      color: context.colors.info.withValues(alpha: 0.05),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -134,7 +134,7 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
             Row(
               children: [
                 Icon(Icons.auto_awesome, color: context.colors.info, size: 20),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
                   'AI Analysis',
                   style: TextStyle(
@@ -145,11 +145,11 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             if (aiMarks != null) ...[
               Row(
                 children: [
-                  Text('AI Suggested Mark: ', style: TextStyle(fontSize: 14)),
+                  const Text('AI Suggested Mark: ', style: TextStyle(fontSize: 14)),
                   Text(
                     '$aiMarks',
                     style: TextStyle(
@@ -160,9 +160,9 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
             ],
-            Text(aiFeedback, style: TextStyle(fontSize: 14, height: 1.5)),
+            Text(aiFeedback, style: const TextStyle(fontSize: 14, height: 1.5)),
           ],
         ),
       ),
@@ -176,11 +176,11 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Your Decision',
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
@@ -191,7 +191,7 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
                     onPressed: () => _submitDecision('accept'),
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: _buildDecisionButton(
                     label: 'Modify',
@@ -200,7 +200,7 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
                     onPressed: () => _showModifyDialog(sub),
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: _buildDecisionButton(
                     label: 'Reject',
@@ -228,7 +228,7 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
       icon: Icon(icon, color: color, size: 18),
       label: Text(label, style: TextStyle(color: color, fontSize: 12)),
       style: OutlinedButton.styleFrom(
-        side: BorderSide(color: color.withOpacity(0.3)),
+        side: BorderSide(color: color.withValues(alpha: 0.3)),
         padding: const EdgeInsets.symmetric(vertical: 12),
       ),
     );
@@ -242,16 +242,16 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
             onPressed: _currentIndex > 0
                 ? () => setState(() => _currentIndex--)
                 : null,
-            child: Text('Previous'),
+            child: const Text('Previous'),
           ),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Expanded(
           child: ElevatedButton(
             onPressed: _currentIndex < widget.submissions.length - 1
                 ? () => setState(() => _currentIndex++)
                 : null,
-            child: Text('Next'),
+            child: const Text('Next'),
           ),
         ),
       ],
@@ -293,25 +293,25 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Modify Mark'),
+        title: const Text('Modify Mark'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: marksCtrl,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: 'Final Marks'),
+              decoration: const InputDecoration(labelText: 'Final Marks'),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             TextField(
               controller: feedbackCtrl,
               maxLines: 3,
-              decoration: InputDecoration(labelText: 'Feedback'),
+              decoration: const InputDecoration(labelText: 'Feedback'),
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(ctx);
@@ -321,7 +321,7 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
                 feedback: feedbackCtrl.text,
               );
             },
-            child: Text('Save'),
+            child: const Text('Save'),
           ),
         ],
       ),

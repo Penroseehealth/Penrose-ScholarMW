@@ -33,13 +33,13 @@ class AppTheme {
         bodyColor: AppColors.textPrimary,
         displayColor: AppColors.textPrimary,
       ),
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        titleTextStyle: const TextStyle(
+        titleTextStyle: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
@@ -122,18 +122,18 @@ class AppTheme {
           return const IconThemeData(color: AppColors.textMuted, size: 24);
         }),
       ),
-      navigationRailTheme: NavigationRailThemeData(
+      navigationRailTheme: const NavigationRailThemeData(
         backgroundColor: AppColors.surface,
         elevation: 0,
         indicatorColor: AppColors.primaryGlow,
-        selectedIconTheme: const IconThemeData(color: AppColors.primary, size: 24),
-        unselectedIconTheme: const IconThemeData(color: AppColors.textMuted, size: 24),
-        selectedLabelTextStyle: const TextStyle(
+        selectedIconTheme: IconThemeData(color: AppColors.primary, size: 24),
+        unselectedIconTheme: IconThemeData(color: AppColors.textMuted, size: 24),
+        selectedLabelTextStyle: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
           color: AppColors.primary,
         ),
-        unselectedLabelTextStyle: const TextStyle(
+        unselectedLabelTextStyle: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w500,
           color: AppColors.textMuted,
@@ -194,13 +194,13 @@ class AppTheme {
         bodyColor: AppColorsLight.textPrimary,
         displayColor: AppColorsLight.textPrimary,
       ),
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: AppColorsLight.surface,
         foregroundColor: AppColorsLight.textPrimary,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        titleTextStyle: const TextStyle(
+        titleTextStyle: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: AppColorsLight.textPrimary,
@@ -283,18 +283,18 @@ class AppTheme {
           return const IconThemeData(color: AppColorsLight.textMuted, size: 24);
         }),
       ),
-      navigationRailTheme: NavigationRailThemeData(
+      navigationRailTheme: const NavigationRailThemeData(
         backgroundColor: AppColorsLight.surface,
         elevation: 0,
         indicatorColor: AppColorsLight.primaryGlow,
-        selectedIconTheme: const IconThemeData(color: AppColorsLight.primary, size: 24),
-        unselectedIconTheme: const IconThemeData(color: AppColorsLight.textMuted, size: 24),
-        selectedLabelTextStyle: const TextStyle(
+        selectedIconTheme: IconThemeData(color: AppColorsLight.primary, size: 24),
+        unselectedIconTheme: IconThemeData(color: AppColorsLight.textMuted, size: 24),
+        selectedLabelTextStyle: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
           color: AppColorsLight.primary,
         ),
-        unselectedLabelTextStyle: const TextStyle(
+        unselectedLabelTextStyle: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w500,
           color: AppColorsLight.textMuted,

@@ -1,11 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/language_service.dart';
 import '../../core/theme/theme_colors.dart';
 
 class LanguageWriting extends StatefulWidget {
-  LanguageWriting({super.key});
+  const LanguageWriting({super.key});
   @override
   State<LanguageWriting> createState() => _LanguageWritingState();
 }
@@ -87,13 +87,13 @@ class _LanguageWritingState extends State<LanguageWriting> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildWritingArea(),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     _buildActionButtons(),
                     if (_showFeedback) ...[
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       _buildFeedbackSection(),
                     ],
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     _buildPromptsSection(),
                   ],
                 ),
@@ -118,8 +118,8 @@ class _LanguageWritingState extends State<LanguageWriting> {
             onPressed: () => context.pop(),
             icon: Icon(Icons.arrow_back_ios, color: context.colors.textPrimary, size: 20),
           ),
-          Icon(Icons.edit_note, color: AppColors.primary, size: 24),
-          SizedBox(width: 8),
+          const Icon(Icons.edit_note, color: AppColors.primary, size: 24),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,12 +155,12 @@ class _LanguageWritingState extends State<LanguageWriting> {
             ),
             child: Row(
               children: [
-                Icon(Icons.edit, color: AppColors.primary, size: 18),
-                SizedBox(width: 8),
+                const Icon(Icons.edit, color: AppColors.primary, size: 18),
+                const SizedBox(width: 8),
                 Text('Your Writing', style: TextStyle(
                   color: context.colors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600,
                 )),
-                Spacer(),
+                const Spacer(),
                 Text(
                   '${_textController.text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length} words',
                   style: TextStyle(
@@ -195,7 +195,7 @@ class _LanguageWritingState extends State<LanguageWriting> {
             setState(() => _showFeedback = !_showFeedback);
           }),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Expanded(
           child: _btn('Clear', Icons.delete_outline, context.colors.textSecondary, () {
             _textController.clear();
@@ -219,7 +219,7 @@ class _LanguageWritingState extends State<LanguageWriting> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, color: color, size: 18),
-            SizedBox(width: 6),
+            const SizedBox(width: 6),
             Text(label, style: TextStyle(
               color: color, fontSize: 13, fontWeight: FontWeight.w600,
             )),
@@ -241,7 +241,7 @@ class _LanguageWritingState extends State<LanguageWriting> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
               Icon(Icons.auto_awesome, color: AppColors.primary, size: 18),
               SizedBox(width: 6),
@@ -250,7 +250,7 @@ class _LanguageWritingState extends State<LanguageWriting> {
               )),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
             hasText
                 ? 'Your writing shows good structure. You have used ${_textController.text.split(RegExp(r"\s+")).length} words. Consider using more descriptive adjectives and vary your sentence patterns.'
@@ -260,11 +260,11 @@ class _LanguageWritingState extends State<LanguageWriting> {
             ),
           ),
           if (hasText && _grammar.isNotEmpty) ...[
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text('Grammar rules to review:', style: TextStyle(
               color: context.colors.textPrimary.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.w600,
             )),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             ...(_grammar.take(3).map((g) => Padding(
               padding: const EdgeInsets.only(bottom: 4),
               child: Text('\u2022 ${(g['title'] ?? '').toString()}',
@@ -284,7 +284,7 @@ class _LanguageWritingState extends State<LanguageWriting> {
         Text('Writing Prompts', style: TextStyle(
           color: context.colors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold,
         )),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         if (prompts.isEmpty)
           Container(
             padding: const EdgeInsets.all(16),
@@ -321,7 +321,7 @@ class _LanguageWritingState extends State<LanguageWriting> {
                         Text(p['title'], style: TextStyle(
                           color: context.colors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600,
                         )),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(p['desc'], maxLines: 2, overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: context.colors.textSecondary.withValues(alpha: 0.7), fontSize: 12,

@@ -12,7 +12,7 @@ class StemTopicScreen extends StatefulWidget {
   final String title;
   final String difficulty;
 
-  StemTopicScreen({
+  const StemTopicScreen({
     super.key,
     required this.topicId,
     required this.title,
@@ -88,7 +88,7 @@ class _StemTopicScreenState extends State<StemTopicScreen> {
               margin: const EdgeInsets.only(right: 16),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: diffColor.withOpacity(0.12),
+                color: diffColor.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -112,7 +112,7 @@ class _StemTopicScreenState extends State<StemTopicScreen> {
           : _loading
               ? Center(child: ShimmerLoading.list(count: 5))
               : _subtopics.isEmpty
-                  ? EmptyState(
+                  ? const EmptyState(
                       icon: Icons.topic_outlined,
                       title: 'No subtopics available',
                       subtitle: 'Subtopics will appear here',
@@ -141,7 +141,7 @@ class _StemTopicScreenState extends State<StemTopicScreen> {
                               itemBuilder: (context, index) => _buildSubtopicExpansionCard(_subtopics[index]),
                             ),
                           ),
-                          SliverToBoxAdapter(child: SizedBox(height: 40)),
+                          const SliverToBoxAdapter(child: SizedBox(height: 40)),
                         ],
                       ),
                     ),
@@ -236,7 +236,7 @@ class _SubtopicExpansionCardState extends State<_SubtopicExpansionCard> {
                             color: context.colors.textPrimary,
                           ),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           '$conceptCount concept${conceptCount == 1 ? '' : 's'}',
                           style: TextStyle(
@@ -249,7 +249,7 @@ class _SubtopicExpansionCardState extends State<_SubtopicExpansionCard> {
                   ),
                   AnimatedRotation(
                     turns: _expanded ? 0.25 : 0,
-                    duration: Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 200),
                     child: Icon(
                       Icons.expand_more_rounded,
                       color: context.colors.textMuted,
@@ -263,7 +263,7 @@ class _SubtopicExpansionCardState extends State<_SubtopicExpansionCard> {
           if (_expanded) ...[
             Divider(height: 1, color: context.colors.border),
             if (_loadingConcepts)
-              Padding(
+              const Padding(
                 padding: EdgeInsets.all(20),
                 child: Center(
                   child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 2),
@@ -271,7 +271,7 @@ class _SubtopicExpansionCardState extends State<_SubtopicExpansionCard> {
               )
             else if (_concepts.isEmpty)
               Padding(
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 child: Center(
                   child: Text(
                     'No concepts available',
@@ -310,7 +310,7 @@ class _SubtopicExpansionCardState extends State<_SubtopicExpansionCard> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: diffColor.withOpacity(0.12),
+                            color: diffColor.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -322,7 +322,7 @@ class _SubtopicExpansionCardState extends State<_SubtopicExpansionCard> {
                             ),
                           ),
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Icon(Icons.chevron_right_rounded, color: context.colors.textMuted, size: 18),
                       ],
                     ),

@@ -20,7 +20,7 @@ String _timeAgo(dynamic timestamp) {
 }
 
 class ForumScreen extends StatefulWidget {
-  ForumScreen({super.key});
+  const ForumScreen({super.key});
   @override
   State<ForumScreen> createState() => _ForumScreenState();
 }
@@ -98,7 +98,7 @@ class _ForumScreenState extends State<ForumScreen>
             _buildSortBar(),
             _buildTabs(),
             if (_loading)
-              SliverToBoxAdapter(child: Padding(
+              const SliverToBoxAdapter(child: Padding(
                 padding: EdgeInsets.all(40),
                 child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
               ))
@@ -117,7 +117,7 @@ class _ForumScreenState extends State<ForumScreen>
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
                 sliver: SliverList.separated(
                   itemCount: filtered.length,
-                  separatorBuilder: (_, __) => SizedBox(height: 8),
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
                   itemBuilder: (ctx, i) => _postCard(filtered[i]),
                 ),
               ),
@@ -127,7 +127,7 @@ class _ForumScreenState extends State<ForumScreen>
       floatingActionButton: FloatingActionButton(
         onPressed: _showCreateSheet,
         backgroundColor: AppColors.primary,
-        child: Icon(Icons.add_rounded, color: Colors.white),
+        child: const Icon(Icons.add_rounded, color: Colors.white),
       ),
     );
   }
@@ -136,13 +136,13 @@ class _ForumScreenState extends State<ForumScreen>
     expandedHeight: 90, pinned: true,
     backgroundColor: AppColors.primaryDark,
     leading: IconButton(
-      icon: Icon(Icons.arrow_back_rounded, color: Colors.white),
+      icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
       onPressed: () => context.go('/'),
     ),
     flexibleSpace: FlexibleSpaceBar(
-      title: Text('Q&A Forum', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
+      title: const Text('Q&A Forum', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
       background: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(colors: [AppColors.primaryDark, AppColors.primary], begin: Alignment.topLeft, end: Alignment.bottomRight),
         ),
       ),
@@ -176,11 +176,11 @@ class _ForumScreenState extends State<ForumScreen>
       child: Row(
         children: [
           _sortChip('newest', 'Newest'),
-          SizedBox(width: 6),
+          const SizedBox(width: 6),
           _sortChip('votes', 'Most Voted'),
-          SizedBox(width: 6),
+          const SizedBox(width: 6),
           _sortChip('unanswered', 'Unanswered'),
-          Spacer(),
+          const Spacer(),
           if (_subjects.isNotEmpty)
             SizedBox(
               height: 32,
@@ -214,12 +214,12 @@ class _ForumScreenState extends State<ForumScreen>
         onTap: (_) => setState(() {}),
         labelColor: AppColors.primary,
         unselectedLabelColor: context.colors.textMuted,
-        labelStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-        unselectedLabelStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
         indicatorColor: AppColors.primary,
         indicatorSize: TabBarIndicatorSize.label,
         dividerColor: context.colors.border,
-        tabs: [Tab(text: 'All Questions'), Tab(text: 'Unanswered'), Tab(text: 'My Posts')],
+        tabs: [const Tab(text: 'All Questions'), const Tab(text: 'Unanswered'), const Tab(text: 'My Posts')],
       ),
     ),
   );
@@ -292,22 +292,22 @@ class _ForumScreenState extends State<ForumScreen>
                   ],
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(children: [
                       Expanded(child: Text(title.toString(), style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textPrimary), maxLines: 2, overflow: TextOverflow.ellipsis)),
-                      if (resolved) ...[SizedBox(width: 6), Container(
+                      if (resolved) ...[const SizedBox(width: 6), Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(color: context.colors.successMuted, borderRadius: BorderRadius.circular(6)),
                         child: Text('Resolved', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: context.colors.success)),
                       )],
                     ]),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(excerpt, style: TextStyle(fontSize: 13, color: context.colors.textMuted), maxLines: 2, overflow: TextOverflow.ellipsis),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Row(children: [
                       if (subject.toString().isNotEmpty) ...[
                         Container(
@@ -315,12 +315,12 @@ class _ForumScreenState extends State<ForumScreen>
                           decoration: BoxDecoration(color: context.colors.infoMuted, borderRadius: BorderRadius.circular(6)),
                           child: Text(subject.toString(), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.info)),
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                       ],
                       Icon(Icons.chat_bubble_outline_rounded, size: 14, color: context.colors.textMuted),
-                      SizedBox(width: 4),
+                      const SizedBox(width: 4),
                       Text('$answers', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
-                      Spacer(),
+                      const Spacer(),
                       Text('$author \u00b7 $ago', style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
                     ]),
                   ],
@@ -392,13 +392,13 @@ class _PostDetailScreenState extends State<_PostDetailScreen> {
         ],
       ),
       body: _loading
-        ? Center(child: CircularProgressIndicator(color: AppColors.primary))
+        ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
         : Column(children: [
             Expanded(child: ListView(padding: const EdgeInsets.all(16), children: [
               _buildPost(),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Text('${_answers.length} ${_answers.length == 1 ? 'Answer' : 'Answers'}', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               ..._answers.map((a) => _buildAnswer(a)),
             ])),
             _buildInputBar(),
@@ -424,7 +424,7 @@ class _PostDetailScreenState extends State<_PostDetailScreen> {
           Text('$votes', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
           GestureDetector(onTap: () => _votePost(-1), child: Icon(Icons.keyboard_arrow_down_rounded, size: 28, color: context.colors.textMuted)),
         ]),
-        SizedBox(width: 16),
+        const SizedBox(width: 16),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(child: Text(title.toString(), style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: context.colors.textPrimary))),
@@ -434,9 +434,9 @@ class _PostDetailScreenState extends State<_PostDetailScreen> {
               child: Text('Resolved', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: context.colors.success)),
             ),
           ]),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(body.toString(), style: TextStyle(fontSize: 14, color: context.colors.textSecondary, height: 1.5)),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Row(children: [
             if (subject.toString().isNotEmpty) ...[
               Container(
@@ -444,7 +444,7 @@ class _PostDetailScreenState extends State<_PostDetailScreen> {
                 decoration: BoxDecoration(color: context.colors.infoMuted, borderRadius: BorderRadius.circular(6)),
                 child: Text(subject.toString(), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.info)),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
             ],
             Text('$author \u00b7 $ago', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
           ]),
@@ -473,11 +473,11 @@ class _PostDetailScreenState extends State<_PostDetailScreen> {
           GestureDetector(onTap: () => _voteAnswer(answer['id'], 1), child: Icon(Icons.keyboard_arrow_up_rounded, size: 24, color: context.colors.textMuted)),
           Text('$votes', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
           GestureDetector(onTap: () => _voteAnswer(answer['id'], -1), child: Icon(Icons.keyboard_arrow_down_rounded, size: 24, color: context.colors.textMuted)),
-          if (!accepted) ...[SizedBox(height: 4),
+          if (!accepted) ...[const SizedBox(height: 4),
             GestureDetector(onTap: () => _acceptAnswer(answer['id']), child: Icon(Icons.check_circle_outline_rounded, size: 22, color: context.colors.textMuted)),
           ],
         ]),
-        SizedBox(width: 14),
+        const SizedBox(width: 14),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           if (accepted) Container(
             margin: const EdgeInsets.only(bottom: 8),
@@ -485,12 +485,12 @@ class _PostDetailScreenState extends State<_PostDetailScreen> {
             decoration: BoxDecoration(color: context.colors.successMuted, borderRadius: BorderRadius.circular(6)),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
               Icon(Icons.check_circle_rounded, size: 12, color: context.colors.success),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Text('Accepted Answer', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: context.colors.success)),
             ]),
           ),
           Text(body.toString(), style: TextStyle(fontSize: 14, color: context.colors.textSecondary, height: 1.5)),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text('$author \u00b7 $ago', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
         ])),
       ]),
@@ -509,17 +509,17 @@ class _PostDetailScreenState extends State<_PostDetailScreen> {
             controller: _answerCtrl,
             style: TextStyle(color: context.colors.textPrimary, fontSize: 14),
             maxLines: null,
-            decoration: InputDecoration(hintText: 'Write an answer...', border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 10)),
+            decoration: const InputDecoration(hintText: 'Write an answer...', border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 10)),
           ),
         )),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Container(
-          decoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+          decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
           child: IconButton(
             onPressed: _submitting ? null : _submitAnswer,
             icon: _submitting
-              ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-              : Icon(Icons.send_rounded, color: Colors.white, size: 18),
+              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              : const Icon(Icons.send_rounded, color: Colors.white, size: 18),
           ),
         ),
       ]),
@@ -564,7 +564,7 @@ class _CreatePostSheetState extends State<_CreatePostSheet> {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: context.colors.surfaceElevated,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Form(
           key: _formKey,
@@ -576,22 +576,22 @@ class _CreatePostSheetState extends State<_CreatePostSheet> {
                 Expanded(child: Text('Ask a Question', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: context.colors.textPrimary))),
                 IconButton(onPressed: () => Navigator.of(context).pop(), icon: Icon(Icons.close_rounded, color: context.colors.textMuted)),
               ]),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _titleCtrl,
                 style: TextStyle(color: context.colors.textPrimary),
-                decoration: InputDecoration(hintText: 'Title'),
+                decoration: const InputDecoration(hintText: 'Title'),
                 validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _bodyCtrl,
                 style: TextStyle(color: context.colors.textPrimary),
                 maxLines: 5,
-                decoration: InputDecoration(hintText: 'Describe your question...', alignLabelWithHint: true),
+                decoration: const InputDecoration(hintText: 'Describe your question...', alignLabelWithHint: true),
                 validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               if (widget.subjects.isNotEmpty)
                 DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
@@ -606,7 +606,7 @@ class _CreatePostSheetState extends State<_CreatePostSheet> {
                     onChanged: (v) => setState(() => _selectedSubject = v),
                   ),
                 ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -618,8 +618,8 @@ class _CreatePostSheetState extends State<_CreatePostSheet> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: _submitting
-                    ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : Text('Post Question', style: TextStyle(fontWeight: FontWeight.w600)),
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Text('Post Question', style: TextStyle(fontWeight: FontWeight.w600)),
                 ),
               ),
             ],

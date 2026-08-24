@@ -1,11 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/language_service.dart';
 import '../../core/theme/theme_colors.dart';
 
 class LanguageSpeaking extends StatefulWidget {
-  LanguageSpeaking({super.key});
+  const LanguageSpeaking({super.key});
   @override
   State<LanguageSpeaking> createState() => _LanguageSpeakingState();
 }
@@ -95,7 +95,7 @@ class _LanguageSpeakingState extends State<LanguageSpeaking>
             _buildTabBar(),
             Expanded(
               child: _loading
-                  ? Center(child: CircularProgressIndicator(color: AppColors.primary))
+                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
                   : TabBarView(
                       controller: _tabController,
                       children: [
@@ -125,8 +125,8 @@ class _LanguageSpeakingState extends State<LanguageSpeaking>
             onPressed: () => context.pop(),
             icon: Icon(Icons.arrow_back_ios, color: context.colors.textPrimary, size: 20),
           ),
-          Icon(Icons.mic, color: AppColors.primary, size: 24),
-          SizedBox(width: 8),
+          const Icon(Icons.mic, color: AppColors.primary, size: 24),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,9 +155,9 @@ class _LanguageSpeakingState extends State<LanguageSpeaking>
         unselectedLabelColor: context.colors.textSecondary,
         indicatorColor: AppColors.primary,
         tabs: [
-          Tab(text: 'Phrases'),
-          Tab(text: 'Pronunciation'),
-          Tab(text: 'Role Play'),
+          const Tab(text: 'Phrases'),
+          const Tab(text: 'Pronunciation'),
+          const Tab(text: 'Role Play'),
         ],
       ),
     );
@@ -172,7 +172,7 @@ class _LanguageSpeakingState extends State<LanguageSpeaking>
           children: [
             Icon(Icons.chat_bubble_outline, size: 48,
               color: context.colors.textSecondary.withValues(alpha: 0.4)),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text('No phrases available', style: TextStyle(
               color: context.colors.textSecondary.withValues(alpha: 0.6), fontSize: 14,
             )),
@@ -206,7 +206,7 @@ class _LanguageSpeakingState extends State<LanguageSpeaking>
                 ),
                 child: Icon(_iconForPos(pos), color: AppColors.primary, size: 22),
               ),
-              SizedBox(width: 14),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,7 +238,7 @@ class _LanguageSpeakingState extends State<LanguageSpeaking>
           children: [
             Icon(Icons.record_voice_over, size: 48,
               color: context.colors.textSecondary.withValues(alpha: 0.4)),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text('No pronunciation areas yet', style: TextStyle(
               color: context.colors.textSecondary.withValues(alpha: 0.6), fontSize: 14,
             )),
@@ -270,22 +270,22 @@ class _LanguageSpeakingState extends State<LanguageSpeaking>
                       color: context.colors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600,
                     )),
                   ),
-                  Text('${(progress * 100).toInt()}%', style: TextStyle(
+                  Text('${(progress * 100).toInt()}%', style: const TextStyle(
                     color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w600,
                   )),
                 ],
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(p['desc'], style: TextStyle(
                 color: context.colors.textSecondary.withValues(alpha: 0.7), fontSize: 12,
               )),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               ClipRRect(
                 borderRadius: BorderRadius.circular(3),
                 child: LinearProgressIndicator(
                   value: progress,
                   backgroundColor: context.colors.surfaceHighest,
-                  valueColor: AlwaysStoppedAnimation(AppColors.primary),
+                  valueColor: const AlwaysStoppedAnimation(AppColors.primary),
                   minHeight: 5,
                 ),
               ),
@@ -304,12 +304,12 @@ class _LanguageSpeakingState extends State<LanguageSpeaking>
           children: [
             Icon(Icons.record_voice_over, size: 48,
               color: context.colors.textSecondary.withValues(alpha: 0.4)),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text('Role Play', style: TextStyle(
               color: context.colors.textSecondary.withValues(alpha: 0.6),
               fontSize: 16, fontWeight: FontWeight.w600,
             )),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Text(
@@ -349,9 +349,9 @@ class _LanguageSpeakingState extends State<LanguageSpeaking>
                       color: AppColors.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(Icons.record_voice_over, color: AppColors.primary, size: 20),
+                    child: const Icon(Icons.record_voice_over, color: AppColors.primary, size: 20),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(title, style: TextStyle(
                       color: context.colors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600,
@@ -361,7 +361,7 @@ class _LanguageSpeakingState extends State<LanguageSpeaking>
                 ],
               ),
               if (rule.isNotEmpty) ...[
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(rule, maxLines: 2, overflow: TextOverflow.ellipsis,
                   style: TextStyle(color: context.colors.textSecondary.withValues(alpha: 0.7), fontSize: 12)),
               ],
@@ -383,14 +383,14 @@ class _LanguageSpeakingState extends State<LanguageSpeaking>
         child: GestureDetector(
           onTap: () => setState(() => _isRecording = !_isRecording),
           child: AnimatedContainer(
-            duration: Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 200),
             width: 64, height: 64,
             decoration: BoxDecoration(
-              color: _isRecording ? Color(0xFFEF4444) : AppColors.primary,
+              color: _isRecording ? const Color(0xFFEF4444) : AppColors.primary,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: (_isRecording ? Color(0xFFEF4444) : AppColors.primary)
+                  color: (_isRecording ? const Color(0xFFEF4444) : AppColors.primary)
                       .withValues(alpha: 0.3),
                   blurRadius: 12,
                   spreadRadius: _isRecording ? 4 : 0,

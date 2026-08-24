@@ -7,7 +7,7 @@ import '../../widgets/error_state.dart';
 import '../../core/theme/theme_colors.dart';
 
 class StudyPlannerScreen extends StatefulWidget {
-  StudyPlannerScreen({super.key});
+  const StudyPlannerScreen({super.key});
 
   @override
   State<StudyPlannerScreen> createState() => _StudyPlannerScreenState();
@@ -69,7 +69,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Study plan generated!'), backgroundColor: context.colors.success),
+          SnackBar(content: const Text('Study plan generated!'), backgroundColor: context.colors.success),
         );
         await _loadData();
       }
@@ -107,7 +107,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
                 ),
                 background: Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [AppColors.primaryDark, AppColors.primaryMuted],
                       begin: Alignment.topLeft,
@@ -125,7 +125,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
               SliverToBoxAdapter(child: _buildTodaysTasks()),
               SliverToBoxAdapter(child: _buildGeneratePlan()),
               SliverToBoxAdapter(child: _buildPlanOverview()),
-              SliverToBoxAdapter(child: SizedBox(height: 40)),
+              const SliverToBoxAdapter(child: SizedBox(height: 40)),
             ],
           ],
         ),
@@ -137,7 +137,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
     return Row(
       children: [
         Icon(icon, color: AppColors.primary, size: 18),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Text(
           title,
           style: TextStyle(
@@ -167,9 +167,9 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSectionHeader('Today\'s Study Tasks', Icons.calendar_today_outlined),
-            SizedBox(height: 14),
+            const SizedBox(height: 14),
             if (activeTasks.isEmpty)
-              EmptyState(
+              const EmptyState(
                 icon: Icons.task_alt_rounded,
                 title: 'No tasks for today',
                 subtitle: 'Generate a study plan to get started!',
@@ -243,7 +243,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                     : null,
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,7 +260,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (topicName.isNotEmpty) ...[
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
                       topicName,
                       style: TextStyle(fontSize: 11, color: context.colors.textMuted),
@@ -271,9 +271,9 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                 ],
               ),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             _MiniMasteryRing(mastery: mastery, color: priorityColor),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -293,7 +293,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                   ),
                 ),
                 if (minutes > 0) ...[
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     '${minutes}m',
                     style: TextStyle(fontSize: 10, color: context.colors.textMuted),
@@ -321,14 +321,14 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSectionHeader('Generate Study Plan', Icons.auto_awesome_outlined),
-            SizedBox(height: 14),
+            const SizedBox(height: 14),
             if (_subjects.isNotEmpty) ...[
               SizedBox(
                 height: 38,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: _subjects.length,
-                  separatorBuilder: (_, __) => SizedBox(width: 8),
+                  separatorBuilder: (_, __) => const SizedBox(width: 8),
                   itemBuilder: (ctx, i) {
                     final s = _subjects[i];
                     final slug = s['slug'] ?? '';
@@ -359,7 +359,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                 ),
               ),
             ],
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -369,7 +369,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                 ),
                 Text(
                   '${_dailyMinutes.round()} min',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary),
                 ),
               ],
             ),
@@ -380,7 +380,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                 thumbColor: AppColors.primary,
                 overlayColor: context.colors.primaryGlow,
                 trackHeight: 4,
-                thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8),
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
               ),
               child: Slider(
                 value: _dailyMinutes,
@@ -390,7 +390,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                 onChanged: (v) => setState(() { _dailyMinutes = v; }),
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -412,10 +412,10 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                       style: TextStyle(fontSize: 12, color: context.colors.textPrimary),
                       isDense: true,
                       items: [
-                        DropdownMenuItem(value: 7, child: Text('7 days')),
-                        DropdownMenuItem(value: 14, child: Text('14 days')),
-                        DropdownMenuItem(value: 21, child: Text('21 days')),
-                        DropdownMenuItem(value: 28, child: Text('28 days')),
+                        const DropdownMenuItem(value: 7, child: Text('7 days')),
+                        const DropdownMenuItem(value: 14, child: Text('14 days')),
+                        const DropdownMenuItem(value: 21, child: Text('21 days')),
+                        const DropdownMenuItem(value: 28, child: Text('28 days')),
                       ],
                       onChanged: (v) {
                         if (v != null) setState(() { _daysAhead = v; });
@@ -425,7 +425,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: GestureDetector(
@@ -437,19 +437,19 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                         ? LinearGradient(
                             colors: [AppColors.primary.withValues(alpha: 0.4), AppColors.primaryMuted.withValues(alpha: 0.4)],
                           )
-                        : LinearGradient(
+                        : const LinearGradient(
                             colors: [AppColors.primary, AppColors.primaryDark],
                           ),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
                     child: _generating
-                        ? SizedBox(
+                        ? const SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.textOnPrimary),
                           )
-                        : Row(
+                        : const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.auto_awesome_outlined, color: AppColors.textOnPrimary, size: 18),
@@ -491,14 +491,14 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSectionHeader('Plan Overview', Icons.bar_chart_rounded),
-            SizedBox(height: 14),
+            const SizedBox(height: 14),
             _buildOverviewStats(stats),
             if (plans.isNotEmpty) ...[
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               ...plans.asMap().entries.map((entry) => _buildPlanCard(entry.value, entry.key, plans.length)),
             ] else
               Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Center(
                   child: Text(
                     'No plans yet. Generate one above!',
@@ -522,11 +522,11 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
     return Row(
       children: [
         _buildStatChip('$totalPlans', 'Plans', context.colors.info),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         _buildStatChip('$activePlans', 'Active', context.colors.warning),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         _buildStatChip('$completedPlans', 'Done', context.colors.success),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         _buildStatChip('$totalItems', 'Items', context.colors.lavender),
       ],
     );
@@ -544,7 +544,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
         child: Column(
           children: [
             Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: color)),
-            SizedBox(height: 2),
+            const SizedBox(height: 2),
             Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: color.withValues(alpha: 0.8)), textAlign: TextAlign.center),
           ],
         ),
@@ -593,7 +593,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       if (subject.isNotEmpty) ...[
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(subject, style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
                       ],
                     ],
@@ -612,7 +612,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
@@ -626,7 +626,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                     ),
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Text(
                   '$completed/$totalItems ($progressPercent%)',
                   style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.textSecondary),
@@ -644,7 +644,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: context.colors.surface,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) => _PlanDetailSheet(plan: plan),
@@ -730,7 +730,7 @@ class _PlanDetailSheetState extends State<_PlanDetailSheet> {
         return Container(
           decoration: BoxDecoration(
             color: context.colors.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: ListView(
             controller: scrollController,
@@ -743,16 +743,16 @@ class _PlanDetailSheetState extends State<_PlanDetailSheet> {
                   decoration: BoxDecoration(color: context.colors.border, borderRadius: BorderRadius.circular(2)),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Center(
                 child: Text(
                   title,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               if (_loading)
-                Center(child: CircularProgressIndicator(color: AppColors.primary))
+                const Center(child: CircularProgressIndicator(color: AppColors.primary))
               else if (items.isEmpty)
                 Center(
                   child: Text('No items in this plan', style: TextStyle(color: context.colors.textMuted)),
@@ -804,7 +804,7 @@ class _PlanDetailSheetState extends State<_PlanDetailSheet> {
                     ),
                   ),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -821,7 +821,7 @@ class _PlanDetailSheetState extends State<_PlanDetailSheet> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (scheduledDate.toString().isNotEmpty) ...[
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     '${scheduledDate.toString().length > 10 ? scheduledDate.toString().substring(0, 10) : scheduledDate}',
                     style: TextStyle(fontSize: 11, color: context.colors.textMuted),

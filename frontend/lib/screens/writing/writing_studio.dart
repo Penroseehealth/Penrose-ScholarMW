@@ -5,7 +5,7 @@ import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
 
 class WritingStudio extends StatefulWidget {
-  WritingStudio({super.key});
+  const WritingStudio({super.key});
 
   @override
   State<WritingStudio> createState() => _WritingStudioState();
@@ -105,7 +105,7 @@ class _WritingStudioState extends State<WritingStudio>
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('New Project'),
+        title: const Text('New Project'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -117,7 +117,7 @@ class _WritingStudioState extends State<WritingStudio>
                     borderRadius: BorderRadius.circular(10)),
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             TextField(
               controller: descController,
               maxLines: 3,
@@ -156,7 +156,7 @@ class _WritingStudioState extends State<WritingStudio>
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
-            child: Text('Create'),
+            child: const Text('Create'),
           ),
         ],
       ),
@@ -224,7 +224,7 @@ class _WritingStudioState extends State<WritingStudio>
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Add Citation'),
+        title: const Text('Add Citation'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -237,7 +237,7 @@ class _WritingStudioState extends State<WritingStudio>
                       borderRadius: BorderRadius.circular(10)),
                 ),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               TextField(
                 controller: authorController,
                 decoration: InputDecoration(
@@ -246,7 +246,7 @@ class _WritingStudioState extends State<WritingStudio>
                       borderRadius: BorderRadius.circular(10)),
                 ),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               TextField(
                 controller: yearController,
                 decoration: InputDecoration(
@@ -256,7 +256,7 @@ class _WritingStudioState extends State<WritingStudio>
                 ),
                 keyboardType: TextInputType.number,
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               TextField(
                 controller: doiController,
                 decoration: InputDecoration(
@@ -298,7 +298,7 @@ class _WritingStudioState extends State<WritingStudio>
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
-            child: Text('Add'),
+            child: const Text('Add'),
           ),
         ],
       ),
@@ -326,7 +326,7 @@ class _WritingStudioState extends State<WritingStudio>
           builder: (ctx) => AlertDialog(
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16)),
-            title: Text('Bibliography'),
+            title: const Text('Bibliography'),
             content: SingleChildScrollView(
               child: Text(bib.toString(),
                   style: TextStyle(
@@ -364,7 +364,7 @@ class _WritingStudioState extends State<WritingStudio>
         elevation: 0,
         leading: _editingSection || _selectedProject != null
             ? IconButton(
-                icon: Icon(Icons.arrow_back),
+                icon: const Icon(Icons.arrow_back),
                 onPressed: () {
                   setState(() {
                     if (_editingSection) {
@@ -396,8 +396,8 @@ class _WritingStudioState extends State<WritingStudio>
                 unselectedLabelColor: context.colors.textSecondary,
                 indicatorColor: AppColors.primary,
                 tabs: [
-                  Tab(text: 'My Projects'),
-                  Tab(text: 'References'),
+                  const Tab(text: 'My Projects'),
+                  const Tab(text: 'References'),
                 ],
               )
             : null,
@@ -418,8 +418,8 @@ class _WritingStudioState extends State<WritingStudio>
               onPressed: _showAIAssist,
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
-              icon: Icon(Icons.auto_awesome),
-              label: Text('AI Assist'),
+              icon: const Icon(Icons.auto_awesome),
+              label: const Text('AI Assist'),
             )
           : null,
     );
@@ -437,11 +437,11 @@ class _WritingStudioState extends State<WritingStudio>
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: _createProject,
-              icon: Icon(Icons.add, color: AppColors.primary),
-              label: Text('New Project',
+              icon: const Icon(Icons.add, color: AppColors.primary),
+              label: const Text('New Project',
                   style: TextStyle(color: AppColors.primary)),
               style: OutlinedButton.styleFrom(
-                side: BorderSide(color: AppColors.primary),
+                side: const BorderSide(color: AppColors.primary),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -493,8 +493,8 @@ class _WritingStudioState extends State<WritingStudio>
             children: [
               Row(
                 children: [
-                  Icon(Icons.article_outlined, color: AppColors.primary, size: 20),
-                  SizedBox(width: 8),
+                  const Icon(Icons.article_outlined, color: AppColors.primary, size: 20),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(title,
                         style: TextStyle(
@@ -506,22 +506,22 @@ class _WritingStudioState extends State<WritingStudio>
                 ],
               ),
               if (desc.isNotEmpty) ...[
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(desc,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style:
                         TextStyle(fontSize: 13, color: context.colors.textSecondary)),
               ],
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Row(
                 children: [
                   Icon(Icons.list, size: 14, color: context.colors.textSecondary),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Text('$sectionCount sections',
                       style:
                           TextStyle(fontSize: 12, color: context.colors.textSecondary)),
-                  Spacer(),
+                  const Spacer(),
                   if (updatedAt.toString().isNotEmpty)
                     Text(updatedAt.toString().substring(0, updatedAt.toString().length > 10 ? 10 : updatedAt.toString().length),
                         style:
@@ -549,11 +549,11 @@ class _WritingStudioState extends State<WritingStudio>
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: context.colors.textPrimary)),
-              Spacer(),
+              const Spacer(),
               TextButton.icon(
                 onPressed: () => _showAddSectionDialog(),
-                icon: Icon(Icons.add, size: 18, color: AppColors.primary),
-                label: Text('Add',
+                icon: const Icon(Icons.add, size: 18, color: AppColors.primary),
+                label: const Text('Add',
                     style: TextStyle(color: AppColors.primary)),
               ),
             ],
@@ -597,17 +597,17 @@ class _WritingStudioState extends State<WritingStudio>
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Center(
                   child: Text('${index + 1}',
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           color: AppColors.primary)),
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -616,7 +616,7 @@ class _WritingStudioState extends State<WritingStudio>
                         style: TextStyle(
                             fontWeight: FontWeight.w600,
                             color: context.colors.textPrimary)),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text('$wordCount words',
                         style: TextStyle(
                             fontSize: 12, color: context.colors.textSecondary)),
@@ -637,7 +637,7 @@ class _WritingStudioState extends State<WritingStudio>
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Add Section'),
+        title: const Text('Add Section'),
         content: TextField(
           controller: controller,
           autofocus: true,
@@ -663,7 +663,7 @@ class _WritingStudioState extends State<WritingStudio>
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
-            child: Text('Add'),
+            child: const Text('Add'),
           ),
         ],
       ),
@@ -701,7 +701,7 @@ class _WritingStudioState extends State<WritingStudio>
             ],
           ),
         ),
-        Divider(height: 1),
+        const Divider(height: 1),
         Expanded(
           child: TextField(
             controller: _sectionEditorController,
@@ -770,19 +770,19 @@ class _WritingStudioState extends State<WritingStudio>
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: context.colors.textPrimary)),
-                Spacer(),
+                const Spacer(),
                 TextButton.icon(
                   onPressed: _addCitation,
-                  icon: Icon(Icons.add, size: 18, color: AppColors.primary),
-                  label: Text('Add',
+                  icon: const Icon(Icons.add, size: 18, color: AppColors.primary),
+                  label: const Text('Add',
                       style: TextStyle(color: AppColors.primary)),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 TextButton.icon(
                   onPressed:
                       _loadingBibliography ? null : _generateBibliography,
                   icon: _loadingBibliography
-                      ? SizedBox(
+                      ? const SizedBox(
                           width: 16,
                           height: 16,
                           child: CircularProgressIndicator(strokeWidth: 2))
@@ -845,7 +845,7 @@ class _WritingStudioState extends State<WritingStudio>
               Icon(Icons.folder,
                   color: isSelected ? Colors.white : AppColors.primary,
                   size: 22),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -853,7 +853,7 @@ class _WritingStudioState extends State<WritingStudio>
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: isSelected ? Colors.white : context.colors.textPrimary)),
-              Spacer(),
+              const Spacer(),
               Text('$count citations',
                   style: TextStyle(
                       fontSize: 11,
@@ -888,7 +888,7 @@ class _WritingStudioState extends State<WritingStudio>
                     fontSize: 14,
                     color: context.colors.textPrimary)),
             if (authors.toString().isNotEmpty) ...[
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(authors.toString(),
                   style:
                       TextStyle(fontSize: 13, color: context.colors.textSecondary)),
@@ -900,16 +900,16 @@ class _WritingStudioState extends State<WritingStudio>
                     padding: const EdgeInsets.symmetric(
                         horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(year.toString(),
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: AppColors.primary)),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                 ],
                 if (doi.toString().isNotEmpty)
                   Expanded(
@@ -933,7 +933,7 @@ class _WritingStudioState extends State<WritingStudio>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) => DraggableScrollableSheet(
@@ -955,16 +955,16 @@ class _WritingStudioState extends State<WritingStudio>
                 ),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text('AI Writing Assist',
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: context.colors.textPrimary)),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text('Choose an action to improve your writing',
                 style: TextStyle(fontSize: 13, color: context.colors.textSecondary)),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _aiActionTile(
               Icons.spellcheck,
               'Grammar Check',
@@ -1013,7 +1013,7 @@ class _WritingStudioState extends State<WritingStudio>
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: color, size: 22),
@@ -1040,7 +1040,7 @@ class _WritingStudioState extends State<WritingStudio>
   // ── Shared ──
 
   Widget _buildSpinner() {
-    return Center(
+    return const Center(
       child: CircularProgressIndicator(color: AppColors.primary),
     );
   }
@@ -1053,13 +1053,13 @@ class _WritingStudioState extends State<WritingStudio>
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 64, color: context.colors.textSecondary),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(title,
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: context.colors.textPrimary)),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(subtitle,
                 textAlign: TextAlign.center,
                 style:

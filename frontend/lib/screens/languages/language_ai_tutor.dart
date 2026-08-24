@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
@@ -11,7 +10,7 @@ const Color _langTealGlow = Color(0x222DD4BF);
 class LanguageAITutorScreen extends StatefulWidget {
   final String slug;
 
-  LanguageAITutorScreen({super.key, required this.slug});
+  const LanguageAITutorScreen({super.key, required this.slug});
 
   @override
   State<LanguageAITutorScreen> createState() => _LanguageAITutorScreenState();
@@ -54,7 +53,7 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
-          duration: Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
       }
@@ -80,7 +79,7 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
     });
     _scrollToBottom();
 
-    await Future.delayed(Duration(milliseconds: 900));
+    await Future.delayed(const Duration(milliseconds: 900));
 
     final response = _generateResponse(text);
 
@@ -200,7 +199,7 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
                     size: 18, color: context.colors.textSecondary),
               ),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Container(
               width: 40,
               height: 40,
@@ -208,10 +207,10 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
                 color: _langTealGlow,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(Icons.smart_toy_rounded,
+              child: const Icon(Icons.smart_toy_rounded,
                   color: _langTeal, size: 22),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,7 +234,7 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text('${_userTurnCount()} turns',
-                  style: TextStyle(
+                  style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: _langTeal)),
@@ -274,7 +273,7 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Text('Chat History',
                 style: TextStyle(
                     fontSize: 13,
@@ -285,7 +284,7 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
             child: sessions.isEmpty
                 ? Center(
                     child: Padding(
-                      padding: EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
                       child: Text('No history yet',
                           style:
                               TextStyle(fontSize: 12, color: context.colors.textMuted)),
@@ -350,16 +349,16 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
                   color: _langTeal.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.translate_rounded,
+                child: const Icon(Icons.translate_rounded,
                     color: _langTeal, size: 40),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Text('${_languageTitle(widget.slug)} AI Tutor',
                   style: TextStyle(
                       color: context.colors.textPrimary,
                       fontSize: 22,
                       fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 'Grammar · Writing · Conversation · Quizzes',
                 style:
@@ -388,7 +387,7 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
         child: Container(
           margin: const EdgeInsets.only(bottom: 8),
           padding:
-              EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             color: context.colors.accent.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(20),
@@ -438,17 +437,17 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.smart_toy_rounded,
+                  const Icon(Icons.smart_toy_rounded,
                       size: 13, color: AppColors.primaryLight),
-                  SizedBox(width: 6),
+                  const SizedBox(width: 6),
                   Text('${_languageTitle(widget.slug)} AI',
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: AppColors.primaryLight)),
                 ],
               ),
-            if (!isUser) SizedBox(height: 6),
+            if (!isUser) const SizedBox(height: 6),
             SelectableText(
               msg.text,
               style: TextStyle(
@@ -456,7 +455,7 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
                   fontSize: 14,
                   height: 1.5),
             ),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Text(
               '${msg.time.hour.toString().padLeft(2, '0')}:${msg.time.minute.toString().padLeft(2, '0')}',
               style: TextStyle(
@@ -484,9 +483,9 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.smart_toy_rounded,
+            const Icon(Icons.smart_toy_rounded,
                 color: AppColors.primaryLight, size: 14),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             ...List.generate(3, (i) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -536,7 +535,7 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
                         size: 15,
                         color:
                             active ? _langTeal : context.colors.textMuted),
-                    SizedBox(width: 6),
+                    const SizedBox(width: 6),
                     Text(a.$2,
                         style: TextStyle(
                             fontSize: 12,
@@ -591,19 +590,19 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: _langTeal),
+                    borderSide: const BorderSide(color: _langTeal),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16, vertical: 12),
                 ),
               ),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Container(
               decoration: BoxDecoration(
                   color: _langTeal, borderRadius: BorderRadius.circular(12)),
               child: IconButton(
-                icon: Icon(Icons.send_rounded, color: Color(0xFF062B27)),
+                icon: const Icon(Icons.send_rounded, color: Color(0xFF062B27)),
                 onPressed: () => _sendMessage(_messageController.text),
               ),
             ),

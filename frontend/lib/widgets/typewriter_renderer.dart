@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../core/theme/app_colors.dart';
 import 'stem_text.dart';
 import '../core/theme/theme_colors.dart';
 
@@ -12,7 +11,7 @@ class TypewriterRenderer extends StatefulWidget {
   final VoidCallback? onComplete;
   final Duration charDuration;
 
-  TypewriterRenderer({
+  const TypewriterRenderer({
     super.key,
     required this.content,
     this.style,

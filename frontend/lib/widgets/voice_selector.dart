@@ -7,7 +7,7 @@ class VoiceSelector extends StatefulWidget {
   final String? selectedVoiceId;
   final Function(String voiceId) onVoiceSelected;
 
-  VoiceSelector({
+  const VoiceSelector({
     super.key,
     this.selectedVoiceId,
     required this.onVoiceSelected,
@@ -19,20 +19,20 @@ class VoiceSelector extends StatefulWidget {
 
 class _VoiceSelectorState extends State<VoiceSelector> {
   final List<Map<String, String>> _voices = [
-    {"id": "en-us-academic-male-1", "name": "Academic Male 1", "desc": "Clear, professional", "lang": "en"},
-    {"id": "en-us-academic-male-2", "name": "Academic Male 2", "desc": "Warm, engaging", "lang": "en"},
-    {"id": "en-us-academic-male-3", "name": "Academic Male 3", "desc": "Deep, authoritative", "lang": "en"},
-    {"id": "en-us-academic-female-1", "name": "Academic Female 1", "desc": "Clear, articulate", "lang": "en"},
-    {"id": "en-us-academic-female-2", "name": "Academic Female 2", "desc": "Friendly tutor", "lang": "en"},
-    {"id": "en-us-academic-female-3", "name": "Academic Female 3", "desc": "Professional narrator", "lang": "en"},
-    {"id": "en-us-calm-tutor", "name": "Calm Tutor", "desc": "Slow, clear pace", "lang": "en"},
-    {"id": "en-us-energetic-tutor", "name": "Energetic Tutor", "desc": "Enthusiastic", "lang": "en"},
-    {"id": "en-us-professional-narrator", "name": "Professional Narrator", "desc": "Formal narration", "lang": "en"},
-    {"id": "en-us-friendly-assistant", "name": "Friendly Assistant", "desc": "Conversational", "lang": "en"},
-    {"id": "zh-academic-female-1", "name": "Chinese Female 1", "desc": "Mandarin academic", "lang": "zh"},
-    {"id": "zh-academic-male-1", "name": "Chinese Male 1", "desc": "Mandarin professional", "lang": "zh"},
-    {"id": "ar-academic-female-1", "name": "Arabic Female 1", "desc": "Arabic academic", "lang": "ar"},
-    {"id": "ar-academic-male-1", "name": "Arabic Male 1", "desc": "Arabic professional", "lang": "ar"},
+    {'id': 'en-us-academic-male-1', 'name': 'Academic Male 1', 'desc': 'Clear, professional', 'lang': 'en'},
+    {'id': 'en-us-academic-male-2', 'name': 'Academic Male 2', 'desc': 'Warm, engaging', 'lang': 'en'},
+    {'id': 'en-us-academic-male-3', 'name': 'Academic Male 3', 'desc': 'Deep, authoritative', 'lang': 'en'},
+    {'id': 'en-us-academic-female-1', 'name': 'Academic Female 1', 'desc': 'Clear, articulate', 'lang': 'en'},
+    {'id': 'en-us-academic-female-2', 'name': 'Academic Female 2', 'desc': 'Friendly tutor', 'lang': 'en'},
+    {'id': 'en-us-academic-female-3', 'name': 'Academic Female 3', 'desc': 'Professional narrator', 'lang': 'en'},
+    {'id': 'en-us-calm-tutor', 'name': 'Calm Tutor', 'desc': 'Slow, clear pace', 'lang': 'en'},
+    {'id': 'en-us-energetic-tutor', 'name': 'Energetic Tutor', 'desc': 'Enthusiastic', 'lang': 'en'},
+    {'id': 'en-us-professional-narrator', 'name': 'Professional Narrator', 'desc': 'Formal narration', 'lang': 'en'},
+    {'id': 'en-us-friendly-assistant', 'name': 'Friendly Assistant', 'desc': 'Conversational', 'lang': 'en'},
+    {'id': 'zh-academic-female-1', 'name': 'Chinese Female 1', 'desc': 'Mandarin academic', 'lang': 'zh'},
+    {'id': 'zh-academic-male-1', 'name': 'Chinese Male 1', 'desc': 'Mandarin professional', 'lang': 'zh'},
+    {'id': 'ar-academic-female-1', 'name': 'Arabic Female 1', 'desc': 'Arabic academic', 'lang': 'ar'},
+    {'id': 'ar-academic-male-1', 'name': 'Arabic Male 1', 'desc': 'Arabic professional', 'lang': 'ar'},
   ];
 
   String? _previewing;
@@ -43,7 +43,7 @@ class _VoiceSelectorState extends State<VoiceSelector> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: context.colors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SafeArea(
         child: Column(
@@ -56,17 +56,17 @@ class _VoiceSelectorState extends State<VoiceSelector> {
                 decoration: BoxDecoration(color: context.colors.border, borderRadius: BorderRadius.circular(2)),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Voice Library',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'Choose your preferred AI voice',
               style: TextStyle(fontSize: 13, color: context.colors.textMuted),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Flexible(
               child: ListView.builder(
                 shrinkWrap: true,
@@ -119,7 +119,7 @@ class _VoiceSelectorState extends State<VoiceSelector> {
                     color: isSelected ? AppColors.primary : context.colors.textSecondary,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,7 +132,7 @@ class _VoiceSelectorState extends State<VoiceSelector> {
                           color: isSelected ? AppColors.primary : context.colors.textPrimary,
                         ),
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
                         voice['desc']!,
                         style: TextStyle(fontSize: 11, color: context.colors.textMuted),
@@ -143,7 +143,7 @@ class _VoiceSelectorState extends State<VoiceSelector> {
                 GestureDetector(
                   onTap: () {
                     setState(() => _previewing = voice['id']);
-                    Future.delayed(Duration(seconds: 2), () {
+                    Future.delayed(const Duration(seconds: 2), () {
                       if (mounted) setState(() => _previewing = null);
                     });
                   },
@@ -161,8 +161,8 @@ class _VoiceSelectorState extends State<VoiceSelector> {
                   ),
                 ),
                 if (isSelected) ...[
-                  SizedBox(width: 8),
-                  Icon(Icons.check_circle_rounded, size: 18, color: AppColors.primary),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.check_circle_rounded, size: 18, color: AppColors.primary),
                 ],
               ],
             ),

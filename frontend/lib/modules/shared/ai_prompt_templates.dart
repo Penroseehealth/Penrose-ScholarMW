@@ -1,5 +1,5 @@
 class MathPromptTemplates {
-  static const equationSolver = """
+  static const equationSolver = '''
 You are a Mathematics AI Tutor for Malawian students.
 Solve the following mathematical problem step by step, explaining each step clearly.
 Use Malawian context where relevant (e.g., local market calculations, transportation costs).
@@ -14,9 +14,9 @@ Show:
 5. Explain in simple Chichewa-English where helpful
 
 Answer:
-""";
+''';
 
-  static const graphing = """
+  static const graphing = '''
 You are a Mathematics AI Tutor. Plot the following function and analyze its properties.
 
 Function: {function}
@@ -28,25 +28,25 @@ Show:
 4. Sketch the graph conceptually
 
 Answer:
-""";
+''';
 
-  static const symbolicReasoning = """
+  static const symbolicReasoning = '''
 You are a Mathematics AI Tutor. Verify the following symbolic reasoning step.
 
 Step: {step}
 Result: {result}
 
 Check if the reasoning is correct, and if not, provide the correct approach.
-""";
+''';
 
-  static const wordProblem = """
+  static const wordProblem = '''
 You are a Mathematics AI Tutor for Malawian students. Solve this word problem.
 
 Problem: {problem}
 
 Context: Malawi, {context}
 Show all steps clearly with explanations suitable for MSCE level.
-""";
+''';
 }
 
 class BiologyAIPrompts {
@@ -74,7 +74,7 @@ Parts to label: {parts}
 Provide the correct labels and a brief description of each part's function.
 """;
 
-  static const virtualLaboratory = """
+  static const virtualLaboratory = '''
 You are a Biology AI Tutor. Simulate the following laboratory experiment.
 
 Experiment: {experiment}
@@ -85,11 +85,11 @@ Describe:
 2. Step-by-step procedure
 3. Expected observations
 4. Conclusion
-""";
+''';
 }
 
 class ChemistryAIPrompts {
-  static const chemicalEquation = """
+  static const chemicalEquation = '''
 You are a Chemistry AI Tutor for Malawian students. Balance and explain the following chemical reaction.
 
 Reaction: {reaction}
@@ -102,9 +102,9 @@ Show:
 5. Real-world application in Malawi (if applicable)
 
 Answer:
-""";
+''';
 
-  static const periodicTable = """
+  static const periodicTable = '''
 You are a Chemistry AI Tutor. Provide information about the following element.
 
 Element: {element_symbol} (Atomic Number: {atomic_number})
@@ -116,9 +116,9 @@ Provide:
 4. Safety considerations
 
 Answer:
-""";
+''';
 
-  static const reactionSimulator = """
+  static const reactionSimulator = '''
 You are a Chemistry AI Tutor. Simulate the following chemical reaction.
 
 Reaction: {reaction}
@@ -132,7 +132,7 @@ Describe:
 5. Visual description of what would be observed in a lab
 
 Answer:
-""";
+''';
 
   static const stoichiometry = """
 You are a Chemistry AI Tutor. Solve this stoichiometry problem.
@@ -152,7 +152,7 @@ Answer:
 }
 
 class PhysicsAIPrompts {
-  static const formulaReference = """
+  static const formulaReference = '''
 You are a Physics AI Tutor for Malawian students. Explain the following physics formula.
 
 Formula: {formula}
@@ -165,9 +165,9 @@ Explain:
 5. Real-world application in Malawi (if applicable)
 
 Answer:
-""";
+''';
 
-  static const problemSolver = """
+  static const problemSolver = '''
 You are a Physics AI Tutor. Solve the following physics problem step by step.
 
 Problem: {problem}
@@ -180,9 +180,9 @@ Show:
 5. Check if answer is reasonable
 
 Answer:
-""";
+''';
 
-  static const simulationEngine = """
+  static const simulationEngine = '''
 You are a Physics AI Tutor. Simulate the following physics scenario.
 
 Scenario: {scenario}
@@ -195,9 +195,9 @@ Describe:
 4. Expected outcomes
 
 Answer:
-""";
+''';
 
-  static const labSimulator = """
+  static const labSimulator = '''
 You are a Physics AI Tutor. Simulate the following laboratory experiment.
 
 Experiment: {experiment}
@@ -211,11 +211,11 @@ Describe:
 5. Expected results and conclusion
 
 Answer:
-""";
+''';
 }
 
 class CSAIPrompts {
-  static const codeAnalysis = """
+  static const codeAnalysis = '''
 You are a Computer Science AI Tutor for Malawian students. Analyze the following code.
 
 Code: {code}
@@ -229,9 +229,9 @@ Provide:
 5. Explanation of key concepts used
 
 Answer:
-""";
+''';
 
-  static const algorithmVisualizer = """
+  static const algorithmVisualizer = '''
 You are a Computer Science AI Tutor. Visualize and explain the following algorithm.
 
 Algorithm: {algorithm}
@@ -245,9 +245,9 @@ Show:
 5. Real-world applications
 
 Answer:
-""";
+''';
 
-  static const compilerDebugger = """
+  static const compilerDebugger = '''
 You are a Computer Science AI Tutor. Debug the following code.
 
 Code: {code}
@@ -260,9 +260,9 @@ Provide:
 4. Explanation of the fix
 
 Answer:
-""";
+''';
 
-  static const codingLaboratory = """
+  static const codingLaboratory = '''
 You are a Computer Science AI Tutor. Guide through this programming task.
 
 Task: {task}
@@ -275,11 +275,11 @@ Provide:
 5. Test cases
 
 Answer:
-""";
+''';
 }
 
 class AgricultureAIPrompts {
-  static const cropModelling = """
+  static const cropModelling = '''
 You are an Agriculture AI Tutor for Malawian farmers and students.
 Analyze the following crop-related problem.
 
@@ -294,9 +294,9 @@ Provide:
 4. Potential challenges and solutions
 
 Answer:
-""";
+''';
 
-  static const soilAnalysis = """
+  static const soilAnalysis = '''
 You are an Agriculture AI Tutor. Analyze soil data for Malawian conditions.
 
 Analysis: {analysis}
@@ -309,9 +309,9 @@ Provide:
 4. Management practices
 
 Answer:
-""";
+''';
 
-  static const irrigationCalculator = """
+  static const irrigationCalculator = '''
 You are an Agriculture AI Tutor. Calculate irrigation requirements.
 
 Area: {area} hectares
@@ -325,11 +325,11 @@ Show:
 4. Cost estimate
 
 Answer:
-""";
+''';
 }
 
 class EnvScienceAIPrompts {
-  static const ecosystemModelling = """
+  static const ecosystemModelling = '''
 You are an Environmental Science AI Tutor for Malawian students.
 Model the following ecosystem.
 
@@ -344,9 +344,9 @@ Provide:
 5. Conservation strategies for Malawi
 
 Answer:
-""";
+''';
 
-  static const climateAnalysis = """
+  static const climateAnalysis = '''
 You are an Environmental Science AI Tutor. Analyze climate data.
 
 Data: {data}
@@ -359,9 +359,9 @@ Provide:
 4. Adaptation strategies for Malawi
 
 Answer:
-""";
+''';
 
-  static const pollutionTracking = """
+  static const pollutionTracking = '''
 You are an Environmental Science AI Tutor. Analyze pollution data.
 
 Pollutant: {pollutant}
@@ -374,11 +374,11 @@ Provide:
 3. Policy recommendations for Malawi
 
 Answer:
-""";
+''';
 }
 
 class StatisticsAIPrompts {
-  static const descriptiveStats = """
+  static const descriptiveStats = '''
 You are a Statistics AI Tutor for Malawian students. Analyze the following data.
 
 Data: {data}
@@ -392,9 +392,9 @@ Provide:
 5. Brief interpretation in context
 
 Answer:
-""";
+''';
 
-  static const hypothesisTesting = """
+  static const hypothesisTesting = '''
 You are a Statistics AI Tutor. Conduct hypothesis testing for the following scenario.
 
 Scenario: {scenario}
@@ -410,9 +410,9 @@ Show:
 7. Interpret in context
 
 Answer:
-""";
+''';
 
-  static const regressionAnalysis = """
+  static const regressionAnalysis = '''
 You are a Statistics AI Tutor. Perform regression analysis.
 
 Data: {data}
@@ -427,11 +427,11 @@ Show:
 6. Make predictions
 
 Answer:
-""";
+''';
 }
 
 class EarthScienceAIPrompts {
-  static const geologicalMap = """
+  static const geologicalMap = '''
 You are an Earth Science AI Tutor for Malawian students. Interpret the following geological data.
 
 Location: {location}
@@ -444,9 +444,9 @@ Provide:
 4. Hazards in the region
 
 Answer:
-""";
+''';
 
-  static const plateTectonics = """
+  static const plateTectonics = '''
 You are an Earth Science AI Tutor. Explain plate tectonics for this region.
 
 Region: {region}
@@ -458,9 +458,9 @@ Provide:
 4. Implications for Malawi
 
 Answer:
-""";
+''';
 
-  static const mineralIdentification = """
+  static const mineralIdentification = '''
 You are an Earth Science AI Tutor. Identify the following mineral.
 
 Properties: {properties}
@@ -472,11 +472,11 @@ Provide:
 4. Where found in Malawi
 
 Answer:
-""";
+''';
 }
 
 class EngineeringAIPrompts {
-  static const circuitSimulator = """
+  static const circuitSimulator = '''
 You are an Engineering AI Tutor for Malawian students. Analyze the following circuit.
 
 Circuit: {circuit}
@@ -488,9 +488,9 @@ Provide:
 4. Real-world applications in Malawi
 
 Answer:
-""";
+''';
 
-  static const structuresAnalyzer = """
+  static const structuresAnalyzer = '''
 You are an Engineering AI Tutor. Analyze the following structure.
 
 Structure: {structure}
@@ -503,9 +503,9 @@ Provide:
 4. Safety factors
 
 Answer:
-""";
+''';
 
-  static const renewableEnergyCalculator = """
+  static const renewableEnergyCalculator = '''
 You are an Engineering AI Tutor. Calculate renewable energy potential.
 
 Type: solar/wind/micro-hydro
@@ -519,9 +519,9 @@ Show:
 4. Installation considerations
 
 Answer:
-""";
+''';
 
-  static const roboticsSimulator = """
+  static const roboticsSimulator = '''
 You are an Engineering AI Tutor. Simulate the following robotic system.
 
 System: {system}
@@ -534,5 +534,5 @@ Describe:
 4. Potential challenges
 
 Answer:
-""";
+''';
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../core/theme/app_colors.dart';
 import 'stem_symbol_palette.dart';
 import 'stem_text.dart';
 import '../core/theme/theme_colors.dart';
@@ -11,7 +10,7 @@ class EquationEditor extends StatefulWidget {
   final bool showPreview;
   final int maxLines;
 
-  EquationEditor({
+  const EquationEditor({
     super.key,
     required this.controller,
     this.hintText = 'Type equation or use templates below...',
@@ -111,27 +110,27 @@ class _EquationEditorState extends State<EquationEditor> {
               if (_showPalette) _showTemplates = false;
             });
           }),
-          Spacer(),
+          const Spacer(),
           IconButton(
-            icon: Icon(Icons.clear_all, size: 18),
+            icon: const Icon(Icons.clear_all, size: 18),
             tooltip: 'Clear',
             onPressed: () => widget.controller.clear(),
             color: context.colors.textSecondary,
             padding: const EdgeInsets.all(4),
-            constraints: BoxConstraints(minWidth: 28, minHeight: 28),
+            constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
           ),
           IconButton(
-            icon: Icon(Icons.content_copy, size: 18),
+            icon: const Icon(Icons.content_copy, size: 18),
             tooltip: 'Copy LaTeX',
             onPressed: () {
               Clipboard.setData(ClipboardData(text: widget.controller.text));
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('LaTeX copied'), duration: Duration(seconds: 1)),
+                const SnackBar(content: Text('LaTeX copied'), duration: Duration(seconds: 1)),
               );
             },
             color: context.colors.textSecondary,
             padding: const EdgeInsets.all(4),
-            constraints: BoxConstraints(minWidth: 28, minHeight: 28),
+            constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
           ),
         ],
       ),
@@ -145,7 +144,7 @@ class _EquationEditorState extends State<EquationEditor> {
       onPressed: onPressed,
       color: context.colors.textSecondary,
       padding: const EdgeInsets.all(4),
-      constraints: BoxConstraints(minWidth: 28, minHeight: 28),
+      constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
     );
   }
 
@@ -191,7 +190,7 @@ class _EquationEditorState extends State<EquationEditor> {
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           StemText(
             widget.controller.text,
             style: TextStyle(

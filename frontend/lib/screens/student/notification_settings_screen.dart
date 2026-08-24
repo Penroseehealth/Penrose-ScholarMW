@@ -5,7 +5,7 @@ import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
 
 class NotificationSettingsScreen extends StatefulWidget {
-  NotificationSettingsScreen({super.key});
+  const NotificationSettingsScreen({super.key});
 
   @override
   State<NotificationSettingsScreen> createState() => _NotificationSettingsScreenState();
@@ -21,8 +21,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   bool _resourceAlerts = true;
   bool _weeklySummary = true;
   bool _aiInsights = true;
-  TimeOfDay _quietStart = TimeOfDay(hour: 22, minute: 0);
-  TimeOfDay _quietEnd = TimeOfDay(hour: 7, minute: 0);
+  TimeOfDay _quietStart = const TimeOfDay(hour: 22, minute: 0);
+  TimeOfDay _quietEnd = const TimeOfDay(hour: 7, minute: 0);
 
   @override
   void initState() {
@@ -77,7 +77,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Settings saved'),
+            content: const Text('Settings saved'),
             backgroundColor: context.colors.success,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -88,7 +88,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to save settings'),
+            content: const Text('Failed to save settings'),
             backgroundColor: context.colors.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -155,17 +155,17 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
           TextButton(
             onPressed: _saving ? null : _savePreferences,
             child: _saving
-                ? SizedBox(
+                ? const SizedBox(
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
                   )
-                : Text('Save', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
+                : const Text('Save', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
           ),
         ],
       ),
       body: _loading
-          ? Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
@@ -219,7 +219,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                     ],
                   ),
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 Container(
                   decoration: BoxDecoration(
                     color: context.colors.surface,
@@ -230,7 +230,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                         child: Text(
                           'Quiet Hours',
                           style: TextStyle(
@@ -288,7 +288,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       subtitle: Text(subtitle, style: TextStyle(color: context.colors.textMuted, fontSize: 12)),
       value: value,
       onChanged: onChanged,
-      activeColor: AppColors.primary,
+      activeThumbColor: AppColors.primary,
       inactiveTrackColor: context.colors.surfaceHighest,
     );
   }

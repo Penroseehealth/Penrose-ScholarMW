@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 
 const Color _bioGreen = Color(0xFF10B981);
@@ -9,7 +8,7 @@ const Color _bioGreenDark = Color(0xFF059669);
 const Color _bioGreenGlow = Color(0x2210B981);
 
 class BiologyPracticalHubScreen extends StatefulWidget {
-  BiologyPracticalHubScreen({super.key});
+  const BiologyPracticalHubScreen({super.key});
 
   @override
   State<BiologyPracticalHubScreen> createState() =>
@@ -20,7 +19,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
   int? _expandedPractical;
 
   static final _practicals = [
-    _Practical(
+    const _Practical(
       1,
       'Using a Light Microscope',
       'Microscope Skills',
@@ -35,7 +34,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
       'The hypothesis is supported: magnification reveals cellular structures invisible to the naked eye. Mastery of microscope technique is essential for all cell biology practicals.',
       '2/5',
     ),
-    _Practical(
+    const _Practical(
       2,
       'Biological Drawing of Cells',
       'Biological Drawings',
@@ -50,7 +49,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
       'Good biological drawings are accurate, clear, and properly labelled. They differ from artistic drawings.',
       '0/5',
     ),
-    _Practical(
+    const _Practical(
       3,
       'Food Tests',
       'Nutrition',
@@ -65,7 +64,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
       'Food tests use simple chemical reactions. Iodine for starch, Benedict\'s for sugar, Biuret for protein, ethanol emulsion test for lipids.',
       '2/5',
     ),
-    _Practical(
+    const _Practical(
       4,
       'Osmosis — Potato Strip Investigation',
       'Movement of Substances',
@@ -80,7 +79,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
       'Osmosis causes water movement across partially permeable membranes. The isotonic point shows where no net movement occurs.',
       '1/5',
     ),
-    _Practical(
+    const _Practical(
       5,
       'Enzyme Activity — Effect of Temperature',
       'Enzymes',
@@ -95,7 +94,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
       'Enzymes have an optimum temperature. Below this, molecules move slowly. Above this, the enzyme denatures and loses its shape.',
       '0/5',
     ),
-    _Practical(
+    const _Practical(
       6,
       'Photosynthesis — Investigating Light',
       'Photosynthesis',
@@ -110,7 +109,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
       'Light provides energy for photosynthesis. As light intensity increases, more energy is available and rate increases until CO₂ or temperature becomes limiting.',
       '0/5',
     ),
-    _Practical(
+    const _Practical(
       7,
       'Respiration — CO₂ Production in Seeds',
       'Respiration',
@@ -125,7 +124,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
       'Only germinating seeds produce enough CO₂ to turn lime water milky. Dry seeds are dormant and respire very slowly.',
       '0/5',
     ),
-    _Practical(
+    const _Practical(
       8,
       'Transpiration — Potometer Experiment',
       'Transport in Plants',
@@ -140,7 +139,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
       'Most water loss occurs through stomata on leaves. Transpiration is affected by temperature, humidity, wind, and light intensity.',
       '0/5',
     ),
-    _Practical(
+    const _Practical(
       9,
       'Microorganism Culture',
       'Microorganisms',
@@ -155,7 +154,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
       'Microorganisms form visible colonies on agar. Different organisms produce colonies with distinct characteristics.',
       '0/5',
     ),
-    _Practical(
+    const _Practical(
       10,
       'Quadrat Sampling — Ecology',
       'Ecology',
@@ -170,7 +169,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
       'Quadrat sampling is a standard ecological method. More samples = more reliable estimate.',
       '0/5',
     ),
-    _Practical(
+    const _Practical(
       11,
       'Transect Sampling — Ecology',
       'Ecology',
@@ -185,7 +184,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
       'Transects reveal how species distribution changes across habitats, often correlating with environmental factors.',
       '0/5',
     ),
-    _Practical(
+    const _Practical(
       12,
       'Experimental Design — Fair Test',
       'Scientific Investigation',
@@ -253,7 +252,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
                     size: 18, color: context.colors.textSecondary),
               ),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Container(
               width: 40,
               height: 40,
@@ -261,10 +260,10 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
                 color: _bioGreenGlow,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(Icons.science_outlined,
+              child: const Icon(Icons.science_outlined,
                   color: _bioGreen, size: 22),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -308,10 +307,10 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
               color: _bioGreen.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(Icons.science_outlined,
+            child: const Icon(Icons.science_outlined,
                 color: _bioGreen, size: 26),
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,7 +320,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: context.colors.textPrimary)),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                     '$completed of ${_practicals.length} practicals completed. Each includes aim, hypothesis, method, results, and evaluation.',
                     style: TextStyle(
@@ -372,7 +371,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
                               color: color)),
                     ),
                   ),
-                  SizedBox(width: 14),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -382,7 +381,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
                                 color: context.colors.textPrimary)),
-                        SizedBox(height: 3),
+                        const SizedBox(height: 3),
                         Text(p.category,
                             style: TextStyle(
                                 fontSize: 11,
@@ -403,10 +402,10 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
                             fontWeight: FontWeight.w700,
                             color: color)),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   AnimatedRotation(
                     turns: isExpanded ? 0.25 : 0,
-                    duration: Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 200),
                     child: Icon(Icons.keyboard_arrow_down_rounded,
                         color: context.colors.textMuted, size: 22),
                   ),
@@ -419,7 +418,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
             secondChild: _buildPracticalDetail(p),
             crossFadeState:
                 isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-            duration: Duration(milliseconds: 250),
+            duration: const Duration(milliseconds: 250),
           ),
         ],
       ),
@@ -433,27 +432,27 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildDetailSection('Aim', [p.aim], Icons.flag_rounded),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildDetailSection('Hypothesis', [p.hypothesis], Icons.lightbulb_rounded),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildDetailSection('Apparatus', p.apparatus, Icons.build_rounded),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildDetailSection('Safety', p.safety, Icons.shield_rounded),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildDetailSection('Method', p.method, Icons.format_list_numbered_rounded),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildDetailSection('Key Variables', p.variables, Icons.tune_rounded),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildDetailSection('Expected Results', [p.expectedResults], Icons.insights_rounded),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildDetailSection('Conclusion', [p.conclusion], Icons.check_circle_outline_rounded),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () {},
-              icon: Icon(Icons.play_arrow_rounded, size: 20),
-              label: Text('Start Practical'),
+              icon: const Icon(Icons.play_arrow_rounded, size: 20),
+              label: const Text('Start Practical'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _bioGreen,
                 foregroundColor: Colors.white,
@@ -475,15 +474,15 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
         Row(
           children: [
             Icon(icon, size: 14, color: _bioGreen),
-            SizedBox(width: 6),
+            const SizedBox(width: 6),
             Text(title,
-                style: TextStyle(
+                style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: _bioGreen)),
           ],
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         ...items.map((item) => Padding(
               padding: const EdgeInsets.only(bottom: 6),
               child: Row(

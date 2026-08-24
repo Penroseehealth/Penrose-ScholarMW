@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 
 const Color _bioGreen = Color(0xFF10B981);
@@ -9,7 +8,7 @@ const Color _bioGreenDark = Color(0xFF059669);
 const Color _bioGreenGlow = Color(0x2210B981);
 
 class BiologyVirtualLabScreen extends StatefulWidget {
-  BiologyVirtualLabScreen({super.key});
+  const BiologyVirtualLabScreen({super.key});
 
   @override
   State<BiologyVirtualLabScreen> createState() => _BiologyVirtualLabScreenState();
@@ -19,7 +18,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
   int? _expandedLab;
 
   static final _experiments = [
-    _VirtualLab(
+    const _VirtualLab(
       'Osmosis in Potato Strips',
       'Investigate how concentration affects water movement in plant cells',
       Icons.water_drop_rounded,
@@ -29,7 +28,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
       'Higher salt concentration causes more water to leave potato cells by osmosis, resulting in greater mass loss.',
       'Osmosis',
     ),
-    _VirtualLab(
+    const _VirtualLab(
       'Photosynthesis — Light Intensity',
       'How does light intensity affect the rate of photosynthesis?',
       Icons.light_mode_rounded,
@@ -39,7 +38,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
       'Rate of photosynthesis increases with light intensity. Doubling light intensity approximately doubles the rate.',
       'Photosynthesis',
     ),
-    _VirtualLab(
+    const _VirtualLab(
       'Enzyme Activity — Temperature',
       'How does temperature affect enzyme-controlled reactions?',
       Icons.thermostat_rounded,
@@ -49,7 +48,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
       'Enzyme activity increases with temperature up to an optimum, then rapidly decreases as enzymes denature.',
       'Enzymes',
     ),
-    _VirtualLab(
+    const _VirtualLab(
       'Virtual Microscope — Cell Observation',
       'Observe plant and animal cells under different magnifications',
       Icons.science_rounded,
@@ -59,7 +58,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
       'Plant cells (onion) have rigid cell walls, large vacuoles, and regular shapes. Animal cells (cheek) are irregular, smaller, and lack cell walls.',
       'Microscopy',
     ),
-    _VirtualLab(
+    const _VirtualLab(
       'Diffusion — Potassium Permanganate',
       'Observe diffusion in water at different temperatures',
       Icons.science_rounded,
@@ -69,7 +68,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
       'Diffusion rate increases with temperature because molecules have more kinetic energy and move faster.',
       'Diffusion',
     ),
-    _VirtualLab(
+    const _VirtualLab(
       'Respiration in Germinating Seeds',
       'Demonstrate that germinating seeds respire by producing CO₂',
       Icons.air_rounded,
@@ -132,7 +131,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
                     size: 18, color: context.colors.textSecondary),
               ),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Container(
               width: 40,
               height: 40,
@@ -140,9 +139,9 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
                 color: _bioGreenGlow,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(Icons.science_rounded, color: _bioGreen, size: 22),
+              child: const Icon(Icons.science_rounded, color: _bioGreen, size: 22),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,9 +184,9 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
               color: _bioGreen.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(Icons.science_rounded, color: _bioGreen, size: 26),
+            child: const Icon(Icons.science_rounded, color: _bioGreen, size: 26),
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,7 +196,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: context.colors.textPrimary)),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                     '${_experiments.length} experiments covering diffusion, osmosis, photosynthesis, enzymes, and more.',
                     style: TextStyle(
@@ -249,7 +248,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
                     ),
                     child: Icon(lab.icon, color: accentColor, size: 22),
                   ),
-                  SizedBox(width: 14),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -259,7 +258,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
                                 color: context.colors.textPrimary)),
-                        SizedBox(height: 3),
+                        const SizedBox(height: 3),
                         Text(lab.subtitle,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -268,7 +267,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
                       ],
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
@@ -281,10 +280,10 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
                             fontWeight: FontWeight.w600,
                             color: accentColor)),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   AnimatedRotation(
                     turns: isExpanded ? 0.25 : 0,
-                    duration: Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 200),
                     child: Icon(Icons.keyboard_arrow_down_rounded,
                         color: context.colors.textMuted, size: 22),
                   ),
@@ -297,7 +296,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
             secondChild: _buildLabDetail(lab, accentColor),
             crossFadeState:
                 isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-            duration: Duration(milliseconds: 250),
+            duration: const Duration(milliseconds: 250),
           ),
         ],
       ),
@@ -311,19 +310,19 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildLabSection('Apparatus Required', lab.apparatus, Icons.build_rounded, accent),
-          SizedBox(height: 14),
+          const SizedBox(height: 14),
           _buildLabSection('Method', lab.method, Icons.format_list_numbered_rounded, accent),
-          SizedBox(height: 14),
+          const SizedBox(height: 14),
           _buildResultsSection(lab.results, accent),
-          SizedBox(height: 14),
+          const SizedBox(height: 14),
           _buildLabSection('Observations', [lab.observations], Icons.insights_rounded, accent),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () {},
-              icon: Icon(Icons.play_arrow_rounded, size: 20),
-              label: Text('Start Simulation'),
+              icon: const Icon(Icons.play_arrow_rounded, size: 20),
+              label: const Text('Start Simulation'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: accent,
                 foregroundColor: Colors.white,
@@ -345,7 +344,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
         Row(
           children: [
             Icon(icon, size: 14, color: accent),
-            SizedBox(width: 6),
+            const SizedBox(width: 6),
             Text(title,
                 style: TextStyle(
                     fontSize: 12,
@@ -353,7 +352,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
                     color: accent)),
           ],
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         ...items.map((item) => Padding(
               padding: const EdgeInsets.only(bottom: 6),
               child: Row(
@@ -387,7 +386,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
         Row(
           children: [
             Icon(Icons.table_chart_rounded, size: 14, color: accent),
-            SizedBox(width: 6),
+            const SizedBox(width: 6),
             Text('Results',
                 style: TextStyle(
                     fontSize: 12,
@@ -395,7 +394,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
                     color: accent)),
           ],
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         ...results.entries.map((e) => Container(
               margin: const EdgeInsets.only(bottom: 6),
               padding: const EdgeInsets.all(10),
@@ -412,7 +411,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
                             fontWeight: FontWeight.w600,
                             color: context.colors.textPrimary)),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     flex: 2,
                     child: Text(e.value,

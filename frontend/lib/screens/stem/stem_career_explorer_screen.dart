@@ -8,7 +8,7 @@ import '../../core/theme/theme_colors.dart';
 
 class StemCareerExplorerScreen extends StatefulWidget {
   final String subjectSlug;
-  StemCareerExplorerScreen({super.key, this.subjectSlug = ''});
+  const StemCareerExplorerScreen({super.key, this.subjectSlug = ''});
 
   @override
   State<StemCareerExplorerScreen> createState() => _StemCareerExplorerScreenState();
@@ -21,7 +21,7 @@ class _StemCareerExplorerScreenState extends State<StemCareerExplorerScreen> {
   bool _loading = true;
   String? _error;
   String _selectedSubject = '';
-  Set<int> _expandedIndices = {};
+  final Set<int> _expandedIndices = {};
 
   @override
   void initState() {
@@ -71,7 +71,7 @@ class _StemCareerExplorerScreenState extends State<StemCareerExplorerScreen> {
                 ),
               ),
               background: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppColors.primaryDark, AppColors.primaryMuted],
                     begin: Alignment.topLeft,
@@ -88,12 +88,12 @@ class _StemCareerExplorerScreenState extends State<StemCareerExplorerScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 scrollDirection: Axis.horizontal,
                 itemCount: _subjects.length + 1,
-                separatorBuilder: (_, __) => SizedBox(width: 8),
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
                   if (index == 0) {
                     final selected = _selectedSubject.isEmpty;
                     return ChoiceChip(
-                      label: Text('All', style: TextStyle(fontSize: 12)),
+                      label: const Text('All', style: TextStyle(fontSize: 12)),
                       selected: selected,
                       selectedColor: AppColors.primary,
                       backgroundColor: context.colors.surface,
@@ -132,17 +132,17 @@ class _StemCareerExplorerScreenState extends State<StemCareerExplorerScreen> {
           else if (_loading)
             SliverToBoxAdapter(child: ShimmerLoading.list(count: 5))
           else if (_careers.isEmpty)
-            SliverToBoxAdapter(child: EmptyState(icon: Icons.work_rounded, title: 'No careers found', subtitle: 'Try selecting a different subject'))
+            const SliverToBoxAdapter(child: EmptyState(icon: Icons.work_rounded, title: 'No careers found', subtitle: 'Try selecting a different subject'))
           else
             SliverPadding(
               padding: const EdgeInsets.all(16),
               sliver: SliverList.separated(
                 itemCount: _careers.length,
-                separatorBuilder: (_, __) => SizedBox(height: 12),
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (context, index) => _buildCareerCard(index, _careers[index]),
               ),
             ),
-          SliverToBoxAdapter(child: SizedBox(height: 40)),
+          const SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
         ),
       ),
@@ -191,7 +191,7 @@ class _StemCareerExplorerScreenState extends State<StemCareerExplorerScreen> {
                 ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             career['description'] ?? '',
             style: TextStyle(fontSize: 13, color: context.colors.textMuted),
@@ -199,12 +199,12 @@ class _StemCareerExplorerScreenState extends State<StemCareerExplorerScreen> {
             overflow: TextOverflow.ellipsis,
           ),
           if ((career['required_subjects'] as List?)?.isNotEmpty == true) ...[
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               'Required Subjects',
               style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: context.colors.textSecondary),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Wrap(
               spacing: 6,
               runSpacing: 4,
@@ -217,19 +217,19 @@ class _StemCareerExplorerScreenState extends State<StemCareerExplorerScreen> {
                   ),
                   child: Text(
                     s.toString(),
-                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.primary),
+                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.primary),
                   ),
                 );
               }).toList(),
             ),
           ],
           if ((career['skills'] as List?)?.isNotEmpty == true) ...[
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               'Skills',
               style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: context.colors.textSecondary),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Wrap(
               spacing: 6,
               runSpacing: 4,
@@ -248,7 +248,7 @@ class _StemCareerExplorerScreenState extends State<StemCareerExplorerScreen> {
               }).toList(),
             ),
           ],
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           GestureDetector(
             onTap: () {
               setState(() {
@@ -263,7 +263,7 @@ class _StemCareerExplorerScreenState extends State<StemCareerExplorerScreen> {
               children: [
                 Text(
                   expanded ? 'Show less' : 'Show more',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: AppColors.primary,
@@ -284,7 +284,7 @@ class _StemCareerExplorerScreenState extends State<StemCareerExplorerScreen> {
                 'Related Programmes',
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: context.colors.textSecondary),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               ...((career['related_programmes'] as List).map<Widget>((p) => Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: Text(
@@ -294,12 +294,12 @@ class _StemCareerExplorerScreenState extends State<StemCareerExplorerScreen> {
                   ))),
             ],
             if ((career['competencies'] as List?)?.isNotEmpty == true) ...[
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 'Competencies',
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: context.colors.textSecondary),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Wrap(
                 spacing: 6,
                 runSpacing: 4,

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:go_router/go_router.dart';
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 
 class ChineseSentenceBuilder extends StatefulWidget {
-  ChineseSentenceBuilder({super.key});
+  const ChineseSentenceBuilder({super.key});
   @override
   State<ChineseSentenceBuilder> createState() => _ChineseSentenceBuilderState();
 }
@@ -77,21 +76,18 @@ class _ChineseSentenceBuilderState extends State<ChineseSentenceBuilder> {
     _prepare();
   }
 
-  List<Map<String, dynamic>> get _filtered =>
-      _hsk == 0 ? _ex : _ex.where((e) => e['hsk'] == _hsk).toList();
-
   @override
   Widget build(BuildContext context) {
     final ex = _ex[_idx];
     return Scaffold(
       backgroundColor: context.colors.background,
       appBar: AppBar(
-        title: Text('Sentence Builder'),
+        title: const Text('Sentence Builder'),
         backgroundColor: context.colors.surface,
         foregroundColor: context.colors.textPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
           onPressed: () => context.pop(),
         ),
         actions: [
@@ -103,9 +99,9 @@ class _ChineseSentenceBuilderState extends State<ChineseSentenceBuilder> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
-              Icon(Icons.star_rounded, size: 16, color: accent),
-              SizedBox(width: 6),
-              Text('$_score/$_total', style: TextStyle(
+              const Icon(Icons.star_rounded, size: 16, color: accent),
+              const SizedBox(width: 6),
+              Text('$_score/$_total', style: const TextStyle(
                 fontSize: 13, fontWeight: FontWeight.w700, color: accent)),
             ]),
           ),
@@ -115,17 +111,17 @@ class _ChineseSentenceBuilderState extends State<ChineseSentenceBuilder> {
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           _buildHskFilter(),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildSentenceCard(ex),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildSectionHeader('Your Sentence'),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _buildSentenceArea(),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildSectionHeader('Word Bank'),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _buildBank(),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildActions(),
         ]),
       ),
@@ -136,7 +132,7 @@ class _ChineseSentenceBuilderState extends State<ChineseSentenceBuilder> {
     return Row(children: [
       Container(width: 4, height: 20, decoration: BoxDecoration(
         color: accent, borderRadius: BorderRadius.circular(2))),
-      SizedBox(width: 12),
+      const SizedBox(width: 12),
       Text(title, style: TextStyle(
         fontSize: 16, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
     ]);
@@ -145,11 +141,11 @@ class _ChineseSentenceBuilderState extends State<ChineseSentenceBuilder> {
   Widget _buildHskFilter() {
     return Row(children: [
       _chip('All', 0),
-      SizedBox(width: 8),
+      const SizedBox(width: 8),
       _chip('HSK 1', 1),
-      SizedBox(width: 8),
+      const SizedBox(width: 8),
       _chip('HSK 2', 2),
-      SizedBox(width: 8),
+      const SizedBox(width: 8),
       _chip('HSK 3', 3),
     ]);
   }
@@ -189,26 +185,26 @@ class _ChineseSentenceBuilderState extends State<ChineseSentenceBuilder> {
             decoration: BoxDecoration(
               color: accent.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8)),
-            child: Text('HSK $hsk', style: TextStyle(
+            child: Text('HSK $hsk', style: const TextStyle(
               fontSize: 11, fontWeight: FontWeight.w700, color: accent)),
           ),
-          Spacer(),
+          const Spacer(),
           Text('${_idx + 1}/${_ex.length}', style: TextStyle(
             fontSize: 12, color: context.colors.textMuted)),
         ]),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         if (_answered) ...[
           Text(ex['sentence'] as String, style: TextStyle(
             fontSize: 32, fontWeight: FontWeight.w400, color: context.colors.textPrimary)),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
         ],
         Text(ex['pinyin'] as String, style: TextStyle(
           fontSize: 16, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(ex['english'] as String, style: TextStyle(
           fontSize: 14, color: context.colors.textMuted)),
         if (_answered) ...[
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(_correct ? 'Correct!' : 'Incorrect. Try again!',
             style: TextStyle(fontWeight: FontWeight.w700,
               color: _correct ? context.colors.success : context.colors.error)),
@@ -220,7 +216,7 @@ class _ChineseSentenceBuilderState extends State<ChineseSentenceBuilder> {
   Widget _buildSentenceArea() {
     return Container(
       width: double.infinity,
-      constraints: BoxConstraints(minHeight: 60),
+      constraints: const BoxConstraints(minHeight: 60),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: context.colors.surface,
@@ -241,7 +237,7 @@ class _ChineseSentenceBuilderState extends State<ChineseSentenceBuilder> {
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: accent.withValues(alpha: 0.3)),
                   ),
-                  child: Text(w, style: TextStyle(
+                  child: Text(w, style: const TextStyle(
                     fontSize: 16, fontWeight: FontWeight.w600, color: accent)),
                 ),
               )).toList(),
@@ -277,7 +273,7 @@ class _ChineseSentenceBuilderState extends State<ChineseSentenceBuilder> {
             padding: const EdgeInsets.symmetric(vertical: 14),
             decoration: BoxDecoration(
               color: accent, borderRadius: BorderRadius.circular(12)),
-            child: Center(child: Text('Check',
+            child: const Center(child: Text('Check',
               style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white))),
           ),
         ),
@@ -293,14 +289,14 @@ class _ChineseSentenceBuilderState extends State<ChineseSentenceBuilder> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: accent.withValues(alpha: 0.3)),
               ),
-              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 Text('Next', style: TextStyle(
                   fontWeight: FontWeight.w700, color: accent)),
               ]),
             ),
           ),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Expanded(
           child: GestureDetector(
             onTap: _reset,

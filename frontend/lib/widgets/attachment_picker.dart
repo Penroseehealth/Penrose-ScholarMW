@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 
-import '../core/theme/app_colors.dart';
 import '../core/theme/theme_colors.dart';
 
 class AttachmentPicker extends StatelessWidget {
   final Function(PlatformFile) onFileSelected;
 
-  AttachmentPicker({super.key, required this.onFileSelected});
+  const AttachmentPicker({super.key, required this.onFileSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +14,7 @@ class AttachmentPicker extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: context.colors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SafeArea(
         child: Column(
@@ -32,7 +31,7 @@ class AttachmentPicker extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Upload to ScholarAI',
               style: TextStyle(
@@ -41,12 +40,12 @@ class AttachmentPicker extends StatelessWidget {
                 color: context.colors.textPrimary,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'Select a file to analyze with ScholarAI',
               style: TextStyle(fontSize: 13, color: context.colors.textMuted),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _buildOption(
               context,
               icon: Icons.picture_as_pdf_rounded,
@@ -87,7 +86,7 @@ class AttachmentPicker extends StatelessWidget {
               color: context.colors.warning,
               type: 'audio',
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
           ],
         ),
       ),
@@ -127,7 +126,7 @@ class AttachmentPicker extends StatelessWidget {
                   ),
                   child: Icon(icon, size: 20, color: color),
                 ),
-                SizedBox(width: 14),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,7 +139,7 @@ class AttachmentPicker extends StatelessWidget {
                           color: context.colors.textPrimary,
                         ),
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
                         subtitle,
                         style: TextStyle(

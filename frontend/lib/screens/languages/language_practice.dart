@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
@@ -11,7 +10,7 @@ const Color _langTealGlow = Color(0x222DD4BF);
 class LanguagePracticeScreen extends StatefulWidget {
   final String slug;
 
-  LanguagePracticeScreen({super.key, required this.slug});
+  const LanguagePracticeScreen({super.key, required this.slug});
 
   @override
   State<LanguagePracticeScreen> createState() => _LanguagePracticeScreenState();
@@ -116,17 +115,17 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildBanner(),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   Text('Practice Types',
                       style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
                           color: context.colors.textPrimary)),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   GridView.count(
                     crossAxisCount: crossAxisCount,
                     shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
+                    physics: const NeverScrollableScrollPhysics(),
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10,
                     childAspectRatio: width >= 900 ? 2.4 : 1.55,
@@ -135,7 +134,7 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
                         _buildPracticeCard(t.$1, t.$2, t.$3, t.$4),
                     ],
                   ),
-                  SizedBox(height: 28),
+                  const SizedBox(height: 28),
                   Row(
                     children: [
                       Expanded(
@@ -147,7 +146,7 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
                       ),
                       GestureDetector(
                         onTap: () {},
-                        child: Text('View all',
+                        child: const Text('View all',
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
@@ -155,9 +154,9 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   ..._recentSessions.map(_buildSessionTile),
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -193,7 +192,7 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
                     size: 18, color: context.colors.textSecondary),
               ),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Container(
               width: 40,
               height: 40,
@@ -201,10 +200,10 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
                 color: _langTealGlow,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(Icons.fitness_center_rounded,
+              child: const Icon(Icons.fitness_center_rounded,
                   color: _langTeal, size: 22),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,7 +226,7 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
                 color: _langTealGlow,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text('6 modes',
+              child: const Text('6 modes',
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -260,9 +259,9 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
               color: _langTeal.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(13),
             ),
-            child: Icon(Icons.bolt_rounded, color: _langTeal, size: 26),
+            child: const Icon(Icons.bolt_rounded, color: _langTeal, size: 26),
           ),
-          SizedBox(width: 14),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,7 +271,7 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
                         color: context.colors.textPrimary)),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                     'Complete one session today to keep your streak alive and unlock XP.',
                     style: TextStyle(
@@ -311,13 +310,13 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
               ),
               child: Icon(icon, color: color, size: 18),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(title,
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: context.colors.textPrimary)),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Flexible(
               child: Text(description,
                   maxLines: 2,
@@ -362,7 +361,7 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
             child: Icon(_typeIcon(session['type'] as String),
                 color: color, size: 19),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -374,7 +373,7 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
                         color: context.colors.textPrimary),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                     '${session['items']} items · ${session['when']}',
                     style: TextStyle(
@@ -382,7 +381,7 @@ class _LanguagePracticeScreenState extends State<LanguagePracticeScreen> {
               ],
             ),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(

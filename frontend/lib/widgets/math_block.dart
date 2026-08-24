@@ -7,7 +7,7 @@ class MathBlock extends StatelessWidget {
   final String latex;
   final TextStyle? textStyle;
 
-  MathBlock({super.key, required this.latex, this.textStyle});
+  const MathBlock({super.key, required this.latex, this.textStyle});
 
   @override
   Widget build(BuildContext context) {

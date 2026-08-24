@@ -10,7 +10,7 @@ import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
 
 class KnowledgeVaultScreen extends StatefulWidget {
-  KnowledgeVaultScreen({super.key});
+  const KnowledgeVaultScreen({super.key});
 
   @override
   State<KnowledgeVaultScreen> createState() => _KnowledgeVaultScreenState();
@@ -77,7 +77,7 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Knowledge Vault',
               style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
             ),
@@ -123,10 +123,10 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
               ],
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Expanded(
             child: _loading
-                ? Center(child: CircularProgressIndicator(color: AppColors.primary))
+                ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
                 : filtered.isEmpty
                     ? _buildEmptyState()
                     : ListView.builder(
@@ -194,7 +194,7 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
             ),
             child: Icon(icon, color: AppColors.primary, size: 22),
           ),
-          SizedBox(width: 14),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,7 +207,7 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
                     color: context.colors.textPrimary,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   '${doc['file_name'] ?? doc['title'] ?? 'Unknown'} ${doc['file_size'] != null ? '� ${_formatFileSize(doc['file_size'])}' : ''} ${doc['is_indexed'] == true ? '� Indexed' : ''}',
                   style: TextStyle(fontSize: 12, color: context.colors.textMuted),
@@ -215,12 +215,12 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
               ],
             ),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           if (doc['is_indexed'] == true)
             Icon(Icons.check_circle_rounded, color: context.colors.success, size: 18),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           IconButton(
-            icon: Icon(Icons.download_rounded, color: AppColors.primary, size: 20),
+            icon: const Icon(Icons.download_rounded, color: AppColors.primary, size: 20),
             onPressed: () => _downloadFile(doc),
           ),
           Icon(Icons.chevron_right_rounded, color: context.colors.textMuted, size: 20),
@@ -234,22 +234,22 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.folder_open_rounded, size: 56, color: context.colors.textMuted.withOpacity(0.3)),
-          SizedBox(height: 16),
+          Icon(Icons.folder_open_rounded, size: 56, color: context.colors.textMuted.withValues(alpha: 0.3)),
+          const SizedBox(height: 16),
           Text(
             'No documents yet',
             style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: context.colors.textSecondary),
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(
             'Upload lecture notes, textbooks, and research papers',
             style: TextStyle(fontSize: 13, color: context.colors.textMuted),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           ElevatedButton.icon(
             onPressed: _uploadDocument,
-            icon: Icon(Icons.upload_rounded),
-            label: Text('Upload Document'),
+            icon: const Icon(Icons.upload_rounded),
+            label: const Text('Upload Document'),
           ),
         ],
       ),
@@ -272,27 +272,27 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          title: Text('Upload Document'),
+          title: const Text('Upload Document'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: titleCtrl,
                 style: TextStyle(color: context.colors.textPrimary),
-                decoration: InputDecoration(labelText: 'Title'),
+                decoration: const InputDecoration(labelText: 'Title'),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: docType,
+                initialValue: docType,
                 dropdownColor: context.colors.surfaceHighest,
-                decoration: InputDecoration(labelText: 'Type'),
+                decoration: const InputDecoration(labelText: 'Type'),
                 items: [
-                  DropdownMenuItem(value: 'lecture_notes', child: Text('Lecture Notes')),
-                  DropdownMenuItem(value: 'textbook', child: Text('Textbook')),
-                  DropdownMenuItem(value: 'past_paper', child: Text('Past Paper')),
-                  DropdownMenuItem(value: 'research', child: Text('Research')),
-                  DropdownMenuItem(value: 'video', child: Text('Video')),
-                  DropdownMenuItem(value: 'presentation', child: Text('Presentation')),
+                  const DropdownMenuItem(value: 'lecture_notes', child: Text('Lecture Notes')),
+                  const DropdownMenuItem(value: 'textbook', child: Text('Textbook')),
+                  const DropdownMenuItem(value: 'past_paper', child: Text('Past Paper')),
+                  const DropdownMenuItem(value: 'research', child: Text('Research')),
+                  const DropdownMenuItem(value: 'video', child: Text('Video')),
+                  const DropdownMenuItem(value: 'presentation', child: Text('Presentation')),
                 ],
                 onChanged: (v) => setDialogState(() => docType = v ?? docType),
               ),
@@ -301,7 +301,7 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -316,7 +316,7 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
                     'title': titleCtrl.text,
                     'doc_type': docType,
                     'file_name': result.files.first.name,
-                    'file_size': result.files.first.size?.toString() ?? '',
+                    'file_size': result.files.first.size.toString(),
                   },
                 );
                 if (mounted) {
@@ -332,7 +332,7 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
                   _loadDocuments();
                 }
               },
-              child: Text('Upload'),
+              child: const Text('Upload'),
             ),
           ],
         ),

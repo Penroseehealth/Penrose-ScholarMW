@@ -7,7 +7,7 @@ import '../../widgets/error_state.dart';
 import '../../core/theme/theme_colors.dart';
 
 class StemAnalyticsScreen extends StatefulWidget {
-  StemAnalyticsScreen({super.key});
+  const StemAnalyticsScreen({super.key});
 
   @override
   State<StemAnalyticsScreen> createState() => _StemAnalyticsScreenState();
@@ -75,7 +75,7 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
                 ),
               ),
               background: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppColors.primaryDark, AppColors.primaryMuted],
                     begin: Alignment.topLeft,
@@ -101,7 +101,7 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
             SliverToBoxAdapter(child: _buildSubjectProgress()),
             SliverToBoxAdapter(child: _buildWeakestConcepts()),
             SliverToBoxAdapter(child: _buildHeatmap()),
-            SliverToBoxAdapter(child: SizedBox(height: 40)),
+            const SliverToBoxAdapter(child: SizedBox(height: 40)),
           ],
         ],
         ),
@@ -128,8 +128,8 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: GridView.builder(
         shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
@@ -150,7 +150,7 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(c.icon, size: 20, color: c.color),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   c.value,
                   style: TextStyle(
@@ -159,7 +159,7 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
                     color: context.colors.textPrimary,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   c.label,
                   style: TextStyle(fontSize: 11, color: context.colors.textMuted),
@@ -213,7 +213,7 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
                     child: Container(
                       height: 20,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [AppColors.primaryDark, AppColors.primary],
                         ),
                         borderRadius: BorderRadius.circular(6),
@@ -232,7 +232,7 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
           );
         }) : [
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.symmetric(vertical: 12),
             child: Text('No activity data yet. Start studying to see your weekly activity!', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
           ),
         ],
@@ -272,7 +272,7 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
@@ -330,7 +330,7 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
                         c['subject_slug'] ?? '',
                         style: TextStyle(fontSize: 11, color: context.colors.textMuted),
@@ -416,7 +416,7 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
             Row(
               children: [
                 Icon(icon, size: 16, color: AppColors.primary),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
                   title,
                   style: TextStyle(
@@ -427,7 +427,7 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 14),
+            const SizedBox(height: 14),
             child,
           ],
         ),

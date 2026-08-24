@@ -8,7 +8,7 @@ import '../../services/web_speech_service.dart';
 import '../../core/theme/theme_colors.dart';
 
 class KnowledgeRetrievalScreen extends StatefulWidget {
-  KnowledgeRetrievalScreen({super.key});
+  const KnowledgeRetrievalScreen({super.key});
 
   @override
   State<KnowledgeRetrievalScreen> createState() =>
@@ -34,9 +34,9 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
     super.initState();
     _pulseCtrl = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
     );
-    _messages.add(_ChatMessage(
+    _messages.add(const _ChatMessage(
       text:
           'Hello! I am ScholarAI Knowledge Retrieval. Ask me anything '
           'from your vault and knowledge documents, and I will find '
@@ -61,7 +61,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
       if (_scrollCtrl.hasClients) {
         _scrollCtrl.animateTo(
           _scrollCtrl.position.maxScrollExtent,
-          duration: Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
       }
@@ -139,7 +139,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
       }
     } catch (e) {
       setState(() {
-        _messages.add(_ChatMessage(
+        _messages.add(const _ChatMessage(
           text: 'Connection error. Please check your network and try again.',
           isUser: false,
           sources: [],
@@ -209,7 +209,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(error),
-                duration: Duration(seconds: 2),
+                duration: const Duration(seconds: 2),
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -229,22 +229,22 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Voice Input'),
+        title: const Text('Voice Input'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            const Icon(
               Icons.keyboard_voice,
               size: 48,
               color: AppColors.primary,
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               'Voice recognition is not supported on this device.\nType your question below:',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             TextField(
               controller: textCtrl,
               autofocus: true,
@@ -261,7 +261,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Cancel'),
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -273,7 +273,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
-            child: Text('Send'),
+            child: const Text('Send'),
           ),
         ],
       ),
@@ -301,7 +301,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Knowledge Retrieval'),
+        title: const Text('Knowledge Retrieval'),
         backgroundColor: context.colors.background,
         elevation: 0,
         foregroundColor: context.colors.textPrimary,
@@ -350,14 +350,14 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
                         color: AppColors.primary,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.auto_awesome,
                         size: 14,
                         color: Colors.white,
                       ),
                     ),
-                    SizedBox(width: 6),
-                    Text(
+                    const SizedBox(width: 6),
+                    const Text(
                       'ScholarAI',
                       style: TextStyle(
                         fontSize: 12,
@@ -381,16 +381,16 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
                       ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 6,
-                    offset: Offset(0, 2),
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
               child: isUser
                   ? Text(
                       msg.text,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
                         height: 1.5,
                         color: Colors.white,
@@ -422,7 +422,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
                             ? AppColors.primary
                             : context.colors.textSecondary,
                       ),
-                      SizedBox(width: 4),
+                      const SizedBox(width: 4),
                       Text(
                         _speakingIndex == index ? 'Speaking...' : 'Listen',
                         style: TextStyle(
@@ -437,11 +437,11 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
                 ),
               ),
             if (!isUser && msg.confidence != null) ...[
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               _buildConfidenceBadge(msg.confidence!),
             ],
             if (!isUser && msg.sources.isNotEmpty) ...[
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               ...msg.sources.map((s) => _buildSourceCard(s)),
             ],
           ],
@@ -475,15 +475,15 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: color),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Text(
             label,
             style: TextStyle(
@@ -523,7 +523,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
                   size: 16,
                   color: context.colors.accent,
                 ),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Expanded(
                   child: Text(
                     title,
@@ -541,12 +541,12 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
                     padding:
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       '${(score is num ? (score * 100).round() : score)}%',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                         color: AppColors.primary,
@@ -556,7 +556,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
               ],
             ),
             if (snippet.isNotEmpty) ...[
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               Text(
                 snippet,
                 style: TextStyle(
@@ -569,7 +569,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
               ),
             ],
             if (page != null) ...[
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 'Page $page',
                 style: TextStyle(
@@ -592,9 +592,9 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
         border: Border(top: BorderSide(color: context.colors.divider)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 6,
-            offset: Offset(0, -2),
+            offset: const Offset(0, -2),
           ),
         ],
       ),
@@ -608,7 +608,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
               child: Container(
                 decoration: _listening
                     ? BoxDecoration(
-                        color: context.colors.error.withOpacity(0.12),
+                        color: context.colors.error.withValues(alpha: 0.12),
                         shape: BoxShape.circle,
                       )
                     : null,
@@ -624,7 +624,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
             ),
             if (_listening)
               Padding(
-                padding: EdgeInsets.only(right: 4),
+                padding: const EdgeInsets.only(right: 4),
                 child: SizedBox(
                   width: 14,
                   height: 14,
@@ -634,7 +634,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
                   ),
                 ),
               ),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             Expanded(
               child: TextField(
                 controller: _questionCtrl,
@@ -652,7 +652,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
                     borderSide:
-                        BorderSide(color: AppColors.primary, width: 1.5),
+                        const BorderSide(color: AppColors.primary, width: 1.5),
                   ),
                   filled: true,
                   fillColor: context.colors.surface,
@@ -663,7 +663,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
                 onSubmitted: (_) => _sendQuestion(),
               ),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Container(
               decoration: BoxDecoration(
                 color: _loading ? context.colors.textSecondary : AppColors.primary,
@@ -672,7 +672,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
               child: IconButton(
                 onPressed: _loading ? null : _sendQuestion,
                 icon: _loading
-                    ? SizedBox(
+                    ? const SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
@@ -680,7 +680,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
                           color: Colors.white,
                         ),
                       )
-                    : Icon(Icons.send, color: Colors.white, size: 18),
+                    : const Icon(Icons.send, color: Colors.white, size: 18),
               ),
             ),
           ],

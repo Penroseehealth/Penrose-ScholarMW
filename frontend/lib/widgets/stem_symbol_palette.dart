@@ -6,7 +6,7 @@ class StemSymbolPalette extends StatelessWidget {
   final Function(String) onSymbolTap;
   final bool showInline;
 
-  StemSymbolPalette({
+  const StemSymbolPalette({
     super.key,
     required this.onSymbolTap,
     this.showInline = true,
@@ -32,8 +32,8 @@ class StemSymbolPalette extends StatelessWidget {
               labelColor: AppColors.primary,
               unselectedLabelColor: context.colors.textMuted,
               indicatorColor: AppColors.primary,
-              labelStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-              unselectedLabelStyle: TextStyle(fontSize: 11),
+              labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+              unselectedLabelStyle: const TextStyle(fontSize: 11),
               tabs: _categories.map((c) => Tab(text: c.label)).toList(),
             ),
             Expanded(
@@ -53,7 +53,7 @@ class StemSymbolPalette extends StatelessWidget {
       List<StemSymbol> symbols, Function(String) onTap) {
     return GridView.builder(
       padding: const EdgeInsets.all(8),
-      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 48,
         childAspectRatio: 1,
         crossAxisSpacing: 4,

@@ -5,7 +5,7 @@ import '../../services/language_service.dart';
 import '../../core/theme/theme_colors.dart';
 
 class LanguageGrammar extends StatefulWidget {
-  LanguageGrammar({super.key});
+  const LanguageGrammar({super.key});
 
   @override
   State<LanguageGrammar> createState() => _LanguageGrammarState();
@@ -61,7 +61,7 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
       case 'intermediate':
         return context.colors.warning;
       case 'advanced':
-        return Color(0xFFEF4444);
+        return const Color(0xFFEF4444);
       default:
         return context.colors.textSecondary;
     }
@@ -78,7 +78,7 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
             _buildCategoryChips(),
             Expanded(
               child: _loading
-                  ? Center(child: CircularProgressIndicator(color: AppColors.primary))
+                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
                   : _filteredRules.isEmpty
                       ? _buildEmpty()
                       : _buildRulesList(),
@@ -102,8 +102,8 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
             onPressed: () => context.pop(),
             icon: Icon(Icons.arrow_back_ios, color: context.colors.textPrimary, size: 20),
           ),
-          Icon(Icons.rule, color: AppColors.primary, size: 24),
-          SizedBox(width: 8),
+          const Icon(Icons.rule, color: AppColors.primary, size: 24),
+          const SizedBox(width: 8),
           Expanded(
             child: Text('Grammar', style: TextStyle(
               color: context.colors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold,
@@ -115,7 +115,7 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
               color: AppColors.primary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Text('${_rules.length} rules', style: TextStyle(
+            child: Text('${_rules.length} rules', style: const TextStyle(
               color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w600,
             )),
           ),
@@ -169,7 +169,7 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.rule_outlined, size: 48, color: context.colors.textSecondary.withValues(alpha: 0.4)),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text('No grammar rules found', style: TextStyle(
             color: context.colors.textSecondary.withValues(alpha: 0.6), fontSize: 14,
           )),
@@ -202,7 +202,7 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
     return GestureDetector(
       onTap: () => setState(() => _expandedIndex = expanded ? null : index),
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 200),
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
@@ -233,7 +233,7 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
                     fontSize: 11, fontWeight: FontWeight.w600,
                   )),
                 ),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Icon(
                   expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                   color: context.colors.textSecondary, size: 20,
@@ -241,14 +241,14 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
               ],
             ),
             if (category.toString().isNotEmpty) ...[
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: Text(category.toString(), style: TextStyle(
+                child: Text(category.toString(), style: const TextStyle(
                   color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w500,
                 )),
               ),
@@ -259,7 +259,7 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
                 color: context.colors.textSecondary, fontSize: 14, height: 1.5,
               )),
               if (examples != null) ...[
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(10),
@@ -276,7 +276,7 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
                 ),
               ],
               if (contrast.toString().isNotEmpty) ...[
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(10),
@@ -291,7 +291,7 @@ class _LanguageGrammarState extends State<LanguageGrammar> {
                       Text('Compare:', style: TextStyle(
                         color: context.colors.warning.withValues(alpha: 0.8), fontSize: 11, fontWeight: FontWeight.w600,
                       )),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(contrast.toString(), style: TextStyle(
                         color: context.colors.textPrimary, fontSize: 13,
                       )),

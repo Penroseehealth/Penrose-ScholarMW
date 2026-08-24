@@ -8,7 +8,7 @@ class DataTableRenderer extends StatelessWidget {
   final List<Map<String, String>> rows;
   final String? title;
 
-  DataTableRenderer({
+  const DataTableRenderer({
     super.key,
     required this.headers,
     required this.rows,
@@ -17,7 +17,7 @@ class DataTableRenderer extends StatelessWidget {
 
   factory DataTableRenderer.fromMarkdown(String markdown) {
     final lines = markdown.trim().split('\n').where((l) => l.trim().isNotEmpty).toList();
-    if (lines.length < 2) return DataTableRenderer(headers: [], rows: []);
+    if (lines.length < 2) return const DataTableRenderer(headers: [], rows: []);
 
     final headers = lines[0]
         .split('|')
@@ -76,7 +76,7 @@ class DataTableRenderer extends StatelessWidget {
             child: DataTable(
               headingRowColor: WidgetStateProperty.all(context.colors.surfaceElevated),
               dataRowColor: WidgetStateProperty.all(context.colors.surface),
-              headingTextStyle: TextStyle(
+              headingTextStyle: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: AppColors.primary,
@@ -113,7 +113,7 @@ class SimpleBarChart extends StatelessWidget {
   final String title;
   final List<ChartBar> bars;
 
-  SimpleBarChart({super.key, required this.title, required this.bars});
+  const SimpleBarChart({super.key, required this.title, required this.bars});
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +139,7 @@ class SimpleBarChart extends StatelessWidget {
               color: context.colors.textSecondary,
             ),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           ...bars.map((bar) => Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
@@ -152,7 +152,7 @@ class SimpleBarChart extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Stack(
                         children: [
@@ -181,7 +181,7 @@ class SimpleBarChart extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     SizedBox(
                       width: 50,
                       child: Text(

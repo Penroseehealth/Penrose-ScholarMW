@@ -9,7 +9,7 @@ import '../../modules/subject_module.dart';
 import '../../core/theme/theme_colors.dart';
 
 class StemHub extends StatefulWidget {
-  StemHub({super.key});
+  const StemHub({super.key});
 
   @override
   State<StemHub> createState() => _StemHubState();
@@ -91,7 +91,7 @@ class _StemHubState extends State<StemHub> {
                 ),
               ),
               background: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppColors.primaryDark, AppColors.primaryMuted],
                     begin: Alignment.topLeft,
@@ -109,8 +109,8 @@ class _StemHubState extends State<StemHub> {
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
               child: Row(
                 children: [
-                  Icon(Icons.translate_rounded, color: AppColors.primary, size: 22),
-                  SizedBox(width: 10),
+                  const Icon(Icons.translate_rounded, color: AppColors.primary, size: 22),
+                  const SizedBox(width: 10),
                   Text(
                     'Language Hubs',
                     style: TextStyle(
@@ -126,7 +126,7 @@ class _StemHubState extends State<StemHub> {
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             sliver: SliverGrid(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
@@ -156,7 +156,7 @@ class _StemHubState extends State<StemHub> {
           else if (_loading)
             SliverToBoxAdapter(child: ShimmerLoading.grid(count: 6))
           else if (_subjects.isEmpty)
-            SliverToBoxAdapter(
+            const SliverToBoxAdapter(
               child: EmptyState(
                 icon: Icons.school_outlined,
                 title: 'No subjects available',
@@ -167,7 +167,7 @@ class _StemHubState extends State<StemHub> {
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               sliver: SliverGrid(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
                   mainAxisSpacing: 10,
                   crossAxisSpacing: 10,
@@ -179,7 +179,7 @@ class _StemHubState extends State<StemHub> {
                 ),
               ),
             ),
-          SliverToBoxAdapter(child: SizedBox(height: 40)),
+          const SliverToBoxAdapter(child: SizedBox(height: 40)),
           ],
         ),
       ),
@@ -193,9 +193,9 @@ class _StemHubState extends State<StemHub> {
       child: Row(
         children: [
           _buildStatChip('$enabledCount Subjects', AppColors.primary),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           _buildStatChip('Independent Modules', context.colors.teal),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           _buildStatChip('AI-Powered', context.colors.info),
         ],
       ),
@@ -207,9 +207,9 @@ class _StemHubState extends State<StemHub> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
         ),
         child: Center(
           child: Text(
@@ -254,17 +254,17 @@ class _StemHubState extends State<StemHub> {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Container(
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: accentColor.withOpacity(0.15),
+                color: accentColor.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(iconData, color: accentColor, size: 22),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -280,7 +280,7 @@ class _StemHubState extends State<StemHub> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     subject['description'] ?? '',
                     style: TextStyle(
@@ -323,7 +323,7 @@ class _StemHubState extends State<StemHub> {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Container(
               width: 44,
               height: 44,
@@ -333,7 +333,7 @@ class _StemHubState extends State<StemHub> {
               ),
               child: Icon(iconData, color: accentColor, size: 22),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -349,7 +349,7 @@ class _StemHubState extends State<StemHub> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     hub['desc']! as String,
                     style: TextStyle(

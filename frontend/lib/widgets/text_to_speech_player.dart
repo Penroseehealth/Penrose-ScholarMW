@@ -7,7 +7,7 @@ class TextToSpeechPlayer extends StatefulWidget {
   final String text;
   final String? voiceId;
 
-  TextToSpeechPlayer({
+  const TextToSpeechPlayer({
     super.key,
     required this.text,
     this.voiceId,
@@ -40,9 +40,9 @@ class _TextToSpeechPlayerState extends State<TextToSpeechPlayer> {
           Row(
             children: [
               _playBtn(),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Expanded(child: _progressBar()),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               _speedChip(),
             ],
           ),
@@ -60,7 +60,7 @@ class _TextToSpeechPlayerState extends State<TextToSpeechPlayer> {
         decoration: BoxDecoration(
           gradient: _isPlaying
               ? null
-              : LinearGradient(
+              : const LinearGradient(
                   colors: [AppColors.primary, AppColors.primaryDark],
                 ),
           color: _isPlaying ? context.colors.warning : null,
@@ -87,11 +87,11 @@ class _TextToSpeechPlayerState extends State<TextToSpeechPlayer> {
           child: LinearProgressIndicator(
             value: _progress,
             backgroundColor: context.colors.border,
-            valueColor: AlwaysStoppedAnimation(AppColors.primary),
+            valueColor: const AlwaysStoppedAnimation(AppColors.primary),
             minHeight: 4,
           ),
         ),
-        SizedBox(height: 2),
+        const SizedBox(height: 2),
         Text(
           _isPlaying ? 'Listening at ${_speed}x' : 'Tap to listen',
           style: TextStyle(fontSize: 10, color: context.colors.textMuted),
@@ -143,7 +143,7 @@ class _TextToSpeechPlayerState extends State<TextToSpeechPlayer> {
   }
 
   void _simulateProgress() {
-    Future.delayed(Duration(milliseconds: 100), () {
+    Future.delayed(const Duration(milliseconds: 100), () {
       if (_isPlaying && !_isPaused && mounted) {
         setState(() {
           _progress += 0.005 * _speed;

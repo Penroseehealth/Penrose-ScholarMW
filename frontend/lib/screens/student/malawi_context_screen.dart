@@ -6,7 +6,7 @@ import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
 
 class MalawiContextScreen extends StatefulWidget {
-  MalawiContextScreen({super.key});
+  const MalawiContextScreen({super.key});
 
   @override
   State<MalawiContextScreen> createState() => _MalawiContextScreenState();
@@ -111,7 +111,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Query failed. Please try again.')),
+          const SnackBar(content: Text('Query failed. Please try again.')),
         );
       }
     } finally {
@@ -123,7 +123,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) => DraggableScrollableSheet(
@@ -145,7 +145,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Text(
                     'Results for "$query"',
                     style: TextStyle(
@@ -154,7 +154,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                       color: context.colors.textPrimary,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     '${results.length} document${results.length == 1 ? '' : 's'} found',
                     style: TextStyle(
@@ -206,12 +206,12 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
           children: [
             Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.insert_drive_file_outlined,
                   size: 18,
                   color: AppColors.primary,
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     title,
@@ -227,7 +227,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: context.colors.success.withOpacity(0.1),
+                      color: context.colors.success.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -241,7 +241,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                   ),
               ],
             ),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Row(
               children: [
                 if (docType.toString().isNotEmpty)
@@ -249,7 +249,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: context.colors.accent.withOpacity(0.1),
+                      color: context.colors.accent.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -262,17 +262,17 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                     ),
                   ),
                 if (source.toString().isNotEmpty) ...[
-                  SizedBox(width: 6),
+                  const SizedBox(width: 6),
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       'Source: $source',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w500,
                         color: AppColors.primary,
@@ -283,7 +283,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
               ],
             ),
             if (snippet.toString().isNotEmpty) ...[
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 snippet,
                 style: TextStyle(
@@ -360,7 +360,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
         foregroundColor: context.colors.textPrimary,
         leading: _selectedLayer != null
             ? IconButton(
-                icon: Icon(Icons.arrow_back),
+                icon: const Icon(Icons.arrow_back),
                 onPressed: _clearSelection,
               )
             : null,
@@ -372,7 +372,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
             : () => _showQuerySheet(context),
         backgroundColor: _querying ? context.colors.textSecondary : AppColors.primary,
         icon: _querying
-            ? SizedBox(
+            ? const SizedBox(
                 width: 18,
                 height: 18,
                 child: CircularProgressIndicator(
@@ -380,10 +380,10 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                   color: Colors.white,
                 ),
               )
-            : Icon(Icons.search, color: Colors.white),
+            : const Icon(Icons.search, color: Colors.white),
         label: Text(
           _querying ? 'Searching...' : 'Query Knowledge',
-          style: TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white),
         ),
       ),
       body: _selectedLayer != null ? _buildLayerDetail() : _buildLayersList(),
@@ -392,7 +392,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
 
   Widget _buildLayersList() {
     if (_loading) {
-      return Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (_layers.isEmpty) {
@@ -400,13 +400,13 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.layers_outlined, size: 64, color: context.colors.textMuted.withOpacity(0.3)),
-            SizedBox(height: 16),
+            Icon(Icons.layers_outlined, size: 64, color: context.colors.textMuted.withValues(alpha: 0.3)),
+            const SizedBox(height: 16),
             Text(
               'No knowledge layers found',
               style: TextStyle(fontSize: 16, color: context.colors.textSecondary),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Layers are built from your academic context',
               style: TextStyle(fontSize: 13, color: context.colors.textMuted),
@@ -430,12 +430,12 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
               letterSpacing: 1.2,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             'Academic knowledge organized by institutional hierarchy',
             style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           ..._layers.map((layer) => _buildLayerCard(layer)),
         ],
       ),
@@ -464,12 +464,12 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: color, size: 24),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -482,14 +482,14 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                         color: context.colors.textPrimary,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Row(
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: color.withOpacity(0.12),
+                            color: color.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -501,7 +501,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text(
                           '$docCount documents',
                           style: TextStyle(
@@ -524,7 +524,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
 
   Widget _buildLayerDetail() {
     if (_loadingDocs) {
-      return Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (_layerDocuments.isEmpty) {
@@ -532,8 +532,8 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.folder_open, size: 64, color: context.colors.textMuted.withOpacity(0.3)),
-            SizedBox(height: 16),
+            Icon(Icons.folder_open, size: 64, color: context.colors.textMuted.withValues(alpha: 0.3)),
+            const SizedBox(height: 16),
             Text(
               'No documents in this layer',
               style: TextStyle(fontSize: 16, color: context.colors.textSecondary),
@@ -566,12 +566,12 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
           children: [
             Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.insert_drive_file_outlined,
                   size: 20,
                   color: AppColors.primary,
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     title,
@@ -584,11 +584,11 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: context.colors.accent.withOpacity(0.1),
+                color: context.colors.accent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -601,7 +601,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
               ),
             ),
             if (snippet.toString().isNotEmpty) ...[
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 snippet,
                 style: TextStyle(
@@ -623,7 +623,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) => Padding(
@@ -647,7 +647,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Query Knowledge Base',
               style: TextStyle(
@@ -656,7 +656,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                 color: context.colors.textPrimary,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               _selectedLayer != null
                   ? 'Searching in: ${_selectedLayer!['name'] ?? 'selected layer'}'
@@ -666,13 +666,13 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                 color: context.colors.textSecondary,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               controller: _queryCtrl,
               autofocus: true,
               decoration: InputDecoration(
                 hintText: 'e.g. What is covered in ICT101?',
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -681,7 +681,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
               ),
               onSubmitted: (_) => _queryKnowledge(),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -694,7 +694,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text('Search'),
+                child: const Text('Search'),
               ),
             ),
           ],

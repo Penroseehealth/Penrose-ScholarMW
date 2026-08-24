@@ -11,7 +11,7 @@ const Color _bioGreenDark = Color(0xFF059669);
 const Color _bioGreenGlow = Color(0x2210B981);
 
 class BiologyPastPapersScreen extends StatefulWidget {
-  BiologyPastPapersScreen({super.key});
+  const BiologyPastPapersScreen({super.key});
 
   @override
   State<BiologyPastPapersScreen> createState() =>
@@ -257,7 +257,7 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
 
   void _startTimer() {
     _timer?.cancel();
-    _timer = Timer.periodic(Duration(seconds: 1), (t) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (_timeLeft <= 1) {
         t.cancel();
         _timeoutQuestion();
@@ -365,16 +365,16 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
                     size: 18, color: context.colors.textSecondary),
               ),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Container(
               width: 40, height: 40,
               decoration: BoxDecoration(
                 color: _bioGreenGlow,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(Icons.history_edu_rounded, color: _bioGreen, size: 22),
+              child: const Icon(Icons.history_edu_rounded, color: _bioGreen, size: 22),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -404,7 +404,7 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
                         fontWeight: FontWeight.w800,
                         color: _timeLeft <= 10 ? context.colors.error : _bioGreen)),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
@@ -412,12 +412,12 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text('$_score/${_results.length}',
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: _bioGreen)),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               GestureDetector(
                 onTap: _exitExam,
                 child: Container(
@@ -463,9 +463,9 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
                     color: _bioGreen.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Icon(Icons.history_edu_rounded, color: _bioGreen, size: 28),
+                  child: const Icon(Icons.history_edu_rounded, color: _bioGreen, size: 28),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -473,7 +473,7 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
                       Text('MSCE Biology Past Papers',
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text('Attempt real examination formats. Sit the timed multiple choice section, then review model answers for every question.',
                           style: TextStyle(fontSize: 12, color: context.colors.textMuted, height: 1.4)),
                     ],
@@ -482,11 +482,11 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
               ],
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           _buildSectionTitle('Available Papers'),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           for (final paper in _papers) _buildPaperCard(paper),
-          SizedBox(height: 40),
+          const SizedBox(height: 40),
         ],
       ),
     );
@@ -515,10 +515,10 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
                   border: Border.all(color: _bioGreen.withValues(alpha: 0.3)),
                 ),
                 child: Text('${paper.year}',
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontSize: 15, fontWeight: FontWeight.w800, color: _bioGreen)),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -526,7 +526,7 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
                     Text(paper.title,
                         style: TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text('Malawi School Certificate of Education Examination',
                         style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
                   ],
@@ -534,7 +534,7 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
               ),
             ],
           ),
-          SizedBox(height: 14),
+          const SizedBox(height: 14),
           Row(
             children: [
               _buildCountStat('${paper.sectionA.length}', 'MCQ', _bioGreen),
@@ -544,7 +544,7 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
               _buildCountStat('${paper.sectionC.length}', 'Essay', context.colors.warning),
             ],
           ),
-          SizedBox(height: 14),
+          const SizedBox(height: 14),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -554,13 +554,13 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
               _buildTag('Section C', context.colors.warning),
             ],
           ),
-          SizedBox(height: 14),
+          const SizedBox(height: 14),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () => _startExam(paper),
-              icon: Icon(Icons.play_arrow_rounded, size: 20),
-              label: Text('Start MCQ Section',
+              icon: const Icon(Icons.play_arrow_rounded, size: 20),
+              label: const Text('Start MCQ Section',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _bioGreen,
@@ -580,7 +580,7 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
       children: [
         Text(value,
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: color)),
-        SizedBox(width: 5),
+        const SizedBox(width: 5),
         Text(label,
             style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
       ],
@@ -589,7 +589,7 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
 
   Widget _buildCountDivider() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Text('.',
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: context.colors.textMuted)),
     );
@@ -625,7 +625,7 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
               minHeight: 5,
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -635,11 +635,11 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
                   color: _bioGreenGlow,
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: Text('Section A',
+                child: const Text('Section A',
                     style: TextStyle(
                         fontSize: 11, fontWeight: FontWeight.w700, color: _bioGreen)),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(q.question,
                     style: TextStyle(
@@ -650,7 +650,7 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
               ),
             ],
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           Expanded(
             child: ListView.builder(
               itemCount: q.options.length,
@@ -706,7 +706,7 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
                                             color: isSelected ? borderColor : context.colors.textMuted)),
                           ),
                         ),
-                        SizedBox(width: 14),
+                        const SizedBox(width: 14),
                         Expanded(
                           child: Text(q.options[i],
                               style: TextStyle(
@@ -736,14 +736,14 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
                   Text('Explanation',
                       style: TextStyle(
                           fontSize: 11, fontWeight: FontWeight.w700, color: context.colors.info)),
-                  SizedBox(height: 6),
+                  const SizedBox(height: 6),
                   Text(q.explanation,
                       style: TextStyle(
                           fontSize: 12, color: context.colors.textSecondary, height: 1.5)),
                 ],
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
           ],
           SizedBox(
             width: double.infinity,
@@ -767,7 +767,7 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
                           ? 'View Results'
                           : 'Next Question'
                       : 'Submit Answer',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
             ),
           ),
         ],
@@ -815,7 +815,7 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
                 Text('${_activePaper!.year} Paper — Section A',
                     style: TextStyle(
                         fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Container(
                   width: 80, height: 80,
                   decoration: BoxDecoration(
@@ -828,32 +828,32 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
                             fontSize: 36, fontWeight: FontWeight.w800, color: gradeColor)),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text('$_score / $total',
                     style: TextStyle(
                         fontSize: 28, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
                 Text('$pct% — Grade $grade',
                     style: TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w600, color: gradeColor)),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _buildResultStat('Correct', '$_score', context.colors.success),
-                    SizedBox(width: 24),
+                    const SizedBox(width: 24),
                     _buildResultStat('Wrong', '${total - _score}', context.colors.error),
-                    SizedBox(width: 24),
+                    const SizedBox(width: 24),
                     _buildResultStat('Time', _formatTotalTime(), context.colors.info),
                   ],
                 ),
               ],
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           _buildSectionTitle('Question Review'),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           for (var i = 0; i < _results.length; i++) _buildReviewCard(i, _results[i]),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Row(
             children: [
               Expanded(
@@ -867,11 +867,11 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
                         borderRadius: BorderRadius.circular(12),
                         side: BorderSide(color: context.colors.border)),
                   ),
-                  child: Text('New Paper',
+                  child: const Text('New Paper',
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton(
                   onPressed: () => _startExam(_activePaper!),
@@ -881,13 +881,13 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: Text('Retry',
+                  child: const Text('Retry',
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 40),
+          const SizedBox(height: 40),
         ],
       ),
     );
@@ -899,7 +899,7 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
         Text(value,
             style: TextStyle(
                 fontSize: 20, fontWeight: FontWeight.w800, color: color)),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(label,
             style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
       ],
@@ -940,7 +940,7 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
                       : Icon(Icons.close_rounded, size: 16, color: context.colors.error),
                 ),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text('${index + 1}. ${r.question.question}',
                     style: TextStyle(
@@ -949,13 +949,13 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
             ],
           ),
           if (!r.correct) ...[
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
                 'Your answer: ${r.selected >= 0 ? r.question.options[r.selected] : 'No answer'}',
                 style: TextStyle(fontSize: 12, color: context.colors.error)),
             Text('Correct answer: ${r.question.options[r.question.correctIndex]}',
                 style: TextStyle(fontSize: 12, color: context.colors.success)),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Text(r.question.explanation,
                 style: TextStyle(fontSize: 11, color: context.colors.textMuted, height: 1.4)),
           ],
@@ -970,11 +970,11 @@ class _BiologyPastPapersScreenState extends State<BiologyPastPapersScreen> {
         Container(
           width: 4, height: 20,
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [_bioGreen, _bioGreenDark]),
+            gradient: const LinearGradient(colors: [_bioGreen, _bioGreenDark]),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Text(title,
             style: TextStyle(
                 fontSize: 18, fontWeight: FontWeight.w800, color: context.colors.textPrimary, letterSpacing: -0.3)),

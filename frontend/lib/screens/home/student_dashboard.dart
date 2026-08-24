@@ -8,7 +8,7 @@ import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
 
 class StudentDashboard extends StatefulWidget {
-  StudentDashboard({super.key});
+  const StudentDashboard({super.key});
 
   @override
   State<StudentDashboard> createState() => _StudentDashboardState();
@@ -71,7 +71,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                 ),
               ),
               if (_loading)
-                SliverToBoxAdapter(
+                const SliverToBoxAdapter(
                   child: Center(
                     child: Padding(
                       padding: EdgeInsets.all(40),
@@ -86,7 +86,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   sliver: SliverList.separated(
                     itemCount: _courses.length,
-                    separatorBuilder: (_, __) => SizedBox(height: 8),
+                    separatorBuilder: (_, __) => const SizedBox(height: 8),
                     itemBuilder: (context, index) => _buildCourseCard(_courses[index]),
                   ),
                 ),
@@ -108,7 +108,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
                   sliver: SliverList.separated(
                     itemCount: _notifications.length.clamp(0, 5),
-                    separatorBuilder: (_, __) => SizedBox(height: 6),
+                    separatorBuilder: (_, __) => const SizedBox(height: 6),
                     itemBuilder: (context, index) => _buildActivityCard(_notifications[index]),
                   ),
                 ),
@@ -174,31 +174,31 @@ class _StudentDashboardState extends State<StudentDashboard> {
             context,
             icon: Icons.psychology_rounded,
             label: 'Penrose Learning Assistant',
-            gradient: [Color(0xFF7C3AED), Color(0xFF6D28D9)],
+            gradient: [const Color(0xFF7C3AED), const Color(0xFF6D28D9)],
             onTap: () => context.go('/ai-tutor'),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           _buildActionCard(
             context,
             icon: Icons.translate_rounded,
             label: 'Language Hubs',
-            gradient: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
+            gradient: [const Color(0xFF2563EB), const Color(0xFF1D4ED8)],
             onTap: () => context.go('/languages'),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           _buildActionCard(
             context,
             icon: Icons.quiz_rounded,
             label: 'Tasks',
-            gradient: [Color(0xFF059669), Color(0xFF047857)],
+            gradient: [const Color(0xFF059669), const Color(0xFF047857)],
             onTap: () => context.go('/assignments'),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           _buildActionCard(
             context,
             icon: Icons.insights_rounded,
             label: 'Grades',
-            gradient: [Color(0xFF0EA5E9), Color(0xFF0284C7)],
+            gradient: [const Color(0xFF0EA5E9), const Color(0xFF0284C7)],
             onTap: () => context.go('/grades'),
           ),
         ],
@@ -227,19 +227,19 @@ class _StudentDashboardState extends State<StudentDashboard> {
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                color: gradient[0].withOpacity(0.3),
+                color: gradient[0].withValues(alpha: 0.3),
                 blurRadius: 10,
-                offset: Offset(0, 3),
+                offset: const Offset(0, 3),
               ),
             ],
           ),
           child: Column(
             children: [
               Icon(icon, color: Colors.white, size: 20),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -281,9 +281,9 @@ class _StudentDashboardState extends State<StudentDashboard> {
               color: context.colors.primaryGlow,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(Icons.menu_book_rounded, color: AppColors.primary, size: 24),
+            child: const Icon(Icons.menu_book_rounded, color: AppColors.primary, size: 24),
           ),
-          SizedBox(width: 14),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -296,13 +296,13 @@ class _StudentDashboardState extends State<StudentDashboard> {
                     color: context.colors.textPrimary,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   '${course['code'] ?? ''} · ${course['level'] ?? ''}',
                   style: TextStyle(fontSize: 13, color: context.colors.textMuted),
                 ),
                 if (progress > 0) ...[
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
                       Expanded(
@@ -311,15 +311,15 @@ class _StudentDashboardState extends State<StudentDashboard> {
                           child: LinearProgressIndicator(
                             value: progress / 100,
                             backgroundColor: context.colors.surfaceHighest,
-                            valueColor: AlwaysStoppedAnimation(AppColors.primary),
+                            valueColor: const AlwaysStoppedAnimation(AppColors.primary),
                             minHeight: 4,
                           ),
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
                         '${progress.toInt()}%',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: AppColors.primary,
@@ -356,7 +356,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
             ),
             child: Icon(Icons.info_outline_rounded, size: 18, color: context.colors.info),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -367,7 +367,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   notif['message'] ?? '',
                   style: TextStyle(fontSize: 12, color: context.colors.textMuted),
@@ -395,10 +395,10 @@ class _StudentDashboardState extends State<StudentDashboard> {
         child: Center(
           child: Column(
             children: [
-              Icon(Icons.inbox_outlined, size: 44, color: context.colors.textMuted.withOpacity(0.4)),
-              SizedBox(height: 12),
+              Icon(Icons.inbox_outlined, size: 44, color: context.colors.textMuted.withValues(alpha: 0.4)),
+              const SizedBox(height: 12),
               Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(subtitle, style: TextStyle(fontSize: 13, color: context.colors.textMuted)),
             ],
           ),

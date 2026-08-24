@@ -10,7 +10,7 @@ import '../home/app_drawer.dart';
 import '../../core/theme/theme_colors.dart';
 
 class LecturerCentre extends StatefulWidget {
-  LecturerCentre({super.key});
+  const LecturerCentre({super.key});
 
   @override
   State<LecturerCentre> createState() => _LecturerCentreState();
@@ -22,7 +22,7 @@ class _LecturerCentreState extends State<LecturerCentre>
   bool _loading = true;
   bool _hasError = false;
   String _errorMessage = '';
-  bool _isOffline = false;
+  final bool _isOffline = false;
 
   // Sidebar state
   bool _sidebarCollapsed = true;
@@ -42,52 +42,52 @@ class _LecturerCentreState extends State<LecturerCentre>
   final List<_StemSubject> _stemSubjects = [
     _StemSubject(
       'Computer Science', 'CS101', Icons.code_rounded,
-      Color(0xFF8B5CF6), 0.72, 48, 'cs',
+      const Color(0xFF8B5CF6), 0.72, 48, 'cs',
     ),
     _StemSubject(
       'Mathematics', 'MATH101', Icons.functions_rounded,
-      Color(0xFF3B82F6), 0.65, 52, 'math',
+      const Color(0xFF3B82F6), 0.65, 52, 'math',
     ),
     _StemSubject(
       'Physics', 'PHY101', Icons.scatter_plot_rounded,
-      Color(0xFF10B981), 0.58, 35, 'physics',
+      const Color(0xFF10B981), 0.58, 35, 'physics',
     ),
     _StemSubject(
       'Chemistry', 'CHEM101', Icons.science_rounded,
-      Color(0xFFF59E0B), 0.45, 41, 'chemistry',
+      const Color(0xFFF59E0B), 0.45, 41, 'chemistry',
     ),
     _StemSubject(
       'Biology', 'BIO101', Icons.biotech_rounded,
-      Color(0xFFEF4444), 0.38, 39, 'biology',
+      const Color(0xFFEF4444), 0.38, 39, 'biology',
     ),
     _StemSubject(
       'Engineering', 'ENG101', Icons.engineering_rounded,
-      Color(0xFF06B6D4), 0.52, 30, 'engineering',
+      const Color(0xFF06B6D4), 0.52, 30, 'engineering',
     ),
   ];
 
   final List<_ActivityItem> _recentActivity = [
     _ActivityItem(Icons.quiz_rounded, 'Created assessment for CS101',
-        'Data Structures Quiz', '2 hours ago', Color(0xFF8B5CF6)),
+        'Data Structures Quiz', '2 hours ago', const Color(0xFF8B5CF6)),
     _ActivityItem(Icons.edit_note_rounded, 'Updated lesson plan for MATH101',
-        'Calculus and Integration', '5 hours ago', Color(0xFF3B82F6)),
+        'Calculus and Integration', '5 hours ago', const Color(0xFF3B82F6)),
     _ActivityItem(Icons.grading_rounded, 'Reviewed student submissions',
-        'Physics Lab Report – Week 4', '1 day ago', Color(0xFF10B981)),
+        'Physics Lab Report – Week 4', '1 day ago', const Color(0xFF10B981)),
     _ActivityItem(Icons.auto_awesome_rounded, 'Generated quiz for CHEM101',
-        'Organic Chemistry Basics', '1 day ago', Color(0xFFF59E0B)),
+        'Organic Chemistry Basics', '1 day ago', const Color(0xFFF59E0B)),
     _ActivityItem(Icons.forum_rounded, 'New discussion in CS101 forum',
-        'Topic: Time Complexity Analysis', '2 days ago', Color(0xFF8B5CF6)),
+        'Topic: Time Complexity Analysis', '2 days ago', const Color(0xFF8B5CF6)),
   ];
 
   final List<_ScheduleItem> _upcomingSchedule = [
     _ScheduleItem(20, 'MAY', 'CS101 Lecture', 'Data Structures – Arrays',
-        '10:00 AM – 11:30 AM', 'Lecture', Color(0xFF8B5CF6)),
+        '10:00 AM – 11:30 AM', 'Lecture', const Color(0xFF8B5CF6)),
     _ScheduleItem(22, 'MAY', 'MATH101 Tutorial', 'Problem Solving Session',
-        '2:00 PM – 3:30 PM', 'Tutorial', Color(0xFF3B82F6)),
+        '2:00 PM – 3:30 PM', 'Tutorial', const Color(0xFF3B82F6)),
     _ScheduleItem(24, 'MAY', 'CHEM101 Lab', 'Organic Compounds Lab',
-        '9:00 AM – 12:00 PM', 'Lab', Color(0xFFF59E0B)),
+        '9:00 AM – 12:00 PM', 'Lab', const Color(0xFFF59E0B)),
     _ScheduleItem(26, 'MAY', 'CS101 Assignment 4', 'Due: Data Structures',
-        '11:59 PM', 'Deadline', Color(0xFFEF4444)),
+        '11:59 PM', 'Deadline', const Color(0xFFEF4444)),
   ];
 
   @override
@@ -95,14 +95,14 @@ class _LecturerCentreState extends State<LecturerCentre>
     super.initState();
     _fadeCtrl = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 600),
     );
     _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut);
     _fadeCtrl.forward();
 
     _sidebarAnimCtrl = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 250),
       value: 1.0,
     );
     _sidebarWidthAnim = Tween<double>(begin: 260, end: 68).animate(
@@ -155,7 +155,7 @@ class _LecturerCentreState extends State<LecturerCentre>
       opacity: _fadeAnim,
       child: Scaffold(
         backgroundColor: context.colors.background,
-        endDrawer: AppDrawer(),
+        endDrawer: const AppDrawer(),
         body: isMobile
             ? _buildMobileLayout()
             : Row(
@@ -203,22 +203,22 @@ class _LecturerCentreState extends State<LecturerCentre>
         elevation: 0,
         height: 64,
         destinations: [
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.dashboard_outlined, size: 22),
             selectedIcon: Icon(Icons.dashboard_rounded, size: 22),
             label: 'Dashboard',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.auto_awesome_outlined, size: 22),
             selectedIcon: Icon(Icons.auto_awesome_rounded, size: 22),
             label: 'AI Assistant',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.school_outlined, size: 22),
             selectedIcon: Icon(Icons.school_rounded, size: 22),
             label: 'My Learning',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.science_outlined, size: 22),
             selectedIcon: Icon(Icons.science_rounded, size: 22),
             label: 'Research',
@@ -239,11 +239,11 @@ class _LecturerCentreState extends State<LecturerCentre>
       ),
       child: Column(
         children: [
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildSidebarLogoCompact(),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildCollapseToggle(),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -278,9 +278,9 @@ class _LecturerCentreState extends State<LecturerCentre>
                 _buildSidebarLogoCompact()
               else
                 _buildSidebarLogoFull(),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               _buildCollapseToggle(),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Expanded(
                 child: ListView.builder(
                   padding: EdgeInsets.symmetric(
@@ -312,15 +312,15 @@ class _LecturerCentreState extends State<LecturerCentre>
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [AppColors.primary, AppColors.primaryDark],
               ),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(Icons.auto_awesome_rounded,
+            child: const Icon(Icons.auto_awesome_rounded,
                 color: Colors.white, size: 20),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -353,12 +353,12 @@ class _LecturerCentreState extends State<LecturerCentre>
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               colors: [AppColors.primary, AppColors.primaryDark],
             ),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(Icons.auto_awesome_rounded,
+          child: const Icon(Icons.auto_awesome_rounded,
               color: Colors.white, size: 20),
         ),
       ),
@@ -434,7 +434,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                 Icon(item.icon,
                     size: 19,
                     color: isActive ? AppColors.primary : context.colors.textMuted),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     item.label,
@@ -452,7 +452,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                   Container(
                     width: 5,
                     height: 5,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: AppColors.primary,
                       shape: BoxShape.circle,
                     ),
@@ -470,7 +470,7 @@ class _LecturerCentreState extends State<LecturerCentre>
     final isActive = index == _selectedNavIndex;
     return Tooltip(
       message: item.label,
-      waitDuration: Duration(milliseconds: 500),
+      waitDuration: const Duration(milliseconds: 500),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 2),
         child: Material(
@@ -513,12 +513,12 @@ class _LecturerCentreState extends State<LecturerCentre>
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [AppColors.primary, AppColors.primaryDark],
               ),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Center(
+            child: const Center(
               child: Text('GP',
                   style: TextStyle(
                       color: Colors.white,
@@ -526,7 +526,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                       fontSize: 14)),
             ),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -553,7 +553,7 @@ class _LecturerCentreState extends State<LecturerCentre>
   Widget _buildSidebarProfileCompact() {
     return Tooltip(
       message: 'Dr. Grace Mphatso – Lecturer',
-      waitDuration: Duration(milliseconds: 500),
+      waitDuration: const Duration(milliseconds: 500),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Center(
@@ -561,12 +561,12 @@ class _LecturerCentreState extends State<LecturerCentre>
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [AppColors.primary, AppColors.primaryDark],
               ),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Center(
+            child: const Center(
               child: Text('GP',
                   style: TextStyle(
                       color: Colors.white,
@@ -598,7 +598,7 @@ class _LecturerCentreState extends State<LecturerCentre>
               onPressed: () => Scaffold.of(ctx).openEndDrawer(),
             ),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -613,7 +613,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                   ),
                 ),
                 if (!isMobile) ...[
-                  SizedBox(height: 3),
+                  const SizedBox(height: 3),
                   Text(
                     'Manage your STEM subjects, students, and teaching activities.',
                     style: TextStyle(
@@ -626,11 +626,11 @@ class _LecturerCentreState extends State<LecturerCentre>
             ),
           ),
           _buildHeaderAction(Icons.search_rounded, 'Search', () {}),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           _buildHeaderAction(
               Icons.notifications_outlined, 'Notifications', () {},
               badge: 3),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           _buildHeaderAction(
             context.watch<ThemeProvider>().isDark
                 ? Icons.dark_mode_outlined
@@ -674,7 +674,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                   ),
                   child: Text(
                     '$badge',
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
                         color: Colors.white),
@@ -705,15 +705,15 @@ class _LecturerCentreState extends State<LecturerCentre>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildStemSubjectsSection(),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           _buildLanguageHubsSection(),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           _buildAnalyticsOverview(isDesktop),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           _buildProductivityArea(isDesktop),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           _buildAiAssistantSection(isDesktop),
-          SizedBox(height: 40),
+          const SizedBox(height: 40),
         ],
       ),
     );
@@ -728,13 +728,13 @@ class _LecturerCentreState extends State<LecturerCentre>
           width: 4,
           height: 22,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               colors: [AppColors.primary, AppColors.primaryDark],
             ),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Expanded(
           child: Text(
             title,
@@ -764,22 +764,22 @@ class _LecturerCentreState extends State<LecturerCentre>
               _buildCarouselArrow(Icons.arrow_back_ios_new_rounded, () {
                 _subjectScrollCtrl.animateTo(
                   _subjectScrollCtrl.offset - 320,
-                  duration: Duration(milliseconds: 300),
+                  duration: const Duration(milliseconds: 300),
                   curve: Curves.easeOut,
                 );
               }),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               _buildCarouselArrow(Icons.arrow_forward_ios_rounded, () {
                 _subjectScrollCtrl.animateTo(
                   _subjectScrollCtrl.offset + 320,
-                  duration: Duration(milliseconds: 300),
+                  duration: const Duration(milliseconds: 300),
                   curve: Curves.easeOut,
                 );
               }),
             ],
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         SizedBox(
           height: 210,
           child: ListView.builder(
@@ -823,7 +823,7 @@ class _LecturerCentreState extends State<LecturerCentre>
         child: GestureDetector(
           onTap: () => context.go('/stem-subject/${subject.prefix}'),
           child: AnimatedContainer(
-            duration: Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 200),
             width: 270,
             margin: const EdgeInsets.only(right: 14),
             padding: const EdgeInsets.all(20),
@@ -852,7 +852,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                 Row(
                   children: [
                     AnimatedContainer(
-                      duration: Duration(milliseconds: 200),
+                      duration: const Duration(milliseconds: 200),
                       width: 52,
                       height: 52,
                       decoration: BoxDecoration(
@@ -862,7 +862,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                       child: Icon(subject.icon,
                           color: subject.color, size: 26),
                     ),
-                    SizedBox(width: 14),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -875,7 +875,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                               color: context.colors.textPrimary,
                             ),
                           ),
-                          SizedBox(height: 2),
+                          const SizedBox(height: 2),
                           Text(
                             subject.code,
                             style: TextStyle(
@@ -889,18 +889,18 @@ class _LecturerCentreState extends State<LecturerCentre>
                     ),
                   ],
                 ),
-                Spacer(),
+                const Spacer(),
                 Row(
                   children: [
                     Icon(Icons.people_rounded,
                         size: 14, color: context.colors.textMuted),
-                    SizedBox(width: 5),
+                    const SizedBox(width: 5),
                     Text(
                       '${subject.students} students',
                       style: TextStyle(
                           fontSize: 12, color: context.colors.textMuted),
                     ),
-                    Spacer(),
+                    const Spacer(),
                     Text(
                       '${(subject.progress * 100).toInt()}%',
                       style: TextStyle(
@@ -911,12 +911,12 @@ class _LecturerCentreState extends State<LecturerCentre>
                     ),
                   ],
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: TweenAnimationBuilder<double>(
                     tween: Tween(begin: 0, end: subject.progress),
-                    duration: Duration(milliseconds: 800),
+                    duration: const Duration(milliseconds: 800),
                     curve: Curves.easeOut,
                     builder: (ctx, val, _) => LinearProgressIndicator(
                       value: val,
@@ -926,7 +926,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                     ),
                   ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     Container(
@@ -947,7 +947,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                               color: subject.color,
                             ),
                           ),
-                          SizedBox(width: 4),
+                          const SizedBox(width: 4),
                           Icon(Icons.arrow_forward_ios_rounded,
                               size: 10, color: subject.color),
                         ],
@@ -997,22 +997,22 @@ class _LecturerCentreState extends State<LecturerCentre>
           'Language Hubs',
           trailing: TextButton.icon(
             onPressed: () => context.go('/languages'),
-            icon: Icon(Icons.arrow_forward_ios_rounded, size: 14),
-            label: Text('View All'),
+            icon: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+            label: const Text('View All'),
             style: TextButton.styleFrom(
               foregroundColor: AppColors.primary,
-              textStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+              textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         LayoutBuilder(
           builder: (context, constraints) {
             final crossAxisCount = constraints.maxWidth > 700 ? 3 : (constraints.maxWidth > 450 ? 2 : 1);
             return GridView.count(
               crossAxisCount: crossAxisCount,
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
               childAspectRatio: 2.0,
@@ -1046,7 +1046,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                               ),
                               child: Icon(icon, color: color, size: 26),
                             ),
-                            SizedBox(width: 16),
+                            const SizedBox(width: 16),
                             Expanded(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -1060,7 +1060,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                                       color: context.colors.textPrimary,
                                     ),
                                   ),
-                                  SizedBox(height: 2),
+                                  const SizedBox(height: 2),
                                   Text(
                                     hub['subtitle'] as String,
                                     style: TextStyle(
@@ -1094,11 +1094,11 @@ class _LecturerCentreState extends State<LecturerCentre>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Overview'),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         GridView.count(
           crossAxisCount: isDesktop ? 4 : 2,
           shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
           childAspectRatio: isDesktop ? 2.0 : 1.6,
@@ -1152,7 +1152,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                       ),
                       child: Icon(icon, size: 19, color: color),
                     ),
-                    Spacer(),
+                    const Spacer(),
                     if (trend != null)
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -1171,7 +1171,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                       ),
                   ],
                 ),
-                SizedBox(height: 14),
+                const SizedBox(height: 14),
                 Text(
                   value,
                   style: TextStyle(
@@ -1181,7 +1181,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                     letterSpacing: -0.5,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   label,
                   style: TextStyle(
@@ -1206,14 +1206,14 @@ class _LecturerCentreState extends State<LecturerCentre>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(flex: 5, child: _buildRecentActivity()),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(flex: 4, child: _buildUpcomingSchedule()),
             ],
           )
         : Column(
             children: [
               _buildRecentActivity(),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               _buildUpcomingSchedule(),
             ],
           );
@@ -1232,9 +1232,9 @@ class _LecturerCentreState extends State<LecturerCentre>
         children: [
           Row(
             children: [
-              Icon(Icons.history_rounded,
+              const Icon(Icons.history_rounded,
                   size: 18, color: AppColors.primary),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   'Recent Activity',
@@ -1247,7 +1247,7 @@ class _LecturerCentreState extends State<LecturerCentre>
               ),
               GestureDetector(
                 onTap: () {},
-                child: Text(
+                child: const Text(
                   'View All →',
                   style: TextStyle(
                     fontSize: 12,
@@ -1258,7 +1258,7 @@ class _LecturerCentreState extends State<LecturerCentre>
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           ...(_recentActivity.map((a) => _buildActivityItem(a))),
         ],
       ),
@@ -1284,7 +1284,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                 child:
                     Icon(activity.icon, size: 18, color: activity.color),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1297,7 +1297,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                         color: context.colors.textPrimary,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
                       activity.subtitle,
                       style: TextStyle(
@@ -1335,7 +1335,7 @@ class _LecturerCentreState extends State<LecturerCentre>
             children: [
               Icon(Icons.calendar_month_rounded,
                   size: 18, color: context.colors.success),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   'Upcoming Schedule',
@@ -1348,7 +1348,7 @@ class _LecturerCentreState extends State<LecturerCentre>
               ),
               GestureDetector(
                 onTap: () => context.go('/calendar'),
-                child: Text(
+                child: const Text(
                   'View Full Calendar →',
                   style: TextStyle(
                     fontSize: 12,
@@ -1359,7 +1359,7 @@ class _LecturerCentreState extends State<LecturerCentre>
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           ...(_upcomingSchedule.map((s) => _buildScheduleItem(s))),
         ],
       ),
@@ -1404,7 +1404,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                   ],
                 ),
               ),
-              SizedBox(width: 14),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1417,7 +1417,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                         color: context.colors.textPrimary,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
                       event.subtitle,
                       style: TextStyle(
@@ -1436,7 +1436,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                         color: context.colors.textMuted,
                         fontWeight: FontWeight.w500),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 8, vertical: 2),
@@ -1472,19 +1472,19 @@ class _LecturerCentreState extends State<LecturerCentre>
           'Rose AI Teaching Assistant',
           trailing: const SizedBox.shrink(),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Padding(
-          padding: EdgeInsets.only(left: 16),
+          padding: const EdgeInsets.only(left: 16),
           child: Text(
             'Let AI help you create better STEM learning experiences.',
             style: TextStyle(fontSize: 13, color: context.colors.textMuted),
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         GridView.count(
           crossAxisCount: isDesktop ? 3 : 2,
           shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
           childAspectRatio: isDesktop ? 2.2 : 1.8,
@@ -1549,7 +1549,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                   ),
                   child: Icon(action.icon, size: 22, color: action.color),
                 ),
-                Spacer(),
+                const Spacer(),
                 Text(
                   action.title,
                   style: TextStyle(
@@ -1558,7 +1558,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                     color: context.colors.textPrimary,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   action.subtitle,
                   maxLines: 2,
@@ -1586,35 +1586,35 @@ class _LecturerCentreState extends State<LecturerCentre>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSkeletonBar(200, 22),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _buildSkeletonBar(350, 12),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           SizedBox(
             height: 210,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: 4,
-              separatorBuilder: (_, __) => SizedBox(width: 14),
+              separatorBuilder: (_, __) => const SizedBox(width: 14),
               itemBuilder: (_, __) => _buildSkeletonCard(270, 210),
             ),
           ),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           _buildSkeletonBar(120, 22),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           GridView.count(
             crossAxisCount: 4,
             shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
             childAspectRatio: 2.0,
             children: List.generate(4, (_) => _buildSkeletonCard(0, 0)),
           ),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           Row(
             children: [
               Expanded(child: _buildSkeletonCard(0, 200)),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(child: _buildSkeletonCard(0, 200)),
             ],
           ),
@@ -1662,10 +1662,10 @@ class _LecturerCentreState extends State<LecturerCentre>
                 color: context.colors.primaryGlow,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.school_rounded,
+              child: const Icon(Icons.school_rounded,
                   size: 40, color: AppColors.primary),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Text(
               'No subjects yet',
               style: TextStyle(
@@ -1674,7 +1674,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                 color: context.colors.textPrimary,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Your STEM subjects will appear here once\nthey are assigned to you.',
               textAlign: TextAlign.center,
@@ -1706,7 +1706,7 @@ class _LecturerCentreState extends State<LecturerCentre>
               child: Icon(Icons.error_outline_rounded,
                   size: 40, color: context.colors.error),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Text(
               'Something went wrong',
               style: TextStyle(
@@ -1715,7 +1715,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                 color: context.colors.textPrimary,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               _errorMessage.isNotEmpty
                   ? _errorMessage
@@ -1724,7 +1724,7 @@ class _LecturerCentreState extends State<LecturerCentre>
               style: TextStyle(
                   fontSize: 14, color: context.colors.textMuted, height: 1.5),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () {
                 setState(() {
@@ -1734,8 +1734,8 @@ class _LecturerCentreState extends State<LecturerCentre>
                 });
                 _loadData();
               },
-              icon: Icon(Icons.refresh_rounded, size: 18),
-              label: Text('Retry'),
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: const Text('Retry'),
             ),
           ],
         ),
@@ -1762,7 +1762,7 @@ class _LecturerCentreState extends State<LecturerCentre>
               child: Icon(Icons.wifi_off_rounded,
                   size: 40, color: context.colors.warning),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Text(
               'You are offline',
               style: TextStyle(
@@ -1771,14 +1771,14 @@ class _LecturerCentreState extends State<LecturerCentre>
                 color: context.colors.textPrimary,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Please check your internet connection.\nSome features may be unavailable.',
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontSize: 14, color: context.colors.textMuted, height: 1.5),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -1791,7 +1791,7 @@ class _LecturerCentreState extends State<LecturerCentre>
                 children: [
                   Icon(Icons.cloud_off_rounded,
                       size: 16, color: context.colors.warning),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
                     'Offline Mode',
                     style: TextStyle(

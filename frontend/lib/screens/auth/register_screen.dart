@@ -3,11 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 
 class RegisterScreen extends StatefulWidget {
-  RegisterScreen({super.key});
+  const RegisterScreen({super.key});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -31,7 +30,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create Account'),
+        title: const Text('Create Account'),
         backgroundColor: Colors.transparent,
         foregroundColor: context.colors.textPrimary,
         elevation: 0,
@@ -41,7 +40,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 400),
+              constraints: const BoxConstraints(maxWidth: 400),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -49,30 +48,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: [
                     TextFormField(
                       controller: _nameCtrl,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Full Name',
                         prefixIcon: Icon(Icons.person_outlined),
                       ),
                       validator: (v) => v != null && v.isNotEmpty ? null : 'Required',
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     TextFormField(
                       controller: _emailCtrl,
                       keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Email',
                         prefixIcon: Icon(Icons.email_outlined),
                       ),
                       validator: (v) =>
                           v != null && v.contains('@') ? null : 'Enter a valid email',
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     TextFormField(
                       controller: _passwordCtrl,
                       obscureText: _obscure,
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        prefixIcon: Icon(Icons.lock_outlined),
+                        prefixIcon: const Icon(Icons.lock_outlined),
                         suffixIcon: IconButton(
                           icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility),
                           onPressed: () => setState(() => _obscure = !_obscure),
@@ -81,49 +80,49 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       validator: (v) =>
                           v != null && v.length >= 6 ? null : 'Min 6 characters',
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
-                      value: _role,
-                      decoration: InputDecoration(
+                      initialValue: _role,
+                      decoration: const InputDecoration(
                         labelText: 'Role',
                         prefixIcon: Icon(Icons.badge_outlined),
                       ),
                       items: [
-                        DropdownMenuItem(value: 'student', child: Text('Student')),
-                        DropdownMenuItem(value: 'lecturer', child: Text('Lecturer')),
-                        DropdownMenuItem(value: 'researcher', child: Text('Researcher')),
+                        const DropdownMenuItem(value: 'student', child: Text('Student')),
+                        const DropdownMenuItem(value: 'lecturer', child: Text('Lecturer')),
+                        const DropdownMenuItem(value: 'researcher', child: Text('Researcher')),
                       ],
                       onChanged: (v) => setState(() => _role = v ?? 'student'),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     TextFormField(
                       controller: _institutionCtrl,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Institution',
                         prefixIcon: Icon(Icons.business_outlined),
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     TextFormField(
                       controller: _departmentCtrl,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Department',
                         prefixIcon: Icon(Icons.category_outlined),
                       ),
                     ),
                     if (_role == 'student') ...[
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       TextFormField(
                         controller: _studentIdCtrl,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Student ID',
                           prefixIcon: Icon(Icons.badge_outlined),
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       DropdownButtonFormField<int>(
-                        value: _yearOfStudy,
-                        decoration: InputDecoration(
+                        initialValue: _yearOfStudy,
+                        decoration: const InputDecoration(
                           labelText: 'Year of Study',
                           prefixIcon: Icon(Icons.calendar_today_outlined),
                         ),
@@ -135,14 +134,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ],
                     if (auth.error != null) ...[
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       Text(
                         auth.error!,
                         style: TextStyle(color: context.colors.error, fontSize: 13),
                         textAlign: TextAlign.center,
                       ),
                     ],
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: auth.isLoading
                           ? null
@@ -170,17 +169,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               }
                             },
                       child: auth.isLoading
-                          ? SizedBox(
+                          ? const SizedBox(
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                             )
-                          : Text('Create Account'),
+                          : const Text('Create Account'),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     TextButton(
                       onPressed: () => context.go('/login'),
-                      child: Text('Already have an account? Sign in'),
+                      child: const Text('Already have an account? Sign in'),
                     ),
                   ],
                 ),

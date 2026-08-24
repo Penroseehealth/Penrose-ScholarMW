@@ -5,7 +5,7 @@ import '../../services/language_service.dart';
 import '../../core/theme/theme_colors.dart';
 
 class LanguageVocabulary extends StatefulWidget {
-  LanguageVocabulary({super.key});
+  const LanguageVocabulary({super.key});
 
   @override
   State<LanguageVocabulary> createState() => _LanguageVocabularyState();
@@ -94,7 +94,7 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
             _buildSearchBar(),
             Expanded(
               child: _loading
-                  ? Center(child: CircularProgressIndicator(color: AppColors.primary))
+                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
                   : _filteredVocab.isEmpty
                       ? _buildEmpty()
                       : _buildVocabList(),
@@ -118,8 +118,8 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
             onPressed: () => context.pop(),
             icon: Icon(Icons.arrow_back_ios, color: context.colors.textPrimary, size: 20),
           ),
-          Icon(Icons.book, color: AppColors.primary, size: 24),
-          SizedBox(width: 8),
+          const Icon(Icons.book, color: AppColors.primary, size: 24),
+          const SizedBox(width: 8),
           Expanded(
             child: Text('Vocabulary', style: TextStyle(
               color: context.colors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold,
@@ -131,7 +131,7 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
               color: AppColors.primary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Text('${_vocabulary.length} words', style: TextStyle(
+            child: Text('${_vocabulary.length} words', style: const TextStyle(
               color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w600,
             )),
           ),
@@ -151,13 +151,13 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
           Row(
             children: [
               _statChip('Mastered', stats['mastered']!, context.colors.success),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               _statChip('Learning', stats['learning']!, context.colors.warning),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               _statChip('New', stats['new']!, context.colors.textSecondary),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
@@ -263,7 +263,7 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.book_outlined, size: 48, color: context.colors.textSecondary.withValues(alpha: 0.4)),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text('No vocabulary found', style: TextStyle(
             color: context.colors.textSecondary.withValues(alpha: 0.6), fontSize: 14,
           )),
@@ -297,7 +297,7 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
     return GestureDetector(
       onTap: () => setState(() => _expandedIndex = expanded ? null : index),
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 200),
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
@@ -333,23 +333,23 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
                       color: AppColors.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Text(pos, style: TextStyle(
+                    child: Text(pos, style: const TextStyle(
                       color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w600,
                     )),
                   ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Icon(
                   expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                   color: context.colors.textSecondary, size: 20,
                 ),
               ],
             ),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Text(translation, style: TextStyle(
               color: context.colors.textSecondary, fontSize: 14,
             )),
             if (theme.toString().isNotEmpty) ...[
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
@@ -376,12 +376,12 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
                     Text('Example:', style: TextStyle(
                       color: context.colors.textSecondary.withValues(alpha: 0.6), fontSize: 11,
                     )),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(example.toString(), style: TextStyle(
                       color: context.colors.textPrimary, fontSize: 14, fontStyle: FontStyle.italic,
                     )),
                     if (exampleTrans.toString().isNotEmpty) ...[
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(exampleTrans.toString(), style: TextStyle(
                         color: context.colors.textSecondary.withValues(alpha: 0.7), fontSize: 12,
                       )),

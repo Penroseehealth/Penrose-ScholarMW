@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 
 class ChineseRadicalLab extends StatefulWidget {
-  ChineseRadicalLab({super.key});
+  const ChineseRadicalLab({super.key});
   @override
   State<ChineseRadicalLab> createState() => _ChineseRadicalLabState();
 }
@@ -118,10 +117,10 @@ class _ChineseRadicalLabState extends State<ChineseRadicalLab> {
     return Scaffold(
       backgroundColor: context.colors.background,
       appBar: AppBar(
-        title: Text('Radical Lab'),
+        title: const Text('Radical Lab'),
         backgroundColor: context.colors.surface,
         foregroundColor: context.colors.textPrimary, elevation: 0,
-        leading: IconButton(icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18), onPressed: () => context.pop()),
+        leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18), onPressed: () => context.pop()),
       ),
       body: _selected != null ? _buildDetail() : _buildGrid(),
     );
@@ -142,7 +141,7 @@ class _ChineseRadicalLabState extends State<ChineseRadicalLab> {
       ),
       Expanded(child: GridView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3, mainAxisSpacing: 10, crossAxisSpacing: 10, childAspectRatio: 0.85),
         itemCount: list.length,
         itemBuilder: (_, i) {
@@ -160,13 +159,13 @@ class _ChineseRadicalLabState extends State<ChineseRadicalLab> {
                 border: Border.all(color: context.colors.border)),
               child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                 Text(r['r'] as String, style: TextStyle(fontSize: 28, fontWeight: FontWeight.w400, color: context.colors.textPrimary)),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(r['meaning'] as String, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(color: accent.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(4)),
-                  child: Text('${r['strokes']}st', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: accent))),
+                  child: Text('${r['strokes']}st', style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: accent))),
               ])));
         }))]);
   }
@@ -182,20 +181,20 @@ class _ChineseRadicalLabState extends State<ChineseRadicalLab> {
           Row(children: [
             GestureDetector(
               onTap: () => setState(() => _selected = null),
-              child: Icon(Icons.arrow_back_rounded, color: accent, size: 20)),
-            SizedBox(width: 12),
+              child: const Icon(Icons.arrow_back_rounded, color: accent, size: 20)),
+            const SizedBox(width: 12),
             Text(r['r'] as String, style: TextStyle(fontSize: 48, fontWeight: FontWeight.w400, color: context.colors.textPrimary)),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(r['meaning'] as String, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
               Text('${r['name']} | ${r['strokes']} strokes | ${r['pos']}', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
             ]))]),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(r['etymology'] as String, style: TextStyle(fontSize: 13, color: context.colors.textSecondary)),
         ])),
       Expanded(child: GridView.builder(
         padding: const EdgeInsets.all(16),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2, mainAxisSpacing: 10, crossAxisSpacing: 10, childAspectRatio: 1.6),
         itemCount: chars.length,
         itemBuilder: (_, i) {
@@ -208,10 +207,10 @@ class _ChineseRadicalLabState extends State<ChineseRadicalLab> {
               border: Border.all(color: context.colors.border)),
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               Text(c['c'] as String, style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400, color: context.colors.textPrimary)),
-              SizedBox(height: 4),
-              Text(c['p'] as String, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: accent)),
+              const SizedBox(height: 4),
+              Text(c['p'] as String, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: accent)),
               Text(c['m'] as String, style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
-              SizedBox(height: 2),
+              const SizedBox(height: 2),
               Text(c['b'] as String, style: TextStyle(fontSize: 9, color: context.colors.textMuted)),
             ]));
         }))]);

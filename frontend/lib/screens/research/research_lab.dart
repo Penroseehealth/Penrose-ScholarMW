@@ -5,7 +5,7 @@ import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
 
 class ResearchLab extends StatefulWidget {
-  ResearchLab({super.key});
+  const ResearchLab({super.key});
 
   @override
   State<ResearchLab> createState() => _ResearchLabState();
@@ -43,7 +43,7 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
       backgroundColor: context.colors.background,
       appBar: AppBar(
         backgroundColor: context.colors.surface,
-        title: Text(
+        title: const Text(
           'Research Intelligence Lab',
           style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
         ),
@@ -54,9 +54,9 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
           indicatorColor: AppColors.primary,
           dividerColor: context.colors.border,
           tabs: [
-            Tab(text: 'Projects'),
-            Tab(text: 'Literature'),
-            Tab(text: 'Evidence'),
+            const Tab(text: 'Projects'),
+            const Tab(text: 'Literature'),
+            const Tab(text: 'Evidence'),
           ],
         ),
       ),
@@ -83,13 +83,13 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: _showNewProjectDialog,
-              icon: Icon(Icons.add_rounded),
-              label: Text('New Research Project'),
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('New Research Project'),
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           if (_loadingProjects)
-            Center(child: CircularProgressIndicator(color: AppColors.primary))
+            const Center(child: CircularProgressIndicator(color: AppColors.primary))
           else if (_projects.isEmpty)
             _buildEmptyState('No projects yet', 'Start a research project to organize your work')
           else
@@ -111,15 +111,15 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
               hintText: 'Search literature...',
               prefixIcon: Icon(Icons.search_rounded, color: context.colors.textMuted),
               suffixIcon: IconButton(
-                icon: Icon(Icons.send_rounded, color: AppColors.primary),
+                icon: const Icon(Icons.send_rounded, color: AppColors.primary),
                 onPressed: _searchLiterature,
               ),
             ),
             onSubmitted: (_) => _searchLiterature(),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           if (_searchingLiterature)
-            Center(child: CircularProgressIndicator(color: AppColors.primary))
+            const Center(child: CircularProgressIndicator(color: AppColors.primary))
           else if (_searchResults.isNotEmpty)
             Expanded(
               child: ListView.builder(
@@ -167,9 +167,9 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
               color: context.colors.primaryGlow,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(Icons.science_rounded, color: AppColors.primary, size: 22),
+            child: const Icon(Icons.science_rounded, color: AppColors.primary, size: 22),
           ),
-          SizedBox(width: 14),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,7 +182,7 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
                     color: context.colors.textPrimary,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   project['description'] ?? 'No description',
                   maxLines: 2,
@@ -192,7 +192,7 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
               ],
             ),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
@@ -229,12 +229,12 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
             paper['title'] ?? '',
             style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: context.colors.textPrimary),
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(
             paper['authors'] ?? '',
             style: TextStyle(color: context.colors.textMuted, fontSize: 12),
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Row(
             children: [
               if (paper['year'] != null)
@@ -242,7 +242,7 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
                   '${paper['year']}',
                   style: TextStyle(fontSize: 12, color: context.colors.info),
                 ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               if (paper['source'] != null && (paper['source'] as String).isNotEmpty)
                 Text(
                   paper['source'],
@@ -251,7 +251,7 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
             ],
           ),
           if (paper['doi'] != null) ...[
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'DOI: ${paper['doi']}',
               style: TextStyle(fontSize: 11, color: context.colors.accent),
@@ -267,10 +267,10 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.science_outlined, size: 56, color: context.colors.textMuted.withOpacity(0.3)),
-          SizedBox(height: 16),
+          Icon(Icons.science_outlined, size: 56, color: context.colors.textMuted.withValues(alpha: 0.3)),
+          const SizedBox(height: 16),
           Text(title, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(subtitle, style: TextStyle(fontSize: 13, color: context.colors.textMuted)),
         ],
       ),
@@ -298,27 +298,27 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('New Research Project'),
+        title: const Text('New Research Project'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: titleCtrl,
               style: TextStyle(color: context.colors.textPrimary),
-              decoration: InputDecoration(labelText: 'Title'),
+              decoration: const InputDecoration(labelText: 'Title'),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             TextField(
               controller: descCtrl,
               style: TextStyle(color: context.colors.textPrimary),
-              decoration: InputDecoration(labelText: 'Description'),
+              decoration: const InputDecoration(labelText: 'Description'),
               maxLines: 2,
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             TextField(
               controller: rqCtrl,
               style: TextStyle(color: context.colors.textPrimary),
-              decoration: InputDecoration(labelText: 'Research Question'),
+              decoration: const InputDecoration(labelText: 'Research Question'),
               maxLines: 2,
             ),
           ],
@@ -326,7 +326,7 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancel'),
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -338,7 +338,7 @@ class _ResearchLabState extends State<ResearchLab> with SingleTickerProviderStat
               });
               _loadProjects();
             },
-            child: Text('Create'),
+            child: const Text('Create'),
           ),
         ],
       ),

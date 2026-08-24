@@ -7,7 +7,7 @@ import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
 
 class GlobalSearchScreen extends StatefulWidget {
-  GlobalSearchScreen({super.key});
+  const GlobalSearchScreen({super.key});
 
   @override
   State<GlobalSearchScreen> createState() => _GlobalSearchScreenState();
@@ -35,7 +35,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
 
   void _onSearchChanged(String value) {
     _debounce?.cancel();
-    _debounce = Timer(Duration(milliseconds: 500), () {
+    _debounce = Timer(const Duration(milliseconds: 500), () {
       final trimmed = value.trim();
       if (trimmed.length < 2) {
         setState(() {
@@ -138,7 +138,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
       body: Column(
         children: [
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [AppColors.primary, AppColors.primaryDark],
                 begin: Alignment.topLeft,
@@ -152,7 +152,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Search',
                       style: TextStyle(
                         color: Colors.white,
@@ -160,30 +160,30 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       'Find courses, assessments, resources & more',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                         fontSize: 14,
                       ),
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     TextField(
                       controller: _searchController,
                       focusNode: _searchFocusNode,
                       onChanged: _onSearchChanged,
                       autofocus: true,
-                      style: TextStyle(color: Colors.white, fontSize: 15),
+                      style: const TextStyle(color: Colors.white, fontSize: 15),
                       decoration: InputDecoration(
                         hintText: 'Search everything...',
                         hintStyle:
-                            TextStyle(color: Colors.white.withOpacity(0.6)),
-                        prefixIcon: Icon(Icons.search,
+                            TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+                        prefixIcon: const Icon(Icons.search,
                             color: Colors.white70, size: 22),
                         suffixIcon: _query.isNotEmpty
                             ? IconButton(
-                                icon: Icon(Icons.clear,
+                                icon: const Icon(Icons.clear,
                                     color: Colors.white70, size: 20),
                                 onPressed: () {
                                   _searchController.clear();
@@ -196,7 +196,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                               )
                             : null,
                         filled: true,
-                        fillColor: Colors.white.withOpacity(0.15),
+                        fillColor: Colors.white.withValues(alpha: 0.15),
                         contentPadding:
                             const EdgeInsets.symmetric(vertical: 0),
                         border: OutlineInputBorder(
@@ -218,7 +218,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
 
   Widget _buildBody() {
     if (_loading) {
-      return Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (_error != null) {
@@ -243,8 +243,8 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.search, size: 56, color: context.colors.textMuted.withOpacity(0.3)),
-            SizedBox(height: 12),
+            Icon(Icons.search, size: 56, color: context.colors.textMuted.withValues(alpha: 0.3)),
+            const SizedBox(height: 12),
             Text(
               'Type to search',
               style: TextStyle(
@@ -253,7 +253,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                 color: context.colors.textSecondary,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'Search across courses, assessments, and resources',
               style: TextStyle(fontSize: 13, color: context.colors.textMuted),
@@ -272,8 +272,8 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.search_off, size: 56, color: context.colors.textMuted.withOpacity(0.3)),
-            SizedBox(height: 12),
+            Icon(Icons.search_off, size: 56, color: context.colors.textMuted.withValues(alpha: 0.3)),
+            const SizedBox(height: 12),
             Text(
               'No results for "$_query"',
               style: TextStyle(
@@ -282,7 +282,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                 color: context.colors.textSecondary,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'Try different keywords or check your spelling',
               style: TextStyle(fontSize: 13, color: context.colors.textMuted),
@@ -309,13 +309,13 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
             fontWeight: FontWeight.w500,
           ),
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         for (final entry in grouped.entries) ...[
           Row(
             children: [
               Icon(_groupIcon(entry.key),
                   size: 18, color: AppColors.primary),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 '${_groupTitle(entry.key)} (${entry.value.length})',
                 style: TextStyle(
@@ -326,9 +326,9 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           ...entry.value.map((item) => _buildResultItem(item)),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
         ],
       ],
     );
@@ -344,19 +344,19 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         contentPadding:
-            EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
         leading: Container(
           width: 38,
           height: 38,
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.08),
+            color: AppColors.primary.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(_groupIcon(type), color: AppColors.primary, size: 20),
         ),
         title: Text(
           title,
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -383,14 +383,14 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.error_outline, size: 48, color: context.colors.error),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               _error!,
               style:
                   TextStyle(fontSize: 14, color: context.colors.textSecondary),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => _performSearch(_query),
               style: ElevatedButton.styleFrom(
@@ -400,7 +400,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text('Retry'),
+              child: const Text('Retry'),
             ),
           ],
         ),

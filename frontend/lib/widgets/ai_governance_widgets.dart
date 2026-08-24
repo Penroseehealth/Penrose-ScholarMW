@@ -7,7 +7,7 @@ import '../core/theme/theme_colors.dart';
 
 class AiBadge extends StatelessWidget {
   final String? label;
-  AiBadge({super.key, this.label});
+  const AiBadge({super.key, this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -20,11 +20,11 @@ class AiBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.auto_awesome_rounded, size: 12, color: AppColors.primary),
-          SizedBox(width: 4),
+          const Icon(Icons.auto_awesome_rounded, size: 12, color: AppColors.primary),
+          const SizedBox(width: 4),
           Text(
             label ?? 'AI-generated',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
               color: AppColors.primary,
@@ -37,7 +37,7 @@ class AiBadge extends StatelessWidget {
 }
 
 class AiDisclaimer extends StatelessWidget {
-  AiDisclaimer({super.key});
+  const AiDisclaimer({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +51,7 @@ class AiDisclaimer extends StatelessWidget {
       child: Row(
         children: [
           Icon(Icons.info_outline_rounded, size: 16, color: context.colors.warning),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               'Responses are AI-generated and may contain inaccuracies. Always verify with authoritative sources.',
@@ -66,7 +66,7 @@ class AiDisclaimer extends StatelessWidget {
 
 class AiSourceChips extends StatelessWidget {
   final String? sourcesJson;
-  AiSourceChips({super.key, this.sourcesJson});
+  const AiSourceChips({super.key, this.sourcesJson});
 
   List<String> _parse() {
     if (sourcesJson == null || sourcesJson!.isEmpty) return [];
@@ -97,9 +97,9 @@ class AiSourceChips extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.source_rounded, size: 10, color: context.colors.textMuted),
-              SizedBox(width: 3),
+              const SizedBox(width: 3),
               ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 220),
+                constraints: const BoxConstraints(maxWidth: 220),
                 child: Text(
                   s,
                   style: TextStyle(fontSize: 9, color: context.colors.textMuted),
@@ -117,7 +117,7 @@ class AiSourceChips extends StatelessWidget {
 class AiGovernanceBar extends StatelessWidget {
   final String? sourcesJson;
   final String? label;
-  AiGovernanceBar({super.key, this.sourcesJson, this.label});
+  const AiGovernanceBar({super.key, this.sourcesJson, this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +126,7 @@ class AiGovernanceBar extends StatelessWidget {
       children: [
         AiBadge(label: label),
         if (sourcesJson != null && sourcesJson!.isNotEmpty) ...[
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           AiSourceChips(sourcesJson: sourcesJson),
         ],
       ],

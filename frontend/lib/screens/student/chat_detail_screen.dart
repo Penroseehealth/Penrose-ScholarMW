@@ -9,7 +9,7 @@ class ChatDetailScreen extends StatefulWidget {
   final int conversationId;
   final String otherUserName;
 
-  ChatDetailScreen({
+  const ChatDetailScreen({
     super.key,
     required this.conversationId,
     required this.otherUserName,
@@ -32,7 +32,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   void initState() {
     super.initState();
     _loadMessages();
-    _pollTimer = Timer.periodic(Duration(seconds: 5), (_) => _loadMessages(silent: true));
+    _pollTimer = Timer.periodic(const Duration(seconds: 5), (_) => _loadMessages(silent: true));
   }
 
   @override
@@ -65,7 +65,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
-          duration: Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
         );
       }
@@ -111,7 +111,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   colors: [AppColors.primary, AppColors.primaryDark],
                 ),
                 borderRadius: BorderRadius.circular(10),
@@ -121,7 +121,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                   widget.otherUserName.isNotEmpty
                       ? widget.otherUserName[0].toUpperCase()
                       : '?',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -129,7 +129,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                 ),
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 widget.otherUserName,
@@ -149,19 +149,19 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
         children: [
           Expanded(
             child: _loading
-                ? Center(child: CircularProgressIndicator(color: AppColors.primary))
+                ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
                 : _messages.isEmpty
                     ? Center(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(Icons.chat_bubble_outline_rounded, size: 48, color: context.colors.textMuted.withValues(alpha: 0.4)),
-                            SizedBox(height: 12),
+                            const SizedBox(height: 12),
                             Text(
                               'No messages yet',
                               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textSecondary),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               'Send the first message',
                               style: TextStyle(fontSize: 13, color: context.colors.textMuted),
@@ -202,7 +202,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                         maxLines: null,
                         textInputAction: TextInputAction.send,
                         onSubmitted: (_) => _sendMessage(),
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'Type a message...',
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -210,16 +210,16 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: AppColors.primary,
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
                       onPressed: _sending ? null : _sendMessage,
                       icon: _sending
-                          ? SizedBox(
+                          ? const SizedBox(
                               width: 18,
                               height: 18,
                               child: CircularProgressIndicator(
@@ -227,7 +227,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : Icon(Icons.send_rounded, color: Colors.white, size: 18),
+                          : const Icon(Icons.send_rounded, color: Colors.white, size: 18),
                     ),
                   ),
                 ],
@@ -270,7 +270,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                 color: isMe ? Colors.white : context.colors.textPrimary,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               time,
               style: TextStyle(

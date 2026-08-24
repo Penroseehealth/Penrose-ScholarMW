@@ -11,7 +11,7 @@ class SubjectDashboardScreen extends StatefulWidget {
   final String slug;
   final String title;
 
-  SubjectDashboardScreen({
+  const SubjectDashboardScreen({
     super.key,
     required this.slug,
     required this.title,
@@ -69,7 +69,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(module?.icon ?? Icons.school_outlined, size: 48, color: context.colors.textMuted),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text('No data available', style: TextStyle(color: context.colors.textMuted)),
           ],
         ),
@@ -138,27 +138,27 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildGreeting(greeting),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           _buildConceptCounts(totalConcepts, masteredConcepts, inProgressConcepts, totalAttempts, accentColor),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           _buildProgressSection(progress, accentColor),
           if (currentLearning != null) ...[
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _buildCurrentLearning(currentLearning, accentColor),
           ],
           if (recommendations.isNotEmpty) ...[
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _buildRecommendations(recommendations, accentColor),
           ],
           if (recentActivity != null) ...[
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _buildRecentActivity(recentActivity, accentColor),
           ],
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           _buildSyllabusButton(accentColor),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           _buildActionButtons(accentColor),
         ],
       ),
@@ -180,11 +180,11 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
     return Row(
       children: [
         _buildCountChip('$total', 'Concepts', accent),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         _buildCountChip('$mastered', 'Mastered', context.colors.success),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         _buildCountChip('$inProgress', 'In Progress', context.colors.warning),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         _buildCountChip('$attempts', 'Practices', context.colors.info),
       ],
     );
@@ -209,7 +209,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
                 color: color,
               ),
             ),
-            SizedBox(height: 2),
+            const SizedBox(height: 2),
             Text(
               label,
               style: TextStyle(
@@ -251,7 +251,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
               color: context.colors.textPrimary,
             ),
           ),
-          SizedBox(height: 14),
+          const SizedBox(height: 14),
           ...items.map((item) => Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Column(
@@ -274,7 +274,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
@@ -322,7 +322,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
               ),
               child: Icon(Icons.play_circle_outline_rounded, color: accent, size: 22),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -331,7 +331,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
                     'Continue Learning',
                     style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.textMuted),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     conceptTitle,
                     style: TextStyle(
@@ -343,7 +343,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (topicTitle.isNotEmpty) ...[
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
                       topicTitle,
                       style: TextStyle(fontSize: 12, color: context.colors.textMuted),
@@ -354,7 +354,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
                 ],
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             _MiniMasteryRing(mastery: masteryLevel, color: accent),
           ],
         ),
@@ -376,7 +376,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
           Row(
             children: [
               Icon(Icons.lightbulb_outline_rounded, color: accent, size: 18),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 'Recommended',
                 style: TextStyle(
@@ -387,7 +387,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           ...recommendations.map((r) => _buildRecommendationItem(r, accent)),
         ],
       ),
@@ -421,7 +421,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
               color: masteryLevel > 0 ? context.colors.warning : context.colors.info,
               size: 20,
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -436,7 +436,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     topicTitle.isNotEmpty ? '$reason \u2022 $topicTitle' : reason,
                     style: TextStyle(fontSize: 11, color: context.colors.textMuted),
@@ -471,7 +471,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
           Row(
             children: [
               Icon(Icons.history_rounded, color: context.colors.info, size: 18),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 'Recent Activity',
                 style: TextStyle(
@@ -482,7 +482,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
@@ -500,7 +500,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     if (questionType.isNotEmpty) ...[
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
                         questionType.toUpperCase(),
                         style: TextStyle(fontSize: 11, color: context.colors.textMuted),
@@ -509,7 +509,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
                   ],
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               _MiniMasteryRing(mastery: masteryLevel, color: accent),
             ],
           ),
@@ -539,7 +539,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
         child: Row(
           children: [
             Icon(icon, color: accent, size: 20),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 label,
@@ -570,7 +570,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
                 onTap: () => context.push('/learning-path/${widget.slug}?title=${Uri.encodeComponent(widget.title)}'),
               ),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Expanded(
               child: _buildActionButton(
                 icon: Icons.psychology_outlined,
@@ -581,7 +581,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
             ),
           ],
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Row(
           children: [
             Expanded(
@@ -592,7 +592,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
                 onTap: () => context.push('/stem-mastery'),
               ),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Expanded(
               child: _buildActionButton(
                 icon: Icons.timer_outlined,
@@ -603,7 +603,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
             ),
           ],
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         GestureDetector(
           onTap: () => context.push('/study-planner'),
           child: Container(
@@ -617,13 +617,13 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.calendar_today_outlined, color: context.colors.teal, size: 16),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Text('Study Planner', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.teal)),
               ],
             ),
           ),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         GestureDetector(
           onTap: () => context.push('/exam-analytics'),
           child: Container(
@@ -637,7 +637,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.analytics_outlined, color: context.colors.lavender, size: 16),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Text('View Exam Analytics', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.lavender)),
               ],
             ),
@@ -665,7 +665,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
         child: Column(
           children: [
             Icon(icon, color: color, size: 22),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Text(
               label,
               style: TextStyle(
@@ -742,9 +742,9 @@ class _DashboardLoading extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           ShimmerLoading.grid(count: 4),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Container(
             height: 160,
             decoration: BoxDecoration(

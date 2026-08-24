@@ -7,7 +7,7 @@ import '../../widgets/stem_text.dart';
 import '../../core/theme/theme_colors.dart';
 
 class DataAnalysisScreen extends StatefulWidget {
-  DataAnalysisScreen({super.key});
+  const DataAnalysisScreen({super.key});
 
   @override
   State<DataAnalysisScreen> createState() => _DataAnalysisScreenState();
@@ -77,7 +77,7 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
       backgroundColor: context.colors.background,
       appBar: AppBar(
         backgroundColor: context.colors.surface,
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.insights_rounded, color: AppColors.primary, size: 22),
             SizedBox(width: 10),
@@ -101,13 +101,13 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSectionLabel('Dataset (CSV format)'),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             _buildCsvInput(),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildSectionLabel('Ask a question (optional)'),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             _buildQuestionInput(),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Semantics(
               button: true,
               label: 'Analyze data',
@@ -116,12 +116,12 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
                 child: ElevatedButton.icon(
                   onPressed: _isLoading ? null : _analyze,
                   icon: _isLoading
-                      ? SizedBox(
+                      ? const SizedBox(
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                         )
-                      : Icon(Icons.analytics_rounded, size: 18),
+                      : const Icon(Icons.analytics_rounded, size: 18),
                   label: Text(_isLoading ? 'Analyzing...' : 'Analyze Data'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
@@ -133,11 +133,11 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
               ),
             ),
             if (_error != null) ...[
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               _buildError(_error!),
             ],
             if (_result != null) ...[
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               _buildResults(),
             ],
           ],
@@ -180,7 +180,7 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
             fontSize: 12,
           ),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.all(12),
+          contentPadding: const EdgeInsets.all(12),
         ),
       ),
     );
@@ -200,7 +200,7 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
           hintText: 'e.g. What is the average score? Which student performed best?',
           hintStyle: TextStyle(color: context.colors.textMuted, fontSize: 13),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         ),
       ),
     );
@@ -216,7 +216,7 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
       child: Row(
         children: [
           Icon(Icons.error_outline, color: context.colors.error, size: 18),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(msg, style: TextStyle(color: context.colors.error, fontSize: 13)),
           ),
@@ -238,21 +238,21 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
       children: [
         AiGovernanceBar(sourcesJson: sources is String ? sources : null, label: 'AI-generated analysis'),
         if (stats.isNotEmpty) ...[
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildSectionLabel('Column Statistics'),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _buildStatsCards(stats),
         ],
         if (sampleData.isNotEmpty && headers.isNotEmpty) ...[
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildSectionLabel('Sample Data'),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _buildDataTable(headers.cast<String>(), sampleData),
         ],
         if (analysis.isNotEmpty) ...[
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildSectionLabel('AI Analysis'),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _buildAnalysisCard(analysis),
         ],
       ],
@@ -278,13 +278,13 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
             children: [
               Text(
                 e.key,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: AppColors.primary,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               _statRow('Mean', '${s['mean']}'),
               _statRow('Min', '${s['min']}'),
               _statRow('Max', '${s['max']}'),

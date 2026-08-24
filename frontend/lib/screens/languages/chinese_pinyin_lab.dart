@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 
 class ChinesePinyinLab extends StatefulWidget {
-  ChinesePinyinLab({super.key});
+  const ChinesePinyinLab({super.key});
   @override
   State<ChinesePinyinLab> createState() => _ChinesePinyinLabState();
 }
@@ -137,12 +136,12 @@ class _ChinesePinyinLabState extends State<ChinesePinyinLab>
     return Scaffold(
       backgroundColor: context.colors.background,
       appBar: AppBar(
-        title: Text('Pinyin Lab'),
+        title: const Text('Pinyin Lab'),
         backgroundColor: context.colors.surface,
         foregroundColor: context.colors.textPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
           onPressed: () => context.pop(),
         ),
         bottom: TabBar(
@@ -151,8 +150,8 @@ class _ChinesePinyinLabState extends State<ChinesePinyinLab>
           indicatorWeight: 3,
           labelColor: _accent,
           unselectedLabelColor: context.colors.textMuted,
-          labelStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-          tabs: [Tab(text: 'Chart'), Tab(text: 'Initials'), Tab(text: 'Finals')],
+          labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+          tabs: [const Tab(text: 'Chart'), const Tab(text: 'Initials'), const Tab(text: 'Finals')],
         ),
       ),
       body: TabBarView(
@@ -169,11 +168,11 @@ class _ChinesePinyinLabState extends State<ChinesePinyinLab>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildToneOverview(),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           _buildSectionHeader('Pinyin Chart'),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildPinyinChart(),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           if (_selectedInitial.isNotEmpty && _selectedFinal.isNotEmpty)
             _buildCombinationCard(_selectedInitial, _selectedFinal),
         ],
@@ -194,11 +193,11 @@ class _ChinesePinyinLabState extends State<ChinesePinyinLab>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(children: [
-            Icon(Icons.graphic_eq_rounded, size: 20, color: _accent),
-            SizedBox(width: 10),
+            const Icon(Icons.graphic_eq_rounded, size: 20, color: _accent),
+            const SizedBox(width: 10),
             Text('The Four Tones + Neutral', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
           ]),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           ..._toneExamples.map((t) => Container(
             margin: const EdgeInsets.only(bottom: 8),
             padding: const EdgeInsets.all(12),
@@ -207,21 +206,21 @@ class _ChinesePinyinLabState extends State<ChinesePinyinLab>
               Container(
                 width: 48, height: 48,
                 decoration: BoxDecoration(color: _accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-                child: Center(child: Text(t['char']!, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600))),
+                child: Center(child: Text(t['char']!, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600))),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
                   Text(t['pinyin']!, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(color: _accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
-                    child: Text(t['tone']!, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: _accent)),
+                    child: Text(t['tone']!, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: _accent)),
                   ),
                 ]),
-                SizedBox(height: 2),
-                Text(t['meaning']! + ' \u2014 ' + t['desc']!, style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
+                const SizedBox(height: 2),
+                Text('${t['meaning']!} \u2014 ${t['desc']!}', style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
               ])),
             ]),
           )),
@@ -233,7 +232,7 @@ class _ChinesePinyinLabState extends State<ChinesePinyinLab>
   Widget _buildSectionHeader(String title) {
     return Row(children: [
       Container(width: 4, height: 20, decoration: BoxDecoration(color: _accent, borderRadius: BorderRadius.circular(2))),
-      SizedBox(width: 12),
+      const SizedBox(width: 12),
       Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
     ]);
   }
@@ -243,18 +242,18 @@ class _ChinesePinyinLabState extends State<ChinesePinyinLab>
       scrollDirection: Axis.horizontal,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          SizedBox(width: 60, height: 36),
+          const SizedBox(width: 60, height: 36),
           ..._finals.map((f) => Container(
             width: 54, height: 36, alignment: Alignment.center,
             decoration: BoxDecoration(color: _accent.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(6)),
-            child: Text(f, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: _accent)),
+            child: Text(f, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: _accent)),
           )),
         ]),
         ..._initials.map((ini) => Row(children: [
           Container(
             width: 60, height: 36, alignment: Alignment.center,
             decoration: BoxDecoration(color: _accent.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(6)),
-            child: Text(ini, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: _accent)),
+            child: Text(ini, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: _accent)),
           ),
           ..._finals.map((f) {
             final combo = ini + f;
@@ -292,18 +291,18 @@ class _ChinesePinyinLabState extends State<ChinesePinyinLab>
         border: Border.all(color: _accent.withValues(alpha: 0.3)),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(initial + ' + ' + final_ + ' = ' + initial + final_,
+        Text('$initial + $final_ = $initial$final_',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         if (guide.isNotEmpty) ...[
-          Text('Initial: ' + (guide['sound'] ?? ''), style: TextStyle(fontSize: 13, color: context.colors.textSecondary)),
-          Text('Tip: ' + (guide['tip'] ?? ''), style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
-          Text('Example: ' + (guide['example'] ?? ''), style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+          Text('Initial: ${guide['sound'] ?? ''}', style: TextStyle(fontSize: 13, color: context.colors.textSecondary)),
+          Text('Tip: ${guide['tip'] ?? ''}', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+          Text('Example: ${guide['example'] ?? ''}', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
         ],
         if (fGuide.isNotEmpty) ...[
-          SizedBox(height: 8),
-          Text('Final: ' + (fGuide['sound'] ?? ''), style: TextStyle(fontSize: 13, color: context.colors.textSecondary)),
-          Text('Example: ' + (fGuide['example'] ?? ''), style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+          const SizedBox(height: 8),
+          Text('Final: ${fGuide['sound'] ?? ''}', style: TextStyle(fontSize: 13, color: context.colors.textSecondary)),
+          Text('Example: ${fGuide['example'] ?? ''}', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
         ],
       ]),
     );
@@ -323,14 +322,14 @@ class _ChinesePinyinLabState extends State<ChinesePinyinLab>
             Container(
               width: 52, height: 52,
               decoration: BoxDecoration(color: _accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
-              child: Center(child: Text(g['pinyin']!, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: _accent))),
+              child: Center(child: Text(g['pinyin']!, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: _accent))),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(g['sound']!, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-              SizedBox(height: 2),
+              const SizedBox(height: 2),
               Text(g['example']!, style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
-              SizedBox(height: 2),
+              const SizedBox(height: 2),
               Text(g['tip']!, style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
             ])),
           ]),
@@ -353,12 +352,12 @@ class _ChinesePinyinLabState extends State<ChinesePinyinLab>
             Container(
               width: 52, height: 52,
               decoration: BoxDecoration(color: _accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
-              child: Center(child: Text(g['pinyin']!, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: _accent))),
+              child: Center(child: Text(g['pinyin']!, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: _accent))),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(g['sound']!, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-              SizedBox(height: 2),
+              const SizedBox(height: 2),
               Text(g['example']!, style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
             ])),
           ]),

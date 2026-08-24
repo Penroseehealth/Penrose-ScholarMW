@@ -5,7 +5,7 @@ import '../../services/language_service.dart';
 import '../../core/theme/theme_colors.dart';
 
 class LanguageLearningPath extends StatefulWidget {
-  LanguageLearningPath({super.key});
+  const LanguageLearningPath({super.key});
 
   @override
   State<LanguageLearningPath> createState() => _LanguageLearningPathState();
@@ -39,7 +39,7 @@ class _LanguageLearningPathState extends State<LanguageLearningPath> {
         _loading = false;
       });
     } catch (e) {
-      debugPrint('[LANGUAGE LEARNING PATH] Load error for ${_slug}: $e');
+      debugPrint('[LANGUAGE LEARNING PATH] Load error for $_slug: $e');
       if (!mounted) return;
       setState(() => _loading = false);
     }
@@ -50,17 +50,17 @@ class _LanguageLearningPathState extends State<LanguageLearningPath> {
     return Scaffold(
       backgroundColor: context.colors.background,
       appBar: AppBar(
-        title: Text('Learning Path'),
+        title: const Text('Learning Path'),
         backgroundColor: context.colors.surface,
         foregroundColor: context.colors.textPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
           onPressed: () => context.pop(),
         ),
       ),
       body: _loading
-          ? Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : _levels.isEmpty
               ? _buildEmpty()
               : ListView.builder(
@@ -76,7 +76,6 @@ class _LanguageLearningPathState extends State<LanguageLearningPath> {
                     final isLast = i == _levels.length - 1;
 
                     final levelSlug = (level['slug'] ?? '').toString();
-                    final isActive = i == 0;
 
                     return GestureDetector(
                       onTap: levelSlug.isNotEmpty
@@ -121,7 +120,7 @@ class _LanguageLearningPathState extends State<LanguageLearningPath> {
                               ),
                           ],
                         ),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         Expanded(
                           child: Container(
                             margin: const EdgeInsets.only(bottom: 16),
@@ -147,17 +146,17 @@ class _LanguageLearningPathState extends State<LanguageLearningPath> {
                                           color: isFirst
                                               ? AppColors.primary
                                               : context.colors.textMuted)),
-                                SizedBox(height: 4),
+                                const SizedBox(height: 4),
                                 Text(name,
                                     style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
                                         color: context.colors.textPrimary)),
-                                SizedBox(height: 4),
+                                const SizedBox(height: 4),
                                 Text(desc,
                                     style: TextStyle(
                                         fontSize: 12, color: context.colors.textMuted)),
-                                SizedBox(height: 8),
+                                const SizedBox(height: 8),
                                 Text('$lessonCount lessons',
                                     style: TextStyle(
                                         fontSize: 11,
@@ -183,7 +182,7 @@ class _LanguageLearningPathState extends State<LanguageLearningPath> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.route, size: 48, color: context.colors.textMuted),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text('No learning path available',
               style: TextStyle(fontSize: 16, color: context.colors.textMuted)),
         ],

@@ -22,6 +22,8 @@ dependencies:
   web_socket_channel: ^3.0.1
   flutter_math_fork: ^0.7.4
 
+  path: any
+  web: ^1.1.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -5,7 +5,7 @@ import '../../services/language_service.dart';
 import '../../core/theme/theme_colors.dart';
 
 class LanguageListening extends StatefulWidget {
-  LanguageListening({super.key});
+  const LanguageListening({super.key});
 
   @override
   State<LanguageListening> createState() => _LanguageListeningState();
@@ -93,8 +93,8 @@ class _LanguageListeningState extends State<LanguageListening> {
             onPressed: () => context.pop(),
             icon: Icon(Icons.arrow_back_ios, color: context.colors.textPrimary, size: 20),
           ),
-          Icon(Icons.headphones, color: AppColors.primary, size: 24),
-          SizedBox(width: 8),
+          const Icon(Icons.headphones, color: AppColors.primary, size: 24),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,7 +121,7 @@ class _LanguageListeningState extends State<LanguageListening> {
       child: Row(
         children: [
           Text('Speed:', style: TextStyle(color: context.colors.textSecondary, fontSize: 12)),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           ...speeds.map((s) => Padding(
             padding: const EdgeInsets.only(right: 6),
             child: GestureDetector(
@@ -178,7 +178,7 @@ class _LanguageListeningState extends State<LanguageListening> {
 
   Widget _buildContent() {
     if (_loading) {
-      return Center(child: CircularProgressIndicator(color: AppColors.primary));
+      return const Center(child: CircularProgressIndicator(color: AppColors.primary));
     }
     if (_vocabulary.isEmpty) {
       return Center(
@@ -186,7 +186,7 @@ class _LanguageListeningState extends State<LanguageListening> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.headset_off, size: 48, color: context.colors.textSecondary.withValues(alpha: 0.4)),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text('No vocabulary available for listening practice', style: TextStyle(
               color: context.colors.textSecondary.withValues(alpha: 0.6), fontSize: 14,
             )),
@@ -237,7 +237,7 @@ class _LanguageListeningState extends State<LanguageListening> {
                   ),
                 ),
               ),
-              SizedBox(width: 14),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,21 +248,21 @@ class _LanguageListeningState extends State<LanguageListening> {
                           color: context.colors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600,
                         )),
                         if (pos.isNotEmpty) ...[
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
                               color: AppColors.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: Text(pos, style: TextStyle(
+                            child: Text(pos, style: const TextStyle(
                               color: AppColors.primary, fontSize: 10, fontWeight: FontWeight.w600,
                             )),
                           ),
                         ],
                       ],
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(translation, style: TextStyle(
                       color: context.colors.textSecondary.withValues(alpha: 0.7), fontSize: 13,
                     )),
@@ -285,7 +285,7 @@ class _LanguageListeningState extends State<LanguageListening> {
             ],
           ),
           if (example.isNotEmpty && playing) ...[
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(10),

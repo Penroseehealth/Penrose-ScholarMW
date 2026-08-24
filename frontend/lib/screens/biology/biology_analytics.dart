@@ -17,22 +17,22 @@ class _BiologyAnalyticsScreenState extends State<BiologyAnalyticsScreen>
   String _selectedPeriod = 'All Time';
 
   static final _coreElementProgress = [
-    _CoreProgress('Research Skills', 85, 6, 4, Icons.science_rounded, Colors.blue),
-    _CoreProgress('Environment', 72, 6, 4, Icons.eco_rounded, Colors.teal),
-    _CoreProgress('Plant Biology', 60, 5, 3, Icons.local_florist_rounded, _bioGreen),
-    _CoreProgress('Animal Biology', 45, 4, 2, Icons.pets_rounded, Colors.orange),
-    _CoreProgress('Human Biology', 35, 15, 6, Icons.person_rounded, Colors.purple),
-    _CoreProgress('Micro-organisms', 20, 4, 1, Icons.bug_report_rounded, Colors.red),
-    _CoreProgress('Genetics & Evolution', 15, 6, 3, Icons.science_rounded, Colors.amber),
+    const _CoreProgress('Research Skills', 85, 6, 4, Icons.science_rounded, Colors.blue),
+    const _CoreProgress('Environment', 72, 6, 4, Icons.eco_rounded, Colors.teal),
+    const _CoreProgress('Plant Biology', 60, 5, 3, Icons.local_florist_rounded, _bioGreen),
+    const _CoreProgress('Animal Biology', 45, 4, 2, Icons.pets_rounded, Colors.orange),
+    const _CoreProgress('Human Biology', 35, 15, 6, Icons.person_rounded, Colors.purple),
+    const _CoreProgress('Micro-organisms', 20, 4, 1, Icons.bug_report_rounded, Colors.red),
+    const _CoreProgress('Genetics & Evolution', 15, 6, 3, Icons.science_rounded, Colors.amber),
   ];
 
   static final _recentActivity = [
-    _Activity('Completed Chapter 1 Quiz', 'Practice Centre', 85, Icons.quiz_rounded, '2h ago'),
-    _Activity('Reviewed Photosynthesis Diagram', 'Diagram Centre', 70, Icons.image_rounded, '4h ago'),
-    _Activity('Virtual Lab: Osmosis Experiment', 'Virtual Lab', 90, Icons.science_rounded, '1d ago'),
-    _Activity('Practical Report: Microscope', 'Practical Hub', 75, Icons.edit_document, '2d ago'),
-    _Activity('Past Paper: 2023 MSCE', 'Past Papers', 65, Icons.description_rounded, '3d ago'),
-    _Activity('Mock Exam: Paper 1', 'Mock Exams', 80, Icons.assignment_rounded, '5d ago'),
+    const _Activity('Completed Chapter 1 Quiz', 'Practice Centre', 85, Icons.quiz_rounded, '2h ago'),
+    const _Activity('Reviewed Photosynthesis Diagram', 'Diagram Centre', 70, Icons.image_rounded, '4h ago'),
+    const _Activity('Virtual Lab: Osmosis Experiment', 'Virtual Lab', 90, Icons.science_rounded, '1d ago'),
+    const _Activity('Practical Report: Microscope', 'Practical Hub', 75, Icons.edit_document, '2d ago'),
+    const _Activity('Past Paper: 2023 MSCE', 'Past Papers', 65, Icons.description_rounded, '3d ago'),
+    const _Activity('Mock Exam: Paper 1', 'Mock Exams', 80, Icons.assignment_rounded, '5d ago'),
   ];
 
   @override
@@ -150,10 +150,10 @@ class _BiologyAnalyticsScreenState extends State<BiologyAnalyticsScreen>
 
   Widget _buildOverviewCards(bool isDesktop, bool isTablet, double screenWidth) {
     final cards = [
-      _OverviewCard('Overall Mastery', '48%', Icons.trending_up_rounded, _bioGreen),
-      _OverviewCard('Questions Answered', '312', Icons.quiz_rounded, Colors.blue),
-      _OverviewCard('Study Hours', '24.5', Icons.access_time_rounded, Colors.orange),
-      _OverviewCard('Streak', '7 days', Icons.local_fire_department_rounded, Colors.amber),
+      const _OverviewCard('Overall Mastery', '48%', Icons.trending_up_rounded, _bioGreen),
+      const _OverviewCard('Questions Answered', '312', Icons.quiz_rounded, Colors.blue),
+      const _OverviewCard('Study Hours', '24.5', Icons.access_time_rounded, Colors.orange),
+      const _OverviewCard('Streak', '7 days', Icons.local_fire_department_rounded, Colors.amber),
     ];
 
     if (isDesktop) {
@@ -283,12 +283,12 @@ class _BiologyAnalyticsScreenState extends State<BiologyAnalyticsScreen>
 
   Widget _buildStatsGrid(bool isDesktop) {
     final stats = [
-      _StatItem('Quiz Average', '76%', Icons.analytics_rounded, _bioGreen),
-      _StatItem('Mock Exam Best', '82%', Icons.assignment_turned_in_rounded, Colors.blue),
-      _StatItem('Diagrams Mastered', '8/15', Icons.image_rounded, Colors.orange),
-      _StatItem('Practicals Done', '6/12', Icons.science_rounded, Colors.purple),
-      _StatItem('Virtual Labs', '4/6', Icons.biotech_rounded, Colors.teal),
-      _StatItem('Study Days', '21/30', Icons.calendar_today_rounded, Colors.amber),
+      const _StatItem('Quiz Average', '76%', Icons.analytics_rounded, _bioGreen),
+      const _StatItem('Mock Exam Best', '82%', Icons.assignment_turned_in_rounded, Colors.blue),
+      const _StatItem('Diagrams Mastered', '8/15', Icons.image_rounded, Colors.orange),
+      const _StatItem('Practicals Done', '6/12', Icons.science_rounded, Colors.purple),
+      const _StatItem('Virtual Labs', '4/6', Icons.biotech_rounded, Colors.teal),
+      const _StatItem('Study Days', '21/30', Icons.calendar_today_rounded, Colors.amber),
     ];
 
     if (isDesktop) {
@@ -484,19 +484,19 @@ class _BiologyAnalyticsScreenState extends State<BiologyAnalyticsScreen>
 
   Widget _buildRecommendations() {
     final recs = [
-      _Recommendation(
+      const _Recommendation(
         'Focus on Micro-organisms',
         'You have only completed 20% of this core element. Review the syllabus and attempt practice questions.',
         Icons.bug_report_rounded,
         Colors.red,
       ),
-      _Recommendation(
+      const _Recommendation(
         'Practice Human Biology Diagrams',
         'Try the Diagram Centre for heart, eye, and reproductive system diagrams.',
         Icons.image_rounded,
         Colors.purple,
       ),
-      _Recommendation(
+      const _Recommendation(
         'Take a Mock Exam',
         'You haven\'t attempted Mock Exam 3 yet. Test your full syllabus coverage.',
         Icons.assignment_rounded,

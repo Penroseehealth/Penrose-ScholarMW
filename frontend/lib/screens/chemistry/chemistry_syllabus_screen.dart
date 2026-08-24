@@ -8,7 +8,7 @@ import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
 
 class ChemistrySyllabusScreen extends StatefulWidget {
-  ChemistrySyllabusScreen({super.key});
+  const ChemistrySyllabusScreen({super.key});
 
   @override
   State<ChemistrySyllabusScreen> createState() =>
@@ -94,7 +94,7 @@ class _ChemistrySyllabusScreenState extends State<ChemistrySyllabusScreen>
       backgroundColor: context.colors.background,
       appBar: AppBar(
         backgroundColor: context.colors.surface,
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.science_rounded, size: 22, color: Color(0xFFF59E0B)),
             SizedBox(width: 10),
@@ -124,10 +124,10 @@ class _ChemistrySyllabusScreenState extends State<ChemistrySyllabusScreen>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(_formIcons[formNum], size: 16),
-                        SizedBox(width: 6),
+                        const SizedBox(width: 6),
                         Text('Form $formNum'),
                         if (count > 0) ...[
-                          SizedBox(width: 4),
+                          const SizedBox(width: 4),
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 6, vertical: 1),
@@ -137,7 +137,7 @@ class _ChemistrySyllabusScreenState extends State<ChemistrySyllabusScreen>
                             ),
                             child: Text(
                               '$count',
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 9, fontWeight: FontWeight.w700),
                             ),
                           ),
@@ -150,7 +150,7 @@ class _ChemistrySyllabusScreenState extends State<ChemistrySyllabusScreen>
             : null,
       ),
       body: _loading
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(color: Color(0xFFF59E0B)))
           : _forms.isEmpty
               ? _buildEmptyState()
@@ -194,7 +194,7 @@ class _ChemistrySyllabusScreenState extends State<ChemistrySyllabusScreen>
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Color(0xFFF59E0B)),
+            borderSide: const BorderSide(color: Color(0xFFF59E0B)),
           ),
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -211,7 +211,7 @@ class _ChemistrySyllabusScreenState extends State<ChemistrySyllabusScreen>
           Icon(Icons.science_rounded,
               size: 64,
               color: context.colors.textMuted.withValues(alpha: 0.3)),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
             'Chemistry Syllabus',
             style: TextStyle(
@@ -219,7 +219,7 @@ class _ChemistrySyllabusScreenState extends State<ChemistrySyllabusScreen>
                 fontWeight: FontWeight.w700,
                 color: context.colors.textPrimary),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'The Malawi MSCE Chemistry syllabus\nwill appear here once seeded.',
             textAlign: TextAlign.center,
@@ -240,7 +240,7 @@ class _ChemistrySyllabusScreenState extends State<ChemistrySyllabusScreen>
             Icon(Icons.search_off_rounded,
                 size: 48,
                 color: context.colors.textMuted.withValues(alpha: 0.4)),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               _searchQuery.isNotEmpty
                   ? 'No results for "$_searchQuery"'
@@ -320,7 +320,7 @@ class _ThemeCardState extends State<_ThemeCard> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -334,7 +334,7 @@ class _ThemeCardState extends State<_ThemeCard> {
                           ),
                         ),
                         if (description.isNotEmpty) ...[
-                          SizedBox(height: 2),
+                          const SizedBox(height: 2),
                           Text(
                             description,
                             style: TextStyle(
@@ -349,7 +349,7 @@ class _ThemeCardState extends State<_ThemeCard> {
                       ],
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -363,7 +363,7 @@ class _ThemeCardState extends State<_ThemeCard> {
                           fontSize: 10, color: context.colors.textMuted),
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Icon(
                     _expanded
                         ? Icons.keyboard_arrow_up_rounded
@@ -379,7 +379,7 @@ class _ThemeCardState extends State<_ThemeCard> {
             Divider(height: 1, color: context.colors.border),
             ...topics.map<Widget>((t) => _TopicTile(
                 topic: t, formNumber: widget.formNumber)),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
           ],
         ],
       ),
@@ -419,9 +419,9 @@ class _TopicTileState extends State<_TopicTile> {
                       ? Icons.folder_open_rounded
                       : Icons.folder_rounded,
                   size: 18,
-                  color: Color(0xFFF59E0B).withValues(alpha: 0.7),
+                  color: const Color(0xFFF59E0B).withValues(alpha: 0.7),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -435,7 +435,7 @@ class _TopicTileState extends State<_TopicTile> {
                         ),
                       ),
                       if (description.isNotEmpty && _expanded) ...[
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           description,
                           style: TextStyle(
@@ -461,7 +461,7 @@ class _TopicTileState extends State<_TopicTile> {
                           fontSize: 9, color: context.colors.textMuted),
                     ),
                   ),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Icon(
                   _expanded
                       ? Icons.expand_less_rounded
@@ -510,12 +510,12 @@ class _SubtopicTileState extends State<_SubtopicTile> {
                   Container(
                     width: 6,
                     height: 6,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Color(0xFFF59E0B),
                       shape: BoxShape.circle,
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       title,
@@ -531,7 +531,7 @@ class _SubtopicTileState extends State<_SubtopicTile> {
                         color: context.colors.textMuted.withValues(alpha: 0.7),
                       ),
                     ),
-                  SizedBox(width: 6),
+                  const SizedBox(width: 6),
                   Icon(
                     _expanded
                         ? Icons.expand_less_rounded
@@ -595,7 +595,7 @@ class _LearningObjectiveCard extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(
                 child: _containsLatex(objective)
                     ? _buildLatexText(objective)
@@ -611,13 +611,13 @@ class _LearningObjectiveCard extends StatelessWidget {
             ],
           ),
           if (teachingActivity.isNotEmpty) ...[
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Row(
               children: [
                 Icon(Icons.school_rounded,
                     size: 12,
                     color: context.colors.textMuted.withValues(alpha: 0.6)),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     teachingActivity,
@@ -630,13 +630,13 @@ class _LearningObjectiveCard extends StatelessWidget {
             ),
           ],
           if (teachingMethod.isNotEmpty) ...[
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Row(
               children: [
                 Icon(Icons.build_rounded,
                     size: 12,
                     color: context.colors.textMuted.withValues(alpha: 0.6)),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     teachingMethod,
@@ -667,19 +667,19 @@ class _LearningObjectiveCard extends StatelessWidget {
       return Math.tex(
         text,
         textStyle:
-            TextStyle(fontSize: 12, color: AppColors.textPrimary),
+            const TextStyle(fontSize: 12, color: AppColors.textPrimary),
         mathStyle: MathStyle.text,
         onErrorFallback: (err) => Text(
           text,
           style:
-              TextStyle(fontSize: 12, color: AppColors.textPrimary),
+              const TextStyle(fontSize: 12, color: AppColors.textPrimary),
         ),
       );
     } catch (_) {
       return Text(
         text,
         style:
-            TextStyle(fontSize: 12, color: AppColors.textPrimary),
+            const TextStyle(fontSize: 12, color: AppColors.textPrimary),
       );
     }
   }
@@ -687,17 +687,17 @@ class _LearningObjectiveCard extends StatelessWidget {
   Color _cognitiveColor(String level) {
     switch (level.toLowerCase()) {
       case 'knowledge':
-        return Color(0xFF3B82F6);
+        return const Color(0xFF3B82F6);
       case 'comprehension':
-        return Color(0xFF10B981);
+        return const Color(0xFF10B981);
       case 'application':
-        return Color(0xFFF59E0B);
+        return const Color(0xFFF59E0B);
       case 'analysis':
-        return Color(0xFFEF4444);
+        return const Color(0xFFEF4444);
       case 'evaluation':
-        return Color(0xFF8B5CF6);
+        return const Color(0xFF8B5CF6);
       case 'synthesis':
-        return Color(0xFFEC4899);
+        return const Color(0xFFEC4899);
       default:
         return AppColors.textMuted;
     }

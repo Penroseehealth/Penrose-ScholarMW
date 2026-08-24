@@ -6,7 +6,7 @@ import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
 
 class CodingPlaygroundScreen extends StatefulWidget {
-  CodingPlaygroundScreen({super.key});
+  const CodingPlaygroundScreen({super.key});
 
   @override
   State<CodingPlaygroundScreen> createState() => _CodingPlaygroundScreenState();
@@ -109,7 +109,7 @@ console.log("Evens:", evens);''',
       backgroundColor: context.colors.background,
       appBar: AppBar(
         backgroundColor: context.colors.surface,
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.code_rounded, color: AppColors.primary, size: 22),
             SizedBox(width: 10),
@@ -135,9 +135,9 @@ console.log("Evens:", evens);''',
                 style: TextStyle(fontSize: 13, color: context.colors.textPrimary),
                 dropdownColor: context.colors.surfaceElevated,
                 items: [
-                  DropdownMenuItem(value: 'python', child: Text('Python')),
-                  DropdownMenuItem(value: 'javascript', child: Text('JavaScript')),
-                  DropdownMenuItem(value: 'html', child: Text('HTML')),
+                  const DropdownMenuItem(value: 'python', child: Text('Python')),
+                  const DropdownMenuItem(value: 'javascript', child: Text('JavaScript')),
+                  const DropdownMenuItem(value: 'html', child: Text('HTML')),
                 ],
                 onChanged: (v) {
                   if (v != null) {
@@ -168,7 +168,7 @@ console.log("Evens:", evens);''',
           ),
           Container(
             height: 4,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [AppColors.primary, AppColors.primaryDark],
               ),
@@ -185,17 +185,17 @@ console.log("Evens:", evens);''',
 
   Widget _buildCodeEditor() {
     return Container(
-      color: Color(0xFF1E1E2E),
+      color: const Color(0xFF1E1E2E),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            color: Color(0xFF181825),
+            color: const Color(0xFF181825),
             child: Row(
               children: [
                 Icon(Icons.code_rounded, size: 14, color: context.colors.textMuted),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Text(
                   'Code Editor — $_language',
                   style: TextStyle(
@@ -204,12 +204,12 @@ console.log("Evens:", evens);''',
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 GestureDetector(
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: _codeCtrl.text));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
+                      const SnackBar(
                         content: Text('Code copied to clipboard'),
                         duration: Duration(seconds: 1),
                       ),
@@ -219,7 +219,7 @@ console.log("Evens:", evens);''',
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.copy_rounded, size: 12, color: context.colors.textMuted),
-                      SizedBox(width: 4),
+                      const SizedBox(width: 4),
                       Text('Copy', style: TextStyle(fontSize: 10, color: context.colors.textMuted)),
                     ],
                   ),
@@ -232,7 +232,7 @@ console.log("Evens:", evens);''',
               label: 'Code editor',
               child: TextField(
                 controller: _codeCtrl,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: 'monospace',
                   fontSize: 13,
                   color: Color(0xFFCDD6F4),
@@ -241,7 +241,7 @@ console.log("Evens:", evens);''',
                 maxLines: null,
                 expands: true,
                 textAlignVertical: TextAlignVertical.top,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.all(12),
                 ),
@@ -255,17 +255,17 @@ console.log("Evens:", evens);''',
 
   Widget _buildOutputPanel() {
     return Container(
-      color: Color(0xFF11111B),
+      color: const Color(0xFF11111B),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            color: Color(0xFF181825),
+            color: const Color(0xFF181825),
             child: Row(
               children: [
                 Icon(Icons.terminal_rounded, size: 14, color: context.colors.textMuted),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Text(
                   'Output',
                   style: TextStyle(
@@ -274,7 +274,7 @@ console.log("Evens:", evens);''',
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 if (_output.isNotEmpty || _error != null)
                   GestureDetector(
                     onTap: () {
@@ -285,7 +285,7 @@ console.log("Evens:", evens);''',
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(Icons.copy_rounded, size: 12, color: context.colors.textMuted),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Text('Copy', style: TextStyle(fontSize: 10, color: context.colors.textMuted)),
                       ],
                     ),
@@ -301,12 +301,12 @@ console.log("Evens:", evens);''',
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          SizedBox(
+                          const SizedBox(
                             width: 16,
                             height: 16,
                             child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Text('Running...', style: TextStyle(color: context.colors.textMuted, fontSize: 12)),
                         ],
                       ),
@@ -326,7 +326,7 @@ console.log("Evens:", evens);''',
       padding: const EdgeInsets.all(12),
       child: SelectableText(
         'ERROR:\n$_error',
-        style: TextStyle(
+        style: const TextStyle(
           fontFamily: 'monospace',
           fontSize: 12,
           color: Color(0xFFF38BA8),
@@ -350,7 +350,7 @@ console.log("Evens:", evens);''',
       padding: const EdgeInsets.all(12),
       child: SelectableText(
         _output,
-        style: TextStyle(
+        style: const TextStyle(
           fontFamily: 'monospace',
           fontSize: 12,
           color: Color(0xFFA6E3A1),

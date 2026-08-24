@@ -460,7 +460,7 @@ class _BiologyAITutorScreenState extends State<BiologyAITutorScreen> {
                 children: [
                   Icon(m.$3, size: 14, color: selected ? Colors.white : Colors.white54),
                   const SizedBox(width: 4),
-                  Text(m.$2, style: TextStyle(fontSize: 12)),
+                  Text(m.$2, style: const TextStyle(fontSize: 12)),
                 ],
               ),
               selected: selected,

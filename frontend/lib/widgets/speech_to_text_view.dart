@@ -8,7 +8,7 @@ class SpeechToTextView extends StatefulWidget {
   final Function(String text) onSend;
   final VoidCallback onCancel;
 
-  SpeechToTextView({
+  const SpeechToTextView({
     super.key,
     required this.initialTranscript,
     required this.onSend,
@@ -40,7 +40,7 @@ class _SpeechToTextViewState extends State<SpeechToTextView> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: context.colors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SafeArea(
         child: Column(
@@ -53,23 +53,23 @@ class _SpeechToTextViewState extends State<SpeechToTextView> {
                 decoration: BoxDecoration(color: context.colors.border, borderRadius: BorderRadius.circular(2)),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Row(
               children: [
-                Icon(Icons.mic_rounded, size: 20, color: AppColors.primary),
-                SizedBox(width: 8),
+                const Icon(Icons.mic_rounded, size: 20, color: AppColors.primary),
+                const SizedBox(width: 8),
                 Text(
                   'Voice Transcription',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
                 ),
               ],
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'Review and edit before sending',
               style: TextStyle(fontSize: 12, color: context.colors.textMuted),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               controller: _ctrl,
               maxLines: 5,
@@ -85,13 +85,13 @@ class _SpeechToTextViewState extends State<SpeechToTextView> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: AppColors.primary),
+                  borderSide: const BorderSide(color: AppColors.primary),
                 ),
                 filled: true,
                 fillColor: context.colors.surfaceElevated,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
@@ -103,10 +103,10 @@ class _SpeechToTextViewState extends State<SpeechToTextView> {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: Text('Cancel'),
+                    child: const Text('Cancel'),
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
@@ -120,7 +120,7 @@ class _SpeechToTextViewState extends State<SpeechToTextView> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       elevation: 0,
                     ),
-                    child: Text('Send to ScholarAI'),
+                    child: const Text('Send to ScholarAI'),
                   ),
                 ),
               ],

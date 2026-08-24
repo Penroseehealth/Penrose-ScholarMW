@@ -5,7 +5,7 @@ import '../../services/language_service.dart';
 import '../../core/theme/theme_colors.dart';
 
 class LanguageLevelDetail extends StatefulWidget {
-  LanguageLevelDetail({super.key});
+  const LanguageLevelDetail({super.key});
 
   @override
   State<LanguageLevelDetail> createState() => _LanguageLevelDetailState();
@@ -60,12 +60,12 @@ class _LanguageLevelDetailState extends State<LanguageLevelDetail> {
         foregroundColor: context.colors.textPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
           onPressed: () => context.pop(),
         ),
       ),
       body: _loading
-          ? Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : _units.isEmpty
               ? _buildEmpty()
               : _buildContent(),
@@ -94,13 +94,13 @@ class _LanguageLevelDetailState extends State<LanguageLevelDetail> {
               children: [
                 if (form.isNotEmpty)
                   Text(form.toUpperCase(),
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 1.2,
                         color: AppColors.primary,
                       )),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 Text(name,
                     style: TextStyle(
                       fontSize: 22,
@@ -108,7 +108,7 @@ class _LanguageLevelDetailState extends State<LanguageLevelDetail> {
                       color: context.colors.textPrimary,
                     )),
                 if (desc.isNotEmpty) ...[
-                  SizedBox(height: 6),
+                  const SizedBox(height: 6),
                   Text(desc,
                       style: TextStyle(
                         fontSize: 13,
@@ -117,7 +117,7 @@ class _LanguageLevelDetailState extends State<LanguageLevelDetail> {
                       )),
                 ],
                 if (prof.isNotEmpty) ...[
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
@@ -125,7 +125,7 @@ class _LanguageLevelDetailState extends State<LanguageLevelDetail> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(prof,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: AppColors.primary,
@@ -234,7 +234,7 @@ class _LanguageLevelDetailState extends State<LanguageLevelDetail> {
                       size: 20,
                       color: li == 0 ? AppColors.primary : context.colors.textMuted,
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text('Lesson ${li + 1}',
                           style: TextStyle(
@@ -261,7 +261,7 @@ class _LanguageLevelDetailState extends State<LanguageLevelDetail> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.school_outlined, size: 48, color: context.colors.textMuted),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text('No units available',
               style: TextStyle(fontSize: 16, color: context.colors.textMuted)),
         ],

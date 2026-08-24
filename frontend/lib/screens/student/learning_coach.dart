@@ -5,7 +5,7 @@ import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
 
 class LearningCoachScreen extends StatefulWidget {
-  LearningCoachScreen({super.key});
+  const LearningCoachScreen({super.key});
 
   @override
   State<LearningCoachScreen> createState() => _LearningCoachScreenState();
@@ -85,7 +85,7 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to mark as complete')),
+          const SnackBar(content: Text('Failed to mark as complete')),
         );
       }
     }
@@ -152,14 +152,14 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Penrose Learning Assistant'),
+        title: const Text('Penrose Learning Assistant'),
         backgroundColor: context.colors.background,
         elevation: 0,
         foregroundColor: context.colors.textPrimary,
       ),
       backgroundColor: context.colors.background,
       body: _loading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _loadPlans,
               child: ListView(
@@ -180,14 +180,14 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
                       ElevatedButton.icon(
                         onPressed: _generating ? null : _generatePlan,
                         icon: _generating
-                            ? SizedBox(
+                            ? const SizedBox(
                                 width: 16,
                                 height: 16,
                                 child: CircularProgressIndicator(
                                     strokeWidth: 2, color: Colors.white),
                               )
-                            : Icon(Icons.auto_awesome, size: 18),
-                        label: Text('Generate New Plan'),
+                            : const Icon(Icons.auto_awesome, size: 18),
+                        label: const Text('Generate New Plan'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
@@ -198,7 +198,7 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   if (_selectedPlan != null) ...[
                     Text(
                       'Exam: ${_selectedPlan!['exam_date'] ?? 'Not set'} · '
@@ -209,7 +209,7 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
                       ),
                     ),
                   ],
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   if (_items.isEmpty)
                     Center(
                       child: Padding(
@@ -218,7 +218,7 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
                           children: [
                             Icon(Icons.school,
                                 size: 64, color: context.colors.textSecondary),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             Text(
                               'No study plan yet',
                               style: TextStyle(
@@ -226,7 +226,7 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
                                 color: context.colors.textSecondary,
                               ),
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             Text(
                               'Tap "Generate New Plan" to get started',
                               style: TextStyle(
@@ -256,21 +256,21 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.08),
+            color: AppColors.primary.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
             _dayTitle(day),
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
               color: AppColors.primary,
             ),
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         ...dayItems.map((item) => _buildItemCard(item)),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
       ],
     );
   }
@@ -289,21 +289,21 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: completed
-              ? Colors.green.withOpacity(0.3)
-              : context.colors.textSecondary.withOpacity(0.2),
+              ? Colors.green.withValues(alpha: 0.3)
+              : context.colors.textSecondary.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
         children: [
           if (completed)
-            Icon(Icons.check_circle, color: Colors.green, size: 22)
+            const Icon(Icons.check_circle, color: Colors.green, size: 22)
           else
             Icon(
               _chipIcon(activityType),
               color: _chipColor(activityType),
               size: 22,
             ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -318,14 +318,14 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
                         completed ? TextDecoration.lineThrough : null,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: _chipColor(activityType).withOpacity(0.12),
+                        color: _chipColor(activityType).withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -337,7 +337,7 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
                       '${item['duration_minutes'] ?? 30} min',
                       style: TextStyle(
@@ -354,7 +354,7 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
             TextButton(
               onPressed: () => _markComplete(planId, itemId),
               style: TextButton.styleFrom(
-                backgroundColor: AppColors.primary.withOpacity(0.1),
+                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                 foregroundColor: AppColors.primary,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -362,10 +362,10 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
                   borderRadius: BorderRadius.circular(6),
                 ),
               ),
-              child: Text('Study', style: TextStyle(fontSize: 12)),
+              child: const Text('Study', style: TextStyle(fontSize: 12)),
             ),
           if (completed)
-            TextButton(
+            const TextButton(
               onPressed: null,
               child: Text(
                 'Done',

@@ -1,15 +1,16 @@
 import 'dart:convert';
-import 'dart:html' as html;
+import 'dart:js_interop';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:web/web.dart' as web;
 import '../../core/theme/app_colors.dart';
 import '../../services/api_service.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../core/theme/theme_colors.dart';
 
 class AnalyticsExportScreen extends StatefulWidget {
-  AnalyticsExportScreen({super.key});
+  const AnalyticsExportScreen({super.key});
 
   @override
   State<AnalyticsExportScreen> createState() => _AnalyticsExportScreenState();
@@ -98,12 +99,14 @@ class _AnalyticsExportScreenState extends State<AnalyticsExportScreen> {
       if (response.statusCode == 200) {
         final csvString = response.body;
         final bytes = utf8.encode(csvString);
-        final blob = html.Blob([bytes], 'text/csv');
-        final url = html.Url.createObjectUrlFromBlob(blob);
-        html.AnchorElement(href: url)
-          ..setAttribute('download', '$filename.csv')
+        final blob =
+            web.Blob([bytes.toJS].toJS, web.BlobPropertyBag(type: 'text/csv'));
+        final url = web.URL.createObjectURL(blob);
+        web.HTMLAnchorElement()
+          ..href = url
+          ..download = '$filename.csv'
           ..click();
-        html.Url.revokeObjectUrl(url);
+        web.URL.revokeObjectURL(url);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -158,8 +161,8 @@ class _AnalyticsExportScreenState extends State<AnalyticsExportScreen> {
                 padding: const EdgeInsets.fromLTRB(16, 16, 8, 8),
                 child: Row(
                   children: [
-                    Icon(Icons.data_object_rounded, size: 18, color: AppColors.primary),
-                    SizedBox(width: 8),
+                    const Icon(Icons.data_object_rounded, size: 18, color: AppColors.primary),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         title,
@@ -204,17 +207,17 @@ class _AnalyticsExportScreenState extends State<AnalyticsExportScreen> {
                         Clipboard.setData(ClipboardData(text: jsonStr));
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('JSON copied to clipboard'),
+                            content: const Text('JSON copied to clipboard'),
                             backgroundColor: context.colors.success,
                           ),
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         'Copy',
                         style: TextStyle(color: AppColors.primary),
                       ),
                     ),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                     TextButton(
                       onPressed: () => Navigator.of(ctx).pop(),
                       child: Text(
@@ -236,7 +239,7 @@ class _AnalyticsExportScreenState extends State<AnalyticsExportScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: context.colors.surface,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
       ),
       builder: (ctx) => _StudentPickerSheet(
@@ -292,17 +295,17 @@ class _AnalyticsExportScreenState extends State<AnalyticsExportScreen> {
 
   Widget _buildLoadingShimmer() {
     return SingleChildScrollView(
-      physics: AlwaysScrollableScrollPhysics(),
+      physics: const AlwaysScrollableScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           ShimmerLoading.grid(count: 4, childAspectRatio: 1.6),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           ShimmerLoading.list(count: 1, height: 110),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           ShimmerLoading.list(count: 5, height: 90),
-          SizedBox(height: 40),
+          const SizedBox(height: 40),
         ],
       ),
     );
@@ -316,22 +319,22 @@ class _AnalyticsExportScreenState extends State<AnalyticsExportScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.error_outline_rounded, size: 48, color: context.colors.error),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Something went wrong',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               _error ?? 'Unknown error',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: _loadSummary,
-              icon: Icon(Icons.refresh_rounded, size: 16),
-              label: Text('Retry'),
+              icon: const Icon(Icons.refresh_rounded, size: 16),
+              label: const Text('Retry'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.textOnPrimary,
@@ -347,15 +350,15 @@ class _AnalyticsExportScreenState extends State<AnalyticsExportScreen> {
 
   Widget _buildContent() {
     return SingleChildScrollView(
-      physics: AlwaysScrollableScrollPhysics(),
+      physics: const AlwaysScrollableScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildSummaryDashboard(),
           _buildRecentActivity(),
           _buildExportOptions(),
-          SizedBox(height: 40),
+          const SizedBox(height: 40),
         ],
       ),
     );
@@ -378,8 +381,8 @@ class _AnalyticsExportScreenState extends State<AnalyticsExportScreen> {
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       child: GridView.builder(
         shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
@@ -400,7 +403,7 @@ class _AnalyticsExportScreenState extends State<AnalyticsExportScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(s.icon, size: 20, color: s.color),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   s.value,
                   style: TextStyle(
@@ -409,7 +412,7 @@ class _AnalyticsExportScreenState extends State<AnalyticsExportScreen> {
                     color: s.color,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   s.label,
                   style: TextStyle(fontSize: 11, color: context.colors.textMuted),
@@ -434,21 +437,21 @@ class _AnalyticsExportScreenState extends State<AnalyticsExportScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.history_rounded, size: 16, color: AppColors.primary),
-              SizedBox(width: 8),
+              const Icon(Icons.history_rounded, size: 16, color: AppColors.primary),
+              const SizedBox(width: 8),
               Text(
                 'Recent Activity',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           SizedBox(
             height: 110,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: _recentActivity.length,
-              separatorBuilder: (_, __) => SizedBox(width: 10),
+              separatorBuilder: (_, __) => const SizedBox(width: 10),
               itemBuilder: (context, i) {
                 final exam = _recentActivity[i];
                 final studentName = exam['student_name'] ?? 'Unknown';
@@ -522,7 +525,7 @@ class _AnalyticsExportScreenState extends State<AnalyticsExportScreen> {
 
   Widget _buildExportOptions() {
     final exports = [
-      _ExportOption(
+      const _ExportOption(
         icon: Icons.people_rounded,
         title: 'Students Progress',
         description: 'All student mastery data across concepts',
@@ -571,15 +574,15 @@ class _AnalyticsExportScreenState extends State<AnalyticsExportScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.download_rounded, size: 16, color: AppColors.primary),
-              SizedBox(width: 8),
+              const Icon(Icons.download_rounded, size: 16, color: AppColors.primary),
+              const SizedBox(width: 8),
               Text(
                 'Download Reports',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           ...exports.map((e) => _buildExportCard(e)),
         ],
       ),
@@ -609,7 +612,7 @@ class _AnalyticsExportScreenState extends State<AnalyticsExportScreen> {
                 ),
                 child: Icon(export.icon, size: 18, color: export.color),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -618,7 +621,7 @@ class _AnalyticsExportScreenState extends State<AnalyticsExportScreen> {
                       export.title,
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
                       export.description,
                       style: TextStyle(fontSize: 11, color: context.colors.textMuted),
@@ -630,14 +633,14 @@ class _AnalyticsExportScreenState extends State<AnalyticsExportScreen> {
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () => _handleViewJson(export),
-                  icon: Icon(Icons.visibility_rounded, size: 14),
-                  label: Text('View JSON', style: TextStyle(fontSize: 12)),
+                  icon: const Icon(Icons.visibility_rounded, size: 14),
+                  label: const Text('View JSON', style: TextStyle(fontSize: 12)),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primary,
                     side: BorderSide(color: context.colors.border),
@@ -646,12 +649,12 @@ class _AnalyticsExportScreenState extends State<AnalyticsExportScreen> {
                   ),
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () => _handleDownloadCsv(export),
-                  icon: Icon(Icons.download_rounded, size: 14),
-                  label: Text('Download CSV', style: TextStyle(fontSize: 12)),
+                  icon: const Icon(Icons.download_rounded, size: 14),
+                  label: const Text('Download CSV', style: TextStyle(fontSize: 12)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryDark,
                     foregroundColor: AppColors.textOnPrimary,
@@ -691,7 +694,7 @@ class _AnalyticsExportScreenState extends State<AnalyticsExportScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: context.colors.surface,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
       ),
       builder: (ctx) => _StudentPickerSheet(
@@ -768,17 +771,17 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
             'Select Student',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             'Enter a student ID or pick from the list below',
             style: TextStyle(fontSize: 12, color: context.colors.textMuted),
           ),
-          SizedBox(height: 14),
+          const SizedBox(height: 14),
           TextField(
             controller: _controller,
             keyboardType: TextInputType.number,
@@ -798,10 +801,10 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: AppColors.primary),
+                borderSide: const BorderSide(color: AppColors.primary),
               ),
               suffixIcon: IconButton(
-                icon: Icon(Icons.arrow_forward_rounded, size: 18, color: AppColors.primary),
+                icon: const Icon(Icons.arrow_forward_rounded, size: 18, color: AppColors.primary),
                 onPressed: () {
                   final id = int.tryParse(_controller.text.trim());
                   if (id != null) widget.onSelected(id);
@@ -810,7 +813,7 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             ),
           ),
-          SizedBox(height: 14),
+          const SizedBox(height: 14),
           Expanded(
             child: _loading
                 ? ShimmerLoading.list(count: 4, height: 56)
@@ -835,7 +838,7 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
                               backgroundColor: context.colors.primaryGlow,
                               child: Text(
                                 '${i + 1}',
-                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primary),
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primary),
                               ),
                             ),
                             title: Text(

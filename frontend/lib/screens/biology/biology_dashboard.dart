@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 
 const Color _bioGreen = Color(0xFF10B981);
@@ -9,7 +8,7 @@ const Color _bioGreenDark = Color(0xFF059669);
 const Color _bioGreenGlow = Color(0x2210B981);
 
 class BiologyDashboard extends StatefulWidget {
-  BiologyDashboard({super.key});
+  const BiologyDashboard({super.key});
 
   @override
   State<BiologyDashboard> createState() => _BiologyDashboardState();
@@ -43,7 +42,7 @@ class _BiologyDashboardState extends State<BiologyDashboard>
     super.initState();
     _fadeCtrl = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
     );
     _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut);
     _fadeCtrl.forward();
@@ -87,17 +86,17 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildContinueLearning(),
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     _buildQuickStats(isDesktop),
-                    SizedBox(height: 28),
+                    const SizedBox(height: 28),
                     _buildSectionTitle('Biology Module'),
-                    SizedBox(height: 14),
+                    const SizedBox(height: 14),
                     _buildModuleGrid(isDesktop),
-                    SizedBox(height: 28),
+                    const SizedBox(height: 28),
                     _buildSectionTitle('MSCE Chapter Progress'),
-                    SizedBox(height: 14),
+                    const SizedBox(height: 14),
                     _buildChapterProgress(),
-                    SizedBox(height: 40),
+                    const SizedBox(height: 40),
                   ],
                 ),
               ),
@@ -133,7 +132,7 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                     size: 18, color: context.colors.textSecondary),
               ),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Container(
               width: 40,
               height: 40,
@@ -141,10 +140,10 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                 color: _bioGreenGlow,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(Icons.biotech_rounded,
+              child: const Icon(Icons.biotech_rounded,
                   color: _bioGreen, size: 22),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,10 +179,10 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                       backgroundColor: context.colors.surfaceHighest,
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
                     '${(_overallProgress * 100).toInt()}% Mastery',
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: _bioGreen),
@@ -225,10 +224,10 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                   color: _bioGreen.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Icon(Icons.play_arrow_rounded,
+                child: const Icon(Icons.play_arrow_rounded,
                     color: _bioGreen, size: 30),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -239,13 +238,13 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                             fontWeight: FontWeight.w600,
                             color: context.colors.textMuted,
                             letterSpacing: 0.5)),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text('Cell Biology — Plant and Animal Cells',
                         style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                             color: context.colors.textPrimary)),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
                         Expanded(
@@ -259,8 +258,8 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                             ),
                           ),
                         ),
-                        SizedBox(width: 10),
-                        Text('72%',
+                        const SizedBox(width: 10),
+                        const Text('72%',
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
@@ -270,8 +269,8 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                   ],
                 ),
               ),
-              SizedBox(width: 12),
-              Icon(Icons.arrow_forward_ios_rounded,
+              const SizedBox(width: 12),
+              const Icon(Icons.arrow_forward_ios_rounded,
                   size: 16, color: _bioGreen),
             ],
           ),
@@ -284,7 +283,7 @@ class _BiologyDashboardState extends State<BiologyDashboard>
     return GridView.count(
       crossAxisCount: isDesktop ? 4 : 2,
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
       childAspectRatio: isDesktop ? 2.0 : 1.6,
@@ -325,7 +324,7 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                 ),
                 child: Icon(icon, size: 18, color: color),
               ),
-              Spacer(),
+              const Spacer(),
               Text(value,
                   style: TextStyle(
                       fontSize: 24,
@@ -334,13 +333,13 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                       letterSpacing: -0.5)),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(label,
               style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: context.colors.textSecondary)),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(sub,
               style:
                   TextStyle(fontSize: 11, color: context.colors.textMuted)),
@@ -356,12 +355,12 @@ class _BiologyDashboardState extends State<BiologyDashboard>
           width: 4,
           height: 20,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
                 colors: [_bioGreen, _bioGreenDark]),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Text(title,
             style: TextStyle(
                 fontSize: 18,
@@ -373,44 +372,44 @@ class _BiologyDashboardState extends State<BiologyDashboard>
   }
 
   static final _modules = [
-    _BioModule(Icons.book_rounded, '📖 Syllabus',
+    const _BioModule(Icons.book_rounded, '📖 Syllabus',
         'Official MSCE Biology syllabus', '/bio-syllabus'),
-    _BioModule(Icons.menu_book_rounded, 'Topics & Syllabus',
+    const _BioModule(Icons.menu_book_rounded, 'Topics & Syllabus',
         'Full MSCE Biology curriculum', '/bio-topics'),
-    _BioModule(Icons.auto_awesome_rounded, 'Biology AI Tutor',
+    const _BioModule(Icons.auto_awesome_rounded, 'Biology AI Tutor',
         'AI-powered Biology assistant', '/bio-ai-tutor'),
-    _BioModule(Icons.science_rounded, 'Virtual Biology Lab',
+    const _BioModule(Icons.science_rounded, 'Virtual Biology Lab',
         'Interactive experiments', '/bio-virtual-lab'),
-    _BioModule(Icons.science_outlined, 'Practical Skills',
+    const _BioModule(Icons.science_outlined, 'Practical Skills',
         'Lab techniques & procedures', '/bio-practicals'),
-    _BioModule(Icons.image_rounded, 'Diagram Centre',
+    const _BioModule(Icons.image_rounded, 'Diagram Centre',
         'Interactive biology diagrams', '/bio-diagrams'),
-    _BioModule(Icons.quiz_rounded, 'Practice Centre',
+    const _BioModule(Icons.quiz_rounded, 'Practice Centre',
         'MCQ, short answer & more', '/bio-practice'),
-    _BioModule(Icons.description_rounded, 'Past Papers',
+    const _BioModule(Icons.description_rounded, 'Past Papers',
         'MSCE past exam papers', '/bio-past-papers'),
-    _BioModule(Icons.assignment_rounded, 'Mock Exams',
+    const _BioModule(Icons.assignment_rounded, 'Mock Exams',
         'MSCE-style mock examinations', '/bio-mock-exam'),
-    _BioModule(Icons.replay_rounded, 'Revision Centre',
+    const _BioModule(Icons.replay_rounded, 'Revision Centre',
         'Spaced repetition & flashcards', '/stem-revision'),
-    _BioModule(Icons.stacked_bar_chart_rounded, 'Progress & Mastery',
+    const _BioModule(Icons.stacked_bar_chart_rounded, 'Progress & Mastery',
         'Track your mastery journey', '/stem-mastery'),
-    _BioModule(Icons.note_alt_rounded, 'Biology Notebook',
+    const _BioModule(Icons.note_alt_rounded, 'Biology Notebook',
         'Your personal study notes', '/bio-notebook'),
-    _BioModule(Icons.search_rounded, 'Biology Search',
+    const _BioModule(Icons.search_rounded, 'Biology Search',
         'Search all Biology content', '/search'),
-    _BioModule(Icons.download_rounded, 'Offline Content',
+    const _BioModule(Icons.download_rounded, 'Offline Content',
         'Download for offline study', '/offline-sync'),
-    _BioModule(Icons.insights_rounded, 'Analytics',
+    const _BioModule(Icons.insights_rounded, 'Analytics',
         'Detailed performance analytics', '/bio-analytics'),
-    _BioModule(Icons.settings_rounded, 'Biology Settings',
+    const _BioModule(Icons.settings_rounded, 'Biology Settings',
         'Customise your experience', '/settings'),
   ];
 
   Widget _buildModuleGrid(bool isDesktop) {
     return GridView.builder(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: isDesktop ? 3 : 2,
         crossAxisSpacing: 12,
@@ -450,13 +449,13 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                   ),
                   child: Icon(mod.icon, size: 20, color: _bioGreen),
                 ),
-                Spacer(),
+                const Spacer(),
                 Text(mod.title,
                     style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: context.colors.textPrimary)),
-                SizedBox(height: 3),
+                const SizedBox(height: 3),
                 Text(mod.description,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -523,7 +522,7 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                           color: color)),
                 ),
               ),
-              SizedBox(width: 14),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -533,7 +532,7 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: context.colors.textPrimary)),
-                    SizedBox(height: 6),
+                    const SizedBox(height: 6),
                     Row(
                       children: [
                         Expanded(
@@ -547,7 +546,7 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                             ),
                           ),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         Text('${(progress * 100).toInt()}%',
                             style: TextStyle(
                                 fontSize: 11,
@@ -558,7 +557,7 @@ class _BiologyDashboardState extends State<BiologyDashboard>
                   ],
                 ),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Icon(Icons.chevron_right_rounded,
                   size: 18, color: context.colors.textMuted),
             ],

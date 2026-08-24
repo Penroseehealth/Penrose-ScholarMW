@@ -8,7 +8,7 @@ class ErrorState extends StatelessWidget {
   final VoidCallback? onRetry;
   final IconData icon;
 
-  ErrorState({
+  const ErrorState({
     super.key,
     this.message = 'Something went wrong',
     this.details,
@@ -40,7 +40,7 @@ class ErrorState extends StatelessWidget {
                 ),
                 child: Icon(icon, color: context.colors.error, size: 28),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 message,
                 style: TextStyle(
@@ -51,7 +51,7 @@ class ErrorState extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               if (details != null) ...[
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   details!,
                   style: TextStyle(fontSize: 13, color: context.colors.textMuted),
@@ -59,11 +59,11 @@ class ErrorState extends StatelessWidget {
                 ),
               ],
               if (onRetry != null) ...[
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 OutlinedButton.icon(
                   onPressed: onRetry,
-                  icon: Icon(Icons.refresh_rounded, size: 18),
-                  label: Text('Try Again'),
+                  icon: const Icon(Icons.refresh_rounded, size: 18),
+                  label: const Text('Try Again'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primary,
                     side: BorderSide(color: context.colors.border),

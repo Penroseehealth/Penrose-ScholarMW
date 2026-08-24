@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:go_router/go_router.dart';
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 
 class ChineseSrsReview extends StatefulWidget {
-  ChineseSrsReview({super.key});
+  const ChineseSrsReview({super.key});
   @override
   State<ChineseSrsReview> createState() => _ChineseSrsReviewState();
 }
@@ -88,17 +87,17 @@ class _ChineseSrsReviewState extends State<ChineseSrsReview> {
     return Scaffold(
       backgroundColor: context.colors.background,
       appBar: AppBar(
-        title: Text('SRS Review'),
+        title: const Text('SRS Review'),
         backgroundColor: context.colors.surface,
         foregroundColor: context.colors.textPrimary, elevation: 0,
-        leading: IconButton(icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18), onPressed: () => context.pop()),
+        leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18), onPressed: () => context.pop()),
         actions: [Container(
           margin: const EdgeInsets.only(right: 12, top: 8, bottom: 8),
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(color: accent.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.style_rounded, size: 16, color: accent), SizedBox(width: 6),
-            Text('${_deck.length - _idx} left', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: accent))]))]),
+            const Icon(Icons.style_rounded, size: 16, color: accent), const SizedBox(width: 6),
+            Text('${_deck.length - _idx} left', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: accent))]))]),
       body: _complete ? _buildComplete() : _buildCard(),
     );
   }
@@ -118,7 +117,7 @@ class _ChineseSrsReviewState extends State<ChineseSrsReview> {
               style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
           ]),
         ]),
-        SizedBox(height: 6),
+        const SizedBox(height: 6),
         ClipRRect(
           borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
@@ -128,13 +127,13 @@ class _ChineseSrsReviewState extends State<ChineseSrsReview> {
             minHeight: 4,
           ),
         ),
-        SizedBox(height: 24),
+        const SizedBox(height: 24),
         GestureDetector(
           onTap: () => setState(() { _flipped = !_flipped; }),
           child: AnimatedContainer(
-            duration: Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 300),
             width: double.infinity,
-            constraints: BoxConstraints(minHeight: 280),
+            constraints: const BoxConstraints(minHeight: 280),
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
               color: _flipped ? accent.withValues(alpha: 0.08) : context.colors.surface,
@@ -149,43 +148,43 @@ class _ChineseSrsReviewState extends State<ChineseSrsReview> {
                 if (!_flipped) ...[
                   Text(c['word'] as String,
                     style: TextStyle(fontSize: 72, fontWeight: FontWeight.w400, color: context.colors.textPrimary)),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Text(c['pinyin'] as String,
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   _levelBadge(lv),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text('Tap to reveal',
                     style: TextStyle(fontSize: 12, color: context.colors.textMuted.withValues(alpha: 0.6))),
                 ] else ...[
                   Text(c['meaning'] as String,
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(c['example'] as String,
                     style: TextStyle(fontSize: 20, color: context.colors.textSecondary)),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(c['exTrans'] as String,
                     style: TextStyle(fontSize: 14, color: context.colors.textMuted)),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   _levelBadge(lv),
                 ],
               ],
             ),
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Text('Tap card to flip',
           style: TextStyle(fontSize: 12, color: context.colors.textMuted.withValues(alpha: 0.6))),
         if (_flipped) ...[
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Row(children: [
             _rateBtn('Again', -1, context.colors.error, Icons.close_rounded),
-            SizedBox(width: 8),
-            _rateBtn('Hard', 0, Color(0xFFF59E0B), Icons.remove_rounded),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
+            _rateBtn('Hard', 0, const Color(0xFFF59E0B), Icons.remove_rounded),
+            const SizedBox(width: 8),
             _rateBtn('Good', 1, accent, Icons.check_rounded),
-            SizedBox(width: 8),
-            _rateBtn('Easy', 2, Color(0xFF3B82F6), Icons.bolt_rounded),
+            const SizedBox(width: 8),
+            _rateBtn('Easy', 2, const Color(0xFF3B82F6), Icons.bolt_rounded),
           ]),
         ],
       ]),
@@ -197,7 +196,7 @@ class _ChineseSrsReviewState extends State<ChineseSrsReview> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(color: accent.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)),
-      child: Text('Level $lv: ${labels[lv]??""}', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: accent)));
+      child: Text('Level $lv: ${labels[lv]??""}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: accent)));
   }
 
   Widget _rateBtn(String label, int delta, Color c, IconData icon) {
@@ -209,7 +208,7 @@ class _ChineseSrsReviewState extends State<ChineseSrsReview> {
           decoration: BoxDecoration(color: c.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10),
             border: Border.all(color: c.withValues(alpha: 0.3))),
           child: Column(children: [
-            Icon(icon, size: 18, color: c), SizedBox(height: 4),
+            Icon(icon, size: 18, color: c), const SizedBox(height: 4),
             Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: c))]))));
   }
 
@@ -220,14 +219,14 @@ class _ChineseSrsReviewState extends State<ChineseSrsReview> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.celebration_rounded, size: 64, color: accent),
-            SizedBox(height: 16),
+            const Icon(Icons.celebration_rounded, size: 64, color: accent),
+            const SizedBox(height: 16),
             Text('Session Complete!',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text('Reviewed: $_reviewed | Mastered: $_mastered',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: accent)),
-            SizedBox(height: 24),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: accent)),
+            const SizedBox(height: 24),
             GestureDetector(
               onTap: () { setState(() { _shuffle(); }); },
               child: Container(
@@ -238,7 +237,7 @@ class _ChineseSrsReviewState extends State<ChineseSrsReview> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: accent.withValues(alpha: 0.3)),
                 ),
-                child: Row(
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.refresh_rounded, size: 18, color: accent),

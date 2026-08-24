@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -682,7 +682,7 @@ class _BiologySyllabusScreenState extends State<BiologySyllabusScreen> {
                           children: [
                             Text(
                               'Core Element ${core.number}',
-                              style: TextStyle(
+                              style: const TextStyle(
                                   color: _bioGreen, fontSize: 11, fontWeight: FontWeight.w600),
                             ),
                             Text(

@@ -10,7 +10,7 @@ import '../../core/theme/theme_colors.dart';
 
 class StemTutorScreen extends StatefulWidget {
   final int conceptId;
-  StemTutorScreen({super.key, this.conceptId = 0});
+  const StemTutorScreen({super.key, this.conceptId = 0});
 
   @override
   State<StemTutorScreen> createState() => _StemTutorScreenState();
@@ -21,7 +21,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   List<dynamic> _concepts = [];
-  List<_ChatMessage> _messages = [];
+  final List<_ChatMessage> _messages = [];
   bool _loading = false;
   bool _sending = false;
   int _selectedConceptId = 0;
@@ -167,7 +167,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
-          duration: Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
       }
@@ -199,7 +199,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
   Widget _buildAppBar() {
     return Container(
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [AppColors.primaryDark, AppColors.primaryMuted],
           begin: Alignment.topLeft,
@@ -234,7 +234,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
         hint: Text('Select a concept', style: TextStyle(color: context.colors.textMuted)),
         isExpanded: true,
         dropdownColor: context.colors.surfaceElevated,
-        underline: SizedBox(),
+        underline: const SizedBox(),
         icon: Icon(Icons.keyboard_arrow_down_rounded, color: context.colors.textMuted),
         items: _concepts.map<DropdownMenuItem<int>>((c) {
           return DropdownMenuItem(
@@ -257,7 +257,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         scrollDirection: Axis.horizontal,
         itemCount: _modes.length,
-        separatorBuilder: (_, __) => SizedBox(width: 8),
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final mode = _modes[index];
           final selected = _selectedMode == mode;
@@ -289,13 +289,13 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.psychology_rounded, size: 48, color: context.colors.textMuted.withOpacity(0.4)),
-            SizedBox(height: 12),
+            Icon(Icons.psychology_rounded, size: 48, color: context.colors.textMuted.withValues(alpha: 0.4)),
+            const SizedBox(height: 12),
             Text(
               'Ask me anything about STEM',
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textSecondary),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'Select a concept and start chatting',
               style: TextStyle(fontSize: 13, color: context.colors.textMuted),
@@ -341,7 +341,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
         child: isUser
             ? Text(
                 msg.text,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
                   color: Colors.white,
                   height: 1.4,
@@ -374,7 +374,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
+            const SizedBox(
               width: 16,
               height: 16,
               child: CircularProgressIndicator(
@@ -382,7 +382,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
                 color: AppColors.primary,
               ),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Text(
               'Thinking...',
               style: TextStyle(fontSize: 13, color: context.colors.textMuted),
@@ -427,13 +427,13 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppColors.primary),
+                    borderSide: const BorderSide(color: AppColors.primary),
                   ),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
               ),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             GestureDetector(
               onTap: _sending ? null : _sendMessage,
               child: Container(
@@ -445,7 +445,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
                       : AppColors.primary,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.send_rounded,
                   color: Colors.white,
                   size: 20,

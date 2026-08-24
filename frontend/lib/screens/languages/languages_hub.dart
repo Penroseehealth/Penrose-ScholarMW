@@ -10,7 +10,7 @@ const Color _langRed = Color(0xFFDC2626);
 const Color _langGreen = Color(0xFF059669);
 
 class LanguagesHub extends StatefulWidget {
-  LanguagesHub({super.key});
+  const LanguagesHub({super.key});
 
   @override
   State<LanguagesHub> createState() => _LanguagesHubState();
@@ -30,7 +30,7 @@ class _LanguagesHubState extends State<LanguagesHub>
     super.initState();
     _fadeCtrl = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
     );
     _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut);
     _fadeCtrl.forward();
@@ -122,19 +122,19 @@ class _LanguagesHubState extends State<LanguagesHub>
                     sliver: SliverList(
                       delegate: SliverChildListDelegate([
                         _buildHero(),
-                        SizedBox(height: 28),
+                        const SizedBox(height: 28),
                         _buildSectionTitle('Choose Your Language'),
-                        SizedBox(height: 14),
+                        const SizedBox(height: 14),
                         _buildLanguageGrid(isDesktop),
-                        SizedBox(height: 28),
+                        const SizedBox(height: 28),
                         _buildSectionTitle('Your Progress'),
-                        SizedBox(height: 14),
+                        const SizedBox(height: 14),
                         _buildProgressStats(isDesktop),
-                        SizedBox(height: 28),
+                        const SizedBox(height: 28),
                         _buildSectionTitle('Language Features'),
-                        SizedBox(height: 14),
+                        const SizedBox(height: 14),
                         _buildFeatureGrid(isDesktop),
-                        SizedBox(height: 40),
+                        const SizedBox(height: 40),
                       ]),
                     ),
                   ),
@@ -172,7 +172,7 @@ class _LanguagesHubState extends State<LanguagesHub>
                     size: 18, color: context.colors.textSecondary),
               ),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Container(
               width: 40,
               height: 40,
@@ -180,10 +180,10 @@ class _LanguagesHubState extends State<LanguagesHub>
                 color: context.colors.primaryGlow,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(Icons.translate_rounded,
+              child: const Icon(Icons.translate_rounded,
                   color: AppColors.primary, size: 22),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,7 +245,7 @@ class _LanguagesHubState extends State<LanguagesHub>
           Row(
             children: [
               for (var i = 0; i < flags.length; i++) ...[
-                if (i > 0) SizedBox(width: 10),
+                if (i > 0) const SizedBox(width: 10),
                 Container(
                   width: 46,
                   height: 46,
@@ -256,10 +256,10 @@ class _LanguagesHubState extends State<LanguagesHub>
                     border: Border.all(color: context.colors.border),
                   ),
                   child: Text(flags[i],
-                      style: TextStyle(fontSize: 22)),
+                      style: const TextStyle(fontSize: 22)),
                 ),
               ],
-              Spacer(),
+              const Spacer(),
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -267,7 +267,7 @@ class _LanguagesHubState extends State<LanguagesHub>
                   color: context.colors.primaryGlow,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Row(
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.auto_awesome_rounded,
@@ -283,14 +283,14 @@ class _LanguagesHubState extends State<LanguagesHub>
               ),
             ],
           ),
-          SizedBox(height: 18),
+          const SizedBox(height: 18),
           Text('AI-Powered Language Learning',
               style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
                   color: context.colors.textPrimary,
                   letterSpacing: -0.4)),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Master English, Chinese and Arabic with adaptive lessons, '
             'spaced-repetition vocabulary and an AI tutor that speaks your language.',
@@ -311,12 +311,12 @@ class _LanguagesHubState extends State<LanguagesHub>
           width: 4,
           height: 20,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
                 colors: [AppColors.primary, AppColors.primaryDark]),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Text(title,
             style: TextStyle(
                 fontSize: 18,
@@ -337,7 +337,7 @@ class _LanguagesHubState extends State<LanguagesHub>
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: context.colors.border),
         ),
-        child: CircularProgressIndicator(
+        child: const CircularProgressIndicator(
             strokeWidth: 2.5, color: AppColors.primary),
       );
     }
@@ -354,13 +354,13 @@ class _LanguagesHubState extends State<LanguagesHub>
           children: [
             Icon(Icons.language_rounded,
                 size: 32, color: context.colors.textMuted),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text('No languages available yet',
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: context.colors.textSecondary)),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text('Check back soon — new languages are on the way.',
                 style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
           ],
@@ -369,7 +369,7 @@ class _LanguagesHubState extends State<LanguagesHub>
     }
     return GridView.builder(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: isDesktop ? 3 : 1,
         crossAxisSpacing: 12,
@@ -430,9 +430,9 @@ class _LanguagesHubState extends State<LanguagesHub>
                         border: Border.all(color: context.colors.border),
                       ),
                       child: Text(flag,
-                          style: TextStyle(fontSize: 24)),
+                          style: const TextStyle(fontSize: 24)),
                     ),
-                    SizedBox(width: 14),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -455,12 +455,12 @@ class _LanguagesHubState extends State<LanguagesHub>
                         ],
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Icon(Icons.arrow_forward_ios_rounded,
                         size: 16, color: color),
                   ],
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 if (levelSystem.isNotEmpty)
                   Container(
                     width: double.infinity,
@@ -478,16 +478,16 @@ class _LanguagesHubState extends State<LanguagesHub>
                             fontWeight: FontWeight.w600,
                             color: color)),
                   ),
-                Spacer(),
+                const Spacer(),
                 Row(
                   children: [
                     Expanded(
                         child: _buildLangStat(
                             vocabCount, 'Vocabulary', color)),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                         child: _buildLangStat(grammarCount, 'Grammar', color)),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(child: _buildLangStat(levelCount, 'Levels', color)),
                   ],
                 ),
@@ -517,7 +517,7 @@ class _LanguagesHubState extends State<LanguagesHub>
                   fontWeight: FontWeight.w800,
                   color: color,
                   letterSpacing: -0.3)),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -532,7 +532,7 @@ class _LanguagesHubState extends State<LanguagesHub>
     return GridView.count(
       crossAxisCount: isDesktop ? 3 : 1,
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
       childAspectRatio: isDesktop ? 2.2 : 3.4,
@@ -567,7 +567,7 @@ class _LanguagesHubState extends State<LanguagesHub>
             ),
             child: Icon(icon, size: 21, color: color),
           ),
-          SizedBox(width: 14),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -583,7 +583,7 @@ class _LanguagesHubState extends State<LanguagesHub>
                             fontWeight: FontWeight.w800,
                             color: color,
                             letterSpacing: -0.4)),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Flexible(
                       child: Text(label,
                           maxLines: 1,
@@ -595,7 +595,7 @@ class _LanguagesHubState extends State<LanguagesHub>
                     ),
                   ],
                 ),
-                SizedBox(height: 3),
+                const SizedBox(height: 3),
                 Text(sub,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -610,17 +610,17 @@ class _LanguagesHubState extends State<LanguagesHub>
   }
 
   static final _features = [
-    _LangFeature(Icons.smart_toy_rounded, 'AI Tutor',
+    const _LangFeature(Icons.smart_toy_rounded, 'AI Tutor',
         'Chat with an AI tutor in your target language'),
-    _LangFeature(Icons.graphic_eq_rounded, 'Pronunciation Lab',
+    const _LangFeature(Icons.graphic_eq_rounded, 'Pronunciation Lab',
         'Train your accent with instant feedback'),
-    _LangFeature(Icons.forum_rounded, 'Conversation Practice',
+    const _LangFeature(Icons.forum_rounded, 'Conversation Practice',
         'Real-life dialogues and roleplay scenarios'),
-    _LangFeature(Icons.style_rounded, 'Vocabulary Engine',
+    const _LangFeature(Icons.style_rounded, 'Vocabulary Engine',
         'Spaced-repetition flashcards and word themes'),
-    _LangFeature(Icons.edit_note_rounded, 'Writing Workspace',
+    const _LangFeature(Icons.edit_note_rounded, 'Writing Workspace',
         'Guided writing tasks with AI corrections'),
-    _LangFeature(Icons.fact_check_rounded, 'Placement Test',
+    const _LangFeature(Icons.fact_check_rounded, 'Placement Test',
         'Find your perfect starting level in minutes'),
   ];
 
@@ -628,7 +628,7 @@ class _LanguagesHubState extends State<LanguagesHub>
     return GridView.count(
       crossAxisCount: isDesktop ? 3 : 2,
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
       childAspectRatio: isDesktop ? 2.0 : 1.55,
@@ -679,7 +679,7 @@ class _LanguagesHubState extends State<LanguagesHub>
                       ),
                       child: Icon(feature.icon, size: 19, color: color),
                     ),
-                    Spacer(),
+                    const Spacer(),
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
@@ -696,7 +696,7 @@ class _LanguagesHubState extends State<LanguagesHub>
                     ),
                   ],
                 ),
-                Spacer(),
+                const Spacer(),
                 Text(feature.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -704,7 +704,7 @@ class _LanguagesHubState extends State<LanguagesHub>
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: context.colors.textPrimary)),
-                SizedBox(height: 3),
+                const SizedBox(height: 3),
                 Text(feature.description,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,

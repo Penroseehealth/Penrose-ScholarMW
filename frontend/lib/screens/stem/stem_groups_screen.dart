@@ -8,7 +8,7 @@ import '../../widgets/error_state.dart';
 import '../../core/theme/theme_colors.dart';
 
 class StemGroupsScreen extends StatefulWidget {
-  StemGroupsScreen({super.key});
+  const StemGroupsScreen({super.key});
 
   @override
   State<StemGroupsScreen> createState() => _StemGroupsScreenState();
@@ -58,10 +58,12 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
         });
       }
     } catch (e) {
-      if (mounted) setState(() {
+      if (mounted) {
+        setState(() {
         _error = e.toString();
         _loading = false;
       });
+      }
     }
   }
 
@@ -87,7 +89,7 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
                 ),
               ),
               background: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppColors.primaryDark, AppColors.primaryMuted],
                     begin: Alignment.topLeft,
@@ -102,8 +104,8 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
               labelColor: context.colors.textPrimary,
               unselectedLabelColor: context.colors.textMuted,
               tabs: [
-                Tab(text: 'My Groups'),
-                Tab(text: 'All Groups'),
+                const Tab(text: 'My Groups'),
+                const Tab(text: 'All Groups'),
               ],
             ),
           ),
@@ -137,19 +139,19 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
       floatingActionButton: FloatingActionButton(
         onPressed: _showCreateGroupDialog,
         backgroundColor: AppColors.primary,
-        child: Icon(Icons.add_rounded, color: Colors.white),
+        child: const Icon(Icons.add_rounded, color: Colors.white),
       ),
     );
   }
 
   Widget _buildMyGroupsTab() {
     if (_myGroups.isEmpty) {
-      return EmptyState(icon: Icons.groups_rounded, title: 'No groups yet', subtitle: 'Join or create a study group to get started');
+      return const EmptyState(icon: Icons.groups_rounded, title: 'No groups yet', subtitle: 'Join or create a study group to get started');
     }
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: _myGroups.length,
-      separatorBuilder: (_, __) => SizedBox(height: 10),
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (context, index) => _buildGroupCard(_myGroups[index], isMyGroup: true),
     );
   }
@@ -163,12 +165,12 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             scrollDirection: Axis.horizontal,
             itemCount: _subjects.length + 1,
-            separatorBuilder: (_, __) => SizedBox(width: 8),
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               if (index == 0) {
                 final selected = _selectedSubject.isEmpty;
                 return ChoiceChip(
-                  label: Text('All', style: TextStyle(fontSize: 12)),
+                  label: const Text('All', style: TextStyle(fontSize: 12)),
                   selected: selected,
                   selectedColor: AppColors.primary,
                   backgroundColor: context.colors.surface,
@@ -203,11 +205,11 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
         ),
         Expanded(
           child: _allGroups.isEmpty
-              ? EmptyState(icon: Icons.groups_rounded, title: 'No groups found', subtitle: 'Try a different subject filter')
+              ? const EmptyState(icon: Icons.groups_rounded, title: 'No groups found', subtitle: 'Try a different subject filter')
               : ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: _allGroups.length,
-                  separatorBuilder: (_, __) => SizedBox(height: 10),
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (context, index) => _buildGroupCard(_allGroups[index]),
                 ),
         ),
@@ -255,7 +257,7 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
                     ),
                     child: Text(
                       group['subject_name'],
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
                         color: AppColors.primary,
@@ -264,11 +266,11 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
                   ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Row(
               children: [
                 Icon(Icons.people_rounded, size: 14, color: context.colors.textMuted),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Text(
                   memberText,
                   style: TextStyle(fontSize: 11, color: context.colors.textMuted),
@@ -276,7 +278,7 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
               ],
             ),
             if (group['description'] != null && (group['description'] as String).isNotEmpty) ...[
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 group['description'],
                 style: TextStyle(fontSize: 11, color: context.colors.textMuted),
@@ -285,7 +287,7 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
               ),
             ],
             if (!isMyGroup) ...[
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Align(
                 alignment: Alignment.centerRight,
                 child: ElevatedButton.icon(
@@ -293,8 +295,8 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
                     await _stemService.joinGroup(group['id']);
                     _loadData();
                   },
-                  icon: Icon(Icons.login_rounded, size: 14),
-                  label: Text('Join', style: TextStyle(fontSize: 12)),
+                  icon: const Icon(Icons.login_rounded, size: 14),
+                  label: const Text('Join', style: TextStyle(fontSize: 12)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
@@ -354,12 +356,12 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: AppColors.primary),
+                    borderSide: const BorderSide(color: AppColors.primary),
                   ),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               TextField(
                 controller: descController,
                 style: TextStyle(color: context.colors.textPrimary),
@@ -379,14 +381,14 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: AppColors.primary),
+                    borderSide: const BorderSide(color: AppColors.primary),
                   ),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               DropdownButtonFormField<String>(
-                value: selectedSubject,
+                initialValue: selectedSubject,
                 dropdownColor: context.colors.surface,
                 style: TextStyle(color: context.colors.textPrimary, fontSize: 13),
                 decoration: InputDecoration(
@@ -404,7 +406,7 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: AppColors.primary),
+                    borderSide: const BorderSide(color: AppColors.primary),
                   ),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 ),
@@ -439,7 +441,7 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
-            child: Text('Create'),
+            child: const Text('Create'),
           ),
         ],
       ),
@@ -503,10 +505,12 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
         });
       }
     } catch (e) {
-      if (mounted) setState(() {
+      if (mounted) {
+        setState(() {
         _error = e.toString();
         _loading = false;
       });
+      }
     }
   }
 
@@ -526,16 +530,16 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
             filled: true,
             fillColor: context.colors.surfaceHighest,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.colors.border)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: AppColors.primary)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.primary)),
             contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, titleController.text.trim()),
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
-            child: Text('Start'),
+            child: const Text('Start'),
           ),
         ],
       ),
@@ -545,9 +549,11 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
       await _stemService.startGroupSession(widget.groupId, result);
       _loadDetail();
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed: $e'), backgroundColor: Colors.red.shade700),
       );
+      }
     }
   }
 
@@ -568,25 +574,25 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
         children: [
           Row(
             children: [
-              Icon(Icons.play_circle_outline_rounded, color: AppColors.primary, size: 18),
-              SizedBox(width: 8),
+              const Icon(Icons.play_circle_outline_rounded, color: AppColors.primary, size: 18),
+              const SizedBox(width: 8),
               Text('Study Sessions', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Row(
             children: [
               _buildSessionStat('Sessions', '$totalSessions', AppColors.primary),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               _buildSessionStat('Hours', '${(totalMinutes / 60).toStringAsFixed(1)}', context.colors.teal),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               _buildSessionStat('Concepts', '$uniqueConcepts', context.colors.lavender),
             ],
           ),
           if (_sessions.isNotEmpty) ...[
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Divider(color: context.colors.border, height: 1),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ..._sessions.take(3).map((s) => _buildSessionItem(s)),
           ],
         ],
@@ -605,7 +611,7 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
         child: Column(
           children: [
             Text(value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: color)),
-            SizedBox(height: 2),
+            const SizedBox(height: 2),
             Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: color.withValues(alpha: 0.8))),
           ],
         ),
@@ -637,13 +643,13 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
               shape: BoxShape.circle,
             ),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.textPrimary)),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   duration != null ? '$duration min' : (isActive ? 'In progress' : 'Ended'),
                   style: TextStyle(fontSize: 10, color: context.colors.textMuted),
@@ -660,7 +666,7 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
               ),
               child: Text(
                 '${concepts.length} concept${concepts.length > 1 ? 's' : ''}',
-                style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AppColors.primary),
+                style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AppColors.primary),
               ),
             ),
         ],
@@ -680,7 +686,7 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
         if (_scrollController.hasClients) {
           _scrollController.animateTo(
             _scrollController.position.maxScrollExtent,
-            duration: Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 200),
             curve: Curves.easeOut,
           );
         }
@@ -743,14 +749,14 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
                           ),
                           child: Text(
                             subjectName,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: AppColors.primary,
                             ),
                           ),
                         ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       Text(
                         'Members',
                         style: TextStyle(
@@ -759,13 +765,13 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
                           color: context.colors.textSecondary,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       SizedBox(
                         height: 60,
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: members.length,
-                          separatorBuilder: (_, __) => SizedBox(width: 10),
+                          separatorBuilder: (_, __) => const SizedBox(width: 10),
                           itemBuilder: (context, index) {
                             final member = members[index];
                             final isAdmin = member['role'] == 'admin';
@@ -779,7 +785,7 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
                                     style: TextStyle(fontSize: 12, color: context.colors.textPrimary),
                                   ),
                                 ),
-                                SizedBox(height: 4),
+                                const SizedBox(height: 4),
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -788,14 +794,14 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
                                       style: TextStyle(fontSize: 9, color: context.colors.textMuted),
                                     ),
                                     if (isAdmin) ...[
-                                      SizedBox(width: 3),
+                                      const SizedBox(width: 3),
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
                                         decoration: BoxDecoration(
                                           color: AppColors.primary,
                                           borderRadius: BorderRadius.circular(3),
                                         ),
-                                        child: Text(
+                                        child: const Text(
                                           'ADMIN',
                                           style: TextStyle(fontSize: 7, fontWeight: FontWeight.w700, color: Colors.white),
                                         ),
@@ -825,7 +831,7 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
                           children: [
                             if (_sessions.isNotEmpty || _stats != null) ...[
                               _buildSessionsSection(),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                             ],
                             ..._messages.map((msg) => Container(
                               margin: const EdgeInsets.only(bottom: 10),
@@ -848,14 +854,14 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
                                           color: context.colors.textPrimary,
                                         ),
                                       ),
-                                      SizedBox(width: 8),
+                                      const SizedBox(width: 8),
                                       Text(
                                         msg['created_at'] ?? '',
                                         style: TextStyle(fontSize: 10, color: context.colors.textMuted),
                                       ),
                                     ],
                                   ),
-                                  SizedBox(height: 6),
+                                  const SizedBox(height: 6),
                                   Text(
                                     msg['message'] ?? msg['content'] ?? '',
                                     style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
@@ -881,11 +887,11 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
                         ),
                         child: IconButton(
                           onPressed: _startSession,
-                          icon: Icon(Icons.play_circle_outline_rounded, color: AppColors.primary, size: 22),
+                          icon: const Icon(Icons.play_circle_outline_rounded, color: AppColors.primary, size: 22),
                           tooltip: 'Start Session',
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: TextField(
                           controller: _messageController,
@@ -905,17 +911,17 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: AppColors.primary),
+                              borderSide: const BorderSide(color: AppColors.primary),
                             ),
                             contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                           ),
                           onSubmitted: (_) => _sendMessage(),
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       IconButton(
                         onPressed: _sendMessage,
-                        icon: Icon(Icons.send_rounded, color: AppColors.primary),
+                        icon: const Icon(Icons.send_rounded, color: AppColors.primary),
                       ),
                     ],
                   ),

@@ -4,21 +4,19 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 
 class LanguagePronunciation extends StatelessWidget {
-  LanguagePronunciation({super.key});
+  const LanguagePronunciation({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final slug = GoRouterState.of(context).pathParameters['slug'] ?? 'english';
-
     return Scaffold(
       backgroundColor: context.colors.background,
       appBar: AppBar(
-        title: Text('Pronunciation'),
+        title: const Text('Pronunciation'),
         backgroundColor: context.colors.surface,
         foregroundColor: context.colors.textPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
           onPressed: () => context.pop(),
         ),
       ),
@@ -30,20 +28,20 @@ class LanguagePronunciation extends StatelessWidget {
             _buildPronunciationCard('Long Vowels', 'a, e, i, o, u as in cake, he, bike, note, cute'),
             _buildPronunciationCard('Schwa', 'The unstressed /ə/ sound as in about, sofa'),
           ]),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           _buildSection('Consonant Sounds', [
             _buildPronunciationCard('Stops', 'p, b, t, d, k, g'),
             _buildPronunciationCard('Fricatives', 'f, v, s, z, sh, zh, h'),
             _buildPronunciationCard('Nasals', 'm, n, ng as in man, no, sing'),
             _buildPronunciationCard('Liquids & Glides', 'l, r, w, y as in let, run, wet, yes'),
           ]),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           _buildSection('Stress & Intonation', [
             _buildPronunciationCard('Word Stress', 'Content words (nouns, verbs) are stressed; function words are not'),
             _buildPronunciationCard('Sentence Stress', 'Key words in a sentence receive the most emphasis'),
             _buildPronunciationCard('Intonation Patterns', 'Rising for questions, falling for statements'),
           ]),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           _buildSection('Common Challenges', [
             _buildPronunciationCard('th sounds', 'Place tongue between teeth: think /θ/, this /ð/'),
             _buildPronunciationCard('Silent Letters', 'knight, psychology, honest — the letter is not pronounced'),
@@ -67,13 +65,13 @@ class LanguagePronunciation extends StatelessWidget {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Text(title,
-                style: TextStyle(
+                style: const TextStyle(
                     fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
           ],
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         ...children,
       ],
     );
@@ -96,19 +94,19 @@ class LanguagePronunciation extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(Icons.volume_up_rounded, size: 18, color: AppColors.primary),
+            child: const Icon(Icons.volume_up_rounded, size: 18, color: AppColors.primary),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title,
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(desc,
-                    style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                    style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
               ],
             ),
           ),

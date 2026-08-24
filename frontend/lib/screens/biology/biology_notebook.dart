@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/theme/app_colors.dart';
 
 const Color _bioGreen = Color(0xFF10B981);
-const Color _bioGreenDark = Color(0xFF059669);
-const Color _bioGreenGlow = Color(0x2210B981);
 
 class BiologyNotebookScreen extends StatefulWidget {
   const BiologyNotebookScreen({super.key});
@@ -103,29 +100,6 @@ class _BiologyNotebookScreenState extends State<BiologyNotebookScreen> {
       DateTime.now(),
       true,
       false,
-    ),
-  ];
-
-  static final _templates = [
-    _NoteTemplate(
-      '📝 Lab Report',
-      'Title:\nDate:\nAim:\nHypothesis:\nApparatus:\nMethod:\nObservations:\nResults:\nConclusion:\nEvaluation:',
-      Icons.science_rounded,
-    ),
-    _NoteTemplate(
-      '📋 Topic Summary',
-      'Topic:\nCore Element:\nKey Terms:\n\nMain Points:\n1.\n2.\n3.\n\nMalawi Context:\n\nQuestions to Review:',
-      Icons.summarize_rounded,
-    ),
-    _NoteTemplate(
-      '🧬 Diagram Notes',
-      'Diagram Title:\nSyllabus Reference:\n\nLabels:\n1.\n2.\n3.\n\nFunction of each part:\n\nCommon exam questions:',
-      Icons.image_rounded,
-    ),
-    _NoteTemplate(
-      '✅ Revision Checklist',
-      'Topic:\n\nChecklist:\n[ ] Key terms defined\n[ ] Diagrams labelled\n[ ] Practical skills reviewed\n[ ] Past paper questions attempted\n[ ] Syllabus learning objectives covered',
-      Icons.checklist_rounded,
     ),
   ];
 
@@ -547,10 +521,3 @@ class _NotebookEntry {
   const _NotebookEntry(this.title, this.content, this.topic, this.date, this.starred, this.syllabusLinked);
 }
 
-class _NoteTemplate {
-  final String title;
-  final String content;
-  final IconData icon;
-
-  const _NoteTemplate(this.title, this.content, this.icon);
-}

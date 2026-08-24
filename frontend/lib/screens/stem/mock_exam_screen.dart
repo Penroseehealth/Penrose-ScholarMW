@@ -8,7 +8,7 @@ import 'proctor_overlay.dart';
 import '../../core/theme/theme_colors.dart';
 
 class MockExamScreen extends StatefulWidget {
-  MockExamScreen({super.key});
+  const MockExamScreen({super.key});
 
   @override
   State<MockExamScreen> createState() => _MockExamScreenState();
@@ -27,7 +27,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
 
   Map<String, dynamic>? _examData;
   List<dynamic> _questions = [];
-  Map<int, String> _answers = {};
+  final Map<int, String> _answers = {};
   int _currentIndex = 0;
   int _timeLimitSeconds = 0;
   int _timeRemaining = 0;
@@ -121,7 +121,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
 
   void _startTimer() {
     _timer?.cancel();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_timeRemaining <= 0) {
         timer.cancel();
         _submitExam();
@@ -199,7 +199,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
               ),
               background: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppColors.primaryDark, AppColors.primaryMuted],
                     begin: Alignment.topLeft,
@@ -209,7 +209,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
                 child: Align(
                   alignment: Alignment.bottomRight,
                   child: Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     child: Icon(Icons.timer_outlined, color: context.colors.textMuted, size: 40),
                   ),
                 ),
@@ -231,9 +231,9 @@ class _MockExamScreenState extends State<MockExamScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Select Subject', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text('Choose a subject to start a timed mock exam', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
-                      SizedBox(height: 14),
+                      const SizedBox(height: 14),
                       if (_loadingSubjects)
                         ShimmerLoading.grid(count: 4)
                       else
@@ -243,7 +243,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
                           children: _subjects.map((s) {
                             final slug = s['subject_slug'] ?? '';
                             final name = s['name'] ?? s['title'] ?? '';
-                            final color = AppColors.primary;
+                            const color = AppColors.primary;
                             return GestureDetector(
                               onTap: _loadingExam ? null : () => _startExam(slug),
                               child: Container(
@@ -256,9 +256,9 @@ class _MockExamScreenState extends State<MockExamScreen> {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.school_outlined, color: color, size: 16),
-                                    SizedBox(width: 6),
-                                    Text(name, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: color)),
+                                    const Icon(Icons.school_outlined, color: color, size: 16),
+                                    const SizedBox(width: 6),
+                                    Text(name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: color)),
                                   ],
                                 ),
                               ),
@@ -266,13 +266,13 @@ class _MockExamScreenState extends State<MockExamScreen> {
                           }).toList(),
                         ),
                       if (_loadingExam) ...[
-                        SizedBox(height: 14),
-                        LinearProgressIndicator(color: AppColors.primary),
+                        const SizedBox(height: 14),
+                        const LinearProgressIndicator(color: AppColors.primary),
                       ],
                     ],
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -284,7 +284,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('How it works', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       _buildInfoRow(Icons.timer_outlined, '10 minutes per 10 questions', context.colors.info),
                       _buildInfoRow(Icons.quiz_outlined, '10 random questions from the question bank', context.colors.teal),
                       _buildInfoRow(Icons.psychology_outlined, 'Results update your mastery and spaced repetition schedule', context.colors.lavender),
@@ -292,9 +292,9 @@ class _MockExamScreenState extends State<MockExamScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Text('Exam History', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 if (_loadingHistory)
                   ShimmerLoading.list(count: 3)
                 else if (_history.isEmpty)
@@ -311,7 +311,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
                   )
                 else
                   ..._history.map((h) => _buildHistoryCard(h)),
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
               ],
             ),
           ),
@@ -326,7 +326,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
       child: Row(
         children: [
           Icon(icon, color: color, size: 16),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(child: Text(text, style: TextStyle(fontSize: 12, color: context.colors.textSecondary))),
         ],
       ),
@@ -357,7 +357,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
               child: Text('${pct.round()}%', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: color)),
             ),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -366,7 +366,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
                   h['subject_slug'] ?? '',
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   '${h['correct_count']}/${h['total_questions']} correct',
                   style: TextStyle(fontSize: 11, color: context.colors.textMuted),
@@ -434,7 +434,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.timer_outlined, color: timerColor, size: 14),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Text(
                   _formatTime(_timeRemaining),
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: timerColor),
@@ -445,13 +445,13 @@ class _MockExamScreenState extends State<MockExamScreen> {
         ],
       ),
       body: question == null
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
                 LinearProgressIndicator(
                   value: progress,
                   backgroundColor: context.colors.surfaceHighest,
-                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
                   minHeight: 3,
                 ),
                 Expanded(
@@ -470,10 +470,10 @@ class _MockExamScreenState extends State<MockExamScreen> {
                               ),
                               child: Text(
                                 '${question['difficulty'] ?? 'medium'}'.toUpperCase(),
-                                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primary),
+                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primary),
                               ),
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
@@ -487,12 +487,12 @@ class _MockExamScreenState extends State<MockExamScreen> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 14),
+                        const SizedBox(height: 14),
                         Text(
                           question['question_text'] ?? '',
                           style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textPrimary, height: 1.5),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         if (options.isNotEmpty)
                           ...options.asMap().entries.map((entry) {
                             final idx = entry.key;
@@ -537,7 +537,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
                                         ),
                                       ),
                                     ),
-                                    SizedBox(width: 12),
+                                    const SizedBox(width: 12),
                                     Expanded(
                                       child: Text(
                                         option,
@@ -549,7 +549,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
                                       ),
                                     ),
                                     if (isSelected)
-                                      Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 18),
+                                      const Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 18),
                                   ],
                                 ),
                               ),
@@ -654,14 +654,14 @@ class _MockExamScreenState extends State<MockExamScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.arrow_back_ios_rounded, size: 14, color: context.colors.textSecondary),
-                      SizedBox(width: 4),
+                      const SizedBox(width: 4),
                       Text('Prev', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
                     ],
                   ),
                 ),
               ),
             ),
-          if (_currentIndex > 0) SizedBox(width: 10),
+          if (_currentIndex > 0) const SizedBox(width: 10),
           if (_currentIndex < total - 1)
             Expanded(
               child: GestureDetector(
@@ -672,7 +672,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Row(
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text('Next', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white)),
@@ -697,10 +697,10 @@ class _MockExamScreenState extends State<MockExamScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(allAnswered ? Icons.check_circle : Icons.warning_amber_rounded, size: 16, color: Colors.white),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Text(
                         allAnswered ? 'Submit Exam ($answeredCount/$total)' : 'Submit ($answeredCount/$total answered)',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white),
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white),
                       ),
                     ],
                   ),
@@ -732,7 +732,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
         title: Text('Quit Exam?', style: TextStyle(color: context.colors.textPrimary)),
         content: Text('Your progress will be lost if you quit now.', style: TextStyle(color: context.colors.textSecondary)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               _timer?.cancel();
@@ -743,7 +743,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
               Navigator.pop(ctx);
               setState(() { _examActive = false; _examFinished = false; });
             },
-            child: Text('Quit', style: TextStyle(color: Colors.red)),
+            child: const Text('Quit', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -765,7 +765,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
           style: TextStyle(color: context.colors.textSecondary),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Go Back')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Go Back')),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
@@ -799,7 +799,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
             ),
             backgroundColor: color.withValues(alpha: 0.9),
             flexibleSpace: FlexibleSpaceBar(
-              title: Text(
+              title: const Text(
                 'Exam Results',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
               ),
@@ -817,16 +817,16 @@ class _MockExamScreenState extends State<MockExamScreen> {
                     children: [
                       Text(
                         '${percentage.round()}%',
-                        style: TextStyle(fontSize: 40, fontWeight: FontWeight.w800, color: Colors.white),
+                        style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w800, color: Colors.white),
                       ),
                       Text(
                         '$totalScore / $maxScore marks',
-                        style: TextStyle(fontSize: 14, color: Colors.white70),
+                        style: const TextStyle(fontSize: 14, color: Colors.white70),
                       ),
                       if (timeTaken != null)
                         Text(
                           'Time: ${_formatTime(timeTaken)}',
-                          style: TextStyle(fontSize: 12, color: Colors.white60),
+                          style: const TextStyle(fontSize: 12, color: Colors.white60),
                         ),
                     ],
                   ),
@@ -843,19 +843,19 @@ class _MockExamScreenState extends State<MockExamScreen> {
                     Expanded(
                       child: _buildStatCard('Correct', '$totalScore', context.colors.success),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: _buildStatCard('Wrong', '${maxScore - totalScore}', Colors.red.shade400),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: _buildStatCard('Accuracy', '${percentage.round()}%', color),
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Text('Question Review', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 ...results.asMap().entries.map((entry) {
                   final idx = entry.key;
                   final r = entry.value;
@@ -878,12 +878,12 @@ class _MockExamScreenState extends State<MockExamScreen> {
                               color: isCorrect ? context.colors.success : Colors.red.shade400,
                               size: 18,
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Text(
                               'Q${idx + 1}',
                               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
                             ),
-                            Spacer(),
+                            const Spacer(),
                             Text(
                               'Your answer: ${r['submitted_answer'] ?? 'None'}',
                               style: TextStyle(
@@ -893,7 +893,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
                               ),
                             ),
                             if (!isCorrect && r['correct_answer'] != null) ...[
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Text(
                                 'Correct: ${r['correct_answer']}',
                                 style: TextStyle(fontSize: 11, color: context.colors.textMuted),
@@ -902,7 +902,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
                           ],
                         ),
                         if (r['explanation'] != null) ...[
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Text(
                             r['explanation'],
                             style: TextStyle(fontSize: 11, color: context.colors.textMuted, height: 1.4),
@@ -912,7 +912,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
                     ),
                   );
                 }),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 GestureDetector(
                   onTap: () => setState(() { _examActive = false; _examFinished = false; }),
                   child: Container(
@@ -921,12 +921,12 @@ class _MockExamScreenState extends State<MockExamScreen> {
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Center(
+                    child: const Center(
                       child: Text('Take Another Exam', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white)),
                     ),
                   ),
                 ),
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
               ],
             ),
           ),
@@ -946,7 +946,7 @@ class _MockExamScreenState extends State<MockExamScreen> {
       child: Column(
         children: [
           Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: color)),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color.withValues(alpha: 0.8))),
         ],
       ),

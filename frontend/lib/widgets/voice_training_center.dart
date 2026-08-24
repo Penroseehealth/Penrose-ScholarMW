@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
 import 'voice_clone_manager.dart';
-import 'voice_selector.dart';
 import '../core/theme/theme_colors.dart';
 
 class VoiceTrainingCenter extends StatelessWidget {
@@ -13,7 +12,7 @@ class VoiceTrainingCenter extends StatelessWidget {
   final bool autoRead;
   final Function(bool) onAutoReadChanged;
 
-  VoiceTrainingCenter({
+  const VoiceTrainingCenter({
     super.key,
     required this.selectedVoiceId,
     required this.onVoiceSelected,
@@ -40,23 +39,23 @@ class VoiceTrainingCenter extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildSectionTitle('Default Voice'),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     _buildVoicePreview(),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     _buildSectionTitle('Playback Speed'),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     _buildSpeedSelector(),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     _buildSectionTitle('Auto-Read'),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     _buildAutoReadToggle(),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     _buildSectionTitle('TTS Language'),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     _buildLanguageSelector(),
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     _buildSectionTitle('Voice Cloning'),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     _buildCloneSection(context),
                   ],
                 ),
@@ -69,7 +68,7 @@ class VoiceTrainingCenter extends StatelessWidget {
   }
 
   Widget _buildHeader() {
-    return Padding(
+    return const Padding(
       padding: EdgeInsets.all(16),
       child: Row(
         children: [
@@ -145,13 +144,13 @@ class VoiceTrainingCenter extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(Icons.volume_up_rounded, size: 18, color: AppColors.primary),
+            child: const Icon(Icons.volume_up_rounded, size: 18, color: AppColors.primary),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(
-            child: Text(name, style: TextStyle(fontSize: 13, color: AppColors.textPrimary)),
+            child: Text(name, style: const TextStyle(fontSize: 13, color: AppColors.textPrimary)),
           ),
-          Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textMuted),
+          const Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textMuted),
         ],
       ),
     );
@@ -206,8 +205,8 @@ class VoiceTrainingCenter extends StatelessWidget {
               size: 18,
               color: autoRead ? AppColors.primary : AppColors.textMuted,
             ),
-            SizedBox(width: 10),
-            Expanded(
+            const SizedBox(width: 10),
+            const Expanded(
               child: Text(
                 'Auto-read AI answers',
                 style: TextStyle(fontSize: 13, color: AppColors.textPrimary),
@@ -216,7 +215,7 @@ class VoiceTrainingCenter extends StatelessWidget {
             Switch(
               value: autoRead,
               onChanged: onAutoReadChanged,
-              activeColor: AppColors.primary,
+              activeThumbColor: AppColors.primary,
               activeTrackColor: AppColors.primary.withValues(alpha: 0.3),
             ),
           ],
@@ -233,7 +232,7 @@ class VoiceTrainingCenter extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: AppColors.border),
       ),
-      child: Row(
+      child: const Row(
         children: [
           Icon(Icons.language_rounded, size: 18, color: AppColors.textSecondary),
           SizedBox(width: 10),
@@ -257,7 +256,7 @@ class VoiceTrainingCenter extends StatelessWidget {
           context: context,
           backgroundColor: Colors.transparent,
           isScrollControlled: true,
-          builder: (_) => VoiceCloneManager(),
+          builder: (_) => const VoiceCloneManager(),
         );
       },
       child: Container(
@@ -270,7 +269,7 @@ class VoiceTrainingCenter extends StatelessWidget {
         child: Row(
           children: [
             Icon(Icons.fingerprint_rounded, size: 18, color: context.colors.teal),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

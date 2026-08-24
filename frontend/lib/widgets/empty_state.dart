@@ -11,7 +11,7 @@ class EmptyState extends StatelessWidget {
   final double iconSize;
   final EdgeInsetsGeometry padding;
 
-  EmptyState({
+  const EmptyState({
     super.key,
     required this.icon,
     required this.title,
@@ -38,7 +38,7 @@ class EmptyState extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(icon, size: iconSize, color: context.colors.textMuted.withValues(alpha: 0.4)),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 title,
                 style: TextStyle(
@@ -48,17 +48,17 @@ class EmptyState extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               Text(
                 subtitle,
                 style: TextStyle(fontSize: 13, color: context.colors.textMuted),
                 textAlign: TextAlign.center,
               ),
               if (buttonText != null && onButtonPressed != null) ...[
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton.icon(
                   onPressed: onButtonPressed,
-                  icon: Icon(Icons.arrow_forward_rounded, size: 18),
+                  icon: const Icon(Icons.arrow_forward_rounded, size: 18),
                   label: Text(buttonText!),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,

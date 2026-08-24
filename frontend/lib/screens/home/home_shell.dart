@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_theme.dart';
-import '../../core/theme/app_colors.dart';
 import 'app_drawer.dart';
 import '../../core/theme/theme_colors.dart';
 
 class HomeShell extends StatelessWidget {
   final Widget child;
-  HomeShell({super.key, required this.child});
+  const HomeShell({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -85,25 +84,25 @@ class HomeShell extends StatelessWidget {
                   onDestinationSelected: onNavTap,
                   labelType: NavigationRailLabelType.all,
                   backgroundColor: context.colors.surface,
-                  leading: SizedBox(height: 8),
-                  trailing: Expanded(child: SizedBox()),
+                  leading: const SizedBox(height: 8),
+                  trailing: const Expanded(child: SizedBox()),
                   destinations: [
-                    NavigationRailDestination(
+                    const NavigationRailDestination(
                       icon: Icon(Icons.dashboard_outlined),
                       selectedIcon: Icon(Icons.dashboard_rounded),
                       label: Text('Dashboard'),
                     ),
-                    NavigationRailDestination(
+                    const NavigationRailDestination(
                       icon: Icon(Icons.auto_awesome_outlined),
                       selectedIcon: Icon(Icons.auto_awesome_rounded),
                       label: Text('ScholarAI'),
                     ),
-                    NavigationRailDestination(
+                    const NavigationRailDestination(
                       icon: Icon(Icons.menu_book_outlined),
                       selectedIcon: Icon(Icons.menu_book_rounded),
                       label: Text('My Learning'),
                     ),
-                    NavigationRailDestination(
+                    const NavigationRailDestination(
                       icon: Icon(Icons.science_outlined),
                       selectedIcon: Icon(Icons.science_rounded),
                       label: Text('Research'),
@@ -114,13 +113,13 @@ class HomeShell extends StatelessWidget {
                 Expanded(child: child),
               ],
             ),
-            endDrawer: AppDrawer(),
+            endDrawer: const AppDrawer(),
           );
         }
 
         return Scaffold(
           body: child,
-          endDrawer: AppDrawer(),
+          endDrawer: const AppDrawer(),
           bottomNavigationBar: Container(
             decoration: BoxDecoration(
               color: context.colors.surfaceElevated,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
@@ -11,7 +10,7 @@ const Color _langTealGlow = Color(0x222DD4BF);
 class LanguageConversationScreen extends StatefulWidget {
   final String slug;
 
-  LanguageConversationScreen({super.key, required this.slug});
+  const LanguageConversationScreen({super.key, required this.slug});
 
   @override
   State<LanguageConversationScreen> createState() =>
@@ -69,7 +68,7 @@ class _LanguageConversationScreenState
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
-          duration: Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
       }
@@ -98,7 +97,7 @@ class _LanguageConversationScreenState
     });
     _scrollToBottom();
 
-    await Future.delayed(Duration(milliseconds: 900));
+    await Future.delayed(const Duration(milliseconds: 900));
 
     final modeLabel = _modes[_selectedMode].$1;
     final response =
@@ -192,7 +191,7 @@ class _LanguageConversationScreenState
                     size: 18, color: context.colors.textSecondary),
               ),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Container(
               width: 40,
               height: 40,
@@ -200,10 +199,10 @@ class _LanguageConversationScreenState
                 color: _langTealGlow,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(Icons.record_voice_over_rounded,
+              child: const Icon(Icons.record_voice_over_rounded,
                   color: _langTeal, size: 22),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,7 +226,7 @@ class _LanguageConversationScreenState
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text('${_messages.length} msgs',
-                  style: TextStyle(
+                  style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: _langTeal)),
@@ -271,7 +270,7 @@ class _LanguageConversationScreenState
                     Icon(m.$2,
                         size: 15,
                         color: selected ? _langTeal : context.colors.textMuted),
-                    SizedBox(width: 6),
+                    const SizedBox(width: 6),
                     Text(m.$1,
                         style: TextStyle(
                             fontSize: 12,
@@ -311,11 +310,11 @@ class _LanguageConversationScreenState
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: context.colors.textSecondary)),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           GridView.count(
             crossAxisCount: 3,
             shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 8,
             crossAxisSpacing: 8,
             childAspectRatio: 1.15,
@@ -352,7 +351,7 @@ class _LanguageConversationScreenState
             Icon(s.$2,
                 color: active ? _langTeal : context.colors.textSecondary,
                 size: 22),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Text(s.$1,
                 style: TextStyle(
                     fontSize: 11,
@@ -426,7 +425,7 @@ class _LanguageConversationScreenState
                   size: 13,
                   color: isUser ? _langTeal : AppColors.primaryLight,
                 ),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Text(
                   isUser ? 'You' : 'AI Partner',
                   style: TextStyle(
@@ -437,7 +436,7 @@ class _LanguageConversationScreenState
                 ),
               ],
             ),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             SelectableText(
               msg.text,
               style: TextStyle(
@@ -445,7 +444,7 @@ class _LanguageConversationScreenState
                   fontSize: 14,
                   height: 1.5),
             ),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Text(
               '${msg.time.hour.toString().padLeft(2, '0')}:${msg.time.minute.toString().padLeft(2, '0')}',
               style: TextStyle(
@@ -473,9 +472,9 @@ class _LanguageConversationScreenState
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.smart_toy_rounded,
+            const Icon(Icons.smart_toy_rounded,
                 color: AppColors.primaryLight, size: 14),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             ...List.generate(3, (i) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -527,19 +526,19 @@ class _LanguageConversationScreenState
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: _langTeal),
+                    borderSide: const BorderSide(color: _langTeal),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16, vertical: 12),
                 ),
               ),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Container(
               decoration:
                   BoxDecoration(color: _langTeal, borderRadius: BorderRadius.circular(12)),
               child: IconButton(
-                icon: Icon(Icons.send_rounded, color: Color(0xFF062B27)),
+                icon: const Icon(Icons.send_rounded, color: Color(0xFF062B27)),
                 onPressed: () => _sendMessage(_messageController.text),
               ),
             ),

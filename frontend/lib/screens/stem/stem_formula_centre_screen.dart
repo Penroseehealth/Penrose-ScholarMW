@@ -7,7 +7,7 @@ import '../../widgets/error_state.dart';
 import '../../core/theme/theme_colors.dart';
 
 class StemFormulaCentreScreen extends StatefulWidget {
-  StemFormulaCentreScreen({super.key});
+  const StemFormulaCentreScreen({super.key});
 
   @override
   State<StemFormulaCentreScreen> createState() => _StemFormulaCentreScreenState();
@@ -21,9 +21,9 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
   bool _loading = true;
   String? _error;
   String _selectedSubject = '';
-  String _selectedCategory = '';
+  final String _selectedCategory = '';
   String _searchQuery = '';
-  Set<int> _expandedIndices = {};
+  final Set<int> _expandedIndices = {};
 
   @override
   void initState() {
@@ -85,7 +85,7 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
                 ),
               ),
               background: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppColors.primaryDark, AppColors.primaryMuted],
                     begin: Alignment.topLeft,
@@ -127,7 +127,7 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppColors.primary),
+                    borderSide: const BorderSide(color: AppColors.primary),
                   ),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
@@ -141,12 +141,12 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 scrollDirection: Axis.horizontal,
                 itemCount: _subjects.length + 1,
-                separatorBuilder: (_, __) => SizedBox(width: 8),
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
                   if (index == 0) {
                     final selected = _selectedSubject.isEmpty;
                     return ChoiceChip(
-                      label: Text('All', style: TextStyle(fontSize: 12)),
+                      label: const Text('All', style: TextStyle(fontSize: 12)),
                       selected: selected,
                       selectedColor: AppColors.primary,
                       backgroundColor: context.colors.surface,
@@ -185,7 +185,7 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
           else if (_loading)
             SliverToBoxAdapter(child: ShimmerLoading.grid(count: 6))
           else if (_formulas.isEmpty)
-            SliverToBoxAdapter(child: EmptyState(icon: Icons.functions_rounded, title: 'No formulas found', subtitle: 'Try adjusting your search or filters'))
+            const SliverToBoxAdapter(child: EmptyState(icon: Icons.functions_rounded, title: 'No formulas found', subtitle: 'Try adjusting your search or filters'))
           else
             SliverPadding(
               padding: const EdgeInsets.all(16),
@@ -202,7 +202,7 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
                 ),
               ),
             ),
-          SliverToBoxAdapter(child: SizedBox(height: 40)),
+          const SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
         ),
       ),
@@ -222,7 +222,7 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
         });
       },
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: context.colors.surface,
@@ -257,7 +257,7 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
                     ),
                     child: Text(
                       formula['category'],
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
                         color: AppColors.primary,
@@ -266,7 +266,7 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
                   ),
               ],
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(10),
@@ -276,7 +276,7 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
               ),
               child: Text(
                 formula['formula_text'] ?? formula['formula'] ?? '',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                   color: AppColors.primaryLight,
@@ -285,7 +285,7 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
                 textAlign: TextAlign.center,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               formula['description'] ?? '',
               style: TextStyle(fontSize: 11, color: context.colors.textMuted),
@@ -293,7 +293,7 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
               overflow: TextOverflow.ellipsis,
             ),
             if (expanded && formula['variables'] != null) ...[
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Text(
                 'Variables',
                 style: TextStyle(
@@ -302,7 +302,7 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
                   color: context.colors.textSecondary,
                 ),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 formula['variables'].toString(),
                 style: TextStyle(fontSize: 11, color: context.colors.textMuted),

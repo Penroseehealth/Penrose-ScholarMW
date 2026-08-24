@@ -8,7 +8,7 @@ import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
-  AdminDashboardScreen({super.key});
+  const AdminDashboardScreen({super.key});
 
   @override
   State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
@@ -68,7 +68,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Scaffold(
       backgroundColor: context.colors.background,
       body: _loading
-          ? Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : _error != null
               ? _buildError()
               : RefreshIndicator(
@@ -108,7 +108,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             : _selectedTab == 1
                                 ? _buildUsersTab()
                                 : _selectedTab == 99
-                                    ? SizedBox()
+                                    ? const SizedBox()
                                     : _buildCoursesTab(),
                       ),
                     ],
@@ -175,7 +175,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const _SectionHeader('SYSTEM OVERVIEW'),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _buildStatsGrid([
             _StatItem('Total Users', '${overview['total_users'] ?? 0}', Icons.people_rounded, AppColors.primary),
             _StatItem('Students', '${overview['total_students'] ?? 0}', Icons.school_rounded, context.colors.success),
@@ -184,25 +184,25 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             _StatItem('Enrollments', '${overview['total_enrollments'] ?? 0}', Icons.assignment_rounded, context.colors.info),
             _StatItem('Submissions', '${overview['total_submissions'] ?? 0}', Icons.quiz_rounded, context.colors.lavender),
           ]),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           const _SectionHeader('ENGAGEMENT (30 DAYS)'),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _buildStatsGrid([
             _StatItem('New Users', '${engagement['new_users_30d'] ?? 0}', Icons.person_add_rounded, context.colors.success),
             _StatItem('Active (7d)', '${engagement['active_users_7d'] ?? 0}', Icons.access_time_rounded, AppColors.primary),
             _StatItem('Recent Submissions', '${engagement['recent_submissions'] ?? 0}', Icons.upload_rounded, context.colors.info),
             _StatItem('Avg Score', '${engagement['avg_score'] ?? 0}%', Icons.star_rounded, context.colors.warning),
           ]),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           const _SectionHeader('ACADEMIC PERFORMANCE'),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _buildStatCard(
             'Avg Enrollment Progress',
             '${academics['avg_enrollment_progress'] ?? 0}%',
             Icons.trending_up_rounded,
             AppColors.primary,
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _buildStatCard(
             'Course Completion Rate',
             '${academics['completion_rate'] ?? 0}%',
@@ -210,9 +210,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             context.colors.success,
           ),
           if ((academics['department_breakdown'] as List?)?.isNotEmpty == true) ...[
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             const _SectionHeader('DEPARTMENT BREAKDOWN'),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             _buildDepartmentBreakdown(academics['department_breakdown']),
           ],
         ],
@@ -223,7 +223,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget _buildUsersTab() {
     if (_users.isEmpty) {
       return Padding(
-        padding: EdgeInsets.all(32),
+        padding: const EdgeInsets.all(32),
         child: Center(
           child: Text('No users found', style: TextStyle(color: context.colors.textMuted)),
         ),
@@ -231,7 +231,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
     return ListView.builder(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       itemCount: _users.length,
       itemBuilder: (ctx, i) => _buildUserCard(_users[i]),
@@ -241,7 +241,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget _buildCoursesTab() {
     if (_courses.isEmpty) {
       return Padding(
-        padding: EdgeInsets.all(32),
+        padding: const EdgeInsets.all(32),
         child: Center(
           child: Text('No courses found', style: TextStyle(color: context.colors.textMuted)),
         ),
@@ -249,7 +249,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
     return ListView.builder(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       itemCount: _courses.length,
       itemBuilder: (ctx, i) => _buildCourseCard(_courses[i]),
@@ -259,8 +259,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget _buildStatsGrid(List<_StatItem> items) {
     return GridView.builder(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
@@ -283,7 +283,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(item.icon, size: 18, color: item.color),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 Text(
                   item.value,
                   style: TextStyle(
@@ -292,7 +292,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     color: item.color,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   item.label,
                   style: TextStyle(
@@ -327,7 +327,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
             child: Icon(icon, size: 22, color: color),
           ),
-          SizedBox(width: 14),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -394,7 +394,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Wrap(
             spacing: 12,
             runSpacing: 6,
@@ -410,7 +410,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       borderRadius: BorderRadius.circular(3),
                     ),
                   ),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Text(
                     '${departments[i]['department']} (${departments[i]['count']})',
                     style: TextStyle(fontSize: 11, color: context.colors.textSecondary),
@@ -463,7 +463,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ),
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -476,7 +476,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       color: context.colors.textPrimary,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     user['email'] ?? '',
                     style: TextStyle(fontSize: 12, color: context.colors.textMuted),
@@ -502,7 +502,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -514,7 +514,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         shape: BoxShape.circle,
                       ),
                     ),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                     Text(
                       isActive ? 'Active' : 'Inactive',
                       style: TextStyle(
@@ -553,11 +553,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 color: context.colors.primaryGlow,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Center(
+              child: const Center(
                 child: Icon(Icons.menu_book_rounded, size: 20, color: AppColors.primary),
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -603,17 +603,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.error_outline_rounded, size: 48, color: context.colors.error),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               _error!,
               textAlign: TextAlign.center,
               style: TextStyle(color: context.colors.textMuted),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: _loadData,
-              icon: Icon(Icons.refresh_rounded, size: 16),
-              label: Text('Retry'),
+              icon: const Icon(Icons.refresh_rounded, size: 16),
+              label: const Text('Retry'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,

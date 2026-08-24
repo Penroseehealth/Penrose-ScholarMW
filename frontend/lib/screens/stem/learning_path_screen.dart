@@ -11,7 +11,7 @@ class LearningPathScreen extends StatefulWidget {
   final String slug;
   final String title;
 
-  LearningPathScreen({super.key, required this.slug, required this.title});
+  const LearningPathScreen({super.key, required this.slug, required this.title});
 
   @override
   State<LearningPathScreen> createState() => _LearningPathScreenState();
@@ -103,7 +103,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                 ),
               ),
               _buildStepsList(accentColor),
-              SliverToBoxAdapter(child: SizedBox(height: 40)),
+              const SliverToBoxAdapter(child: SizedBox(height: 40)),
             ],
           ],
         ),
@@ -126,14 +126,14 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
           Row(
             children: [
               Icon(Icons.alarm_rounded, color: context.colors.warning, size: 20),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 '${_dueReviews.length} concept${_dueReviews.length == 1 ? '' : 's'} due for review',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.warning),
               ),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           ...(_dueReviews.take(3).map((r) => Padding(
             padding: const EdgeInsets.only(bottom: 6),
             child: GestureDetector(
@@ -192,7 +192,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
@@ -202,15 +202,15 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                 minHeight: 6,
               ),
             ),
-            SizedBox(height: 14),
+            const SizedBox(height: 14),
             Row(
               children: [
                 _buildMiniStat('Completed', '$completed', context.colors.success),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 _buildMiniStat('In Progress', '$inProgress', context.colors.info),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 _buildMiniStat('Not Started', '$notStarted', context.colors.textMuted),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 _buildMiniStat('Est.', '~${minutes}m', context.colors.lavender),
               ],
             ),
@@ -225,7 +225,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       child: Column(
         children: [
           Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: color)),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(label, style: TextStyle(fontSize: 10, color: context.colors.textMuted), textAlign: TextAlign.center),
         ],
       ),
@@ -237,7 +237,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     if (steps.isEmpty) {
       return SliverToBoxAdapter(
         child: Padding(
-          padding: EdgeInsets.all(40),
+          padding: const EdgeInsets.all(40),
           child: Center(
             child: Text('No concepts found', style: TextStyle(color: context.colors.textMuted)),
           ),
@@ -304,7 +304,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                       ),
               ),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,12 +319,12 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Row(
                     children: [
                       if (topicTitle.isNotEmpty) ...[
                         Text(topicTitle, style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                       ],
                       Text('~${est}m', style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
                     ],
@@ -332,7 +332,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                 ],
               ),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             if (masteryLevel > 0)
               SizedBox(
                 width: 32,

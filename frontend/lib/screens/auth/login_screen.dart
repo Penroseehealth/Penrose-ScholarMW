@@ -7,7 +7,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 
 class LoginScreen extends StatefulWidget {
-  LoginScreen({super.key});
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -30,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 400),
+              constraints: const BoxConstraints(maxWidth: 400),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [AppColors.primary, AppColors.primaryDark],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -48,15 +48,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.4),
+                            color: AppColors.primary.withValues(alpha: 0.4),
                             blurRadius: 30,
-                            offset: Offset(0, 8),
+                            offset: const Offset(0, 8),
                           ),
                         ],
                       ),
-                      child: Icon(Icons.school_rounded, size: 56, color: Colors.white),
+                      child: const Icon(Icons.school_rounded, size: 56, color: Colors.white),
                     ),
-                    SizedBox(height: 28),
+                    const SizedBox(height: 28),
                     Text(
                       'Penrose ScholarMW',
                       textAlign: TextAlign.center,
@@ -66,32 +66,32 @@ class _LoginScreenState extends State<LoginScreen> {
                         color: context.colors.textPrimary,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
                       'Learn. Teach. Research. Advance.',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 14, color: context.colors.textMuted),
                     ),
-                    SizedBox(height: 44),
+                    const SizedBox(height: 44),
                     TextFormField(
                       controller: _emailCtrl,
                       keyboardType: TextInputType.emailAddress,
                       style: TextStyle(color: context.colors.textPrimary),
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Email',
                         prefixIcon: Icon(Icons.email_outlined),
                       ),
                       validator: (v) =>
                           v != null && v.contains('@') ? null : 'Enter a valid email',
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     TextFormField(
                       controller: _passwordCtrl,
                       obscureText: _obscure,
                       style: TextStyle(color: context.colors.textPrimary),
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        prefixIcon: Icon(Icons.lock_outlined),
+                        prefixIcon: const Icon(Icons.lock_outlined),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscure ? Icons.visibility_off : Icons.visibility,
@@ -104,14 +104,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           v != null && v.length >= 6 ? null : 'Min 6 characters',
                     ),
                     if (auth.error != null) ...[
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       Text(
                         auth.error!,
                         style: TextStyle(color: context.colors.error, fontSize: 13),
                         textAlign: TextAlign.center,
                       ),
                     ],
-                    SizedBox(height: 28),
+                    const SizedBox(height: 28),
                     ElevatedButton(
                       onPressed: auth.isLoading
                           ? null
@@ -127,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               }
                             },
                       child: auth.isLoading
-                          ? SizedBox(
+                          ? const SizedBox(
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(
@@ -135,9 +135,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : Text('Sign In'),
+                          : const Text('Sign In'),
                     ),
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     Row(
                       children: [
                         Expanded(
@@ -150,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             isLoading: auth.isLoading,
                           ),
                         ),
-                        SizedBox(width: 12),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: _buildQuickLogin(
                             context,
@@ -163,10 +163,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     TextButton(
                       onPressed: () => context.go('/register'),
-                      child: Text("Don't have an account? Register"),
+                      child: const Text("Don't have an account? Register"),
                     ),
                   ],
                 ),
@@ -211,7 +211,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             children: [
               Icon(icon, size: 22, color: AppColors.primary),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               Text(
                 label,
                 style: TextStyle(

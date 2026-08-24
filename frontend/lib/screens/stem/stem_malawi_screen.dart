@@ -7,7 +7,7 @@ import '../../widgets/error_state.dart';
 import '../../core/theme/theme_colors.dart';
 
 class StemMalawiScreen extends StatefulWidget {
-  StemMalawiScreen({super.key});
+  const StemMalawiScreen({super.key});
 
   @override
   State<StemMalawiScreen> createState() => _StemMalawiScreenState();
@@ -23,7 +23,7 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
   List<dynamic> _curriculum = [];
   bool _loading = true;
   String? _error;
-  Set<int> _expandedExampleIndices = {};
+  final Set<int> _expandedExampleIndices = {};
 
   @override
   void initState() {
@@ -83,7 +83,7 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
                       color: context.colors.textPrimary,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     'Connecting STEM to Malawian Context',
                     style: TextStyle(
@@ -95,7 +95,7 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
                 ],
               ),
               background: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppColors.primaryDark, AppColors.primaryMuted],
                     begin: Alignment.topLeft,
@@ -107,7 +107,7 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
           ),
           SliverToBoxAdapter(
             child: _loading
-                ? SizedBox()
+                ? const SizedBox()
                 : _buildStatsRow(),
           ),
           SliverToBoxAdapter(
@@ -123,19 +123,19 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
                 indicatorColor: AppColors.primary,
                 labelColor: context.colors.textPrimary,
                 unselectedLabelColor: context.colors.textMuted,
-                labelStyle: TextStyle(
+                labelStyle: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
-                unselectedLabelStyle: TextStyle(
+                unselectedLabelStyle: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
                 ),
                 indicatorSize: TabBarIndicatorSize.label,
                 dividerColor: Colors.transparent,
                 tabs: [
-                  Tab(text: 'Local Examples'),
-                  Tab(text: 'MSCE Curriculum'),
+                  const Tab(text: 'Local Examples'),
+                  const Tab(text: 'MSCE Curriculum'),
                 ],
               ),
             ),
@@ -160,7 +160,7 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
                 ],
               ),
             ),
-          SliverToBoxAdapter(child: SizedBox(height: 40)),
+          const SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
         ),
       ),
@@ -177,9 +177,9 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
       child: Row(
         children: [
           _buildStatChip('$totalExamples', 'Examples'),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           _buildStatChip('$totalAlignments', 'MSCE Alignments'),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           _buildStatChip('$subjectsCovered', 'Regions'),
         ],
       ),
@@ -199,13 +199,13 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
           children: [
             Text(
               value,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: AppColors.primary,
               ),
             ),
-            SizedBox(height: 2),
+            const SizedBox(height: 2),
             Text(
               label,
               style: TextStyle(
@@ -222,11 +222,11 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
   }
 
   Widget _buildExamplesTab() {
-    if (_examples.isEmpty) return EmptyState(icon: Icons.school_rounded, title: 'No local examples found', subtitle: 'Content will appear here once available');
+    if (_examples.isEmpty) return const EmptyState(icon: Icons.school_rounded, title: 'No local examples found', subtitle: 'Content will appear here once available');
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: _examples.length,
-      separatorBuilder: (_, __) => SizedBox(height: 10),
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (context, index) => _buildExampleCard(index, _examples[index]),
     );
   }
@@ -244,7 +244,7 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
         });
       },
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: context.colors.surface,
@@ -289,17 +289,17 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
               ],
             ),
             if (example['concept_name'] != null) ...[
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 example['concept_name'],
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: AppColors.primaryLight,
                 ),
               ),
             ],
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               example['description'] ?? '',
               style: TextStyle(fontSize: 11, color: context.colors.textMuted),
@@ -308,7 +308,7 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
             ),
             if (expanded) ...[
               if (example['local_context'] != null) ...[
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Text(
                   'Local Context',
                   style: TextStyle(
@@ -317,14 +317,14 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
                     color: context.colors.textSecondary,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   example['local_context'],
                   style: TextStyle(fontSize: 11, color: context.colors.textMuted),
                 ),
               ],
               if (example['real_world_application'] != null) ...[
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Text(
                   'Real-World Application',
                   style: TextStyle(
@@ -333,7 +333,7 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
                     color: context.colors.textSecondary,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   example['real_world_application'],
                   style: TextStyle(fontSize: 11, color: context.colors.textMuted),
@@ -347,7 +347,7 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
   }
 
   Widget _buildCurriculumTab() {
-    if (_curriculum.isEmpty) return EmptyState(icon: Icons.school_rounded, title: 'No curriculum alignments found', subtitle: 'Content will appear here once available');
+    if (_curriculum.isEmpty) return const EmptyState(icon: Icons.school_rounded, title: 'No curriculum alignments found', subtitle: 'Content will appear here once available');
 
     final grouped = <String, List<dynamic>>{};
     for (final item in _curriculum) {
@@ -381,14 +381,14 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
             ),
             child: Text(
               'Form $formLevel',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: AppColors.primary,
               ),
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           ...items.map((item) => _buildCurriculumCard(item)),
         ],
       ),
@@ -437,19 +437,19 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
                 ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Row(
             children: [
               if (item['form_level'] != null)
                 _buildMetaTag('Form ${item['form_level']}'),
               if (item['exam_board'] != null) ...[
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 _buildMetaTag(item['exam_board']),
               ],
             ],
           ),
           if (item['learning_outcome'] != null) ...[
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               item['learning_outcome'],
               style: TextStyle(fontSize: 11, color: context.colors.textMuted),

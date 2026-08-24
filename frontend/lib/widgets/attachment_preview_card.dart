@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
@@ -17,7 +16,7 @@ class AttachmentPreviewCard extends StatelessWidget {
   final VoidCallback? onRemove;
   final VoidCallback? onView;
 
-  AttachmentPreviewCard({
+  const AttachmentPreviewCard({
     super.key,
     required this.filename,
     this.filePath,
@@ -45,7 +44,7 @@ class AttachmentPreviewCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildIcon(),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,7 +59,7 @@ class AttachmentPreviewCard extends StatelessWidget {
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   _getStatusText(),
                   style: TextStyle(
@@ -71,7 +70,7 @@ class AttachmentPreviewCard extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           if (status == AttachmentStatus.ready && onView != null)
             _actionBtn(Icons.visibility_rounded, onView!),
           if (status != AttachmentStatus.uploading && onRemove != null)

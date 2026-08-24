@@ -14,7 +14,7 @@ class CompleteResponseRenderer extends StatelessWidget {
   final Function(bool)? onFeedback;
   final VoidCallback? onSave;
 
-  CompleteResponseRenderer({
+  const CompleteResponseRenderer({
     super.key,
     required this.content,
     this.sources,
@@ -40,10 +40,10 @@ class CompleteResponseRenderer extends StatelessWidget {
           selectable: true,
         ),
         if (sources != null && sources!.isNotEmpty) ...[
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildSources(),
         ],
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         _buildActions(),
       ],
     );
@@ -60,7 +60,7 @@ class CompleteResponseRenderer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
               Icon(Icons.source_rounded, size: 12, color: AppColors.textMuted),
               SizedBox(width: 4),
@@ -74,12 +74,12 @@ class CompleteResponseRenderer extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           ...sources!.map((s) => Padding(
                 padding: const EdgeInsets.only(bottom: 2),
                 child: Text(
                   '• $s',
-                  style: TextStyle(fontSize: 10, color: AppColors.textMuted),
+                  style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
                 ),
               )),
         ],
@@ -137,10 +137,10 @@ class CompleteResponseRenderer extends StatelessWidget {
             children: [
               Icon(icon, size: 13, color: AppColors.textSecondary),
               if (label.isNotEmpty) ...[
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Text(
                   label,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 11,
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.w500,

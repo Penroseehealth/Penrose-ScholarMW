@@ -7,7 +7,7 @@ import '../../widgets/error_state.dart';
 import '../../core/theme/theme_colors.dart';
 
 class StemGamificationScreen extends StatefulWidget {
-  StemGamificationScreen({super.key});
+  const StemGamificationScreen({super.key});
 
   @override
   State<StemGamificationScreen> createState() => _StemGamificationScreenState();
@@ -28,7 +28,7 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
 
   List<dynamic> _challenges = [];
   String _selectedChallengeType = 'daily';
-  Set<int> _joiningChallengeIds = {};
+  final Set<int> _joiningChallengeIds = {};
 
   List<dynamic> _leaderboard = [];
   String _selectedLeaderboardSubject = '';
@@ -115,10 +115,12 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
         });
       }
     } catch (e) {
-      if (mounted) setState(() {
+      if (mounted) {
+        setState(() {
         _error = e.toString();
         _loadingBadges = false;
       });
+      }
     }
   }
 
@@ -136,10 +138,12 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
         });
       }
     } catch (e) {
-      if (mounted) setState(() {
+      if (mounted) {
+        setState(() {
         _error = e.toString();
         _loadingChallenges = false;
       });
+      }
     }
   }
 
@@ -162,10 +166,12 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
         });
       }
     } catch (e) {
-      if (mounted) setState(() {
+      if (mounted) {
+        setState(() {
         _error = e.toString();
         _loadingLeaderboard = false;
       });
+      }
     }
   }
 
@@ -260,7 +266,7 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
                 ),
               ),
               background: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppColors.primaryDark, AppColors.primaryMuted],
                     begin: Alignment.topLeft,
@@ -290,17 +296,17 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
                 controller: _tabController,
                 labelColor: context.colors.textPrimary,
                 unselectedLabelColor: context.colors.textMuted,
-                labelStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-                unselectedLabelStyle: TextStyle(fontSize: 13),
+                labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                unselectedLabelStyle: const TextStyle(fontSize: 13),
                 indicatorColor: AppColors.primary,
                 indicatorWeight: 3,
                 indicatorSize: TabBarIndicatorSize.tab,
                 dividerColor: context.colors.border,
                 dividerHeight: 1,
                 tabs: [
-                  Tab(text: 'Badges'),
-                  Tab(text: 'Challenges'),
-                  Tab(text: 'Leaderboard'),
+                  const Tab(text: 'Badges'),
+                  const Tab(text: 'Challenges'),
+                  const Tab(text: 'Leaderboard'),
                 ],
               ),
             ),
@@ -336,9 +342,9 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
       child: Row(
         children: [
           Expanded(child: _buildStatItem(Icons.local_fire_department_rounded, '$_currentStreak', 'Current Streak', context.colors.warning)),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(child: _buildStatItem(Icons.star_rounded, '$_totalPoints', 'Total Points', AppColors.primary)),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(child: _buildStatItem(Icons.emoji_events_rounded, '$_badgesEarned', 'Badges Earned', context.colors.teal)),
         ],
       ),
@@ -356,7 +362,7 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
       child: Column(
         children: [
           Icon(icon, size: 22, color: color),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(
             value,
             style: TextStyle(
@@ -365,7 +371,7 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
               color: context.colors.textPrimary,
             ),
           ),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(
             label,
             style: TextStyle(fontSize: 10, color: context.colors.textMuted),
@@ -385,7 +391,7 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             scrollDirection: Axis.horizontal,
             itemCount: _badgeCategories.length,
-            separatorBuilder: (_, __) => SizedBox(width: 8),
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               final cat = _badgeCategories[index];
               final selected = _selectedBadgeCategory == cat ||
@@ -414,7 +420,7 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
           child: _loadingBadges
               ? Center(child: ShimmerLoading.list(count: 3))
               : _allBadges.isEmpty
-                  ? EmptyState(icon: Icons.emoji_events_rounded, title: 'No badges found', subtitle: 'Complete STEM activities to earn badges')
+                  ? const EmptyState(icon: Icons.emoji_events_rounded, title: 'No badges found', subtitle: 'Complete STEM activities to earn badges')
                   : GridView.builder(
                       padding: const EdgeInsets.all(16),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -440,7 +446,7 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
         color: earned ? context.colors.surfaceHighest : context.colors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: earned ? Color(0xFFFFD700) : context.colors.border,
+          color: earned ? const Color(0xFFFFD700) : context.colors.border,
           width: earned ? 2 : 1,
         ),
       ),
@@ -453,12 +459,12 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: earned ? Color(0x33FFD700) : context.colors.surfaceHighest,
+                color: earned ? const Color(0x33FFD700) : context.colors.surfaceHighest,
                 shape: BoxShape.circle,
               ),
-              child: Icon(iconData, size: 26, color: earned ? Color(0xFFFFD700) : context.colors.textMuted),
+              child: Icon(iconData, size: 26, color: earned ? const Color(0xFFFFD700) : context.colors.textMuted),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               badge['title'] ?? badge['name'] ?? '',
               style: TextStyle(
@@ -470,7 +476,7 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               badge['description'] ?? '',
               style: TextStyle(fontSize: 10, color: context.colors.textMuted),
@@ -478,7 +484,7 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
@@ -487,7 +493,7 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
               ),
               child: Text(
                 '${badge['points'] ?? 0} pts',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                   color: AppColors.primary,
@@ -509,7 +515,7 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             scrollDirection: Axis.horizontal,
             itemCount: _challengeTypes.length,
-            separatorBuilder: (_, __) => SizedBox(width: 8),
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               final type = _challengeTypes[index];
               final selected = _selectedChallengeType == type;
@@ -537,11 +543,11 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
           child: _loadingChallenges
               ? Center(child: ShimmerLoading.list(count: 3))
               : _challenges.isEmpty
-                  ? EmptyState(icon: Icons.emoji_events_rounded, title: 'No challenges available', subtitle: 'Check back later for new challenges')
+                  ? const EmptyState(icon: Icons.emoji_events_rounded, title: 'No challenges available', subtitle: 'Check back later for new challenges')
                   : ListView.separated(
                       padding: const EdgeInsets.all(16),
                       itemCount: _challenges.length,
-                      separatorBuilder: (_, __) => SizedBox(height: 10),
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
                       itemBuilder: (context, index) => _buildChallengeCard(_challenges[index]),
                     ),
         ),
@@ -582,7 +588,7 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: diffColor.withOpacity(0.15),
+                    color: diffColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
@@ -596,14 +602,14 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
                 ),
             ],
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(
             challenge['description'] ?? '',
             style: TextStyle(fontSize: 12, color: context.colors.textMuted),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Row(
             children: [
               Container(
@@ -614,14 +620,14 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
                 ),
                 child: Text(
                   '${challenge['points_reward'] ?? challenge['points'] ?? 0} pts',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: AppColors.primary,
                   ),
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               if (joined) ...[
                 Expanded(
                   flex: 3,
@@ -632,14 +638,14 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
                         '${progress.toInt()}/${target.toInt()}',
                         style: TextStyle(fontSize: 10, color: context.colors.textMuted),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(4),
                         child: LinearProgressIndicator(
                           value: target > 0 ? (progress / target).clamp(0.0, 1.0) : 0,
                           minHeight: 6,
                           backgroundColor: context.colors.surfaceHighest,
-                          valueColor: AlwaysStoppedAnimation(AppColors.primary),
+                          valueColor: const AlwaysStoppedAnimation(AppColors.primary),
                         ),
                       ),
                     ],
@@ -658,7 +664,7 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
                       elevation: 0,
                     ),
                     child: joining
-                        ? SizedBox(
+                        ? const SizedBox(
                             width: 14,
                             height: 14,
                             child: CircularProgressIndicator(
@@ -666,7 +672,7 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
                               color: AppColors.textOnPrimary,
                             ),
                           )
-                        : Text('Join', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                        : const Text('Join', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                   ),
                 ),
             ],
@@ -689,12 +695,12 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             scrollDirection: Axis.horizontal,
             itemCount: subjects.length + 1,
-            separatorBuilder: (_, __) => SizedBox(width: 8),
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               if (index == 0) {
                 final selected = _selectedLeaderboardSubject.isEmpty;
                 return ChoiceChip(
-                  label: Text('All', style: TextStyle(fontSize: 12)),
+                  label: const Text('All', style: TextStyle(fontSize: 12)),
                   selected: selected,
                   selectedColor: AppColors.primary,
                   backgroundColor: context.colors.surface,
@@ -731,12 +737,12 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
           child: _loadingLeaderboard
               ? Center(child: ShimmerLoading.list(count: 3))
               : _leaderboard.isEmpty
-                  ? EmptyState(icon: Icons.emoji_events_rounded, title: 'No leaderboard data', subtitle: 'Be the first to earn points')
+                  ? const EmptyState(icon: Icons.emoji_events_rounded, title: 'No leaderboard data', subtitle: 'Be the first to earn points')
                   : ListView(
                       padding: const EdgeInsets.all(16),
                       children: [
                         if (_leaderboard.length >= 3) _buildTopThree(),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
                         ...List.generate(
                           _leaderboard.length > 3 ? _leaderboard.length - 3 : 0,
                           (i) {
@@ -754,7 +760,7 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
 
   Widget _buildTopThree() {
     final medals = ['🥇', '🥈', '🥉'];
-    final colors = [Color(0xFFFFD700), Color(0xFFC0C0C0), Color(0xFFCD7F32)];
+    final colors = [const Color(0xFFFFD700), const Color(0xFFC0C0C0), const Color(0xFFCD7F32)];
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -766,13 +772,13 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Column(
               children: [
-                Text(medals[podiumIdx], style: TextStyle(fontSize: 28)),
-                SizedBox(height: 8),
+                Text(medals[podiumIdx], style: const TextStyle(fontSize: 28)),
+                const SizedBox(height: 8),
                 Container(
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: colors[podiumIdx].withOpacity(0.15),
+                    color: colors[podiumIdx].withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                     border: Border.all(color: colors[podiumIdx]),
                   ),
@@ -787,31 +793,31 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
                     ),
                   ),
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 Text(
                   entry['name'] ?? '',
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   '${entry['points'] ?? 0} pts',
                   style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: colors[podiumIdx]),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   '${entry['streak'] ?? 0}🔥',
                   style: TextStyle(fontSize: 10, color: context.colors.textMuted),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Container(
                   width: double.infinity,
                   height: height,
                   decoration: BoxDecoration(
-                    color: colors[podiumIdx].withOpacity(0.1),
+                    color: colors[podiumIdx].withValues(alpha: 0.1),
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-                    border: Border.all(color: colors[podiumIdx].withOpacity(0.3)),
+                    border: Border.all(color: colors[podiumIdx].withValues(alpha: 0.3)),
                   ),
                   child: Center(
                     child: Text(
@@ -819,7 +825,7 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
-                        color: colors[podiumIdx].withOpacity(0.5),
+                        color: colors[podiumIdx].withValues(alpha: 0.5),
                       ),
                     ),
                   ),
@@ -864,7 +870,7 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
             child: Center(
               child: Text(
                 (entry['name'] ?? '?')[0].toUpperCase(),
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
                   color: AppColors.primary,
@@ -872,7 +878,7 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
               ),
             ),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               entry['name'] ?? '',
@@ -883,9 +889,9 @@ class _StemGamificationScreenState extends State<StemGamificationScreen>
           ),
           Text(
             '${entry['points'] ?? 0} pts',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Text(
             '${entry['streak'] ?? 0}🔥',
             style: TextStyle(fontSize: 11, color: context.colors.textMuted),

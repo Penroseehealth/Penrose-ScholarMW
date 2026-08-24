@@ -15,7 +15,7 @@ import '../../widgets/speech_to_text_view.dart';
 import '../../core/theme/theme_colors.dart';
 
 class AiTutorScreen extends StatefulWidget {
-  AiTutorScreen({super.key});
+  const AiTutorScreen({super.key});
 
   @override
   State<AiTutorScreen> createState() => _AiTutorScreenState();
@@ -65,7 +65,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
       if (_scrollCtrl.hasClients) {
         _scrollCtrl.animateTo(
           _scrollCtrl.position.maxScrollExtent,
-          duration: Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
       }
@@ -93,23 +93,23 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   colors: [AppColors.primary, AppColors.primaryDark],
                 ),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 18),
+              child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 18),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Text(
               _agentLabels[_agentType] ?? 'ScholarAI',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
             ),
           ],
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.record_voice_over_rounded, size: 22),
+            icon: const Icon(Icons.record_voice_over_rounded, size: 22),
             color: context.colors.textSecondary,
             tooltip: 'Voice Training Center',
             onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
@@ -146,11 +146,11 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
             Container(
               padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   colors: [AppColors.primary, AppColors.primaryDark],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -160,23 +160,23 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
                   BoxShadow(
                     color: AppColors.primary.withValues(alpha: 0.4),
                     blurRadius: 30,
-                    offset: Offset(0, 8),
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
-              child: Icon(Icons.auto_awesome_rounded, size: 56, color: Colors.white),
+              child: const Icon(Icons.auto_awesome_rounded, size: 56, color: Colors.white),
             ),
-            SizedBox(height: 28),
+            const SizedBox(height: 28),
             Text(
               'What would you like to learn?',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'ScholarAI is your multimodal academic assistant',
               style: TextStyle(fontSize: 14, color: context.colors.textMuted),
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
             _suggestionChip(Icons.lightbulb_outline, 'Explain a concept'),
             _suggestionChip(Icons.quiz_outlined, 'Quiz me'),
             _suggestionChip(Icons.image_rounded, 'Analyze an image'),
@@ -217,7 +217,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
             child: Row(
               children: [
                 Icon(icon, size: 18, color: AppColors.primary),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Text(text, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: context.colors.textSecondary)),
               ],
             ),
@@ -267,7 +267,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
                     border: isUser ? null : Border.all(color: context.colors.border),
                   ),
                   child: isUser
-                      ? Text(msg['content'] ?? '', style: TextStyle(color: Colors.white, fontSize: 14, height: 1.5))
+                      ? Text(msg['content'] ?? '', style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.5))
                       : _buildAssistantMessage(msg, isTypewriting),
                 ),
                 if (!isUser && !isTypewriting)
@@ -300,7 +300,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _renderResponseContent(content),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         _buildResponseActions(content),
       ],
     );
@@ -428,7 +428,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 12, color: context.colors.textSecondary),
-            SizedBox(width: 3),
+            const SizedBox(width: 3),
             Text(label, style: TextStyle(fontSize: 10, color: context.colors.textSecondary)),
           ],
         ),
@@ -454,7 +454,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(_fileIcon(a['file_type']), size: 12, color: AppColors.primary),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Text(a['filename'] ?? '', style: TextStyle(fontSize: 10, color: context.colors.textSecondary)),
               ],
             ),
@@ -512,7 +512,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
           _isLoading = true;
           _thinkingState = ThinkingState.transcribing;
         });
-        Future.delayed(Duration(seconds: 2), () {
+        Future.delayed(const Duration(seconds: 2), () {
           if (mounted) {
             setState(() => _isLoading = false);
             _showSpeechToText(
@@ -537,13 +537,13 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             _inputBtn(Icons.attach_file_rounded, _showAttachmentPicker),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             _inputBtn(
               _showVoiceRecorder ? Icons.close_rounded : Icons.mic_rounded,
               () => setState(() => _showVoiceRecorder = !_showVoiceRecorder),
               color: _showVoiceRecorder ? context.colors.error : null,
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Expanded(
               child: TextField(
                 controller: _messageCtrl,
@@ -561,7 +561,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(color: AppColors.primary),
+                    borderSide: const BorderSide(color: AppColors.primary),
                   ),
                   filled: true,
                   fillColor: context.colors.surfaceElevated,
@@ -572,21 +572,21 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
                 onSubmitted: (_) => _sendMessage(),
               ),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Container(
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryDark]),
+                gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryDark]),
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
                     color: AppColors.primary.withValues(alpha: 0.4),
                     blurRadius: 8,
-                    offset: Offset(0, 2),
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
               child: IconButton(
-                icon: Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
                 onPressed: _sendMessage,
               ),
             ),
@@ -681,7 +681,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: context.colors.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: SafeArea(
           child: Column(
@@ -694,12 +694,12 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
                   decoration: BoxDecoration(color: context.colors.border, borderRadius: BorderRadius.circular(2)),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 'Listen to Response',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -711,7 +711,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
                   style: TextStyle(fontSize: 13, color: context.colors.textSecondary, height: 1.5),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               _ttsPlayerRow(),
             ],
           ),
@@ -730,14 +730,14 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
               onTap: () => setModalState(() => playing = !playing),
               child: Container(
                 width: 48, height: 48,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryDark]),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(playing ? Icons.pause_rounded : Icons.play_arrow_rounded, color: Colors.white, size: 24),
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -745,10 +745,10 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
                   LinearProgressIndicator(
                     value: playing ? 0.5 : 0,
                     backgroundColor: context.colors.border,
-                    valueColor: AlwaysStoppedAnimation(AppColors.primary),
+                    valueColor: const AlwaysStoppedAnimation(AppColors.primary),
                     minHeight: 4,
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     playing ? 'Playing at ${_playbackSpeed}x' : 'Tap play to listen',
                     style: TextStyle(fontSize: 11, color: context.colors.textMuted),

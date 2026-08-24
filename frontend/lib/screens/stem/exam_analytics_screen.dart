@@ -7,7 +7,7 @@ import '../../widgets/error_state.dart';
 import '../../core/theme/theme_colors.dart';
 
 class ExamAnalyticsScreen extends StatefulWidget {
-  ExamAnalyticsScreen({super.key});
+  const ExamAnalyticsScreen({super.key});
 
   @override
   State<ExamAnalyticsScreen> createState() => _ExamAnalyticsScreenState();
@@ -68,7 +68,7 @@ class _ExamAnalyticsScreenState extends State<ExamAnalyticsScreen> {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
                 ),
                 background: Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [AppColors.primaryDark, AppColors.primaryMuted],
                       begin: Alignment.topLeft,
@@ -87,7 +87,7 @@ class _ExamAnalyticsScreenState extends State<ExamAnalyticsScreen> {
               SliverToBoxAdapter(child: _buildScoreTrendChart()),
               SliverToBoxAdapter(child: _buildSubjectBreakdown()),
               SliverToBoxAdapter(child: _buildRecentExamsList()),
-              SliverToBoxAdapter(child: SizedBox(height: 40)),
+              const SliverToBoxAdapter(child: SizedBox(height: 40)),
             ],
           ],
         ),
@@ -106,11 +106,11 @@ class _ExamAnalyticsScreenState extends State<ExamAnalyticsScreen> {
       child: Row(
         children: [
           Expanded(child: _buildSummaryCard('Total Exams', '$totalExams', context.colors.info, Icons.assignment_outlined)),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(child: _buildSummaryCard('Avg Score', '${avgScore.round()}%', AppColors.primary, Icons.trending_up_rounded)),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(child: _buildSummaryCard('Best Score', '${bestScore.round()}%', context.colors.success, Icons.emoji_events_outlined)),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(child: _buildSummaryCard('Study Hours', '${totalHours.round()}', context.colors.lavender, Icons.schedule_outlined)),
         ],
       ),
@@ -128,9 +128,9 @@ class _ExamAnalyticsScreenState extends State<ExamAnalyticsScreen> {
       child: Column(
         children: [
           Icon(icon, color: color, size: 18),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: color)),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: color.withValues(alpha: 0.8)), textAlign: TextAlign.center),
         ],
       ),
@@ -142,7 +142,7 @@ class _ExamAnalyticsScreenState extends State<ExamAnalyticsScreen> {
     final hasData = subjects.any((s) => (s['exams_taken'] ?? 0) > 0);
 
     if (!hasData) {
-      return EmptyState(
+      return const EmptyState(
         icon: Icons.show_chart_rounded,
         title: 'No score trends yet',
         subtitle: 'Complete some exams to see your progress over time',
@@ -169,11 +169,11 @@ class _ExamAnalyticsScreenState extends State<ExamAnalyticsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Score Trends', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             SizedBox(
               height: 200,
               child: CustomPaint(
-                size: Size(double.infinity, 200),
+                size: const Size(double.infinity, 200),
                 painter: _ScoreTrendPainter(dataPoints: dataPoints),
               ),
             ),
@@ -200,7 +200,7 @@ class _ExamAnalyticsScreenState extends State<ExamAnalyticsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Subject Breakdown', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-            SizedBox(height: 14),
+            const SizedBox(height: 14),
             ...subjects.map((s) {
               final title = s['subject_title'] ?? s['slug'] ?? '';
               final examsTaken = s['exams_taken'] ?? 0;
@@ -227,11 +227,11 @@ class _ExamAnalyticsScreenState extends State<ExamAnalyticsScreen> {
                 child: Text(title, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textPrimary), maxLines: 1, overflow: TextOverflow.ellipsis),
               ),
               Text('$examsTaken exams', style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Text('${avgScore.round()}%', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: color)),
             ],
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
@@ -248,7 +248,7 @@ class _ExamAnalyticsScreenState extends State<ExamAnalyticsScreen> {
 
   Widget _buildRecentExamsList() {
     if (_recentExams.isEmpty) {
-      return EmptyState(
+      return const EmptyState(
         icon: Icons.menu_book_outlined,
         title: 'No exams taken yet',
         subtitle: 'Start a mock exam to see your results here',
@@ -268,7 +268,7 @@ class _ExamAnalyticsScreenState extends State<ExamAnalyticsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Recent Exams', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             ..._recentExams.take(10).map((e) => _buildExamItem(e)),
           ],
         ),
@@ -306,13 +306,13 @@ class _ExamAnalyticsScreenState extends State<ExamAnalyticsScreen> {
                 child: Text('${score.round()}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: color)),
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(subject, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textPrimary), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text('$correctAnswers/$totalQuestions correct', style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
                 ],
               ),
@@ -322,7 +322,7 @@ class _ExamAnalyticsScreenState extends State<ExamAnalyticsScreen> {
               children: [
                 if (date.isNotEmpty)
                   Text(_formatDate(date), style: TextStyle(fontSize: 10, color: context.colors.textMuted)),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Icon(Icons.chevron_right_rounded, color: color.withValues(alpha: 0.6), size: 18),
               ],
             ),
@@ -349,7 +349,7 @@ class _ExamAnalyticsScreenState extends State<ExamAnalyticsScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: context.colors.surface,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) => _ExamDetailSheet(examId: examId, exam: exam),
@@ -401,7 +401,7 @@ class _ExamDetailSheetState extends State<_ExamDetailSheet> {
         return Container(
           decoration: BoxDecoration(
             color: context.colors.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: ListView(
             controller: scrollController,
@@ -414,28 +414,28 @@ class _ExamDetailSheetState extends State<_ExamDetailSheet> {
                   decoration: BoxDecoration(color: context.colors.border, borderRadius: BorderRadius.circular(2)),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Center(
                 child: Text(
                   '${score.round()}%',
                   style: TextStyle(fontSize: 36, fontWeight: FontWeight.w800, color: color),
                 ),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Center(
                 child: Text(
                   widget.exam['subject_title'] ?? widget.exam['subject_slug'] ?? '',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: context.colors.textSecondary),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               if (_loading)
-                Center(child: CircularProgressIndicator(color: AppColors.primary))
+                const Center(child: CircularProgressIndicator(color: AppColors.primary))
               else if (_breakdown == null || _breakdown!.isEmpty)
                 Center(child: Text('No breakdown available', style: TextStyle(color: context.colors.textMuted)))
               else ...[
                 _buildConceptBreakdown(),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 _buildDifficultyBreakdown(),
               ],
             ],
@@ -453,7 +453,7 @@ class _ExamDetailSheetState extends State<_ExamDetailSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Concept Breakdown', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         ...concepts.map((c) {
           final title = c['concept_title'] ?? '';
           final correct = c['correct'] ?? 0;
@@ -491,13 +491,13 @@ class _ExamDetailSheetState extends State<_ExamDetailSheet> {
                     ],
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.textPrimary), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text('$correct/$total correct', style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
                     ],
                   ),
@@ -524,7 +524,7 @@ class _ExamDetailSheetState extends State<_ExamDetailSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Difficulty Breakdown', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         ...items.map((item) {
           final data = item.data;
           if (data == null) return const SizedBox.shrink();
@@ -544,7 +544,7 @@ class _ExamDetailSheetState extends State<_ExamDetailSheet> {
                     Text('$correct/$total', style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
                   ],
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
@@ -598,7 +598,7 @@ class _ScoreTrendPainter extends CustomPainter {
       ..color = AppColors.border
       ..strokeWidth = 0.5;
 
-    final labelStyle = TextStyle(fontSize: 10, color: AppColors.textMuted);
+    const labelStyle = TextStyle(fontSize: 10, color: AppColors.textMuted);
 
     const topPadding = 10.0;
     const bottomPadding = 30.0;

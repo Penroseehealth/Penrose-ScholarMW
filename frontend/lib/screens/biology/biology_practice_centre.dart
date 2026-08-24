@@ -12,7 +12,7 @@ const Color _bioGreenDark = Color(0xFF059669);
 const Color _bioGreenGlow = Color(0x2210B981);
 
 class BiologyPracticeCentreScreen extends StatefulWidget {
-  BiologyPracticeCentreScreen({super.key});
+  const BiologyPracticeCentreScreen({super.key});
 
   @override
   State<BiologyPracticeCentreScreen> createState() =>
@@ -54,7 +54,7 @@ class _BiologyPracticeCentreScreenState
   ];
 
   static final _allQuestions = [
-    _QBank(
+    const _QBank(
       1,
       'Introduction to Biology',
       [
@@ -72,7 +72,7 @@ class _BiologyPracticeCentreScreenState
             'Kingdom Plantae includes multicellular, photosynthetic organisms with cell walls made of cellulose.'),
       ],
     ),
-    _QBank(
+    const _QBank(
       2,
       'Cell Biology',
       [
@@ -94,7 +94,7 @@ class _BiologyPracticeCentreScreenState
             'Bacteria are prokaryotes — they lack a membrane-bound nucleus and other membrane-bound organelles.'),
       ],
     ),
-    _QBank(
+    const _QBank(
       3,
       'Movement of Substances',
       [
@@ -114,7 +114,7 @@ class _BiologyPracticeCentreScreenState
             'Partially permeable membranes allow water and small molecules through but block larger solute molecules.'),
       ],
     ),
-    _QBank(
+    const _QBank(
       4,
       'Nutrition',
       [
@@ -136,7 +136,7 @@ class _BiologyPracticeCentreScreenState
             'Iron is a key component of haemoglobin, the oxygen-carrying protein in red blood cells.'),
       ],
     ),
-    _QBank(
+    const _QBank(
       5,
       'Transport in Plants & Animals',
       [
@@ -156,7 +156,7 @@ class _BiologyPracticeCentreScreenState
             'Blood group O has no A or B antigens, so it can be transfused to patients of any blood group.'),
       ],
     ),
-    _QBank(
+    const _QBank(
       6,
       'Gaseous Exchange & Respiration',
       [
@@ -176,7 +176,7 @@ class _BiologyPracticeCentreScreenState
             'Exhaled air contains more CO₂ (~4%) than inhaled air (~0.04%) due to cellular respiration.'),
       ],
     ),
-    _QBank(
+    const _QBank(
       7,
       'Excretion & Homeostasis',
       [
@@ -194,7 +194,7 @@ class _BiologyPracticeCentreScreenState
             'The hypothalamus monitors blood temperature and triggers responses to maintain a constant body temperature.'),
       ],
     ),
-    _QBank(
+    const _QBank(
       8,
       'Coordination & Response',
       [
@@ -212,7 +212,7 @@ class _BiologyPracticeCentreScreenState
             'At a synapse, electrical signals are converted to chemical signals (neurotransmitters) that cross the gap between neurons.'),
       ],
     ),
-    _QBank(
+    const _QBank(
       9,
       'Reproduction',
       [
@@ -230,7 +230,7 @@ class _BiologyPracticeCentreScreenState
             'Pollen grains contain the male gametes (sperm cells) needed for fertilisation of the ovule.'),
       ],
     ),
-    _QBank(
+    const _QBank(
       10,
       'Genetics & Inheritance',
       [
@@ -248,7 +248,7 @@ class _BiologyPracticeCentreScreenState
             'Environmental (acquired) variation develops during life — e.g., language, scars, fitness — and is not inherited.'),
       ],
     ),
-    _QBank(
+    const _QBank(
       11,
       'Ecology',
       [
@@ -266,7 +266,7 @@ class _BiologyPracticeCentreScreenState
             'An ecosystem consists of all living organisms (biotic) in an area and their physical environment (abiotic).'),
       ],
     ),
-    _QBank(
+    const _QBank(
       12,
       'Microorganisms',
       [
@@ -284,7 +284,7 @@ class _BiologyPracticeCentreScreenState
             'Microorganisms are used in food production (yoghurt, cheese, bread), medicine (antibiotics), and waste treatment.'),
       ],
     ),
-    _QBank(
+    const _QBank(
       13,
       'Disease & Immunity',
       [
@@ -302,7 +302,7 @@ class _BiologyPracticeCentreScreenState
             'Herd immunity occurs when enough people are immune to a disease, making its spread unlikely and protecting those who are not immune.'),
       ],
     ),
-    _QBank(
+    const _QBank(
       14,
       'Environment & Conservation',
       [
@@ -320,7 +320,7 @@ class _BiologyPracticeCentreScreenState
             'Terracing reduces water erosion on slopes; crop rotation maintains soil fertility and reduces erosion.'),
       ],
     ),
-    _QBank(
+    const _QBank(
       15,
       'Practical Skills',
       [
@@ -382,7 +382,7 @@ class _BiologyPracticeCentreScreenState
 
   void _startTimer() {
     _timer?.cancel();
-    _timer = Timer.periodic(Duration(seconds: 1), (t) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (_timeLeft <= 1) {
         t.cancel();
         _autoAnswer();
@@ -488,16 +488,16 @@ class _BiologyPracticeCentreScreenState
                     size: 18, color: context.colors.textSecondary),
               ),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Container(
               width: 40, height: 40,
               decoration: BoxDecoration(
                 color: _bioGreenGlow,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(Icons.quiz_rounded, color: _bioGreen, size: 22),
+              child: const Icon(Icons.quiz_rounded, color: _bioGreen, size: 22),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -525,7 +525,7 @@ class _BiologyPracticeCentreScreenState
                         fontWeight: FontWeight.w800,
                         color: _timeLeft <= 10 ? context.colors.error : _bioGreen)),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
@@ -533,7 +533,7 @@ class _BiologyPracticeCentreScreenState
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text('$_score/${_results.length}',
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: _bioGreen)),
@@ -570,9 +570,9 @@ class _BiologyPracticeCentreScreenState
                     color: _bioGreen.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Icon(Icons.quiz_rounded, color: _bioGreen, size: 28),
+                  child: const Icon(Icons.quiz_rounded, color: _bioGreen, size: 28),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -580,7 +580,7 @@ class _BiologyPracticeCentreScreenState
                       Text('MSCE Biology Practice',
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text('200+ MSCE-style questions across 15 chapters. Choose your chapter, difficulty, and number of questions.',
                           style: TextStyle(fontSize: 12, color: context.colors.textMuted, height: 1.4)),
                     ],
@@ -589,25 +589,25 @@ class _BiologyPracticeCentreScreenState
               ],
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           _buildSectionTitle('Select Chapter'),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildChapterDropdown(),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           _buildSectionTitle('Difficulty'),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildDifficultySelector(),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           _buildSectionTitle('Number of Questions'),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildCountSelector(),
-          SizedBox(height: 28),
+          const SizedBox(height: 28),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: _startQuiz,
-              icon: Icon(Icons.play_arrow_rounded, size: 22),
-              label: Text('Start Quiz', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+              icon: const Icon(Icons.play_arrow_rounded, size: 22),
+              label: const Text('Start Quiz', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _bioGreen,
                 foregroundColor: Colors.white,
@@ -616,9 +616,9 @@ class _BiologyPracticeCentreScreenState
               ),
             ),
           ),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           _buildSectionTitle('Quick Start by Chapter'),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildChapterCards(isDesktop),
         ],
       ),
@@ -640,7 +640,7 @@ class _BiologyPracticeCentreScreenState
         dropdownColor: context.colors.surface,
         style: TextStyle(color: context.colors.textPrimary, fontSize: 14),
         items: [
-          DropdownMenuItem(value: -1, child: Text('All Chapters')),
+          const DropdownMenuItem(value: -1, child: Text('All Chapters')),
           for (var i = 0; i < _chapters.length; i++)
             DropdownMenuItem(value: i, child: Text(_chapters[i])),
         ],
@@ -755,11 +755,11 @@ class _BiologyPracticeCentreScreenState
                     ),
                     child: Center(
                       child: Text('${i + 1}',
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontSize: 13, fontWeight: FontWeight.w700, color: _bioGreen)),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Text(_chapters[i],
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -792,7 +792,7 @@ class _BiologyPracticeCentreScreenState
               minHeight: 5,
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Row(
             children: [
               Container(
@@ -815,7 +815,7 @@ class _BiologyPracticeCentreScreenState
                                 ? context.colors.warning
                                 : context.colors.error)),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(_quizQuestions[_currentQuestion].question,
                     style: TextStyle(
@@ -826,7 +826,7 @@ class _BiologyPracticeCentreScreenState
               ),
             ],
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           Expanded(
             child: ListView.builder(
               itemCount: q.options.length,
@@ -880,7 +880,7 @@ class _BiologyPracticeCentreScreenState
                                             color: isSelected ? borderColor : context.colors.textMuted)),
                           ),
                         ),
-                        SizedBox(width: 14),
+                        const SizedBox(width: 14),
                         Expanded(
                           child: Text(q.options[i],
                               style: TextStyle(
@@ -908,7 +908,7 @@ class _BiologyPracticeCentreScreenState
                   style: TextStyle(
                       fontSize: 12, color: context.colors.textSecondary, height: 1.5)),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
           ],
           SizedBox(
             width: double.infinity,
@@ -932,7 +932,7 @@ class _BiologyPracticeCentreScreenState
                           ? 'View Results'
                           : 'Next Question'
                       : 'Submit Answer',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
             ),
           ),
         ],
@@ -987,33 +987,33 @@ class _BiologyPracticeCentreScreenState
                             fontSize: 36, fontWeight: FontWeight.w800, color: gradeColor)),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text('$_score / $total',
                     style: TextStyle(
                         fontSize: 28, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
                 Text('$pct% — $grade',
                     style: TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w600, color: gradeColor)),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _buildResultStat('Correct', '$_score', context.colors.success),
-                    SizedBox(width: 24),
+                    const SizedBox(width: 24),
                     _buildResultStat('Wrong', '${total - _score}', context.colors.error),
-                    SizedBox(width: 24),
+                    const SizedBox(width: 24),
                     _buildResultStat('Time', _formatTotalTime(), context.colors.info),
                   ],
                 ),
               ],
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           _buildSectionTitle('Question Review'),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           for (var i = 0; i < _results.length; i++)
             _buildReviewCard(i, _results[i]),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Row(
             children: [
               Expanded(
@@ -1027,11 +1027,11 @@ class _BiologyPracticeCentreScreenState
                         borderRadius: BorderRadius.circular(12),
                         side: BorderSide(color: context.colors.border)),
                   ),
-                  child: Text('New Quiz',
+                  child: const Text('New Quiz',
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton(
                   onPressed: _startQuiz,
@@ -1041,13 +1041,13 @@ class _BiologyPracticeCentreScreenState
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: Text('Retry Same Settings',
+                  child: const Text('Retry Same Settings',
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 40),
+          const SizedBox(height: 40),
         ],
       ),
     );
@@ -1059,7 +1059,7 @@ class _BiologyPracticeCentreScreenState
         Text(value,
             style: TextStyle(
                 fontSize: 20, fontWeight: FontWeight.w800, color: color)),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(label,
             style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
       ],
@@ -1100,7 +1100,7 @@ class _BiologyPracticeCentreScreenState
                       : Icon(Icons.close_rounded, size: 16, color: context.colors.error),
                 ),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text('${index + 1}. ${r.question.question}',
                     style: TextStyle(
@@ -1109,13 +1109,13 @@ class _BiologyPracticeCentreScreenState
             ],
           ),
           if (!r.correct) ...[
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
                 'Your answer: ${r.selected >= 0 ? r.question.options[r.selected] : 'No answer'}',
                 style: TextStyle(fontSize: 12, color: context.colors.error)),
             Text('Correct answer: ${r.question.options[r.question.correctIndex]}',
                 style: TextStyle(fontSize: 12, color: context.colors.success)),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Text(r.question.explanation,
                 style: TextStyle(fontSize: 11, color: context.colors.textMuted, height: 1.4)),
           ],
@@ -1130,11 +1130,11 @@ class _BiologyPracticeCentreScreenState
         Container(
           width: 4, height: 20,
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [_bioGreen, _bioGreenDark]),
+            gradient: const LinearGradient(colors: [_bioGreen, _bioGreenDark]),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Text(title,
             style: TextStyle(
                 fontSize: 18, fontWeight: FontWeight.w800, color: context.colors.textPrimary, letterSpacing: -0.3)),

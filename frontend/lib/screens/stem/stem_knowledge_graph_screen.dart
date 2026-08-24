@@ -8,7 +8,7 @@ import '../../core/theme/theme_colors.dart';
 
 class StemKnowledgeGraphScreen extends StatefulWidget {
   final String subjectSlug;
-  StemKnowledgeGraphScreen({super.key, this.subjectSlug = ''});
+  const StemKnowledgeGraphScreen({super.key, this.subjectSlug = ''});
 
   @override
   State<StemKnowledgeGraphScreen> createState() => _StemKnowledgeGraphScreenState();
@@ -103,7 +103,7 @@ class _StemKnowledgeGraphScreenState extends State<StemKnowledgeGraphScreen> {
                 ),
               ),
               background: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppColors.primaryDark, AppColors.primaryMuted],
                     begin: Alignment.topLeft,
@@ -126,7 +126,7 @@ class _StemKnowledgeGraphScreenState extends State<StemKnowledgeGraphScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 scrollDirection: Axis.horizontal,
                 itemCount: _relationshipTypes.length,
-                separatorBuilder: (_, __) => SizedBox(width: 8),
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
                   final type = _relationshipTypes[index];
                   final selected = _selectedRelationship == type;
@@ -156,17 +156,17 @@ class _StemKnowledgeGraphScreenState extends State<StemKnowledgeGraphScreen> {
           else if (_loading)
             SliverToBoxAdapter(child: ShimmerLoading.list(count: 5))
           else if (_filteredConnections.isEmpty)
-            SliverToBoxAdapter(child: EmptyState(icon: Icons.account_tree_rounded, title: 'No connections found', subtitle: 'Knowledge connections will appear here'))
+            const SliverToBoxAdapter(child: EmptyState(icon: Icons.account_tree_rounded, title: 'No connections found', subtitle: 'Knowledge connections will appear here'))
           else
             SliverPadding(
               padding: const EdgeInsets.all(16),
               sliver: SliverList.separated(
                 itemCount: _filteredConnections.length,
-                separatorBuilder: (_, __) => SizedBox(height: 12),
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (context, index) => _buildConnectionCard(_filteredConnections[index]),
               ),
             ),
-          SliverToBoxAdapter(child: SizedBox(height: 40)),
+          const SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
         ),
       ),
@@ -186,7 +186,7 @@ class _StemKnowledgeGraphScreenState extends State<StemKnowledgeGraphScreen> {
         hint: Text('All Subjects', style: TextStyle(color: context.colors.textMuted)),
         isExpanded: true,
         dropdownColor: context.colors.surfaceElevated,
-        underline: SizedBox(),
+        underline: const SizedBox(),
         icon: Icon(Icons.keyboard_arrow_down_rounded, color: context.colors.textMuted),
         items: [
           DropdownMenuItem(value: '', child: Text('All Subjects', style: TextStyle(color: context.colors.textSecondary))),
@@ -238,7 +238,7 @@ class _StemKnowledgeGraphScreenState extends State<StemKnowledgeGraphScreen> {
                 ),
                 child: Text(
                   relType,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     color: AppColors.primary,
@@ -246,9 +246,9 @@ class _StemKnowledgeGraphScreenState extends State<StemKnowledgeGraphScreen> {
                   ),
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Icon(Icons.arrow_forward_rounded, size: 16, color: context.colors.textMuted),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   target,
@@ -263,7 +263,7 @@ class _StemKnowledgeGraphScreenState extends State<StemKnowledgeGraphScreen> {
             ],
           ),
           if (description.isNotEmpty) ...[
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               description,
               style: TextStyle(fontSize: 13, color: context.colors.textMuted),
@@ -271,7 +271,7 @@ class _StemKnowledgeGraphScreenState extends State<StemKnowledgeGraphScreen> {
               overflow: TextOverflow.ellipsis,
             ),
           ],
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Wrap(
             spacing: 6,
             runSpacing: 4,
@@ -289,7 +289,7 @@ class _StemKnowledgeGraphScreenState extends State<StemKnowledgeGraphScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(

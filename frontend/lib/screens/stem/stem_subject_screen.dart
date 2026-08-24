@@ -11,7 +11,7 @@ class StemSubjectScreen extends StatefulWidget {
   final String slug;
   final String title;
 
-  StemSubjectScreen({
+  const StemSubjectScreen({
     super.key,
     required this.slug,
     this.title = 'Subject',
@@ -87,7 +87,7 @@ class _StemSubjectScreenState extends State<StemSubjectScreen> {
               background: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [subjectColor, subjectColor.withOpacity(0.7)],
+                    colors: [subjectColor, subjectColor.withValues(alpha: 0.7)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -99,7 +99,7 @@ class _StemSubjectScreenState extends State<StemSubjectScreen> {
                           padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                           child: Text(
                             _subject!['description'] ?? '',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
                               color: Colors.white70,
                             ),
@@ -130,7 +130,7 @@ class _StemSubjectScreenState extends State<StemSubjectScreen> {
           else if (_loading)
             SliverToBoxAdapter(child: ShimmerLoading.list(count: 5))
           else if (_disciplines.isEmpty)
-            SliverToBoxAdapter(
+            const SliverToBoxAdapter(
               child: EmptyState(
                 icon: Icons.category_outlined,
                 title: 'No disciplines available',
@@ -145,7 +145,7 @@ class _StemSubjectScreenState extends State<StemSubjectScreen> {
                 itemBuilder: (context, index) => _buildDisciplineCard(_disciplines[index]),
               ),
             ),
-          SliverToBoxAdapter(child: SizedBox(height: 40)),
+          const SliverToBoxAdapter(child: SizedBox(height: 40)),
           ],
         ),
       ),
@@ -250,7 +250,7 @@ class _DisciplineExpansionCardState extends State<_DisciplineExpansionCard> {
                             color: context.colors.textPrimary,
                           ),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           '$topicCount topics',
                           style: TextStyle(
@@ -263,7 +263,7 @@ class _DisciplineExpansionCardState extends State<_DisciplineExpansionCard> {
                   ),
                   AnimatedRotation(
                     turns: _expanded ? 0.25 : 0,
-                    duration: Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 200),
                     child: Icon(
                       Icons.expand_more_rounded,
                       color: context.colors.textMuted,
@@ -277,7 +277,7 @@ class _DisciplineExpansionCardState extends State<_DisciplineExpansionCard> {
           if (_expanded) ...[
             Divider(height: 1, color: context.colors.border),
             if (_loadingTopics)
-              Padding(
+              const Padding(
                 padding: EdgeInsets.all(20),
                 child: Center(
                   child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 2),
@@ -285,7 +285,7 @@ class _DisciplineExpansionCardState extends State<_DisciplineExpansionCard> {
               )
             else if (_topics.isEmpty)
               Padding(
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 child: Center(
                   child: Text(
                     'No topics available',
@@ -324,7 +324,7 @@ class _DisciplineExpansionCardState extends State<_DisciplineExpansionCard> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: diffColor.withOpacity(0.12),
+                            color: diffColor.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -336,7 +336,7 @@ class _DisciplineExpansionCardState extends State<_DisciplineExpansionCard> {
                             ),
                           ),
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Icon(Icons.chevron_right_rounded, color: context.colors.textMuted, size: 18),
                       ],
                     ),

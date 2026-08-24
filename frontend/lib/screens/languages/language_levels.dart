@@ -5,7 +5,7 @@ import '../../services/language_service.dart';
 import '../../core/theme/theme_colors.dart';
 
 class LanguageLevels extends StatefulWidget {
-  LanguageLevels({super.key});
+  const LanguageLevels({super.key});
 
   @override
   State<LanguageLevels> createState() => _LanguageLevelsState();
@@ -39,7 +39,7 @@ class _LanguageLevelsState extends State<LanguageLevels> {
         _loading = false;
       });
     } catch (e) {
-      debugPrint('[LANGUAGE LEVELS] Load error for ${_slug}: $e');
+      debugPrint('[LANGUAGE LEVELS] Load error for $_slug: $e');
       if (!mounted) return;
       setState(() => _loading = false);
     }
@@ -50,17 +50,17 @@ class _LanguageLevelsState extends State<LanguageLevels> {
     return Scaffold(
       backgroundColor: context.colors.background,
       appBar: AppBar(
-        title: Text('Levels'),
+        title: const Text('Levels'),
         backgroundColor: context.colors.surface,
         foregroundColor: context.colors.textPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
           onPressed: () => context.pop(),
         ),
       ),
       body: _loading
-          ? Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : _levels.isEmpty
               ? _buildEmpty()
               : ListView.builder(
@@ -99,7 +99,7 @@ class _LanguageLevelsState extends State<LanguageLevels> {
                             child: Center(
                               child: Text(
                                 '${i + 1}',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w800,
                                   color: AppColors.primary,
@@ -107,25 +107,25 @@ class _LanguageLevelsState extends State<LanguageLevels> {
                               ),
                             ),
                           ),
-                          SizedBox(width: 16),
+                          const SizedBox(width: 16),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 if (form.isNotEmpty)
                                   Text(form.toUpperCase(),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.w800,
                                           letterSpacing: 1.0,
                                           color: AppColors.primary)),
-                                SizedBox(height: 2),
+                                const SizedBox(height: 2),
                                 Text(name,
                                     style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
                                         color: context.colors.textPrimary)),
-                                SizedBox(height: 2),
+                                const SizedBox(height: 2),
                                 Text(desc,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -134,11 +134,11 @@ class _LanguageLevelsState extends State<LanguageLevels> {
                               ],
                             ),
                           ),
-                          SizedBox(width: 12),
+                          const SizedBox(width: 12),
                           Column(
                             children: [
                               _statChip('$unitCount', 'Units'),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               _statChip('$lessonCount', 'Lessons'),
                             ],
                           ),
@@ -169,7 +169,7 @@ class _LanguageLevelsState extends State<LanguageLevels> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.school_outlined, size: 48, color: context.colors.textMuted),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text('No levels available',
               style: TextStyle(fontSize: 16, color: context.colors.textMuted)),
         ],

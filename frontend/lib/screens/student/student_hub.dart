@@ -8,7 +8,7 @@ import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
 
 class StudentHub extends StatefulWidget {
-  StudentHub({super.key});
+  const StudentHub({super.key});
 
   @override
   State<StudentHub> createState() => _StudentHubState();
@@ -56,7 +56,7 @@ class _StudentHubState extends State<StudentHub> {
               pinned: true,
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [AppColors.primary, AppColors.primaryDark],
                       begin: Alignment.topLeft,
@@ -72,17 +72,17 @@ class _StudentHubState extends State<StudentHub> {
                         children: [
                           Text(
                             '$greeting, $firstName',
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             'Your academic intelligence is ready',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.white.withValues(alpha: 0.8),
                               fontSize: 14,
                             ),
                           ),
@@ -100,18 +100,18 @@ class _StudentHubState extends State<StudentHub> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildQuickActions(),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     _buildSectionTitle('My Courses'),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     if (_loading)
-                      Center(child: CircularProgressIndicator())
+                      const Center(child: CircularProgressIndicator())
                     else if (_courses.isEmpty)
                       _buildEmptyState('No courses yet', 'Enroll in courses to get started')
                     else
                       _buildResponsiveCourseGrid(),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     _buildSectionTitle('Notifications'),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     if (_notifications.isEmpty)
                       _buildEmptyState('All caught up!', 'No new notifications')
                     else
@@ -135,21 +135,21 @@ class _StudentHubState extends State<StudentHub> {
           color: context.colors.accent,
           onTap: () => context.go('/ai-tutor'),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         _buildActionCard(
           icon: Icons.quiz_outlined,
           label: 'Tasks',
           color: context.colors.secondary,
           onTap: () {},
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         _buildActionCard(
           icon: Icons.analytics_outlined,
           label: 'Progress',
           color: context.colors.success,
           onTap: () {},
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         _buildActionCard(
           icon: Icons.schedule_outlined,
           label: 'Schedule',
@@ -172,14 +172,14 @@ class _StudentHubState extends State<StudentHub> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color.withOpacity(0.2)),
+            border: Border.all(color: color.withValues(alpha: 0.2)),
           ),
           child: Column(
             children: [
               Icon(icon, color: color, size: 28),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               Text(
                 label,
                 style: TextStyle(
@@ -221,7 +221,7 @@ class _StudentHubState extends State<StudentHub> {
 
     return GridView.builder(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
         crossAxisSpacing: 8,
@@ -242,20 +242,20 @@ class _StudentHubState extends State<StudentHub> {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
+            color: AppColors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(Icons.book_outlined, color: AppColors.primary),
+          child: const Icon(Icons.book_outlined, color: AppColors.primary),
         ),
         title: Text(
           course['title'] ?? '',
-          style: TextStyle(fontWeight: FontWeight.w600),
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         subtitle: Text(
           '${course['code']} • ${course['level'] ?? ''}',
           style: TextStyle(color: context.colors.textSecondary, fontSize: 13),
         ),
-        trailing: Icon(Icons.chevron_right),
+        trailing: const Icon(Icons.chevron_right),
       ),
     );
   }
@@ -265,12 +265,12 @@ class _StudentHubState extends State<StudentHub> {
       margin: const EdgeInsets.only(bottom: 6),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: context.colors.info.withOpacity(0.1),
+          backgroundColor: context.colors.info.withValues(alpha: 0.1),
           child: Icon(Icons.info_outline, size: 18, color: context.colors.info),
         ),
         title: Text(
           notif['title'] ?? '',
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         ),
         subtitle: Text(
           notif['message'] ?? '',
@@ -293,10 +293,10 @@ class _StudentHubState extends State<StudentHub> {
       child: Center(
         child: Column(
           children: [
-            Icon(Icons.inbox_outlined, size: 48, color: context.colors.textMuted.withOpacity(0.3)),
-            SizedBox(height: 12),
+            Icon(Icons.inbox_outlined, size: 48, color: context.colors.textMuted.withValues(alpha: 0.3)),
+            const SizedBox(height: 12),
             Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(subtitle, style: TextStyle(fontSize: 13, color: context.colors.textMuted)),
           ],
         ),

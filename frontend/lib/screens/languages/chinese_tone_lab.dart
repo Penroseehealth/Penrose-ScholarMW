@@ -5,7 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 
 class ChineseToneLab extends StatefulWidget {
-  ChineseToneLab({super.key});
+  const ChineseToneLab({super.key});
   @override
   State<ChineseToneLab> createState() => _ChineseToneLabState();
 }
@@ -365,19 +365,6 @@ class _ChineseToneLabState extends State<ChineseToneLab>
     }
   }
 
-  Color _toneNumColor(int tone) {
-    switch (tone) {
-      case 1:
-        return _c1;
-      case 2:
-        return _c2;
-      case 3:
-        return _accent;
-      default:
-        return _c4;
-    }
-  }
-
   String get _combinedScore => '${_quizScore + _listenScore}/${_quizTotal + _listenTotal}';
 
   @override
@@ -385,12 +372,12 @@ class _ChineseToneLabState extends State<ChineseToneLab>
     return Scaffold(
       backgroundColor: context.colors.background,
       appBar: AppBar(
-        title: Text('Tone Lab'),
+        title: const Text('Tone Lab'),
         backgroundColor: context.colors.surface,
         foregroundColor: context.colors.textPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
           onPressed: () => context.pop(),
         ),
         actions: [
@@ -404,11 +391,11 @@ class _ChineseToneLabState extends State<ChineseToneLab>
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.star_rounded, size: 16, color: _accent),
-                SizedBox(width: 6),
+                const Icon(Icons.star_rounded, size: 16, color: _accent),
+                const SizedBox(width: 6),
                 Text(
                   _combinedScore,
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: _accent),
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: _accent),
                 ),
               ],
             ),
@@ -420,12 +407,12 @@ class _ChineseToneLabState extends State<ChineseToneLab>
           indicatorWeight: 3,
           labelColor: _accent,
           unselectedLabelColor: context.colors.textMuted,
-          labelStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+          labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
           tabs: [
-            Tab(text: 'Reference'),
-            Tab(text: 'Quiz'),
-            Tab(text: 'Pairs'),
-            Tab(text: 'Listening'),
+            const Tab(text: 'Reference'),
+            const Tab(text: 'Quiz'),
+            const Tab(text: 'Pairs'),
+            const Tab(text: 'Listening'),
           ],
         ),
       ),
@@ -449,7 +436,7 @@ class _ChineseToneLabState extends State<ChineseToneLab>
           height: 20,
           decoration: BoxDecoration(color: _accent, borderRadius: BorderRadius.circular(2)),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Text(
           title,
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: context.colors.textPrimary),
@@ -465,13 +452,13 @@ class _ChineseToneLabState extends State<ChineseToneLab>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSectionHeader('The Five Tones'),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildToneCards(),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           _buildSectionHeader('Tone Change Rules'),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           ..._toneRules.map(_buildRuleCard),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
         ],
       ),
     );
@@ -490,15 +477,15 @@ class _ChineseToneLabState extends State<ChineseToneLab>
         children: [
           Row(
             children: [
-              Icon(Icons.graphic_eq_rounded, size: 20, color: _accent),
-              SizedBox(width: 10),
+              const Icon(Icons.graphic_eq_rounded, size: 20, color: _accent),
+              const SizedBox(width: 10),
               Text(
                 'Same sound, five meanings',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: context.colors.textPrimary),
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           ..._toneInfo.map((t) {
             final c = _toneColor((t['name'] ?? '').split(' ').first);
             return Container(
@@ -524,7 +511,7 @@ class _ChineseToneLabState extends State<ChineseToneLab>
                       ),
                     ),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -535,7 +522,7 @@ class _ChineseToneLabState extends State<ChineseToneLab>
                               t['pinyin']!,
                               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
@@ -549,7 +536,7 @@ class _ChineseToneLabState extends State<ChineseToneLab>
                             ),
                           ],
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           '${t['meaning']} — ${t['desc']}',
                           style: TextStyle(fontSize: 11, color: context.colors.textMuted),
@@ -557,7 +544,7 @@ class _ChineseToneLabState extends State<ChineseToneLab>
                       ],
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
                     t['contour']!,
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: c),
@@ -592,9 +579,9 @@ class _ChineseToneLabState extends State<ChineseToneLab>
                   color: _accent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: Icon(Icons.change_circle_rounded, size: 14, color: _accent),
+                child: const Icon(Icons.change_circle_rounded, size: 14, color: _accent),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   rule['name']!,
@@ -603,7 +590,7 @@ class _ChineseToneLabState extends State<ChineseToneLab>
               ),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -613,15 +600,15 @@ class _ChineseToneLabState extends State<ChineseToneLab>
             ),
             child: Text(
               rule['rule']!,
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: _accent),
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: _accent),
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             rule['example']!,
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: context.colors.textSecondary),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             rule['desc']!,
             style: TextStyle(fontSize: 11, color: context.colors.textMuted),
@@ -638,13 +625,13 @@ class _ChineseToneLabState extends State<ChineseToneLab>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSectionHeader('Tone Quiz'),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildQuizCard(),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildNeutralReminder(),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildResetButton(),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
         ],
       ),
     );
@@ -674,29 +661,29 @@ class _ChineseToneLabState extends State<ChineseToneLab>
         children: [
           Text('${_currentIdx + 1} / ${_deck.length}',
               style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: context.colors.textMuted)),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             char,
             style: TextStyle(fontSize: 64, fontWeight: FontWeight.w400, color: context.colors.textPrimary),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             pinyin,
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: context.colors.textSecondary),
           ),
           Text(meaning, style: TextStyle(fontSize: 13, color: context.colors.textMuted)),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Text(
             'Which tone is this?',
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [1, 2, 3, 4].map((tone) => _quizToneButton(tone, correctTone)).toList(),
           ),
           if (_answered) ...[
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               _wasCorrect
                   ? '✔ Correct!'
@@ -708,7 +695,7 @@ class _ChineseToneLabState extends State<ChineseToneLab>
                 color: _wasCorrect ? context.colors.success : context.colors.error,
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             GestureDetector(
               onTap: _nextWord,
               child: Container(
@@ -718,7 +705,7 @@ class _ChineseToneLabState extends State<ChineseToneLab>
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: _accent.withValues(alpha: 0.3)),
                 ),
-                child: Text(
+                child: const Text(
                   'Next Word',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: _accent),
                 ),
@@ -785,20 +772,20 @@ class _ChineseToneLabState extends State<ChineseToneLab>
         children: [
           Row(
             children: [
-              Icon(Icons.volume_down_rounded, size: 16, color: _cn),
-              SizedBox(width: 8),
+              const Icon(Icons.volume_down_rounded, size: 16, color: _cn),
+              const SizedBox(width: 8),
               Text(
                 'Neutral tone reminder',
                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: context.colors.textPrimary),
               ),
             ],
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             'These words are unstressed and light — they never take tones 1-4.',
             style: TextStyle(fontSize: 11, color: context.colors.textMuted),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -832,7 +819,7 @@ class _ChineseToneLabState extends State<ChineseToneLab>
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: _accent.withValues(alpha: 0.25)),
         ),
-        child: Row(
+        child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.refresh_rounded, size: 18, color: _accent),
@@ -851,7 +838,7 @@ class _ChineseToneLabState extends State<ChineseToneLab>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSectionHeader('Tone Pairs'),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
@@ -862,8 +849,8 @@ class _ChineseToneLabState extends State<ChineseToneLab>
             ),
             child: Row(
               children: [
-                Icon(Icons.lightbulb_rounded, size: 20, color: _accent),
-                SizedBox(width: 12),
+                const Icon(Icons.lightbulb_rounded, size: 20, color: _accent),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'The same syllable with a different tone is a completely different word. Tap a group to explore.',
@@ -873,9 +860,9 @@ class _ChineseToneLabState extends State<ChineseToneLab>
               ],
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           ...List.generate(_pairGroups.length, (i) => _buildPairGroup(i)),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
         ],
       ),
     );
@@ -917,11 +904,11 @@ class _ChineseToneLabState extends State<ChineseToneLab>
                     child: Center(
                       child: Text(
                         group['sound'] as String,
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: _accent),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: _accent),
                       ),
                     ),
                   ),
-                  SizedBox(width: 14),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -930,7 +917,7 @@ class _ChineseToneLabState extends State<ChineseToneLab>
                           '"${group['sound']}" family',
                           style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: context.colors.textPrimary),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           group['label'] as String,
                           style: TextStyle(fontSize: 11, color: context.colors.textMuted),
@@ -949,10 +936,10 @@ class _ChineseToneLabState extends State<ChineseToneLab>
                       style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: context.colors.textMuted),
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   AnimatedRotation(
                     turns: expanded ? 0.5 : 0,
-                    duration: Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 200),
                     child: Icon(Icons.expand_more_rounded, size: 20, color: context.colors.textMuted),
                   ),
                 ],
@@ -978,7 +965,7 @@ class _ChineseToneLabState extends State<ChineseToneLab>
                           item['char'] as String,
                           style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500, color: context.colors.textPrimary),
                         ),
-                        SizedBox(width: 14),
+                        const SizedBox(width: 14),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1037,11 +1024,11 @@ class _ChineseToneLabState extends State<ChineseToneLab>
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.refresh_rounded, size: 14, color: _accent),
-                      SizedBox(width: 4),
+                      const Icon(Icons.refresh_rounded, size: 14, color: _accent),
+                      const SizedBox(width: 4),
                       Text(
                         '$_listenScore/$_listenTotal',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: _accent),
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: _accent),
                       ),
                     ],
                   ),
@@ -1049,9 +1036,9 @@ class _ChineseToneLabState extends State<ChineseToneLab>
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           ...List.generate(_listeningExercises.length, (i) => _buildListenCard(i)),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
         ],
       ),
     );
@@ -1092,10 +1079,10 @@ class _ChineseToneLabState extends State<ChineseToneLab>
                 ),
                 child: Text(
                   '${i + 1}',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: _accent),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: _accent),
                 ),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   'Pick the ${ex['prompt']}',
@@ -1104,24 +1091,24 @@ class _ChineseToneLabState extends State<ChineseToneLab>
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(child: _listenOption(i, options[0], 0, answerIdx)),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(child: _listenOption(i, options[1], 1, answerIdx)),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Row(
             children: [
               Expanded(child: _listenOption(i, options[2], 2, answerIdx)),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(child: _listenOption(i, options[3], 3, answerIdx)),
             ],
           ),
           if (answered) ...[
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
@@ -1144,7 +1131,7 @@ class _ChineseToneLabState extends State<ChineseToneLab>
                       color: pick == answerIdx ? context.colors.success : context.colors.error,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     _toneTips[_toneNumberFromPinyin(options[answerIdx])] ?? '',
                     style: TextStyle(fontSize: 11, color: context.colors.textMuted),
