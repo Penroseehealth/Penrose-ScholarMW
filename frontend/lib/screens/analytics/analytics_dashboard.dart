@@ -2,10 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../services/services.dart';
-import '../../providers/auth_provider.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../providers/auth_provider.dart';
+import '../../services/services.dart';
 
 class AnalyticsDashboard extends StatefulWidget {
   const AnalyticsDashboard({super.key});
@@ -35,16 +36,14 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
     try {
       final auth = context.read<AuthProvider>();
       final isLecturer = auth.userRole == 'lecturer';
-      final endpoint = isLecturer
-          ? '/api/v1/analytics/lecturer/overview'
-          : '/api/v1/analytics/student/dashboard';
+      final endpoint = isLecturer ? '/api/v1/analytics/lecturer/overview' : '/api/v1/analytics/student/dashboard';
       final response = await _api.get(endpoint);
 
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body);
         if (mounted) {
           setState(() {
-            _data = body;
+            _data = body as Map<String, dynamic>?;
             _loading = false;
           });
         }
@@ -97,9 +96,7 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           Text(
-                            isLecturer
-                                ? 'Lecturer Analytics'
-                                : 'Learning Analytics',
+                            isLecturer ? 'Lecturer Analytics' : 'Learning Analytics',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 22,
@@ -108,9 +105,7 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            isLecturer
-                                ? 'Class performance & insights'
-                                : 'Your academic intelligence',
+                            isLecturer ? 'Class performance & insights' : 'Your academic intelligence',
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.8),
                               fontSize: 14,
@@ -158,11 +153,10 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
   }
 
   Widget _buildStudentView() {
-    final overallProgress =
-        (_data!['overall_progress'] as num?)?.toDouble() ?? 0.0;
-    final List<dynamic> courses = _data!['courses'] ?? [];
-    final List<dynamic> weakAreas = _data!['weak_areas'] ?? [];
-    final String recommendation = _data!['recommendation'] ?? '';
+    final overallProgress = (_data!['overall_progress'] as num?)?.toDouble() ?? 0.0;
+    final List<dynamic> courses = _data!['courses'] as List<dynamic>? ?? [];
+    final List<dynamic> weakAreas = _data!['weak_areas'] as List<dynamic>? ?? [];
+    final String recommendation = _data!['recommendation'] as String? ?? '';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,15 +205,12 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
 
   Widget _buildLecturerView() {
     final classAverage = (_data!['class_average'] as num?)?.toDouble() ?? 0.0;
-    final attendanceRate =
-        (_data!['attendance_rate'] as num?)?.toDouble() ?? 0.0;
-    final assignmentCompletion =
-        (_data!['assignment_completion'] as num?)?.toDouble() ?? 0.0;
-    final List<dynamic> difficultTopics = _data!['difficult_topics'] ?? [];
-    final List<dynamic> studentsNeedingSupport =
-        _data!['students_requiring_support'] ?? [];
-    final String aiInsights = _data!['ai_insights'] ?? '';
-    final List<dynamic> engagementTrends = _data!['engagement_trends'] ?? [];
+    final attendanceRate = (_data!['attendance_rate'] as num?)?.toDouble() ?? 0.0;
+    final assignmentCompletion = (_data!['assignment_completion'] as num?)?.toDouble() ?? 0.0;
+    final List<dynamic> difficultTopics = _data!['difficult_topics'] as List<dynamic>? ?? [];
+    final List<dynamic> studentsNeedingSupport = _data!['students_requiring_support'] as List<dynamic>? ?? [];
+    final String aiInsights = _data!['ai_insights'] as String? ?? '';
+    final List<dynamic> engagementTrends = _data!['engagement_trends'] as List<dynamic>? ?? [];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,10 +270,9 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
             spacing: 8,
             runSpacing: 8,
             children: difficultTopics.map((t) {
-              final topic = t is String ? t : (t['topic'] ?? t.toString());
+              final topic = t is String ? t : (t['topic'] as String? ?? t.toString());
               return Chip(
-                avatar: Icon(Icons.warning_amber_rounded,
-                    color: context.colors.error, size: 18),
+                avatar: Icon(Icons.warning_amber_rounded, color: context.colors.error, size: 18),
                 label: Text(topic, style: const TextStyle(fontSize: 13)),
                 backgroundColor: context.colors.error.withValues(alpha: 0.08),
                 side: BorderSide(color: context.colors.error.withValues(alpha: 0.2)),
@@ -314,16 +304,14 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-        color: context.colors.textPrimary,
-      ),
-    );
-  }
+  Widget _buildSectionHeader(String title) => Text(
+        title,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: context.colors.textPrimary,
+        ),
+      );
 
   Widget _buildOverallProgress(double progress) {
     final clamped = progress.clamp(0.0, 100.0);
@@ -337,14 +325,9 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Progress',
-                    style: TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w600)),
+                const Text('Progress', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                 Text('${clamped.toStringAsFixed(0)}%',
-                    style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary)),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primary)),
               ],
             ),
             const SizedBox(height: 8),
@@ -354,8 +337,7 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
                 value: clamped / 100,
                 minHeight: 10,
                 backgroundColor: context.colors.divider,
-                valueColor:
-                    const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
               ),
             ),
           ],
@@ -365,7 +347,7 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
   }
 
   Widget _buildCoursePerformanceCard(dynamic course) {
-    final name = course['name'] ?? course['title'] ?? '';
+    final name = (course['name'] ?? course['title'] ?? '') as String;
     final score = (course['score'] as num?)?.toDouble() ?? 0.0;
     final trend = course['trend'] ?? 'neutral';
 
@@ -396,21 +378,17 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
                 color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.book_outlined,
-                  color: AppColors.primary, size: 22),
+              child: const Icon(Icons.book_outlined, color: AppColors.primary, size: 22),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(name,
-                      style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.w600)),
+                  Text(name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 2),
                   Text('Score: ${score.toStringAsFixed(1)}%',
-                      style: TextStyle(
-                          fontSize: 12, color: context.colors.textSecondary)),
+                      style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
                 ],
               ),
             ),
@@ -422,13 +400,11 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
   }
 
   Widget _buildWeakAreaChip(dynamic weakArea) {
-    final topic =
-        weakArea is String ? weakArea : (weakArea['topic'] ?? weakArea.toString());
+    final topic = weakArea is String ? weakArea : (weakArea['topic'] as String? ?? weakArea.toString());
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Chip(
-        avatar:
-            Icon(Icons.warning_amber_rounded, color: context.colors.warning, size: 18),
+        avatar: Icon(Icons.warning_amber_rounded, color: context.colors.warning, size: 18),
         label: Text(topic, style: const TextStyle(fontSize: 13)),
         backgroundColor: context.colors.warning.withValues(alpha: 0.08),
         side: BorderSide(color: context.colors.warning.withValues(alpha: 0.3)),
@@ -439,85 +415,69 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
     );
   }
 
-  Widget _buildRecommendationCard(String text) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: context.colors.secondary.withValues(alpha: 0.06),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(Icons.lightbulb_outline,
-                color: context.colors.secondary, size: 22),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                text.isNotEmpty
-                    ? text
-                    : 'No recommendation available yet. Complete more activities to receive AI suggestions.',
-                style: const TextStyle(fontSize: 13, height: 1.4),
+  Widget _buildRecommendationCard(String text) => Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        color: context.colors.secondary.withValues(alpha: 0.06),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.lightbulb_outline, color: context.colors.secondary, size: 22),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  text.isNotEmpty
+                      ? text
+                      : 'No recommendation available yet. Complete more activities to receive AI suggestions.',
+                  style: const TextStyle(fontSize: 13, height: 1.4),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildStatCard({
     required String label,
     required String value,
     required Color color,
     required IconData icon,
-  }) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 26),
-            const SizedBox(height: 8),
-            Text(value,
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: color)),
-            const SizedBox(height: 4),
-            Text(label,
-                style: TextStyle(
-                    fontSize: 11,
-                    color: context.colors.textSecondary,
-                    fontWeight: FontWeight.w500),
-                textAlign: TextAlign.center),
-          ],
+  }) =>
+      Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            children: [
+              Icon(icon, color: color, size: 26),
+              const SizedBox(height: 8),
+              Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
+              const SizedBox(height: 4),
+              Text(label,
+                  style: TextStyle(fontSize: 11, color: context.colors.textSecondary, fontWeight: FontWeight.w500),
+                  textAlign: TextAlign.center),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildSupportStudentCard(dynamic student) {
-    final name = student['name'] ?? student['full_name'] ?? 'Unknown';
-    final reason = student['reason'] ?? student['issue'] ?? '';
+    final name = (student['name'] ?? student['full_name'] ?? 'Unknown') as String;
+    final reason = (student['reason'] ?? student['issue'] ?? '') as String;
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         leading: CircleAvatar(
           backgroundColor: context.colors.error.withValues(alpha: 0.1),
-          child: Icon(Icons.person_outline,
-              color: context.colors.error, size: 20),
+          child: Icon(Icons.person_outline, color: context.colors.error, size: 20),
         ),
-        title: Text(name,
-            style:
-                const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+        title: Text(name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
         subtitle: reason.isNotEmpty
             ? Text(reason,
-                style: TextStyle(
-                    fontSize: 12, color: context.colors.textSecondary),
+                style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis)
             : null,
@@ -526,73 +486,62 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
     );
   }
 
-  Widget _buildInsightsCard(String insights) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: context.colors.accent.withValues(alpha: 0.05),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(Icons.auto_awesome,
-                color: context.colors.accent, size: 22),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                insights.isNotEmpty
-                    ? insights
-                    : 'AI is analysing class data. Insights will appear shortly.',
-                style: const TextStyle(fontSize: 13, height: 1.4),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEngagementTrends(List<dynamic> trends) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (var i = 0; i < trends.length; i++)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.circle,
-                      size: 8,
-                      color: _engagementColor(i),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        trends[i]['label'] ?? trends[i]['period'] ?? '',
-                        style: const TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                    Text(
-                      '${(trends[i]['value'] ?? 0)}%',
-                      style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: context.colors.textPrimary),
-                    ),
-                  ],
+  Widget _buildInsightsCard(String insights) => Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        color: context.colors.accent.withValues(alpha: 0.05),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.auto_awesome, color: context.colors.accent, size: 22),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  insights.isNotEmpty ? insights : 'AI is analysing class data. Insights will appear shortly.',
+                  style: const TextStyle(fontSize: 13, height: 1.4),
                 ),
               ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
+
+  Widget _buildEngagementTrends(List<dynamic> trends) => Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var i = 0; i < trends.length; i++)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.circle,
+                        size: 8,
+                        color: _engagementColor(i),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          trends[i]['label'] as String? ?? trends[i]['period'] as String? ?? '',
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                      Text(
+                        '${trends[i]['value'] ?? 0}%',
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: context.colors.textPrimary),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
 
   Color _engagementColor(int index) {
     const colors = [
@@ -605,73 +554,59 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
     return colors[index % colors.length];
   }
 
-  Widget _buildEmptyCard(String message) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: Text(
-            message,
-            style: TextStyle(
-                fontSize: 13, color: context.colors.textSecondary),
+  Widget _buildEmptyCard(String message) => Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Center(
+            child: Text(
+              message,
+              style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildErrorState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          children: [
-            Icon(Icons.error_outline, size: 48, color: context.colors.error),
-            const SizedBox(height: 12),
-            Text(_error!,
-                style: TextStyle(
-                    fontSize: 14, color: context.colors.textSecondary),
-                textAlign: TextAlign.center),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadData,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+  Widget _buildErrorState() => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            children: [
+              Icon(Icons.error_outline, size: 48, color: context.colors.error),
+              const SizedBox(height: 12),
+              Text(_error!,
+                  style: TextStyle(fontSize: 14, color: context.colors.textSecondary), textAlign: TextAlign.center),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadData,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
+                child: const Text('Retry'),
               ),
-              child: const Text('Retry'),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          children: [
-            Icon(Icons.analytics_outlined,
-                size: 56, color: context.colors.textMuted.withValues(alpha: 0.3)),
-            const SizedBox(height: 12),
-            Text('No analytics data',
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: context.colors.textSecondary)),
-            const SizedBox(height: 4),
-            Text('Data will appear once you start engaging with courses',
-                style:
-                    TextStyle(fontSize: 13, color: context.colors.textMuted)),
-          ],
+  Widget _buildEmptyState() => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            children: [
+              Icon(Icons.analytics_outlined, size: 56, color: context.colors.textMuted.withValues(alpha: 0.3)),
+              const SizedBox(height: 12),
+              Text('No analytics data',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
+              const SizedBox(height: 4),
+              Text('Data will appear once you start engaging with courses',
+                  style: TextStyle(fontSize: 13, color: context.colors.textMuted)),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 }

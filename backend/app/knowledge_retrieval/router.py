@@ -181,9 +181,7 @@ async def rag_query(
     sources: list[dict] = []
 
     # --- VaultDocument search ------------------------------------------------
-    vault_query = select(VaultDocument).where(
-        _ilike_conditions(VaultDocument.title, keywords)
-    )
+    vault_query = select(VaultDocument).where(_ilike_conditions(VaultDocument.title, keywords))
     if payload.course_id is not None:
         vault_query = vault_query.where(VaultDocument.course_id == payload.course_id)
     vault_query = vault_query.limit(payload.max_sources)
@@ -195,9 +193,7 @@ async def rag_query(
                 "title": doc.title,
                 "doc_type": "vault",
                 "source": "VaultDocument",
-                "content": getattr(doc, "content", "")
-                or getattr(doc, "description", "")
-                or "",
+                "content": getattr(doc, "content", "") or getattr(doc, "description", "") or "",
             }
         )
 
@@ -218,16 +214,12 @@ async def rag_query(
                 "title": doc.title,
                 "doc_type": "knowledge",
                 "source": "KnowledgeDocument",
-                "content": getattr(doc, "content", "")
-                or getattr(doc, "description", "")
-                or "",
+                "content": getattr(doc, "content", "") or getattr(doc, "description", "") or "",
             }
         )
 
     # --- InstitutionKnowledge search ----------------------------------------
-    ik_query = select(InstitutionKnowledge).where(
-        _ilike_conditions(InstitutionKnowledge.title, keywords)
-    )
+    ik_query = select(InstitutionKnowledge).where(_ilike_conditions(InstitutionKnowledge.title, keywords))
     if payload.course_id is not None:
         ik_query = ik_query.where(InstitutionKnowledge.course_id == payload.course_id)
     ik_query = ik_query.limit(payload.max_sources)
@@ -239,9 +231,7 @@ async def rag_query(
                 "title": doc.title,
                 "doc_type": "institution",
                 "source": "InstitutionKnowledge",
-                "content": getattr(doc, "content", "")
-                or getattr(doc, "description", "")
-                or "",
+                "content": getattr(doc, "content", "") or getattr(doc, "description", "") or "",
             }
         )
 
@@ -254,8 +244,7 @@ async def rag_query(
         from app.config.ai_client import AIProviderError, call_ai_text
 
         context_block = "\n\n".join(
-            f"[Source {i + 1}: {s['title']} ({s['source']})]\n{s['content']}"
-            for i, s in enumerate(sources)
+            f"[Source {i + 1}: {s['title']} ({s['source']})]\n{s['content']}" for i, s in enumerate(sources)
         )
         if not context_block:
             context_block = "No relevant documents were found in the knowledge base."
@@ -263,8 +252,7 @@ async def rag_query(
         system_prompt = (
             "You are ScholarAI, an academic assistant for Malawian universities. "
             "Use ONLY the provided context to answer the question. "
-            "If the context doesn't contain enough information, say so."
-            + STEM_LATEX_INSTRUCTION
+            "If the context doesn't contain enough information, say so." + STEM_LATEX_INSTRUCTION
         )
         user_message = f"Context:\n{context_block}\n\nQuestion: {payload.question}"
 
@@ -299,9 +287,7 @@ async def voice_transcribe(
 ):
     # --- Retrieve or create chat session ------------------------------------
     if payload.session_id:
-        session_result = await db.execute(
-            select(ChatSession).where(ChatSession.id == payload.session_id)
-        )
+        session_result = await db.execute(select(ChatSession).where(ChatSession.id == payload.session_id))
         session = session_result.scalar_one_or_none()
         if not session or session.user_id != current_user.id:
             raise HTTPException(status_code=404, detail="Chat session not found.")
@@ -331,9 +317,7 @@ async def voice_transcribe(
         from app.config.ai_client import AIProviderError, call_ai_text
 
         history_result = await db.execute(
-            select(ChatMessage)
-            .where(ChatMessage.session_id == session.id)
-            .order_by(ChatMessage.id)
+            select(ChatMessage).where(ChatMessage.session_id == session.id).order_by(ChatMessage.id)
         )
         history = history_result.scalars().all()
 

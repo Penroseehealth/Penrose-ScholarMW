@@ -1,4 +1,3 @@
-
 class MarkdownCleaner {
   MarkdownCleaner._();
 
@@ -12,12 +11,10 @@ class MarkdownCleaner {
     return s.trim();
   }
 
-  static String _stripHeaders(String s) {
-    return s.replaceAllMapped(
-      RegExp(r'^#{1,6}\s+', multiLine: true),
-      (m) => '',
-    );
-  }
+  static String _stripHeaders(String s) => s.replaceAllMapped(
+        RegExp(r'^#{1,6}\s+', multiLine: true),
+        (m) => '',
+      );
 
   static String _stripBoldItalic(String s) {
     s = s.replaceAll(RegExp(r'\*{3}(.+?)\*{3}'), r'\1');
@@ -29,15 +26,9 @@ class MarkdownCleaner {
     return s;
   }
 
-  static String _stripInlineCode(String s) {
-    return s.replaceAll(RegExp(r'`([^`]+)`'), r'\1');
-  }
+  static String _stripInlineCode(String s) => s.replaceAll(RegExp(r'`([^`]+)`'), r'\1');
 
-  static String _stripHorizontalRules(String s) {
-    return s.replaceAll(RegExp(r'^-{3,}$', multiLine: true), '');
-  }
+  static String _stripHorizontalRules(String s) => s.replaceAll(RegExp(r'^-{3,}$', multiLine: true), '');
 
-  static String _cleanBlankLines(String s) {
-    return s.replaceAll(RegExp(r'\n{3,}'), '\n\n');
-  }
+  static String _cleanBlankLines(String s) => s.replaceAll(RegExp(r'\n{3,}'), '\n\n');
 }

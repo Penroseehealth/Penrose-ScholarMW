@@ -5,11 +5,9 @@ class AppLocalizations {
 
   static const supportedLocales = [Locale('en'), Locale('ny')];
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
-  static AppLocalizations of(BuildContext context) =>
-      Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+  static AppLocalizations of(BuildContext context) => Localizations.of<AppLocalizations>(context, AppLocalizations)!;
 
   static const Map<String, Map<String, String>> _translations = {
     'en': {
@@ -162,8 +160,7 @@ class AppLocalizations {
       'scholarAICompanion': 'ScholarAI ndi mnzanu wanzeru wa maphunziro',
 
       // AI Governance
-      'aiDisclaimer':
-          'Mayankho ndi owapanga ndipo angakhale osakhulupirika. Onetsetsani ndi mawu olingana.',
+      'aiDisclaimer': 'Mayankho ndi owapanga ndipo angakhale osakhulupirika. Onetsetsani ndi mawu olingana.',
       'aiAnalysis': 'Kafufuzidwe kapangidwa ndi AI',
 
       // STEM
@@ -261,13 +258,11 @@ class AppLocalizations {
   String tr(String key) => _translations[_locale]?[key] ?? _translations['en']?[key] ?? key;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
-  bool isSupported(Locale locale) =>
-      ['en', 'ny'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => ['en', 'ny'].contains(locale.languageCode);
 
   @override
   Future<AppLocalizations> load(Locale locale) async {

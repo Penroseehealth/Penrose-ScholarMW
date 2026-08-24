@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -44,8 +43,7 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
     {
       'icon': Icons.rule_rounded,
       'title': 'Review past-tense grammar',
-      'body':
-          'You missed past-tense questions twice recently. A quick Grammar drill will lock it in.',
+      'body': 'You missed past-tense questions twice recently. A quick Grammar drill will lock it in.',
     },
   ];
 
@@ -62,192 +60,160 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: Column(
-        children: [
-          _buildHeader(),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildOverallMastery(),
-                  const SizedBox(height: 24),
-                  Text('Skill Breakdown',
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: context.colors.textPrimary)),
-                  const SizedBox(height: 12),
-                  ..._skills.map(_buildSkillBar),
-                  const SizedBox(height: 24),
-                  Text('AI Recommendations',
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: context.colors.textPrimary)),
-                  const SizedBox(height: 12),
-                  ..._recommendations.map(_buildRecommendationCard),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Expanded(child: _buildStreakCard()),
-                      const SizedBox(width: 12),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  Text('Study Time This Week',
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: context.colors.textPrimary)),
-                  const SizedBox(height: 12),
-                  _buildStudyTimeChart(),
-                  const SizedBox(height: 40),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        border:
-            Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Row(
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: Column(
           children: [
-            GestureDetector(
-              onTap: () => Navigator.maybePop(context),
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: context.colors.surfaceElevated,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: context.colors.border),
-                ),
-                child: Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: context.colors.textSecondary),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: _langTealGlow,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.insights_rounded,
-                  color: _langTeal, size: 22),
-            ),
-            const SizedBox(width: 14),
+            _buildHeader(),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('${_languageTitle(widget.slug)} Progress',
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: context.colors.textPrimary)),
-                  Text('Mastery analytics & insights',
-                      style:
-                          TextStyle(fontSize: 12, color: context.colors.textMuted)),
-                ],
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildOverallMastery(),
+                    const SizedBox(height: 24),
+                    Text('Skill Breakdown',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
+                    const SizedBox(height: 12),
+                    ..._skills.map(_buildSkillBar),
+                    const SizedBox(height: 24),
+                    Text('AI Recommendations',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
+                    const SizedBox(height: 12),
+                    ..._recommendations.map(_buildRecommendationCard),
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Expanded(child: _buildStreakCard()),
+                        const SizedBox(width: 12),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    Text('Study Time This Week',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
+                    const SizedBox(height: 12),
+                    _buildStudyTimeChart(),
+                    const SizedBox(height: 40),
+                  ],
+                ),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildOverallMastery() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [
-          _langTeal.withValues(alpha: 0.10),
-          _langTealDark.withValues(alpha: 0.04),
-        ]),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _langTeal.withValues(alpha: 0.25)),
-      ),
-      child: Column(
-        children: [
-          SizedBox(
-            width: 150,
-            height: 150,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                CircularProgressIndicator(
-                  value: _overallMastery,
-                  strokeWidth: 11,
-                  backgroundColor: context.colors.surfaceHighest,
-                  strokeCap: StrokeCap.round,
-                  valueColor: const AlwaysStoppedAnimation<Color>(_langTeal),
-                ),
-                Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('${(_overallMastery * 100).round()}%',
-                          style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w900,
-                              color: context.colors.textPrimary)),
-                      Text('overall mastery',
-                          style: TextStyle(
-                              fontSize: 11, color: context.colors.textMuted)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  Widget _buildHeader() => Container(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          border: Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
+        ),
+        child: SafeArea(
+          bottom: false,
+          child: Row(
             children: [
-              _buildMiniStat('Lessons', '86', context.colors.lavender),
-              _buildMiniStat('Words', '1,240', context.colors.info),
-              _buildMiniStat('Accuracy', '78%', context.colors.success),
-              _buildMiniStat('Level', 'A2', context.colors.warning),
+              GestureDetector(
+                onTap: () => Navigator.maybePop(context),
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: context.colors.surfaceElevated,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: context.colors.border),
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: context.colors.textSecondary),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: _langTealGlow,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.insights_rounded, color: _langTeal, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${_languageTitle(widget.slug)} Progress',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
+                    Text('Mastery analytics & insights',
+                        style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+                  ],
+                ),
+              ),
             ],
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      );
 
-  Widget _buildMiniStat(String label, String value, Color color) {
-    return Column(
-      children: [
-        Text(value,
-            style: TextStyle(
-                fontSize: 15, fontWeight: FontWeight.w800, color: color)),
-        const SizedBox(height: 2),
-        Text(label,
-            style:
-                TextStyle(fontSize: 10, color: context.colors.textMuted)),
-      ],
-    );
-  }
+  Widget _buildOverallMastery() => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [
+            _langTeal.withValues(alpha: 0.10),
+            _langTealDark.withValues(alpha: 0.04),
+          ]),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: _langTeal.withValues(alpha: 0.25)),
+        ),
+        child: Column(
+          children: [
+            SizedBox(
+              width: 150,
+              height: 150,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  CircularProgressIndicator(
+                    value: _overallMastery,
+                    strokeWidth: 11,
+                    backgroundColor: context.colors.surfaceHighest,
+                    strokeCap: StrokeCap.round,
+                    valueColor: const AlwaysStoppedAnimation<Color>(_langTeal),
+                  ),
+                  Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('${(_overallMastery * 100).round()}%',
+                            style: TextStyle(
+                                fontSize: 32, fontWeight: FontWeight.w900, color: context.colors.textPrimary)),
+                        Text('overall mastery', style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildMiniStat('Lessons', '86', context.colors.lavender),
+                _buildMiniStat('Words', '1,240', context.colors.info),
+                _buildMiniStat('Accuracy', '78%', context.colors.success),
+                _buildMiniStat('Level', 'A2', context.colors.warning),
+              ],
+            ),
+          ],
+        ),
+      );
+
+  Widget _buildMiniStat(String label, String value, Color color) => Column(
+        children: [
+          Text(value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: color)),
+          const SizedBox(height: 2),
+          Text(label, style: TextStyle(fontSize: 10, color: context.colors.textMuted)),
+        ],
+      );
 
   Widget _buildSkillBar((String, Color, int) skill) {
     final title = skill.$1;
@@ -269,15 +235,8 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(title,
-                  style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: context.colors.textPrimary)),
-              Text('$value%',
-                  style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                      color: color)),
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textPrimary)),
+              Text('$value%', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: color)),
             ],
           ),
           const SizedBox(height: 8),
@@ -295,116 +254,97 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
     );
   }
 
-  Widget _buildRecommendationCard(Map<String, dynamic> rec) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [
-          AppColors.primary.withValues(alpha: 0.08),
-          context.colors.accent.withValues(alpha: 0.04),
-        ]),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
+  Widget _buildRecommendationCard(Map<String, dynamic> rec) => Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [
+            AppColors.primary.withValues(alpha: 0.08),
+            context.colors.accent.withValues(alpha: 0.04),
+          ]),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(rec['icon'] as IconData, color: AppColors.primaryLight, size: 19),
             ),
-            child: Icon(rec['icon'] as IconData,
-                color: AppColors.primaryLight, size: 19),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(rec['title'] as String,
-                    style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: context.colors.textPrimary)),
-                const SizedBox(height: 4),
-                Text(rec['body'] as String,
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: context.colors.textSecondary,
-                        height: 1.45)),
-              ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(rec['title'] as String,
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                  const SizedBox(height: 4),
+                  Text(rec['body'] as String,
+                      style: TextStyle(fontSize: 12, color: context.colors.textSecondary, height: 1.45)),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 
-  Widget _buildStreakCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [
-          context.colors.warning.withValues(alpha: 0.12),
-          context.colors.error.withValues(alpha: 0.05),
-        ]),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.colors.warning.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: context.colors.warning.withValues(alpha: 0.18),
-              shape: BoxShape.circle,
+  Widget _buildStreakCard() => Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [
+            context.colors.warning.withValues(alpha: 0.12),
+            context.colors.error.withValues(alpha: 0.05),
+          ]),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: context.colors.warning.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: context.colors.warning.withValues(alpha: 0.18),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.local_fire_department_rounded, color: context.colors.warning, size: 28),
             ),
-            child: Icon(Icons.local_fire_department_rounded,
-                color: context.colors.warning, size: 28),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    text: '$_streak',
-                    style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
-                        color: context.colors.warning),
-                    children: [
-                      TextSpan(
-                        text: ' day streak',
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: context.colors.textPrimary),
-                      ),
-                    ],
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      text: '$_streak',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: context.colors.warning),
+                      children: [
+                        TextSpan(
+                          text: ' day streak',
+                          style:
+                              TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text('Practice today to keep it burning!',
-                    style:
-                        TextStyle(fontSize: 11, color: context.colors.textMuted)),
-              ],
+                  const SizedBox(height: 4),
+                  Text('Practice today to keep it burning!',
+                      style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 
   Widget _buildStudyTimeChart() {
-    final maxMinutes =
-        _weeklyMinutes.reduce((a, b) => a > b ? a : b).toDouble();
+    final maxMinutes = _weeklyMinutes.reduce((a, b) => a > b ? a : b).toDouble();
     final total = _weeklyMinutes.fold<int>(0, (a, b) => a + b);
 
     return Container(
@@ -422,22 +362,15 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Minutes per day',
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: context.colors.textSecondary)),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: _langTealGlow,
                   borderRadius: BorderRadius.circular(7),
                 ),
                 child: Text('$total min total',
-                    style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: _langTeal)),
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: _langTeal)),
               ),
             ],
           ),
@@ -459,29 +392,19 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
                               style: TextStyle(
                                   fontSize: 9,
                                   fontWeight: FontWeight.w700,
-                                  color: _weeklyMinutes[i] == 0
-                                      ? context.colors.textMuted
-                                      : _langTeal)),
+                                  color: _weeklyMinutes[i] == 0 ? context.colors.textMuted : _langTeal)),
                           const SizedBox(height: 4),
                           Container(
-                            height: maxMinutes == 0
-                                ? 6
-                                : 70 *
-                                    (_weeklyMinutes[i] / maxMinutes)
-                                        .clamp(0.06, 1.0),
+                            height: maxMinutes == 0 ? 6 : 70 * (_weeklyMinutes[i] / maxMinutes).clamp(0.06, 1.0),
                             decoration: BoxDecoration(
                               color: _weeklyMinutes[i] == 0
                                   ? context.colors.surfaceHighest
                                   : _langTeal.withValues(alpha: 0.75),
-                              borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(5)),
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(5)),
                             ),
                           ),
                           const SizedBox(height: 6),
-                          Text(_weekDays[i],
-                              style: TextStyle(
-                                  fontSize: 10,
-                                  color: context.colors.textMuted)),
+                          Text(_weekDays[i], style: TextStyle(fontSize: 10, color: context.colors.textMuted)),
                         ],
                       ),
                     ),
@@ -498,14 +421,11 @@ class _LanguageProgressScreenState extends State<LanguageProgressScreen> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.show_chart_rounded,
-                    size: 15, color: AppColors.primaryLight),
+                const Icon(Icons.show_chart_rounded, size: 15, color: AppColors.primaryLight),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                      'Detailed time-series chart coming soon — trends, comparisons and goals.',
-                      style: TextStyle(
-                          fontSize: 11, color: context.colors.textMuted)),
+                  child: Text('Detailed time-series chart coming soon — trends, comparisons and goals.',
+                      style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
                 ),
               ],
             ),

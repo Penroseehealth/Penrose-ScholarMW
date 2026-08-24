@@ -1,12 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../services/stem_service.dart';
-import '../../widgets/stem_text.dart';
-import '../../widgets/shimmer_loading.dart';
-import '../../widgets/error_state.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/stem_service.dart';
+import '../../widgets/error_state.dart';
+import '../../widgets/shimmer_loading.dart';
+import '../../widgets/stem_text.dart';
 
 class StemTutorScreen extends StatefulWidget {
   final int conceptId;
@@ -71,24 +72,27 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
   }
 
   Future<void> _loadData() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final subjects = await _stemService.getSubjects();
       if (subjects.isNotEmpty) {
-        final slug = subjects[0]['slug'] ?? '';
+        final slug = (subjects[0]['slug'] ?? '') as String;
         final disciplines = await _stemService.getDisciplines(slug);
         if (disciplines.isNotEmpty) {
-          final topics = await _stemService.getTopics(disciplines[0]['id'] ?? 0);
+          final topics = await _stemService.getTopics((disciplines[0]['id'] ?? 0) as int);
           if (topics.isNotEmpty) {
-            final subtopics = await _stemService.getSubtopics(topics[0]['id'] ?? 0);
+            final subtopics = await _stemService.getSubtopics((topics[0]['id'] ?? 0) as int);
             if (subtopics.isNotEmpty) {
-              final concepts = await _stemService.getConcepts(subtopics[0]['id'] ?? 0);
+              final concepts = await _stemService.getConcepts((subtopics[0]['id'] ?? 0) as int);
               if (mounted) {
                 setState(() {
                   _concepts = concepts;
                   _loading = false;
                   if (_selectedConceptId == 0 && concepts.isNotEmpty) {
-                    _selectedConceptId = concepts[0]['id'] ?? 0;
+                    _selectedConceptId = (concepts[0]['id'] ?? 0) as int;
                   }
                 });
               }
@@ -104,7 +108,10 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() { _error = e.toString(); _loading = false; });
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
       }
     }
   }
@@ -138,7 +145,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
       if (mounted) {
         setState(() {
           _messages.add(_ChatMessage(
-            text: response['response'] ?? response['message'] ?? 'No response received.',
+            text: (response['response'] ?? response['message'] ?? 'No response received.') as String,
             isUser: false,
             timestamp: DateTime.now(),
           ));
@@ -175,113 +182,105 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: Column(
-        children: [
-          _buildAppBar(),
-          if (_error != null)
-            Expanded(child: ErrorState(message: 'Failed to load concepts', details: _error, onRetry: _loadData))
-          else if (_loading)
-            Expanded(child: Center(child: ShimmerLoading.list(count: 3)))
-          else ...[
-            _buildConceptSelector(),
-            _buildModeSelector(),
-            Expanded(child: _buildChatArea()),
-            _buildInputBar(),
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: Column(
+          children: [
+            _buildAppBar(),
+            if (_error != null)
+              Expanded(child: ErrorState(message: 'Failed to load concepts', details: _error, onRetry: _loadData))
+            else if (_loading)
+              Expanded(child: Center(child: ShimmerLoading.list(count: 3)))
+            else ...[
+              _buildConceptSelector(),
+              _buildModeSelector(),
+              Expanded(child: _buildChatArea()),
+              _buildInputBar(),
+            ],
           ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAppBar() {
-    return Container(
-      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primaryDark, AppColors.primaryMuted],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
         ),
-      ),
-      child: SizedBox(
-        height: 56,
-        child: Center(
-          child: Text(
-            'STEM Tutor',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: context.colors.textPrimary,
+      );
+
+  Widget _buildAppBar() => Container(
+        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppColors.primaryDark, AppColors.primaryMuted],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SizedBox(
+          height: 56,
+          child: Center(
+            child: Text(
+              'STEM Tutor',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: context.colors.textPrimary,
+              ),
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildConceptSelector() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        border: Border(bottom: BorderSide(color: context.colors.border)),
-      ),
-      child: DropdownButton<int>(
-        value: _selectedConceptId != 0 ? _selectedConceptId : null,
-        hint: Text('Select a concept', style: TextStyle(color: context.colors.textMuted)),
-        isExpanded: true,
-        dropdownColor: context.colors.surfaceElevated,
-        underline: const SizedBox(),
-        icon: Icon(Icons.keyboard_arrow_down_rounded, color: context.colors.textMuted),
-        items: _concepts.map<DropdownMenuItem<int>>((c) {
-          return DropdownMenuItem(
-            value: c['id'] ?? 0,
-            child: Text(
-              c['title'] ?? c['name'] ?? '',
-              style: TextStyle(color: context.colors.textSecondary, fontSize: 13),
-            ),
-          );
-        }).toList(),
-        onChanged: (v) => setState(() => _selectedConceptId = v ?? 0),
-      ),
-    );
-  }
+  Widget _buildConceptSelector() => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          border: Border(bottom: BorderSide(color: context.colors.border)),
+        ),
+        child: DropdownButton<int>(
+          value: _selectedConceptId != 0 ? _selectedConceptId : null,
+          hint: Text('Select a concept', style: TextStyle(color: context.colors.textMuted)),
+          isExpanded: true,
+          dropdownColor: context.colors.surfaceElevated,
+          underline: const SizedBox(),
+          icon: Icon(Icons.keyboard_arrow_down_rounded, color: context.colors.textMuted),
+          items: _concepts
+              .map<DropdownMenuItem<int>>((c) => DropdownMenuItem(
+                    value: (c['id'] ?? 0) as int,
+                    child: Text(
+                      (c['title'] ?? c['name'] ?? '') as String,
+                      style: TextStyle(color: context.colors.textSecondary, fontSize: 13),
+                    ),
+                  ))
+              .toList(),
+          onChanged: (v) => setState(() => _selectedConceptId = v ?? 0),
+        ),
+      );
 
-  Widget _buildModeSelector() {
-    return SizedBox(
-      height: 44,
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        scrollDirection: Axis.horizontal,
-        itemCount: _modes.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, index) {
-          final mode = _modes[index];
-          final selected = _selectedMode == mode;
-          return ChoiceChip(
-            label: Text(
-              _modeLabels[mode] ?? mode,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: selected ? Colors.white : context.colors.textSecondary,
+  Widget _buildModeSelector() => SizedBox(
+        height: 44,
+        child: ListView.separated(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          scrollDirection: Axis.horizontal,
+          itemCount: _modes.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          itemBuilder: (context, index) {
+            final mode = _modes[index];
+            final selected = _selectedMode == mode;
+            return ChoiceChip(
+              label: Text(
+                _modeLabels[mode] ?? mode,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: selected ? Colors.white : context.colors.textSecondary,
+                ),
               ),
-            ),
-            selected: selected,
-            selectedColor: AppColors.primary,
-            backgroundColor: context.colors.surface,
-            side: BorderSide(
-              color: selected ? AppColors.primary : context.colors.border,
-            ),
-            onSelected: (_) => setState(() => _selectedMode = mode),
-          );
-        },
-      ),
-    );
-  }
+              selected: selected,
+              selectedColor: AppColors.primary,
+              backgroundColor: context.colors.surface,
+              side: BorderSide(
+                color: selected ? AppColors.primary : context.colors.border,
+              ),
+              onSelected: (_) => setState(() => _selectedMode = mode),
+            );
+          },
+        ),
+      );
 
   Widget _buildChatArea() {
     if (_messages.isEmpty) {
@@ -360,103 +359,97 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
     );
   }
 
-  Widget _buildTypingIndicator() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-        decoration: BoxDecoration(
-          color: context.colors.surfaceElevated,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: context.colors.border),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: AppColors.primary,
+  Widget _buildTypingIndicator() => Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          decoration: BoxDecoration(
+            color: context.colors.surfaceElevated,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: context.colors.border),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primary,
+                ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Text(
-              'Thinking...',
-              style: TextStyle(fontSize: 13, color: context.colors.textMuted),
-            ),
-          ],
+              const SizedBox(width: 10),
+              Text(
+                'Thinking...',
+                style: TextStyle(fontSize: 13, color: context.colors.textMuted),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildInputBar() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        border: Border(top: BorderSide(color: context.colors.border)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _messageController,
-                enabled: !_sending && _selectedConceptId != 0,
-                style: TextStyle(color: context.colors.textPrimary),
-                maxLines: null,
-                textInputAction: TextInputAction.send,
-                onSubmitted: (_) => _sendMessage(),
-                decoration: InputDecoration(
-                  hintText: _selectedConceptId == 0 ? 'Select a concept first...' : 'Ask a question...',
-                  hintStyle: TextStyle(color: context.colors.textMuted),
-                  filled: true,
-                  fillColor: context.colors.surfaceElevated,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: context.colors.border),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: context.colors.border),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            GestureDetector(
-              onTap: _sending ? null : _sendMessage,
-              child: Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: _sending || _selectedConceptId == 0
-                      ? context.colors.surfaceHighest
-                      : AppColors.primary,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.send_rounded,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-            ),
-          ],
+  Widget _buildInputBar() => Container(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          border: Border(top: BorderSide(color: context.colors.border)),
         ),
-      ),
-    );
-  }
+        child: SafeArea(
+          top: false,
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _messageController,
+                  enabled: !_sending && _selectedConceptId != 0,
+                  style: TextStyle(color: context.colors.textPrimary),
+                  maxLines: null,
+                  textInputAction: TextInputAction.send,
+                  onSubmitted: (_) => _sendMessage(),
+                  decoration: InputDecoration(
+                    hintText: _selectedConceptId == 0 ? 'Select a concept first...' : 'Ask a question...',
+                    hintStyle: TextStyle(color: context.colors.textMuted),
+                    filled: true,
+                    fillColor: context.colors.surfaceElevated,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: context.colors.border),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: context.colors.border),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.primary),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: _sending ? null : _sendMessage,
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: _sending || _selectedConceptId == 0 ? context.colors.surfaceHighest : AppColors.primary,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.send_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
 }
 
 class _ChatMessage {

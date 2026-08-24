@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 import '../../services/stem_service.dart';
 import '../../widgets/shimmer_loading.dart';
-import '../../core/theme/theme_colors.dart';
 
 class CertificatesScreen extends StatefulWidget {
   const CertificatesScreen({super.key});
@@ -30,32 +31,60 @@ class _CertificatesScreenState extends State<CertificatesScreen> {
   }
 
   Future<void> _loadCertificates() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final data = await _stemService.getCertificates();
-      if (mounted) setState(() { _certificates = data; _loading = false; });
+      if (mounted)
+        setState(() {
+          _certificates = data;
+          _loading = false;
+        });
     } catch (e) {
-      if (mounted) setState(() { _error = 'Failed to load certificates'; _loading = false; });
+      if (mounted)
+        setState(() {
+          _error = 'Failed to load certificates';
+          _loading = false;
+        });
     }
   }
 
   Future<void> _generateCertificate(String type, {String? subjectSlug}) async {
-    setState(() { _generating = true; _generateError = null; _generateSuccess = null; });
+    setState(() {
+      _generating = true;
+      _generateError = null;
+      _generateSuccess = null;
+    });
     try {
       final result = await _stemService.generateCertificate(type, subjectSlug: subjectSlug);
       if (mounted) {
         if (result.isNotEmpty && result.containsKey('id')) {
-          setState(() { _generateSuccess = 'Certificate generated!'; _generating = false; });
+          setState(() {
+            _generateSuccess = 'Certificate generated!';
+            _generating = false;
+          });
           _loadCertificates();
         } else if (result.containsKey('message')) {
-          setState(() { _generateError = result['message']; _generating = false; });
+          setState(() {
+            _generateError = result['message'] as String?;
+            _generating = false;
+          });
         } else {
-          setState(() { _generateSuccess = 'Certificate generated!'; _generating = false; });
+          setState(() {
+            _generateSuccess = 'Certificate generated!';
+            _generating = false;
+          });
           _loadCertificates();
         }
       }
     } catch (e) {
-      if (mounted) setState(() { _generateError = 'Generation failed. Check eligibility requirements.'; _generating = false; });
+      if (mounted)
+        setState(() {
+          _generateError = 'Generation failed. Check eligibility requirements.';
+          _generating = false;
+        });
     }
   }
 
@@ -67,7 +96,7 @@ class _CertificatesScreenState extends State<CertificatesScreen> {
       shareText.writeln('Certificate: ${data['title'] ?? 'Achievement'}');
       if (data['subject'] != null) shareText.writeln('Subject: ${data['subject']}');
       if (data['score_percentage'] != null) shareText.writeln('Score: ${data['score_percentage']}%');
-      shareText.writeln('Issued: ${_formatDate(data['issued_at'])}');
+      shareText.writeln('Issued: ${_formatDate(data['issued_at'] as String?)}');
       shareText.writeln('Verify: ${data['verification_url'] ?? ''}');
       await Clipboard.setData(ClipboardData(text: shareText.toString()));
       if (mounted) {
@@ -140,75 +169,73 @@ class _CertificatesScreenState extends State<CertificatesScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: RefreshIndicator(
-        onRefresh: _loadCertificates,
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              expandedHeight: 120,
-              pinned: true,
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.colors.textPrimary, size: 18),
-                onPressed: () => Navigator.maybePop(context),
-              ),
-              backgroundColor: const Color(0xFF1A1040),
-              flexibleSpace: FlexibleSpaceBar(
-                title: Text(
-                  'My Certificates',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: RefreshIndicator(
+          onRefresh: _loadCertificates,
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 120,
+                pinned: true,
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.colors.textPrimary, size: 18),
+                  onPressed: () => Navigator.maybePop(context),
                 ),
-                background: Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0xFF1A1040), AppColors.primaryDark],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                backgroundColor: const Color(0xFF1A1040),
+                flexibleSpace: FlexibleSpaceBar(
+                  title: Text(
+                    'My Certificates',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
+                  ),
+                  background: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF1A1040), AppColors.primaryDark],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Icon(Icons.workspace_premium_outlined, color: context.colors.textMuted, size: 48),
+                      ),
                     ),
                   ),
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Icon(Icons.workspace_premium_outlined, color: context.colors.textMuted, size: 48),
-                    ),
-                  ),
                 ),
               ),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.all(16),
-              sliver: _loading
-                  ? SliverToBoxAdapter(child: ShimmerLoading.list(count: 4))
-                  : _error != null
-                      ? SliverToBoxAdapter(child: _buildErrorState())
-                      : _certificates.isEmpty
-                          ? SliverToBoxAdapter(child: _buildEmptyState())
-                          : SliverList.list(
-                              children: [
-                                ..._certificates.map((c) => _buildCertificateCard(c)),
-                                const SizedBox(height: 24),
-                                _buildGenerateSection(),
-                                const SizedBox(height: 40),
-                              ],
-                            ),
-            ),
-          ],
+              SliverPadding(
+                padding: const EdgeInsets.all(16),
+                sliver: _loading
+                    ? SliverToBoxAdapter(child: ShimmerLoading.list(count: 4))
+                    : _error != null
+                        ? SliverToBoxAdapter(child: _buildErrorState())
+                        : _certificates.isEmpty
+                            ? SliverToBoxAdapter(child: _buildEmptyState())
+                            : SliverList.list(
+                                children: [
+                                  ..._certificates.map((c) => _buildCertificateCard(c)),
+                                  const SizedBox(height: 24),
+                                  _buildGenerateSection(),
+                                  const SizedBox(height: 40),
+                                ],
+                              ),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildCertificateCard(dynamic cert) {
-    final title = cert['title'] ?? 'Certificate';
-    final description = cert['description'] ?? '';
+    final title = (cert['title'] ?? 'Certificate') as String;
+    final description = (cert['description'] ?? '') as String;
     final subject = cert['subject'] ?? cert['subject_name'];
     final score = cert['score_percentage'];
-    final issuedAt = cert['issued_at'] ?? cert['created_at'];
-    final certType = cert['certificate_type'] ?? cert['type'] ?? 'exam_achievement';
-    final id = cert['id'] ?? 0;
+    final issuedAt = (cert['issued_at'] ?? cert['created_at']) as String?;
+    final certType = (cert['certificate_type'] ?? cert['type'] ?? 'exam_achievement') as String;
+    final id = (cert['id'] ?? 0) as int;
     final color = _typeColor(certType);
 
     return Container(
@@ -324,196 +351,192 @@ class _CertificatesScreenState extends State<CertificatesScreen> {
     );
   }
 
-  Widget _buildMetaChip(IconData icon, String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: 4),
-          Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: context.colors.border),
-      ),
-      child: Column(
-        children: [
-          Icon(Icons.workspace_premium_outlined, size: 56, color: context.colors.textMuted.withValues(alpha: 0.3)),
-          const SizedBox(height: 16),
-          Text(
-            'No certificates yet',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Complete challenges and ace exams to earn certificates!',
-            style: TextStyle(fontSize: 13, color: context.colors.textMuted),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildErrorState() {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: context.colors.border),
-      ),
-      child: Column(
-        children: [
-          Icon(Icons.error_outline, size: 48, color: context.colors.error),
-          const SizedBox(height: 12),
-          Text(
-            _error!,
-            style: TextStyle(fontSize: 14, color: context.colors.textSecondary),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          GestureDetector(
-            onTap: _loadCertificates,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Text('Retry', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGenerateSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: context.colors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Check Eligibility & Generate',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Generate certificates you\'ve earned through your achievements',
-            style: TextStyle(fontSize: 12, color: context.colors.textMuted),
-          ),
-          const SizedBox(height: 14),
-          if (_generating) ...[
-            const LinearProgressIndicator(color: AppColors.primary),
-            const SizedBox(height: 10),
-          ],
-          if (_generateSuccess != null)
-            Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: context.colors.successMuted,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.check_circle_outline, color: context.colors.success, size: 16),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(_generateSuccess!, style: TextStyle(fontSize: 12, color: context.colors.success, fontWeight: FontWeight.w600))),
-                ],
-              ),
-            ),
-          if (_generateError != null)
-            Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: context.colors.errorMuted,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.info_outline, color: context.colors.error, size: 16),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(_generateError!, style: TextStyle(fontSize: 12, color: context.colors.error, fontWeight: FontWeight.w600))),
-                ],
-              ),
-            ),
-          _buildGenerateButton(
-            'Check Subject Mastery Certificate',
-            Icons.stars_outlined,
-            context.colors.teal,
-            () => _generateCertificate('subject_mastery'),
-          ),
-          const SizedBox(height: 8),
-          _buildGenerateButton(
-            'Check Exam Achievement Certificate',
-            Icons.emoji_events_outlined,
-            AppColors.primary,
-            () => _generateCertificate('exam_achievement'),
-          ),
-          const SizedBox(height: 8),
-          _buildGenerateButton(
-            'Check Challenge Champion Certificate',
-            Icons.local_fire_department_outlined,
-            const Color(0xFFFF6B35),
-            () => _generateCertificate('challenge_champion'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGenerateButton(String label, IconData icon, Color color, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: _generating ? null : onTap,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  Widget _buildMetaChip(IconData icon, String label, Color color) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
+          borderRadius: BorderRadius.circular(6),
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 18, color: color),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: _generating ? context.colors.textMuted : color,
-                ),
-              ),
-            ),
-            Icon(Icons.chevron_right_rounded, size: 18, color: _generating ? context.colors.textMuted : color),
+            Icon(icon, size: 12, color: color),
+            const SizedBox(width: 4),
+            Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color)),
           ],
         ),
-      ),
-    );
-  }
+      );
+
+  Widget _buildEmptyState() => Container(
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: context.colors.border),
+        ),
+        child: Column(
+          children: [
+            Icon(Icons.workspace_premium_outlined, size: 56, color: context.colors.textMuted.withValues(alpha: 0.3)),
+            const SizedBox(height: 16),
+            Text(
+              'No certificates yet',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Complete challenges and ace exams to earn certificates!',
+              style: TextStyle(fontSize: 13, color: context.colors.textMuted),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+
+  Widget _buildErrorState() => Container(
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: context.colors.border),
+        ),
+        child: Column(
+          children: [
+            Icon(Icons.error_outline, size: 48, color: context.colors.error),
+            const SizedBox(height: 12),
+            Text(
+              _error!,
+              style: TextStyle(fontSize: 14, color: context.colors.textSecondary),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: _loadCertificates,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Text('Retry',
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white)),
+              ),
+            ),
+          ],
+        ),
+      );
+
+  Widget _buildGenerateSection() => Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: context.colors.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Check Eligibility & Generate',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Generate certificates you\'ve earned through your achievements',
+              style: TextStyle(fontSize: 12, color: context.colors.textMuted),
+            ),
+            const SizedBox(height: 14),
+            if (_generating) ...[
+              const LinearProgressIndicator(color: AppColors.primary),
+              const SizedBox(height: 10),
+            ],
+            if (_generateSuccess != null)
+              Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: context.colors.successMuted,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.check_circle_outline, color: context.colors.success, size: 16),
+                    const SizedBox(width: 8),
+                    Expanded(
+                        child: Text(_generateSuccess!,
+                            style:
+                                TextStyle(fontSize: 12, color: context.colors.success, fontWeight: FontWeight.w600))),
+                  ],
+                ),
+              ),
+            if (_generateError != null)
+              Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: context.colors.errorMuted,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: context.colors.error, size: 16),
+                    const SizedBox(width: 8),
+                    Expanded(
+                        child: Text(_generateError!,
+                            style: TextStyle(fontSize: 12, color: context.colors.error, fontWeight: FontWeight.w600))),
+                  ],
+                ),
+              ),
+            _buildGenerateButton(
+              'Check Subject Mastery Certificate',
+              Icons.stars_outlined,
+              context.colors.teal,
+              () => _generateCertificate('subject_mastery'),
+            ),
+            const SizedBox(height: 8),
+            _buildGenerateButton(
+              'Check Exam Achievement Certificate',
+              Icons.emoji_events_outlined,
+              AppColors.primary,
+              () => _generateCertificate('exam_achievement'),
+            ),
+            const SizedBox(height: 8),
+            _buildGenerateButton(
+              'Check Challenge Champion Certificate',
+              Icons.local_fire_department_outlined,
+              const Color(0xFFFF6B35),
+              () => _generateCertificate('challenge_champion'),
+            ),
+          ],
+        ),
+      );
+
+  Widget _buildGenerateButton(String label, IconData icon, Color color, VoidCallback onTap) => GestureDetector(
+        onTap: _generating ? null : onTap,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: color.withValues(alpha: 0.2)),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: 18, color: color),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: _generating ? context.colors.textMuted : color,
+                  ),
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, size: 18, color: _generating ? context.colors.textMuted : color),
+            ],
+          ),
+        ),
+      );
 }

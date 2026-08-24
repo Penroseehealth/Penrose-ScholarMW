@@ -62,7 +62,5 @@ async def get_lab(id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(STLabActivity).where(STLabActivity.id == id))
     lab = result.scalar_one_or_none()
     if not lab:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Lab activity not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lab activity not found")
     return _lab_to_response(lab)

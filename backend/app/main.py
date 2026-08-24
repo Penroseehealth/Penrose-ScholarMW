@@ -22,6 +22,7 @@ from app.global_search.router import router as global_search_router
 from app.institutions.router import router as institutions_router
 from app.knowledge_retrieval.router import router as knowledge_retrieval_router
 from app.knowledge_vault.router import router as vault_router
+from app.languages.router import router as languages_router
 from app.malawi_context.router import router as malawi_context_router
 from app.messaging.router import router as messaging_router
 from app.notifications.router import router as notifications_router
@@ -55,7 +56,6 @@ from app.stem.router import router as stem_router
 from app.stem.study_planner_router import router as study_planner_router
 from app.stem.subject_dashboard_router import router as subject_dashboard_router
 from app.stem.syllabus_router import router as syllabus_router
-from app.languages.router import router as languages_router
 from app.sync_engine.router import router as sync_engine_router
 from app.users.router import router as users_router
 from app.writing_studio.router import router as writing_studio_router
@@ -160,9 +160,7 @@ async def _seed_default_users():
         await db.commit()
         await db.refresh(course)
 
-        db.add(
-            Enrollment(student_id=users[2].id, course_id=course.id, progress_pct=35.0)
-        )
+        db.add(Enrollment(student_id=users[2].id, course_id=course.id, progress_pct=35.0))
         await db.commit()
 
 
@@ -247,16 +245,18 @@ if WEB_DIR.is_dir():
     if icons_dir.is_dir():
         app.mount("/icons", StaticFiles(directory=str(icons_dir)), name="icons")
 
+    import hashlib
+    import os
+
     from starlette.responses import FileResponse, HTMLResponse
-    import hashlib, os
 
     _main_js_path = WEB_DIR / "main.dart.js"
     _build_hash = hashlib.md5(str(os.path.getmtime(_main_js_path)).encode()).hexdigest()[:12]
     _index_html = (WEB_DIR / "index.html").read_text(encoding="utf-8")
-    _index_html = _index_html.replace('flutter_bootstrap.js', f'flutter_bootstrap.js?v={_build_hash}')
-    _index_html = _index_html.replace('main.dart.js', f'main.dart.js?v={_build_hash}')
+    _index_html = _index_html.replace("flutter_bootstrap.js", f"flutter_bootstrap.js?v={_build_hash}")
+    _index_html = _index_html.replace("main.dart.js", f"main.dart.js?v={_build_hash}")
     _bootstrap_js = (WEB_DIR / "flutter_bootstrap.js").read_text(encoding="utf-8")
-    _bootstrap_js = _bootstrap_js.replace('main.dart.js', f'main.dart.js?v={_build_hash}')
+    _bootstrap_js = _bootstrap_js.replace("main.dart.js", f"main.dart.js?v={_build_hash}")
 
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
@@ -276,7 +276,9 @@ if WEB_DIR.is_dir():
                 "  );\n"
                 "});\n"
             )
-            return HTMLResponse(sw_code, headers={"Cache-Control": "no-store", "Content-Type": "application/javascript"})
+            return HTMLResponse(
+                sw_code, headers={"Cache-Control": "no-store", "Content-Type": "application/javascript"}
+            )
         if file_path.is_file():
             headers = {"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
             return FileResponse(str(file_path), headers=headers)

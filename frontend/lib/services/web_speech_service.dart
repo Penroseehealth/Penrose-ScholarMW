@@ -1,5 +1,4 @@
-import 'web_speech_service_stub.dart'
-    if (dart.library.js_interop) 'web_speech_service_web.dart' as platform;
+import 'web_speech_service_stub.dart' if (dart.library.js_interop) 'web_speech_service_web.dart' as platform;
 
 abstract class WebSpeechService {
   bool get isSupported;

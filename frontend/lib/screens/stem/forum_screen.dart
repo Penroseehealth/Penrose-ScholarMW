@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 import '../../services/stem_service.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
-import '../../core/theme/theme_colors.dart';
 
 String _timeAgo(dynamic timestamp) {
   if (timestamp == null) return '';
@@ -25,8 +26,7 @@ class ForumScreen extends StatefulWidget {
   State<ForumScreen> createState() => _ForumScreenState();
 }
 
-class _ForumScreenState extends State<ForumScreen>
-    with SingleTickerProviderStateMixin {
+class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStateMixin {
   final StemService _svc = StemService();
   late TabController _tab;
   final TextEditingController _searchCtrl = TextEditingController();
@@ -72,15 +72,19 @@ class _ForumScreenState extends State<ForumScreen>
         });
       }
     } catch (e) {
-      if (mounted) setState(() { _error = e.toString(); _loading = false; });
+      if (mounted)
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
     }
   }
 
   List<dynamic> _filtered() => _posts.where((p) {
-    if (_tab.index == 1) return (p['answer_count'] ?? 0) == 0 && p['resolved'] != true;
-    if (_tab.index == 2) return p['is_my_post'] == true || p['my_post'] == true;
-    return true;
-  }).toList();
+        if (_tab.index == 1) return (p['answer_count'] ?? 0) == 0 && p['resolved'] != true;
+        if (_tab.index == 2) return p['is_my_post'] == true || p['my_post'] == true;
+        return true;
+      }).toList();
 
   @override
   Widget build(BuildContext context) {
@@ -98,14 +102,16 @@ class _ForumScreenState extends State<ForumScreen>
             _buildSortBar(),
             _buildTabs(),
             if (_loading)
-              const SliverToBoxAdapter(child: Padding(
+              const SliverToBoxAdapter(
+                  child: Padding(
                 padding: EdgeInsets.all(40),
                 child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
               ))
             else if (_error != null)
               SliverToBoxAdapter(child: ErrorState(message: 'Failed to load posts', onRetry: _load))
             else if (filtered.isEmpty)
-              SliverToBoxAdapter(child: EmptyState(
+              SliverToBoxAdapter(
+                  child: EmptyState(
                 icon: Icons.forum_rounded,
                 title: 'No questions found',
                 subtitle: 'Be the first to ask a question',
@@ -118,7 +124,7 @@ class _ForumScreenState extends State<ForumScreen>
                 sliver: SliverList.separated(
                   itemCount: filtered.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 8),
-                  itemBuilder: (ctx, i) => _postCard(filtered[i]),
+                  itemBuilder: (ctx, i) => _postCard(filtered[i] as Map<String, dynamic>),
                 ),
               ),
           ],
@@ -133,101 +139,123 @@ class _ForumScreenState extends State<ForumScreen>
   }
 
   SliverAppBar _buildAppBar() => SliverAppBar(
-    expandedHeight: 90, pinned: true,
-    backgroundColor: AppColors.primaryDark,
-    leading: IconButton(
-      icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-      onPressed: () => context.go('/'),
-    ),
-    flexibleSpace: FlexibleSpaceBar(
-      title: const Text('Q&A Forum', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
-      background: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(colors: [AppColors.primaryDark, AppColors.primary], begin: Alignment.topLeft, end: Alignment.bottomRight),
+        expandedHeight: 90,
+        pinned: true,
+        backgroundColor: AppColors.primaryDark,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          onPressed: () => context.go('/'),
         ),
-      ),
-    ),
-  );
+        flexibleSpace: FlexibleSpaceBar(
+          title:
+              const Text('Q&A Forum', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
+          background: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                  colors: [AppColors.primaryDark, AppColors.primary],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight),
+            ),
+          ),
+        ),
+      );
 
   SliverToBoxAdapter _buildSearch() => SliverToBoxAdapter(
-    child: Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      child: TextField(
-        controller: _searchCtrl,
-        style: TextStyle(color: context.colors.textPrimary),
-        decoration: InputDecoration(
-          hintText: 'Search questions...',
-          prefixIcon: Icon(Icons.search_rounded, color: context.colors.textMuted),
-          suffixIcon: _searchQuery.isNotEmpty
-            ? IconButton(
-                icon: Icon(Icons.close_rounded, color: context.colors.textMuted, size: 18),
-                onPressed: () { _searchCtrl.clear(); setState(() => _searchQuery = ''); _load(); },
-              )
-            : null,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: TextField(
+            controller: _searchCtrl,
+            style: TextStyle(color: context.colors.textPrimary),
+            decoration: InputDecoration(
+              hintText: 'Search questions...',
+              prefixIcon: Icon(Icons.search_rounded, color: context.colors.textMuted),
+              suffixIcon: _searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: Icon(Icons.close_rounded, color: context.colors.textMuted, size: 18),
+                      onPressed: () {
+                        _searchCtrl.clear();
+                        setState(() => _searchQuery = '');
+                        _load();
+                      },
+                    )
+                  : null,
+            ),
+            onSubmitted: (v) {
+              setState(() => _searchQuery = v);
+              _load();
+            },
+          ),
         ),
-        onSubmitted: (v) { setState(() => _searchQuery = v); _load(); },
-      ),
-    ),
-  );
+      );
 
   SliverToBoxAdapter _buildSortBar() => SliverToBoxAdapter(
-    child: Padding(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
-      child: Row(
-        children: [
-          _sortChip('newest', 'Newest'),
-          const SizedBox(width: 6),
-          _sortChip('votes', 'Most Voted'),
-          const SizedBox(width: 6),
-          _sortChip('unanswered', 'Unanswered'),
-          const Spacer(),
-          if (_subjects.isNotEmpty)
-            SizedBox(
-              height: 32,
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _selectedSubject.isNotEmpty ? _selectedSubject : null,
-                  hint: Text('All Subjects', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
-                  dropdownColor: context.colors.surfaceElevated,
-                  isDense: true,
-                  items: [
-                    DropdownMenuItem(value: '', child: Text('All Subjects', style: TextStyle(color: context.colors.textPrimary, fontSize: 13))),
-                    ..._subjects.map<DropdownMenuItem<String>>((s) => DropdownMenuItem(
-                      value: s['slug'] ?? '',
-                      child: Text(s['name'] ?? '', style: TextStyle(color: context.colors.textPrimary, fontSize: 13)),
-                    )),
-                  ],
-                  onChanged: (v) { setState(() => _selectedSubject = v ?? ''); _load(); },
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
+          child: Row(
+            children: [
+              _sortChip('newest', 'Newest'),
+              const SizedBox(width: 6),
+              _sortChip('votes', 'Most Voted'),
+              const SizedBox(width: 6),
+              _sortChip('unanswered', 'Unanswered'),
+              const Spacer(),
+              if (_subjects.isNotEmpty)
+                SizedBox(
+                  height: 32,
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _selectedSubject.isNotEmpty ? _selectedSubject : null,
+                      hint: Text('All Subjects', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+                      dropdownColor: context.colors.surfaceElevated,
+                      isDense: true,
+                      items: [
+                        DropdownMenuItem(
+                            value: '',
+                            child: Text('All Subjects',
+                                style: TextStyle(color: context.colors.textPrimary, fontSize: 13))),
+                        ..._subjects.map<DropdownMenuItem<String>>((s) => DropdownMenuItem(
+                              value: (s['slug'] ?? '') as String,
+                              child: Text((s['name'] ?? '') as String,
+                                  style: TextStyle(color: context.colors.textPrimary, fontSize: 13)),
+                            )),
+                      ],
+                      onChanged: (v) {
+                        setState(() => _selectedSubject = v ?? '');
+                        _load();
+                      },
+                    ),
+                  ),
                 ),
-              ),
-            ),
-        ],
-      ),
-    ),
-  );
+            ],
+          ),
+        ),
+      );
 
   SliverToBoxAdapter _buildTabs() => SliverToBoxAdapter(
-    child: SizedBox(
-      height: 44,
-      child: TabBar(
-        controller: _tab,
-        onTap: (_) => setState(() {}),
-        labelColor: AppColors.primary,
-        unselectedLabelColor: context.colors.textMuted,
-        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-        unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-        indicatorColor: AppColors.primary,
-        indicatorSize: TabBarIndicatorSize.label,
-        dividerColor: context.colors.border,
-        tabs: [const Tab(text: 'All Questions'), const Tab(text: 'Unanswered'), const Tab(text: 'My Posts')],
-      ),
-    ),
-  );
+        child: SizedBox(
+          height: 44,
+          child: TabBar(
+            controller: _tab,
+            onTap: (_) => setState(() {}),
+            labelColor: AppColors.primary,
+            unselectedLabelColor: context.colors.textMuted,
+            labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+            indicatorColor: AppColors.primary,
+            indicatorSize: TabBarIndicatorSize.label,
+            dividerColor: context.colors.border,
+            tabs: const [Tab(text: 'All Questions'), Tab(text: 'Unanswered'), Tab(text: 'My Posts')],
+          ),
+        ),
+      );
 
   Widget _sortChip(String value, String label) {
     final sel = _sort == value;
     return GestureDetector(
-      onTap: () { setState(() => _sort = value); _load(); },
+      onTap: () {
+        setState(() => _sort = value);
+        _load();
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
@@ -235,11 +263,12 @@ class _ForumScreenState extends State<ForumScreen>
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: sel ? AppColors.primary.withValues(alpha: 0.4) : context.colors.border),
         ),
-        child: Text(label, style: TextStyle(
-          fontSize: 12,
-          fontWeight: sel ? FontWeight.w600 : FontWeight.w500,
-          color: sel ? AppColors.primary : context.colors.textMuted,
-        )),
+        child: Text(label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: sel ? FontWeight.w600 : FontWeight.w500,
+              color: sel ? AppColors.primary : context.colors.textMuted,
+            )),
       ),
     );
   }
@@ -249,12 +278,18 @@ class _ForumScreenState extends State<ForumScreen>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _CreatePostSheet(subjects: _subjects, onCreated: () { Navigator.of(context).pop(); _load(); }),
+      builder: (_) => _CreatePostSheet(
+          subjects: _subjects,
+          onCreated: () {
+            Navigator.of(context).pop();
+            _load();
+          }),
     );
   }
 
   void _openDetail(Map<String, dynamic> post) async {
-    final r = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => _PostDetailScreen(postId: post['id'])));
+    final r = await Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => _PostDetailScreen(postId: post['id'] as int)));
     if (r == true) _load();
   }
 
@@ -262,7 +297,7 @@ class _ForumScreenState extends State<ForumScreen>
     final title = post['title'] ?? '';
     final body = (post['body'] ?? '').toString();
     final excerpt = body.length > 120 ? '${body.substring(0, 120)}...' : body;
-    final votes = post['vote_count'] ?? post['votes'] ?? 0;
+    final votes = (post['vote_count'] ?? post['votes'] ?? 0) as int;
     final answers = post['answer_count'] ?? post['answers'] ?? 0;
     final resolved = post['resolved'] == true;
     final subject = post['subject_name'] ?? post['subject'] ?? '';
@@ -277,18 +312,26 @@ class _ForumScreenState extends State<ForumScreen>
         onTap: () => _openDetail(post),
         child: Container(
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), border: Border.all(color: context.colors.border)),
+          decoration:
+              BoxDecoration(borderRadius: BorderRadius.circular(14), border: Border.all(color: context.colors.border)),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 48, height: 54,
-                decoration: BoxDecoration(color: context.colors.surfaceHighest, borderRadius: BorderRadius.circular(10)),
+                width: 48,
+                height: 54,
+                decoration:
+                    BoxDecoration(color: context.colors.surfaceHighest, borderRadius: BorderRadius.circular(10)),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.keyboard_arrow_up_rounded, size: 16, color: votes > 0 ? context.colors.success : context.colors.textMuted),
-                    Text('$votes', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: votes > 0 ? context.colors.textPrimary : context.colors.textMuted)),
+                    Icon(Icons.keyboard_arrow_up_rounded,
+                        size: 16, color: votes > 0 ? context.colors.success : context.colors.textMuted),
+                    Text('$votes',
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: votes > 0 ? context.colors.textPrimary : context.colors.textMuted)),
                   ],
                 ),
               ),
@@ -298,22 +341,38 @@ class _ForumScreenState extends State<ForumScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(children: [
-                      Expanded(child: Text(title.toString(), style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textPrimary), maxLines: 2, overflow: TextOverflow.ellipsis)),
-                      if (resolved) ...[const SizedBox(width: 6), Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(color: context.colors.successMuted, borderRadius: BorderRadius.circular(6)),
-                        child: Text('Resolved', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: context.colors.success)),
-                      )],
+                      Expanded(
+                          child: Text(title.toString(),
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis)),
+                      if (resolved) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration:
+                              BoxDecoration(color: context.colors.successMuted, borderRadius: BorderRadius.circular(6)),
+                          child: Text('Resolved',
+                              style:
+                                  TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: context.colors.success)),
+                        )
+                      ],
                     ]),
                     const SizedBox(height: 4),
-                    Text(excerpt, style: TextStyle(fontSize: 13, color: context.colors.textMuted), maxLines: 2, overflow: TextOverflow.ellipsis),
+                    Text(excerpt,
+                        style: TextStyle(fontSize: 13, color: context.colors.textMuted),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 8),
                     Row(children: [
                       if (subject.toString().isNotEmpty) ...[
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(color: context.colors.infoMuted, borderRadius: BorderRadius.circular(6)),
-                          child: Text(subject.toString(), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.info)),
+                          decoration:
+                              BoxDecoration(color: context.colors.infoMuted, borderRadius: BorderRadius.circular(6)),
+                          child: Text(subject.toString(),
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.info)),
                         ),
                         const SizedBox(width: 8),
                       ],
@@ -350,61 +409,105 @@ class _PostDetailScreenState extends State<_PostDetailScreen> {
   bool _submitting = false;
 
   @override
-  void initState() { super.initState(); _load(); }
+  void initState() {
+    super.initState();
+    _load();
+  }
 
   @override
-  void dispose() { _answerCtrl.dispose(); super.dispose(); }
+  void dispose() {
+    _answerCtrl.dispose();
+    super.dispose();
+  }
 
   Future<void> _load() async {
     try {
       final p = await _svc.getForumPost(widget.postId);
-      if (mounted) setState(() { _post = p; _answers = p['answers'] ?? []; _loading = false; });
-    } catch (_) { if (mounted) setState(() => _loading = false); }
+      if (mounted)
+        setState(() {
+          _post = p;
+          _answers = (p['answers'] ?? []) as List<dynamic>;
+          _loading = false;
+        });
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   Future<void> _submitAnswer() async {
     final t = _answerCtrl.text.trim();
     if (t.isEmpty || _submitting) return;
     setState(() => _submitting = true);
-    try { await _svc.createForumAnswer(widget.postId, t); _answerCtrl.clear(); await _load(); } catch (_) {}
+    try {
+      await _svc.createForumAnswer(widget.postId, t);
+      _answerCtrl.clear();
+      await _load();
+    } catch (_) {}
     if (mounted) setState(() => _submitting = false);
   }
 
-  Future<void> _votePost(int v) async { try { await _svc.voteForumPost(widget.postId, v); await _load(); } catch (_) {} }
-  Future<void> _voteAnswer(int id, int v) async { try { await _svc.voteForumAnswer(id, v); await _load(); } catch (_) {} }
-  Future<void> _acceptAnswer(int id) async { try { await _svc.acceptForumAnswer(id); await _load(); } catch (_) {} }
-  Future<void> _resolvePost() async { try { await _svc.resolveForumPost(widget.postId); await _load(); } catch (_) {} }
+  Future<void> _votePost(int v) async {
+    try {
+      await _svc.voteForumPost(widget.postId, v);
+      await _load();
+    } catch (_) {}
+  }
+
+  Future<void> _voteAnswer(int id, int v) async {
+    try {
+      await _svc.voteForumAnswer(id, v);
+      await _load();
+    } catch (_) {}
+  }
+
+  Future<void> _acceptAnswer(int id) async {
+    try {
+      await _svc.acceptForumAnswer(id);
+      await _load();
+    } catch (_) {}
+  }
+
+  Future<void> _resolvePost() async {
+    try {
+      await _svc.resolveForumPost(widget.postId);
+      await _load();
+    } catch (_) {}
+  }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      appBar: AppBar(
-        backgroundColor: context.colors.surface,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: context.colors.textSecondary),
-          onPressed: () => Navigator.of(context).pop(true),
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        appBar: AppBar(
+          backgroundColor: context.colors.surface,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_rounded, color: context.colors.textSecondary),
+            onPressed: () => Navigator.of(context).pop(true),
+          ),
+          title: Text('Question',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: context.colors.textPrimary)),
+          actions: [
+            if (_post['resolved'] != true)
+              TextButton(
+                  onPressed: _resolvePost,
+                  child: Text('Mark Resolved',
+                      style: TextStyle(color: context.colors.success, fontWeight: FontWeight.w600))),
+          ],
         ),
-        title: Text('Question', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: context.colors.textPrimary)),
-        actions: [
-          if (_post['resolved'] != true)
-            TextButton(onPressed: _resolvePost, child: Text('Mark Resolved', style: TextStyle(color: context.colors.success, fontWeight: FontWeight.w600))),
-        ],
-      ),
-      body: _loading
-        ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-        : Column(children: [
-            Expanded(child: ListView(padding: const EdgeInsets.all(16), children: [
-              _buildPost(),
-              const SizedBox(height: 20),
-              Text('${_answers.length} ${_answers.length == 1 ? 'Answer' : 'Answers'}', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-              const SizedBox(height: 12),
-              ..._answers.map((a) => _buildAnswer(a)),
-            ])),
-            _buildInputBar(),
-          ]),
-    );
-  }
+        body: _loading
+            ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+            : Column(children: [
+                Expanded(
+                    child: ListView(padding: const EdgeInsets.all(16), children: [
+                  _buildPost(),
+                  const SizedBox(height: 20),
+                  Text('${_answers.length} ${_answers.length == 1 ? 'Answer' : 'Answers'}',
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                  const SizedBox(height: 12),
+                  ..._answers.map((a) => _buildAnswer(a as Map<String, dynamic>)),
+                ])),
+                _buildInputBar(),
+              ]),
+      );
 
   Widget _buildPost() {
     final title = _post['title'] ?? '';
@@ -417,22 +520,35 @@ class _PostDetailScreenState extends State<_PostDetailScreen> {
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: context.colors.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: context.colors.border)),
+      decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: context.colors.border)),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Column(children: [
-          GestureDetector(onTap: () => _votePost(1), child: Icon(Icons.keyboard_arrow_up_rounded, size: 28, color: context.colors.textMuted)),
-          Text('$votes', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-          GestureDetector(onTap: () => _votePost(-1), child: Icon(Icons.keyboard_arrow_down_rounded, size: 28, color: context.colors.textMuted)),
+          GestureDetector(
+              onTap: () => _votePost(1),
+              child: Icon(Icons.keyboard_arrow_up_rounded, size: 28, color: context.colors.textMuted)),
+          Text('$votes',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+          GestureDetector(
+              onTap: () => _votePost(-1),
+              child: Icon(Icons.keyboard_arrow_down_rounded, size: 28, color: context.colors.textMuted)),
         ]),
         const SizedBox(width: 16),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Expanded(child: Text(title.toString(), style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: context.colors.textPrimary))),
-            if (resolved) Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(color: context.colors.successMuted, borderRadius: BorderRadius.circular(8)),
-              child: Text('Resolved', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: context.colors.success)),
-            ),
+            Expanded(
+                child: Text(title.toString(),
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: context.colors.textPrimary))),
+            if (resolved)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(color: context.colors.successMuted, borderRadius: BorderRadius.circular(8)),
+                child: Text('Resolved',
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: context.colors.success)),
+              ),
           ]),
           const SizedBox(height: 8),
           Text(body.toString(), style: TextStyle(fontSize: 14, color: context.colors.textSecondary, height: 1.5)),
@@ -442,7 +558,8 @@ class _PostDetailScreenState extends State<_PostDetailScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(color: context.colors.infoMuted, borderRadius: BorderRadius.circular(6)),
-                child: Text(subject.toString(), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.info)),
+                child: Text(subject.toString(),
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.info)),
               ),
               const SizedBox(width: 8),
             ],
@@ -470,25 +587,36 @@ class _PostDetailScreenState extends State<_PostDetailScreen> {
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Column(children: [
-          GestureDetector(onTap: () => _voteAnswer(answer['id'], 1), child: Icon(Icons.keyboard_arrow_up_rounded, size: 24, color: context.colors.textMuted)),
-          Text('$votes', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-          GestureDetector(onTap: () => _voteAnswer(answer['id'], -1), child: Icon(Icons.keyboard_arrow_down_rounded, size: 24, color: context.colors.textMuted)),
-          if (!accepted) ...[const SizedBox(height: 4),
-            GestureDetector(onTap: () => _acceptAnswer(answer['id']), child: Icon(Icons.check_circle_outline_rounded, size: 22, color: context.colors.textMuted)),
+          GestureDetector(
+              onTap: () => _voteAnswer(answer['id'] as int, 1),
+              child: Icon(Icons.keyboard_arrow_up_rounded, size: 24, color: context.colors.textMuted)),
+          Text('$votes',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+          GestureDetector(
+              onTap: () => _voteAnswer(answer['id'] as int, -1),
+              child: Icon(Icons.keyboard_arrow_down_rounded, size: 24, color: context.colors.textMuted)),
+          if (!accepted) ...[
+            const SizedBox(height: 4),
+            GestureDetector(
+                onTap: () => _acceptAnswer(answer['id'] as int),
+                child: Icon(Icons.check_circle_outline_rounded, size: 22, color: context.colors.textMuted)),
           ],
         ]),
         const SizedBox(width: 14),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          if (accepted) Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(color: context.colors.successMuted, borderRadius: BorderRadius.circular(6)),
-            child: Row(mainAxisSize: MainAxisSize.min, children: [
-              Icon(Icons.check_circle_rounded, size: 12, color: context.colors.success),
-              const SizedBox(width: 4),
-              Text('Accepted Answer', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: context.colors.success)),
-            ]),
-          ),
+        Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          if (accepted)
+            Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(color: context.colors.successMuted, borderRadius: BorderRadius.circular(6)),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                Icon(Icons.check_circle_rounded, size: 12, color: context.colors.success),
+                const SizedBox(width: 4),
+                Text('Accepted Answer',
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: context.colors.success)),
+              ]),
+            ),
           Text(body.toString(), style: TextStyle(fontSize: 14, color: context.colors.textSecondary, height: 1.5)),
           const SizedBox(height: 10),
           Text('$author \u00b7 $ago', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
@@ -498,33 +626,39 @@ class _PostDetailScreenState extends State<_PostDetailScreen> {
   }
 
   Widget _buildInputBar() => Container(
-    padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-    decoration: BoxDecoration(color: context.colors.surface, border: Border(top: BorderSide(color: context.colors.border))),
-    child: SafeArea(
-      top: false,
-      child: Row(children: [
-        Expanded(child: Container(
-          decoration: BoxDecoration(color: context.colors.surfaceHighest, borderRadius: BorderRadius.circular(12)),
-          child: TextField(
-            controller: _answerCtrl,
-            style: TextStyle(color: context.colors.textPrimary, fontSize: 14),
-            maxLines: null,
-            decoration: const InputDecoration(hintText: 'Write an answer...', border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 10)),
-          ),
-        )),
-        const SizedBox(width: 8),
-        Container(
-          decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-          child: IconButton(
-            onPressed: _submitting ? null : _submitAnswer,
-            icon: _submitting
-              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-              : const Icon(Icons.send_rounded, color: Colors.white, size: 18),
-          ),
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        decoration:
+            BoxDecoration(color: context.colors.surface, border: Border(top: BorderSide(color: context.colors.border))),
+        child: SafeArea(
+          top: false,
+          child: Row(children: [
+            Expanded(
+                child: Container(
+              decoration: BoxDecoration(color: context.colors.surfaceHighest, borderRadius: BorderRadius.circular(12)),
+              child: TextField(
+                controller: _answerCtrl,
+                style: TextStyle(color: context.colors.textPrimary, fontSize: 14),
+                maxLines: null,
+                decoration: const InputDecoration(
+                    hintText: 'Write an answer...',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 10)),
+              ),
+            )),
+            const SizedBox(width: 8),
+            Container(
+              decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+              child: IconButton(
+                onPressed: _submitting ? null : _submitAnswer,
+                icon: _submitting
+                    ? const SizedBox(
+                        width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Icon(Icons.send_rounded, color: Colors.white, size: 18),
+              ),
+            ),
+          ]),
         ),
-      ]),
-    ),
-  );
+      );
 }
 
 class _CreatePostSheet extends StatefulWidget {
@@ -544,7 +678,11 @@ class _CreatePostSheetState extends State<_CreatePostSheet> {
   bool _submitting = false;
 
   @override
-  void dispose() { _titleCtrl.dispose(); _bodyCtrl.dispose(); super.dispose(); }
+  void dispose() {
+    _titleCtrl.dispose();
+    _bodyCtrl.dispose();
+    super.dispose();
+  }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate() || _submitting) return;
@@ -557,75 +695,85 @@ class _CreatePostSheetState extends State<_CreatePostSheet> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: context.colors.surfaceElevated,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(children: [
-                Expanded(child: Text('Ask a Question', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: context.colors.textPrimary))),
-                IconButton(onPressed: () => Navigator.of(context).pop(), icon: Icon(Icons.close_rounded, color: context.colors.textMuted)),
-              ]),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _titleCtrl,
-                style: TextStyle(color: context.colors.textPrimary),
-                decoration: const InputDecoration(hintText: 'Title'),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _bodyCtrl,
-                style: TextStyle(color: context.colors.textPrimary),
-                maxLines: 5,
-                decoration: const InputDecoration(hintText: 'Describe your question...', alignLabelWithHint: true),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
-              ),
-              const SizedBox(height: 12),
-              if (widget.subjects.isNotEmpty)
-                DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _selectedSubject,
-                    hint: Text('Select subject (optional)', style: TextStyle(color: context.colors.textMuted, fontSize: 14)),
-                    dropdownColor: context.colors.surfaceHighest,
-                    isExpanded: true,
-                    items: widget.subjects.map<DropdownMenuItem<String>>((s) => DropdownMenuItem(
-                      value: s['slug'] ?? '',
-                      child: Text(s['name'] ?? '', style: TextStyle(color: context.colors.textPrimary, fontSize: 14)),
-                    )).toList(),
-                    onChanged: (v) => setState(() => _selectedSubject = v),
+  Widget build(BuildContext context) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: context.colors.surfaceElevated,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  Expanded(
+                      child: Text('Ask a Question',
+                          style:
+                              TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: context.colors.textPrimary))),
+                  IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: Icon(Icons.close_rounded, color: context.colors.textMuted)),
+                ]),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _titleCtrl,
+                  style: TextStyle(color: context.colors.textPrimary),
+                  decoration: const InputDecoration(hintText: 'Title'),
+                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _bodyCtrl,
+                  style: TextStyle(color: context.colors.textPrimary),
+                  maxLines: 5,
+                  decoration: const InputDecoration(hintText: 'Describe your question...', alignLabelWithHint: true),
+                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+                ),
+                const SizedBox(height: 12),
+                if (widget.subjects.isNotEmpty)
+                  DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _selectedSubject,
+                      hint: Text('Select subject (optional)',
+                          style: TextStyle(color: context.colors.textMuted, fontSize: 14)),
+                      dropdownColor: context.colors.surfaceHighest,
+                      isExpanded: true,
+                      items: widget.subjects
+                          .map<DropdownMenuItem<String>>((s) => DropdownMenuItem(
+                                value: (s['slug'] ?? '') as String,
+                                child: Text((s['name'] ?? '') as String,
+                                    style: TextStyle(color: context.colors.textPrimary, fontSize: 14)),
+                              ))
+                          .toList(),
+                      onChanged: (v) => setState(() => _selectedSubject = v),
+                    ),
+                  ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _submitting ? null : _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: _submitting
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        : const Text('Post Question', style: TextStyle(fontWeight: FontWeight.w600)),
                   ),
                 ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _submitting ? null : _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: _submitting
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : const Text('Post Question', style: TextStyle(fontWeight: FontWeight.w600)),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
 }

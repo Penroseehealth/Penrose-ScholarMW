@@ -7,11 +7,98 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
+    - .dart_tool/**
+  errors:
+    dead_code: error
+    unused_import: warning
+    unused_local_variable: warning
+    unused_field: warning
+    unused_element: warning
+
 include: package:flutter_lints/flutter.yaml
 
 linter:
   rules:
+    # === Correctness (catch real bugs) ===
+    avoid_empty_else: true
+    avoid_print: true
+    avoid_relative_lib_imports: true
+    avoid_returning_null_for_void: true
+    avoid_unnecessary_containers: true
+    avoid_web_libraries_in_flutter: true
+    cancel_subscriptions: true
+    close_sinks: true
+    empty_catches: true
+    empty_statements: true
+    no_duplicate_case_values: true
+    no_logic_in_create_state: true
+    no_self_assignments: true
+    no_wildcard_variable_uses: true
+    sized_box_for_whitespace: true
+    use_key_in_widget_constructors: true
+    unnecessary_statements: true
+    unnecessary_null_in_if_null_operators: true
+
+    # === Style (consistency) ===
     prefer_const_constructors: true
     prefer_const_declarations: true
-    avoid_print: true
+    prefer_const_literals_to_create_immutables: true
+    prefer_final_fields: true
+    prefer_final_locals: true
     prefer_single_quotes: true
+    use_super_parameters: true
+    unnecessary_const: true
+    unnecessary_new: true
+    unnecessary_this: true
+    unnecessary_string_interpolations: true
+    unnecessary_brace_in_string_interps: true
+    prefer_interpolation_to_compose_strings: true
+
+    # === Best practices ===
+    always_declare_return_types: true
+    annotate_overrides: true
+    avoid_bool_literals_in_conditional_expressions: true
+    avoid_catching_errors: true
+    avoid_function_literals_in_foreach_calls: true
+    avoid_init_to_null: true
+    avoid_redundant_argument_values: true
+    avoid_returning_null_for_future: true
+    avoid_types_as_parameter_names: true
+    camel_case_extensions: true
+    camel_case_types: true
+    comment_references: false
+    constant_identifier_names: true
+    curly_braces_in_flow_control_structures: true
+    directives_ordering: true
+    library_names: true
+    library_private_types_in_public_api: false
+    non_constant_identifier_names: true
+    overridden_fields: true
+    prefer_adjacent_string_concatenation: true
+    prefer_collection_literals: true
+    prefer_comma_operator: false
+    prefer_contains: true
+    prefer_equal_for_default_values: true
+    prefer_expression_function_bodies: true
+    prefer_for_elements_to_map_fromIterable: true
+    prefer_function_declarations_over_variables: true
+    prefer_if_elements_to_conditional_expressions: true
+    prefer_if_null_operators: true
+    prefer_inlining_add_whitespace: false
+    prefer_is_empty: true
+    prefer_is_not_empty: true
+    prefer_is_not_instanceof: true
+    prefer_iterable_whereType: true
+    prefer_null_aware_operators: true
+    prefer_typing_uninitialized_variables: true
+    provide_deprecation_message: false
+    recursive_getters: true
+    require_trailing_commas: false
+    sort_child_properties_last: true
+    unnecessary_overrides: true
+    unnecessary_parenthesis: true
+    unnecessary_string_escapes: true
+    unnecessary_nullable_for_final_variable_declarations: false
+    use_full_hex_values_for_flutter_colors: true
+    use_function_type_parameters_for_parameters: true
+    valid_regexps: true

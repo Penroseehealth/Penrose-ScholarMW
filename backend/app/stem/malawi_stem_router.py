@@ -105,15 +105,11 @@ async def list_malawi_examples(
 @router.get("/malawi/examples/{id}", response_model=MalawiExampleResponse)
 async def get_malawi_example(id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(STEMMalawiExample)
-        .where(STEMMalawiExample.id == id)
-        .options(selectinload(STEMMalawiExample.concept))
+        select(STEMMalawiExample).where(STEMMalawiExample.id == id).options(selectinload(STEMMalawiExample.concept))
     )
     example = result.scalar_one_or_none()
     if not example:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Malawi example not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Malawi example not found")
     return _example_to_response(example)
 
 
@@ -123,30 +119,22 @@ async def list_malawi_curriculum(
     form_level: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
-    stmt = select(STEMCurriculumAlignment).options(
-        selectinload(STEMCurriculumAlignment.concept)
-    )
+    stmt = select(STEMCurriculumAlignment).options(selectinload(STEMCurriculumAlignment.concept))
     if concept_id is not None:
         stmt = stmt.where(STEMCurriculumAlignment.concept_id == concept_id)
     if form_level:
         stmt = stmt.where(STEMCurriculumAlignment.form_level == form_level)
-    stmt = stmt.order_by(
-        STEMCurriculumAlignment.form_level, STEMCurriculumAlignment.curriculum_name
-    )
+    stmt = stmt.order_by(STEMCurriculumAlignment.form_level, STEMCurriculumAlignment.curriculum_name)
     result = await db.execute(stmt)
     return [_alignment_to_response(a) for a in result.scalars().all()]
 
 
 @router.get("/malawi/subjects/{slug}", response_model=SubjectOverviewResponse)
 async def get_malawi_subject_overview(slug: str, db: AsyncSession = Depends(get_db)):
-    subject_result = await db.execute(
-        select(STEMSubject).where(STEMSubject.subject_slug == slug)
-    )
+    subject_result = await db.execute(select(STEMSubject).where(STEMSubject.subject_slug == slug))
     subject = subject_result.scalar_one_or_none()
     if not subject:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found")
 
     stmt = (
         select(STEMCurriculumAlignment)
@@ -156,9 +144,7 @@ async def get_malawi_subject_overview(slug: str, db: AsyncSession = Depends(get_
         .join(STEMTopic, STEMSubtopic.topic_id == STEMTopic.id)
         .join(STEMDiscipline, STEMTopic.discipline_id == STEMDiscipline.id)
         .where(STEMDiscipline.subject_id == subject.id)
-        .order_by(
-            STEMCurriculumAlignment.form_level, STEMCurriculumAlignment.curriculum_name
-        )
+        .order_by(STEMCurriculumAlignment.form_level, STEMCurriculumAlignment.curriculum_name)
     )
     result = await db.execute(stmt)
     alignments = [_alignment_to_response(a) for a in result.scalars().all()]
@@ -171,25 +157,18 @@ async def get_malawi_subject_overview(slug: str, db: AsyncSession = Depends(get_
     return SubjectOverviewResponse(
         subject_slug=subject.subject_slug,
         subject_title=subject.title,
-        form_levels=[
-            FormLevelGroup(form_level=level, alignments=items)
-            for level, items in sorted(grouped.items())
-        ],
+        form_levels=[FormLevelGroup(form_level=level, alignments=items) for level, items in sorted(grouped.items())],
     )
 
 
 @router.get("/malawi/stats", response_model=MalawiStatsResponse)
 async def get_malawi_stats(db: AsyncSession = Depends(get_db)):
     examples_count = await db.execute(
-        select(func.count())
-        .select_from(STEMMalawiExample)
-        .where(STEMMalawiExample.is_published.is_(True))
+        select(func.count()).select_from(STEMMalawiExample).where(STEMMalawiExample.is_published.is_(True))
     )
     total_examples = examples_count.scalar_one()
 
-    alignments_count = await db.execute(
-        select(func.count()).select_from(STEMCurriculumAlignment)
-    )
+    alignments_count = await db.execute(select(func.count()).select_from(STEMCurriculumAlignment))
     total_alignments = alignments_count.scalar_one()
 
     subjects_count = await db.execute(

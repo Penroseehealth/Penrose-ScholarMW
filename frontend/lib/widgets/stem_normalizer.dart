@@ -2,15 +2,36 @@ class StemNormalizer {
   StemNormalizer._();
 
   static final _unicodeSuperscript = {
-    '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4',
-    '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9',
-    'ⁿ': 'n', 'ⁱ': 'i',
+    '⁰': '0',
+    '¹': '1',
+    '²': '2',
+    '³': '3',
+    '⁴': '4',
+    '⁵': '5',
+    '⁶': '6',
+    '⁷': '7',
+    '⁸': '8',
+    '⁹': '9',
+    'ⁿ': 'n',
+    'ⁱ': 'i',
   };
 
   static final _unicodeSubscript = {
-    '₀': '0', '₁': '1', '₂': '2', '₃': '3', '₄': '4',
-    '₅': '5', '₆': '6', '₇': '7', '₈': '8', '₉': '9',
-    'ₐ': 'a', 'ₑ': 'e', 'ₒ': 'o', 'ₓ': 'x', 'ₙ': 'n',
+    '₀': '0',
+    '₁': '1',
+    '₂': '2',
+    '₃': '3',
+    '₄': '4',
+    '₅': '5',
+    '₆': '6',
+    '₇': '7',
+    '₈': '8',
+    '₉': '9',
+    'ₐ': 'a',
+    'ₑ': 'e',
+    'ₒ': 'o',
+    'ₓ': 'x',
+    'ₙ': 'n',
   };
 
   static String normalizePlainText(String text) {
@@ -65,12 +86,8 @@ class StemNormalizer {
 
   static String _normalizeAsciiPatterns(String text) {
     var result = text;
-    result = result.replaceAllMapped(_sqrtPattern, (m) {
-      return '\\sqrt{${m.group(1)}}';
-    });
-    result = result.replaceAllMapped(_fracPattern, (m) {
-      return '\\frac{${m.group(1)}}{${m.group(2)}}';
-    });
+    result = result.replaceAllMapped(_sqrtPattern, (m) => '\\sqrt{${m.group(1)}}');
+    result = result.replaceAllMapped(_fracPattern, (m) => '\\frac{${m.group(1)}}{${m.group(2)}}');
     result = result.replaceAllMapped(_superscriptPattern, (m) {
       final base = m.group(1)!;
       final exp = m.group(2)!;

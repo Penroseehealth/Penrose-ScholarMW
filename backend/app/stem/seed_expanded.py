@@ -549,17 +549,13 @@ async def _seed_extra_questions(db: AsyncSession) -> int:
         # Try to find a concept to attach to
         if count > 0:
             concept = await db.scalar(
-                select(STEMConcept).where(
-                    STEMConcept.title == "Solving One-Variable Linear Equations"
-                )
+                select(STEMConcept).where(STEMConcept.title == "Solving One-Variable Linear Equations")
             )
             if concept is None:
                 concept = await db.scalar(select(STEMConcept))
         else:
             concept = await db.scalar(
-                select(STEMConcept).where(
-                    STEMConcept.title == "Solving One-Variable Linear Equations"
-                )
+                select(STEMConcept).where(STEMConcept.title == "Solving One-Variable Linear Equations")
             )
         if concept:
             question = STMAssessmentQuestion(
@@ -580,17 +576,11 @@ async def _seed_extra_questions(db: AsyncSession) -> int:
 
 
 async def _seed_extra_malawi_examples(db: AsyncSession) -> int:
-    concept = await db.scalar(
-        select(STEMConcept).where(
-            STEMConcept.title == "Solving One-Variable Linear Equations"
-        )
-    )
+    concept = await db.scalar(select(STEMConcept).where(STEMConcept.title == "Solving One-Variable Linear Equations"))
     if not concept:
         return 0
 
-    existing_titles = {
-        row[0] for row in await db.execute(select(STEMMalawiExample.title))
-    }
+    existing_titles = {row[0] for row in await db.execute(select(STEMMalawiExample.title))}
     added = 0
     for ex in EXTRA_MALAWI_EXAMPLES:
         if ex["title"] in existing_titles:
@@ -609,11 +599,7 @@ async def _seed_extra_malawi_examples(db: AsyncSession) -> int:
 
 
 async def _seed_extra_alignments(db: AsyncSession) -> int:
-    concept = await db.scalar(
-        select(STEMConcept).where(
-            STEMConcept.title == "Solving One-Variable Linear Equations"
-        )
-    )
+    concept = await db.scalar(select(STEMConcept).where(STEMConcept.title == "Solving One-Variable Linear Equations"))
 
     # Also create alignments for other key concepts if they exist
     algebra_concepts = await db.execute(
@@ -622,19 +608,13 @@ async def _seed_extra_alignments(db: AsyncSession) -> int:
         .join(STEMTopic, STEMSubtopic.topic_id == STEMTopic.id)
         .join(STEMDiscipline, STEMTopic.discipline_id == STEMDiscipline.id)
         .join(STEMSubject, STEMDiscipline.subject_id == STEMSubject.id)
-        .where(
-            STEMSubject.subject_slug.in_(
-                ["mathematics", "physics", "chemistry", "biology", "computer-science"]
-            )
-        )
+        .where(STEMSubject.subject_slug.in_(["mathematics", "physics", "chemistry", "biology", "computer-science"]))
     )
     all_concepts = algebra_concepts.scalars().all()
     existing_codes = {
         row[0]
         for row in await db.execute(
-            select(STEMCurriculumAlignment.syllabus_code).where(
-                STEMCurriculumAlignment.syllabus_code.is_not(None)
-            )
+            select(STEMCurriculumAlignment.syllabus_code).where(STEMCurriculumAlignment.syllabus_code.is_not(None))
         )
     }
 
@@ -642,11 +622,7 @@ async def _seed_extra_alignments(db: AsyncSession) -> int:
     for align in EXTRA_ALIGNMENTS:
         if align["code"] in existing_codes:
             continue
-        target_concept = (
-            concept
-            if align["concept"] == "Solving One-Variable Linear Equations"
-            else None
-        )
+        target_concept = concept if align["concept"] == "Solving One-Variable Linear Equations" else None
         if not target_concept and all_concepts:
             # Assign alignment to any concept from matching subject
             target_concept = all_concepts[added % len(all_concepts)]
@@ -706,9 +682,7 @@ async def _seed_extra_challenges(db: AsyncSession) -> int:
 async def _seed_extra_knowledge_edges(db: AsyncSession) -> int:
     """Add cross-subject knowledge graph edges for 'Solving One-Variable Linear Equations' concept."""
     linear_concept = await db.scalar(
-        select(STEMConcept).where(
-            STEMConcept.title == "Solving One-Variable Linear Equations"
-        )
+        select(STEMConcept).where(STEMConcept.title == "Solving One-Variable Linear Equations")
     )
     if not linear_concept:
         linear_concept = await db.scalar(select(STEMConcept))

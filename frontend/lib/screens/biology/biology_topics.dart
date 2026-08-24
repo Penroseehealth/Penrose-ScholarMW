@@ -36,7 +36,9 @@ class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
       'Ecosystems, Ecology & Conservation in Malawi',
       Icons.eco_rounded,
       Colors.teal,
-      6, 3, 2,
+      6,
+      3,
+      2,
       [
         _TopicData('Classification of Living Organisms', 1),
         _TopicData('Ecosystems and Food Chains', 1),
@@ -51,7 +53,9 @@ class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
       'Structure, Nutrition, Transport & Reproduction',
       Icons.local_florist_rounded,
       _bioGreen,
-      5, 3, 2,
+      5,
+      3,
+      2,
       [
         _TopicData('Introduction to Plant Classification', 1),
         _TopicData('Plant Nutrition and Photosynthesis', 2),
@@ -65,7 +69,9 @@ class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
       'Classification, Structure, Coordination & Behaviour',
       Icons.pets_rounded,
       Colors.orange,
-      4, 2, 1,
+      4,
+      2,
+      1,
       [
         _TopicData('Introduction to Animal Classification', 1),
         _TopicData('Animal Cells and Organisation', 1),
@@ -78,7 +84,9 @@ class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
       'Body Systems, Health, Nutrition & Disease',
       Icons.person_rounded,
       Colors.purple,
-      15, 8, 4,
+      15,
+      8,
+      4,
       [
         _TopicData('Nutrition and Balanced Diet', 1),
         _TopicData('Deficiency Diseases and Disorders', 1),
@@ -102,7 +110,9 @@ class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
       'Roles in Disease, Food Production & Biotechnology',
       Icons.bug_report_rounded,
       Colors.red,
-      4, 2, 1,
+      4,
+      2,
+      1,
       [
         _TopicData('Introduction to Micro-organisms', 2),
         _TopicData('Micro-organisms in Disease', 4),
@@ -115,7 +125,9 @@ class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
       'Inheritance, DNA, Variation & Natural Selection',
       Icons.scatter_plot_rounded,
       Colors.amber,
-      6, 4, 2,
+      6,
+      4,
+      2,
       [
         _TopicData('Cell Division (Mitosis and Meiosis)', 3),
         _TopicData('Mendelian Genetics', 3),
@@ -130,102 +142,93 @@ class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
   List<_CoreElement> get _filteredElements {
     if (_selectedForm == 0) return _coreElements;
     final formNum = _selectedForm;
-    return _coreElements.where((ce) {
-      return ce.topics.any((t) => t.formLevel == formNum);
-    }).toList();
+    return _coreElements.where((ce) => ce.topics.any((t) => t.formLevel == formNum)).toList();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF0A0E1A),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0F1623),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-          onPressed: () => context.go('/biology'),
-        ),
-        title: const Row(
-          children: [
-            Icon(Icons.book_rounded, color: _bioGreen, size: 22),
-            SizedBox(width: 10),
-            Text('Biology Topics',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 12),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: _bioGreen.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: _bioGreen.withValues(alpha: 0.3)),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.auto_stories_rounded, color: _bioGreen, size: 14),
-                SizedBox(width: 4),
-                Text('374 Topics',
-                    style: TextStyle(color: _bioGreen, fontSize: 11, fontWeight: FontWeight.w600)),
-              ],
-            ),
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: const Color(0xFF0A0E1A),
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF0F1623),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+            onPressed: () => context.go('/biology'),
           ),
-        ],
-      ),
-      body: Column(
-        children: [
-          _buildFormTabs(),
-          Container(
-            height: 1,
-            color: Colors.white.withValues(alpha: 0.06),
+          title: const Row(
+            children: [
+              Icon(Icons.book_rounded, color: _bioGreen, size: 22),
+              SizedBox(width: 10),
+              Text('Biology Topics', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ],
           ),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _filteredElements.length,
-              itemBuilder: (_, i) => _buildCoreElementCard(_filteredElements[i]),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFormTabs() {
-    return Container(
-      height: 48,
-      color: const Color(0xFF0F1623),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        itemCount: _forms.length,
-        itemBuilder: (_, i) {
-          final selected = _selectedForm == i;
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: ChoiceChip(
-              label: Text(_forms[i], style: const TextStyle(fontSize: 13)),
-              selected: selected,
-              onSelected: (_) => setState(() => _selectedForm = i),
-              backgroundColor: Colors.white.withValues(alpha: 0.05),
-              selectedColor: _bioGreen,
-              labelStyle: TextStyle(
-                color: selected ? Colors.white : Colors.white70,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+          actions: [
+            Container(
+              margin: const EdgeInsets.only(right: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: _bioGreen.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: _bioGreen.withValues(alpha: 0.3)),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.auto_stories_rounded, color: _bioGreen, size: 14),
+                  SizedBox(width: 4),
+                  Text('374 Topics', style: TextStyle(color: _bioGreen, fontSize: 11, fontWeight: FontWeight.w600)),
+                ],
               ),
             ),
-          );
-        },
-      ),
-    );
-  }
+          ],
+        ),
+        body: Column(
+          children: [
+            _buildFormTabs(),
+            Container(
+              height: 1,
+              color: Colors.white.withValues(alpha: 0.06),
+            ),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: _filteredElements.length,
+                itemBuilder: (_, i) => _buildCoreElementCard(_filteredElements[i]),
+              ),
+            ),
+          ],
+        ),
+      );
+
+  Widget _buildFormTabs() => Container(
+        height: 48,
+        color: const Color(0xFF0F1623),
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          itemCount: _forms.length,
+          itemBuilder: (_, i) {
+            final selected = _selectedForm == i;
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ChoiceChip(
+                label: Text(_forms[i], style: const TextStyle(fontSize: 13)),
+                selected: selected,
+                onSelected: (_) => setState(() => _selectedForm = i),
+                backgroundColor: Colors.white.withValues(alpha: 0.05),
+                selectedColor: _bioGreen,
+                labelStyle: TextStyle(
+                  color: selected ? Colors.white : Colors.white70,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+                ),
+              ),
+            );
+          },
+        ),
+      );
 
   Widget _buildCoreElementCard(_CoreElement ce) {
-    final filteredTopics = _selectedForm == 0
-        ? ce.topics
-        : ce.topics.where((t) => t.formLevel == _selectedForm).toList();
+    final filteredTopics =
+        _selectedForm == 0 ? ce.topics : ce.topics.where((t) => t.formLevel == _selectedForm).toList();
     final completedCount = (filteredTopics.length * 0.4).toInt();
 
     return Container(
@@ -262,15 +265,9 @@ class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(ce.name,
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16)),
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                       const SizedBox(height: 2),
-                      Text(ce.description,
-                          style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.5),
-                              fontSize: 12)),
+                      Text(ce.description, style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12)),
                     ],
                   ),
                 ),
@@ -296,8 +293,7 @@ class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
                 const Spacer(),
                 Text(
                   '${(completedCount / filteredTopics.length * 100).toInt()}% complete',
-                  style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.4), fontSize: 12),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 12),
                 ),
               ],
             ),
@@ -309,52 +305,43 @@ class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
     );
   }
 
-  Widget _buildTopicTile(_TopicData topic, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: Colors.white.withValues(alpha: 0.04)),
+  Widget _buildTopicTile(_TopicData topic, Color color) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(color: Colors.white.withValues(alpha: 0.04)),
+          ),
         ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Center(
-              child: Text(
-                'F${topic.formLevel}',
-                style: TextStyle(
-                    color: color,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: Text(
+                  'F${topic.formLevel}',
+                  style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(topic.name,
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500)),
-              ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(topic.name,
+                      style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
+                ],
+              ),
             ),
-          ),
-          Icon(Icons.chevron_right_rounded,
-              color: Colors.white.withValues(alpha: 0.2), size: 20),
-        ],
-      ),
-    );
-  }
+            Icon(Icons.chevron_right_rounded, color: Colors.white.withValues(alpha: 0.2), size: 20),
+          ],
+        ),
+      );
 
   Widget _buildProgressRing(int completed, int total, Color color) {
     final progress = total > 0 ? completed / total : 0.0;
@@ -376,27 +363,20 @@ class _BiologyTopicsScreenState extends State<BiologyTopicsScreen> {
           ),
           Text(
             '${(progress * 100).toInt()}%',
-            style: TextStyle(
-                color: color, fontSize: 11, fontWeight: FontWeight.bold),
+            style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold),
           ),
         ],
       ),
     );
   }
 
-  Widget _stat(String value, String label, Color color) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(value,
-            style: TextStyle(
-                color: color, fontSize: 16, fontWeight: FontWeight.bold)),
-        Text(label,
-            style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.4), fontSize: 11)),
-      ],
-    );
-  }
+  Widget _stat(String value, String label, Color color) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(value, style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(label, style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 11)),
+        ],
+      );
 }
 
 class _CoreElement {
@@ -410,7 +390,6 @@ class _CoreElement {
   final List<_TopicData> topics;
 
   const _CoreElement(
-
     this.name,
     this.description,
     this.icon,

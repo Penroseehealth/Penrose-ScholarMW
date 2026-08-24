@@ -24,10 +24,7 @@ async def list_notifications(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(Notification)
-        .where(Notification.user_id == user.id)
-        .order_by(Notification.created_at.desc())
-        .limit(50)
+        select(Notification).where(Notification.user_id == user.id).order_by(Notification.created_at.desc()).limit(50)
     )
     return [
         {
@@ -51,9 +48,7 @@ async def unread_count(
     from sqlalchemy import func
 
     result = await db.execute(
-        select(func.count(Notification.id)).where(
-            Notification.user_id == user.id, Notification.is_read == False
-        )
+        select(func.count(Notification.id)).where(Notification.user_id == user.id, Notification.is_read == False)
     )
     return {"count": result.scalar()}
 
@@ -64,9 +59,7 @@ async def mark_all_read(
     db: AsyncSession = Depends(get_db),
 ):
     await db.execute(
-        update(Notification)
-        .where(Notification.user_id == user.id, Notification.is_read == False)
-        .values(is_read=True)
+        update(Notification).where(Notification.user_id == user.id, Notification.is_read == False).values(is_read=True)
     )
     await db.commit()
     return {"detail": "All notifications marked as read"}
@@ -79,9 +72,7 @@ async def mark_single_read(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(Notification).where(
-            Notification.id == notification_id, Notification.user_id == user.id
-        )
+        select(Notification).where(Notification.id == notification_id, Notification.user_id == user.id)
     )
     notif = result.scalar_one_or_none()
     if not notif:

@@ -3,10 +3,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../services/services.dart';
-import '../../providers/auth_provider.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../providers/auth_provider.dart';
+import '../../services/services.dart';
 
 class GamificationScreen extends StatefulWidget {
   const GamificationScreen({super.key});
@@ -15,8 +16,7 @@ class GamificationScreen extends StatefulWidget {
   State<GamificationScreen> createState() => _GamificationScreenState();
 }
 
-class _GamificationScreenState extends State<GamificationScreen>
-    with SingleTickerProviderStateMixin {
+class _GamificationScreenState extends State<GamificationScreen> with SingleTickerProviderStateMixin {
   final ApiService _api = ApiService();
   bool _loading = true;
   String? _error;
@@ -53,13 +53,11 @@ class _GamificationScreenState extends State<GamificationScreen>
 
       if (!mounted) return;
 
-      if (pointsRes.statusCode == 200 &&
-          achieveRes.statusCode == 200 &&
-          leaderRes.statusCode == 200) {
+      if (pointsRes.statusCode == 200 && achieveRes.statusCode == 200 && leaderRes.statusCode == 200) {
         setState(() {
-          _points = jsonDecode(pointsRes.body);
-          _achievements = jsonDecode(achieveRes.body);
-          _leaderboard = jsonDecode(leaderRes.body);
+          _points = jsonDecode(pointsRes.body) as Map<String, dynamic>?;
+          _achievements = jsonDecode(achieveRes.body) as List<dynamic>;
+          _leaderboard = jsonDecode(leaderRes.body) as List<dynamic>;
           _loading = false;
         });
       } else {
@@ -79,83 +77,81 @@ class _GamificationScreenState extends State<GamificationScreen>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              expandedHeight: 80,
-              pinned: true,
-              bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(48),
-                child: Container(
-                  color: AppColors.primary,
-                  child: TabBar(
-                    controller: _tabController,
-                    indicatorColor: Colors.white,
-                    labelColor: Colors.white,
-                    unselectedLabelColor: Colors.white60,
-                    tabs: [
-                      const Tab(text: 'Points'),
-                      const Tab(text: 'Badges'),
-                      const Tab(text: 'Leaderboard'),
-                    ],
-                  ),
-                ),
-              ),
-              flexibleSpace: FlexibleSpaceBar(
-                background: Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [AppColors.primary, AppColors.primaryDark],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: RefreshIndicator(
+          onRefresh: _loadData,
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 80,
+                pinned: true,
+                bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(48),
+                  child: Container(
+                    color: AppColors.primary,
+                    child: TabBar(
+                      controller: _tabController,
+                      indicatorColor: Colors.white,
+                      labelColor: Colors.white,
+                      unselectedLabelColor: Colors.white60,
+                      tabs: const [
+                        Tab(text: 'Points'),
+                        Tab(text: 'Badges'),
+                        Tab(text: 'Leaderboard'),
+                      ],
                     ),
                   ),
-                  child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const Text(
-                            'Gamification',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
+                ),
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColors.primary, AppColors.primaryDark],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            const Text(
+                              'Gamification',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Track your progress, achievements & rank',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: 14,
+                            const SizedBox(height: 4),
+                            Text(
+                              'Track your progress, achievements & rank',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.8),
+                                fontSize: 14,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: _buildBody(),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: _buildBody(),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildBody() {
     if (_loading) {
@@ -186,7 +182,7 @@ class _GamificationScreenState extends State<GamificationScreen>
 
   Widget _buildPointsTab() {
     final totalEarned = _points?['total_earned'] ?? 0;
-    final level = _points?['level'] ?? 1;
+    final level = (_points?['level'] ?? 1) as int;
     final streakDays = _points?['streak_days'] ?? 0;
 
     return Column(
@@ -241,44 +237,42 @@ class _GamificationScreenState extends State<GamificationScreen>
     required String value,
     required IconData icon,
     required Color color,
-  }) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 26),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: color,
+  }) =>
+      Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            children: [
+              Icon(icon, color: color, size: 26),
+              const SizedBox(height: 8),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                color: context.colors.textSecondary,
-                fontWeight: FontWeight.w500,
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: context.colors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildLevelProgressCard(int level) {
     final nextLevelPoints = (level + 1) * 100;
     final currentPoints = _points?['total_earned'] ?? 0;
-    final progress =
-        nextLevelPoints > 0 ? (currentPoints / nextLevelPoints).clamp(0.0, 1.0) : 0.0;
+    final progress = (nextLevelPoints > 0 ? (currentPoints / nextLevelPoints).clamp(0.0, 1.0) : 0.0).toDouble();
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -313,8 +307,7 @@ class _GamificationScreenState extends State<GamificationScreen>
                 value: progress.toDouble(),
                 minHeight: 10,
                 backgroundColor: context.colors.divider,
-                valueColor:
-                    const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
               ),
             ),
             const SizedBox(height: 8),
@@ -346,8 +339,7 @@ class _GamificationScreenState extends State<GamificationScreen>
                 color: context.colors.info.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(Icons.calendar_today_outlined,
-                  color: context.colors.info, size: 22),
+              child: Icon(Icons.calendar_today_outlined, color: context.colors.info, size: 22),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -361,8 +353,7 @@ class _GamificationScreenState extends State<GamificationScreen>
                   const SizedBox(height: 2),
                   Text(
                     lastActivity.toString(),
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -419,8 +410,7 @@ class _GamificationScreenState extends State<GamificationScreen>
               childAspectRatio: 0.85,
             ),
             itemCount: locked.length,
-            itemBuilder: (context, index) =>
-                _buildAchievementBadge(locked[index]),
+            itemBuilder: (context, index) => _buildAchievementBadge(locked[index]),
           ),
       ],
     );
@@ -428,8 +418,8 @@ class _GamificationScreenState extends State<GamificationScreen>
 
   Widget _buildAchievementBadge(dynamic achievement) {
     final isEarned = achievement['earned'] == true;
-    final name = achievement['name'] ?? '';
-    final iconStr = achievement['icon'] ?? 'emoji_events';
+    final name = (achievement['name'] ?? '') as String;
+    final iconStr = (achievement['icon'] ?? 'emoji_events') as String;
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -510,7 +500,7 @@ class _GamificationScreenState extends State<GamificationScreen>
 
   Widget _buildLeaderboardEntry(dynamic entry, bool isCurrentUser) {
     final rank = entry['rank'] ?? 0;
-    final displayName = entry['display_name'] ?? 'Unknown';
+    final displayName = (entry['display_name'] ?? 'Unknown') as String;
     final totalEarned = entry['total_earned'] ?? 0;
     final level = entry['level'] ?? 1;
     final streakDays = entry['streak_days'] ?? 0;
@@ -548,9 +538,7 @@ class _GamificationScreenState extends State<GamificationScreen>
             const SizedBox(width: 12),
             CircleAvatar(
               radius: 20,
-              backgroundColor: isCurrentUser
-                  ? AppColors.primary.withValues(alpha: 0.15)
-                  : context.colors.divider,
+              backgroundColor: isCurrentUser ? AppColors.primary.withValues(alpha: 0.15) : context.colors.divider,
               child: Text(
                 displayName.isNotEmpty ? displayName[0].toUpperCase() : '?',
                 style: TextStyle(
@@ -569,16 +557,13 @@ class _GamificationScreenState extends State<GamificationScreen>
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: isCurrentUser
-                          ? AppColors.primary
-                          : context.colors.textPrimary,
+                      color: isCurrentUser ? AppColors.primary : context.colors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     'Lv.$level · $streakDays day streak',
-                    style: TextStyle(
-                        fontSize: 12, color: context.colors.textSecondary),
+                    style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
                   ),
                 ],
               ),
@@ -599,132 +584,119 @@ class _GamificationScreenState extends State<GamificationScreen>
 
   // ── Shared Widgets ──────────────────────────────────────
 
-  Widget _buildCertificatesButton() {
-    return GestureDetector(
-      onTap: () => context.push('/certificates'),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF1A1040), AppColors.primaryDark],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+  Widget _buildCertificatesButton() => GestureDetector(
+        onTap: () => context.push('/certificates'),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF1A1040), AppColors.primaryDark],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
           ),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.workspace_premium_outlined, color: AppColors.primaryLight, size: 24),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'My Certificates',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'View and share your earned certificates',
-                    style: TextStyle(fontSize: 12, color: context.colors.textMuted),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right_rounded, color: context.colors.textMuted, size: 20),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-        color: context.colors.textPrimary,
-      ),
-    );
-  }
-
-  Widget _buildEmptyCard(String message) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: Text(
-            message,
-            style:
-                TextStyle(fontSize: 13, color: context.colors.textSecondary),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(String message) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          children: [
-            Icon(Icons.emoji_events_outlined,
-                size: 56, color: context.colors.textMuted.withValues(alpha: 0.3)),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: context.colors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Complete activities to earn points and badges',
-              style: TextStyle(fontSize: 13, color: context.colors.textMuted),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildErrorState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          children: [
-            Icon(Icons.error_outline, size: 48, color: context.colors.error),
-            const SizedBox(height: 12),
-            Text(
-              _error!,
-              style:
-                  TextStyle(fontSize: 14, color: context.colors.textSecondary),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadData,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+          child: Row(
+            children: [
+              const Icon(Icons.workspace_premium_outlined, color: AppColors.primaryLight, size: 24),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'My Certificates',
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'View and share your earned certificates',
+                      style: TextStyle(fontSize: 12, color: context.colors.textMuted),
+                    ),
+                  ],
                 ),
               ),
-              child: const Text('Retry'),
-            ),
-          ],
+              Icon(Icons.chevron_right_rounded, color: context.colors.textMuted, size: 20),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
+
+  Widget _buildSectionHeader(String title) => Text(
+        title,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: context.colors.textPrimary,
+        ),
+      );
+
+  Widget _buildEmptyCard(String message) => Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Center(
+            child: Text(
+              message,
+              style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
+            ),
+          ),
+        ),
+      );
+
+  Widget _buildEmptyState(String message) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            children: [
+              Icon(Icons.emoji_events_outlined, size: 56, color: context.colors.textMuted.withValues(alpha: 0.3)),
+              const SizedBox(height: 12),
+              Text(
+                message,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: context.colors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Complete activities to earn points and badges',
+                style: TextStyle(fontSize: 13, color: context.colors.textMuted),
+              ),
+            ],
+          ),
+        ),
+      );
+
+  Widget _buildErrorState() => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            children: [
+              Icon(Icons.error_outline, size: 48, color: context.colors.error),
+              const SizedBox(height: 12),
+              Text(
+                _error!,
+                style: TextStyle(fontSize: 14, color: context.colors.textSecondary),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadData,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
 }

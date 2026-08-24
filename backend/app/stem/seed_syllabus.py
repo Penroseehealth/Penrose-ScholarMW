@@ -59,10 +59,7 @@ BIOLOGY_SYLLABUS = {
                     "subtopics": [
                         {
                             "title": "Safety Measures, Risk Factors and Handling of Accidents",
-                            "description": (
-                                "Safety measures in the laboratory; risk factors; "
-                                "handling of accidents."
-                            ),
+                            "description": ("Safety measures in the laboratory; risk factors; handling of accidents."),
                             "learning_objectives": [
                                 {
                                     "objective": "Identify safety measures to be observed in the laboratory",
@@ -110,8 +107,7 @@ BIOLOGY_SYLLABUS = {
                         {
                             "title": "Observation and Scientific Drawing",
                             "description": (
-                                "Observation of specimen and drawing accurate diagrams; "
-                                "calculation of magnification."
+                                "Observation of specimen and drawing accurate diagrams; calculation of magnification."
                             ),
                             "learning_objectives": [
                                 {
@@ -138,10 +134,7 @@ BIOLOGY_SYLLABUS = {
                     "subtopics": [
                         {
                             "title": "Measurement and Calculation",
-                            "description": (
-                                "Measurements of organisms; calculation of "
-                                "variables from measurements."
-                            ),
+                            "description": ("Measurements of organisms; calculation of variables from measurements."),
                             "learning_objectives": [
                                 {
                                     "objective": "Measure organisms using appropriate instruments (ruler, calipers, balance)",
@@ -168,8 +161,7 @@ BIOLOGY_SYLLABUS = {
                         {
                             "title": "Summarising and Organising Information",
                             "description": (
-                                "Summarising information from books in the form of "
-                                "tables, flow diagrams and notes."
+                                "Summarising information from books in the form of tables, flow diagrams and notes."
                             ),
                             "learning_objectives": [
                                 {
@@ -416,8 +408,7 @@ BIOLOGY_SYLLABUS = {
                         {
                             "title": "Using Identification Methods",
                             "description": (
-                                "Identification of living things using: "
-                                "dichotomous keys, hierarchy, scientific names."
+                                "Identification of living things using: dichotomous keys, hierarchy, scientific names."
                             ),
                             "learning_objectives": [
                                 {
@@ -556,8 +547,7 @@ BIOLOGY_SYLLABUS = {
                         {
                             "title": "Populations and Communities",
                             "description": (
-                                "Factors affecting population sizes and "
-                                "relationships among organisms in a community."
+                                "Factors affecting population sizes and relationships among organisms in a community."
                             ),
                             "learning_objectives": [
                                 {
@@ -828,8 +818,7 @@ BIOLOGY_SYLLABUS = {
                         {
                             "title": "Cell Structure",
                             "description": (
-                                "Cell as the basic unit of life; using a microscope; "
-                                "observing plant and animal cells."
+                                "Cell as the basic unit of life; using a microscope; observing plant and animal cells."
                             ),
                             "learning_objectives": [
                                 {
@@ -857,8 +846,7 @@ BIOLOGY_SYLLABUS = {
                         {
                             "title": "Levels of Organisation",
                             "description": (
-                                "Tissues, plant organs (roots, stems, leaves), "
-                                "and monocot vs dicot differences."
+                                "Tissues, plant organs (roots, stems, leaves), and monocot vs dicot differences."
                             ),
                             "learning_objectives": [
                                 {
@@ -891,8 +879,7 @@ BIOLOGY_SYLLABUS = {
                         {
                             "title": "Transport in Plants",
                             "description": (
-                                "Absorption, osmosis, root pressure, water and "
-                                "mineral transport, and transpiration."
+                                "Absorption, osmosis, root pressure, water and mineral transport, and transpiration."
                             ),
                             "learning_objectives": [
                                 {
@@ -2022,9 +2009,7 @@ BIOLOGY_SYLLABUS = {
                     "subtopics": [
                         {
                             "title": "Lymphatic Vessels and Nodes",
-                            "description": (
-                                "Component parts of the lymphatic system and their functions."
-                            ),
+                            "description": ("Component parts of the lymphatic system and their functions."),
                             "learning_objectives": [
                                 {
                                     "objective": "Identify the component parts of the lymphatic system (lymph vessels, lymph nodes, spleen, thymus gland, tonsils)",
@@ -2275,10 +2260,7 @@ BIOLOGY_SYLLABUS = {
                         },
                         {
                             "title": "Endocrine System",
-                            "description": (
-                                "Endocrine system and glands; factors modifying "
-                                "growth and development."
-                            ),
+                            "description": ("Endocrine system and glands; factors modifying growth and development."),
                             "learning_objectives": [
                                 {
                                     "objective": "Describe the endocrine system and identify the major endocrine glands (pituitary, thyroid, adrenal, pancreas, ovaries, testes)",
@@ -2365,8 +2347,7 @@ BIOLOGY_SYLLABUS = {
                         {
                             "title": "Blood Groups and Transfusion",
                             "description": (
-                                "ABO and rhesus blood groups; blood transfusion; "
-                                "blood typing; Rhesus disease."
+                                "ABO and rhesus blood groups; blood transfusion; blood typing; Rhesus disease."
                             ),
                             "learning_objectives": [
                                 {
@@ -2544,8 +2525,7 @@ BIOLOGY_SYLLABUS = {
                         {
                             "title": "Bacteria, Viruses and Fungi",
                             "description": (
-                                "Structure of bacteria, viruses, and fungi; "
-                                "classification of micro-organisms."
+                                "Structure of bacteria, viruses, and fungi; classification of micro-organisms."
                             ),
                             "learning_objectives": [
                                 {
@@ -2782,9 +2762,7 @@ BIOLOGY_SYLLABUS = {
                         },
                         {
                             "title": "Cell Division",
-                            "description": (
-                                "Chromosomes; mitosis; meiosis; and their significance."
-                            ),
+                            "description": ("Chromosomes; mitosis; meiosis; and their significance."),
                             "learning_objectives": [
                                 {
                                     "objective": "Describe chromosomes as carriers of genetic information and state the human chromosome number (46)",
@@ -3010,8 +2988,7 @@ BIOLOGY_SYLLABUS = {
                         {
                             "title": "Formation of New Species",
                             "description": (
-                                "Geographic and reproductive isolation; "
-                                "isolation mechanisms; species concept."
+                                "Geographic and reproductive isolation; isolation mechanisms; species concept."
                             ),
                             "learning_objectives": [
                                 {
@@ -3098,9 +3075,7 @@ async def seed_syllabus():
     """Seed the Biology MSCE syllabus. Idempotent."""
     async with async_session() as db:
         existing = (
-            await db.execute(
-                select(SyllabusSubject).where(SyllabusSubject.slug == "biology")
-            )
+            await db.execute(select(SyllabusSubject).where(SyllabusSubject.slug == "biology"))
         ).scalar_one_or_none()
         if existing:
             return

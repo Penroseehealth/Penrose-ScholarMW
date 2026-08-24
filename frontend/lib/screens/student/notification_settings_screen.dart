@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/services.dart';
 
 class NotificationSettingsScreen extends StatefulWidget {
   const NotificationSettingsScreen({super.key});
@@ -35,21 +36,21 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       final prefs = await _stemService.getNotificationPreferences();
       if (mounted && prefs.isNotEmpty) {
         setState(() {
-          _assessmentReminders = prefs['assessment_reminders'] ?? true;
-          _studyNudges = prefs['study_nudges'] ?? true;
-          _resourceAlerts = prefs['resource_alerts'] ?? true;
-          _weeklySummary = prefs['weekly_summary'] ?? true;
-          _aiInsights = prefs['ai_insights'] ?? true;
+          _assessmentReminders = (prefs['assessment_reminders'] ?? true) as bool;
+          _studyNudges = (prefs['study_nudges'] ?? true) as bool;
+          _resourceAlerts = (prefs['resource_alerts'] ?? true) as bool;
+          _weeklySummary = (prefs['weekly_summary'] ?? true) as bool;
+          _aiInsights = (prefs['ai_insights'] ?? true) as bool;
           if (prefs['quiet_start'] != null) {
             _quietStart = TimeOfDay(
-              hour: prefs['quiet_start_hour'] ?? 22,
-              minute: prefs['quiet_start_minute'] ?? 0,
+              hour: (prefs['quiet_start_hour'] ?? 22) as int,
+              minute: (prefs['quiet_start_minute'] ?? 0) as int,
             );
           }
           if (prefs['quiet_end'] != null) {
             _quietEnd = TimeOfDay(
-              hour: prefs['quiet_end_hour'] ?? 7,
-              minute: prefs['quiet_end_minute'] ?? 0,
+              hour: (prefs['quiet_end_hour'] ?? 7) as int,
+              minute: (prefs['quiet_end_minute'] ?? 0) as int,
             );
           }
           _loading = false;
@@ -110,21 +111,19 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     final picked = await showTimePicker(
       context: context,
       initialTime: isStart ? _quietStart : _quietEnd,
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            timePickerTheme: TimePickerThemeData(
-              backgroundColor: context.colors.surfaceElevated,
-              hourMinuteColor: context.colors.surfaceHighest,
-              dialBackgroundColor: context.colors.surface,
-              dialHandColor: AppColors.primary,
-              dialTextColor: context.colors.textPrimary,
-              entryModeIconColor: AppColors.primary,
-            ),
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(
+          timePickerTheme: TimePickerThemeData(
+            backgroundColor: context.colors.surfaceElevated,
+            hourMinuteColor: context.colors.surfaceHighest,
+            dialBackgroundColor: context.colors.surface,
+            dialHandColor: AppColors.primary,
+            dialTextColor: context.colors.textPrimary,
+            entryModeIconColor: AppColors.primary,
           ),
-          child: child!,
-        );
-      },
+        ),
+        child: child!,
+      ),
     );
     if (picked != null) {
       setState(() {
@@ -138,142 +137,142 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      appBar: AppBar(
-        backgroundColor: context.colors.surface,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: context.colors.textSecondary),
-          onPressed: () => context.go('/'),
-        ),
-        title: Text(
-          'Notification Settings',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: _saving ? null : _savePreferences,
-            child: _saving
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
-                  )
-                : const Text('Save', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        appBar: AppBar(
+          backgroundColor: context.colors.surface,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_rounded, color: context.colors.textSecondary),
+            onPressed: () => context.go('/'),
           ),
-        ],
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: context.colors.surface,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: context.colors.border),
+          title: Text(
+            'Notification Settings',
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: _saving ? null : _savePreferences,
+              child: _saving
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                    )
+                  : const Text('Save', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
+            ),
+          ],
+        ),
+        body: _loading
+            ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+            : ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: context.colors.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: context.colors.border),
+                    ),
+                    child: Column(
+                      children: [
+                        _buildToggle(
+                          icon: Icons.quiz_rounded,
+                          title: 'Assessment Reminders',
+                          subtitle: 'Get notified about upcoming assessments',
+                          value: _assessmentReminders,
+                          onChanged: (v) => setState(() => _assessmentReminders = v),
+                        ),
+                        Divider(height: 1, color: context.colors.border),
+                        _buildToggle(
+                          icon: Icons.psychology_rounded,
+                          title: 'Study Nudges',
+                          subtitle: 'Reminders to continue studying',
+                          value: _studyNudges,
+                          onChanged: (v) => setState(() => _studyNudges = v),
+                        ),
+                        Divider(height: 1, color: context.colors.border),
+                        _buildToggle(
+                          icon: Icons.menu_book_rounded,
+                          title: 'Resource Alerts',
+                          subtitle: 'New learning materials available',
+                          value: _resourceAlerts,
+                          onChanged: (v) => setState(() => _resourceAlerts = v),
+                        ),
+                        Divider(height: 1, color: context.colors.border),
+                        _buildToggle(
+                          icon: Icons.summarize_rounded,
+                          title: 'Weekly Summary',
+                          subtitle: 'Your weekly progress digest',
+                          value: _weeklySummary,
+                          onChanged: (v) => setState(() => _weeklySummary = v),
+                        ),
+                        Divider(height: 1, color: context.colors.border),
+                        _buildToggle(
+                          icon: Icons.auto_awesome_rounded,
+                          title: 'AI Insights',
+                          subtitle: 'Personalized learning recommendations',
+                          value: _aiInsights,
+                          onChanged: (v) => setState(() => _aiInsights = v),
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Column(
-                    children: [
-                      _buildToggle(
-                        icon: Icons.quiz_rounded,
-                        title: 'Assessment Reminders',
-                        subtitle: 'Get notified about upcoming assessments',
-                        value: _assessmentReminders,
-                        onChanged: (v) => setState(() => _assessmentReminders = v),
-                      ),
-                      Divider(height: 1, color: context.colors.border),
-                      _buildToggle(
-                        icon: Icons.psychology_rounded,
-                        title: 'Study Nudges',
-                        subtitle: 'Reminders to continue studying',
-                        value: _studyNudges,
-                        onChanged: (v) => setState(() => _studyNudges = v),
-                      ),
-                      Divider(height: 1, color: context.colors.border),
-                      _buildToggle(
-                        icon: Icons.menu_book_rounded,
-                        title: 'Resource Alerts',
-                        subtitle: 'New learning materials available',
-                        value: _resourceAlerts,
-                        onChanged: (v) => setState(() => _resourceAlerts = v),
-                      ),
-                      Divider(height: 1, color: context.colors.border),
-                      _buildToggle(
-                        icon: Icons.summarize_rounded,
-                        title: 'Weekly Summary',
-                        subtitle: 'Your weekly progress digest',
-                        value: _weeklySummary,
-                        onChanged: (v) => setState(() => _weeklySummary = v),
-                      ),
-                      Divider(height: 1, color: context.colors.border),
-                      _buildToggle(
-                        icon: Icons.auto_awesome_rounded,
-                        title: 'AI Insights',
-                        subtitle: 'Personalized learning recommendations',
-                        value: _aiInsights,
-                        onChanged: (v) => setState(() => _aiInsights = v),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Container(
-                  decoration: BoxDecoration(
-                    color: context.colors.surface,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: context.colors.border),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                        child: Text(
-                          'Quiet Hours',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: context.colors.textPrimary,
+                  const SizedBox(height: 24),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: context.colors.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: context.colors.border),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                          child: Text(
+                            'Quiet Hours',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: context.colors.textPrimary,
+                            ),
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                        child: Text(
-                          'No notifications during these hours',
-                          style: TextStyle(fontSize: 13, color: context.colors.textMuted),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                          child: Text(
+                            'No notifications during these hours',
+                            style: TextStyle(fontSize: 13, color: context.colors.textMuted),
+                          ),
                         ),
-                      ),
-                      Divider(height: 1, color: context.colors.border),
-                      ListTile(
-                        leading: Icon(Icons.nightlight_round, color: context.colors.textMuted, size: 22),
-                        title: Text('Start', style: TextStyle(color: context.colors.textSecondary, fontSize: 14)),
-                        trailing: Text(
-                          _formatTime(_quietStart),
-                          style: TextStyle(color: context.colors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
+                        Divider(height: 1, color: context.colors.border),
+                        ListTile(
+                          leading: Icon(Icons.nightlight_round, color: context.colors.textMuted, size: 22),
+                          title: Text('Start', style: TextStyle(color: context.colors.textSecondary, fontSize: 14)),
+                          trailing: Text(
+                            _formatTime(_quietStart),
+                            style:
+                                TextStyle(color: context.colors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
+                          ),
+                          onTap: () => _pickTime(true),
                         ),
-                        onTap: () => _pickTime(true),
-                      ),
-                      Divider(height: 1, color: context.colors.border),
-                      ListTile(
-                        leading: Icon(Icons.wb_sunny_rounded, color: context.colors.textMuted, size: 22),
-                        title: Text('End', style: TextStyle(color: context.colors.textSecondary, fontSize: 14)),
-                        trailing: Text(
-                          _formatTime(_quietEnd),
-                          style: TextStyle(color: context.colors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
+                        Divider(height: 1, color: context.colors.border),
+                        ListTile(
+                          leading: Icon(Icons.wb_sunny_rounded, color: context.colors.textMuted, size: 22),
+                          title: Text('End', style: TextStyle(color: context.colors.textSecondary, fontSize: 14)),
+                          trailing: Text(
+                            _formatTime(_quietEnd),
+                            style:
+                                TextStyle(color: context.colors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
+                          ),
+                          onTap: () => _pickTime(false),
                         ),
-                        onTap: () => _pickTime(false),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-    );
-  }
+                ],
+              ),
+      );
 
   Widget _buildToggle({
     required IconData icon,
@@ -281,15 +280,15 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     required String subtitle,
     required bool value,
     required ValueChanged<bool> onChanged,
-  }) {
-    return SwitchListTile(
-      secondary: Icon(icon, color: value ? AppColors.primary : context.colors.textMuted, size: 22),
-      title: Text(title, style: TextStyle(color: context.colors.textPrimary, fontSize: 15, fontWeight: FontWeight.w500)),
-      subtitle: Text(subtitle, style: TextStyle(color: context.colors.textMuted, fontSize: 12)),
-      value: value,
-      onChanged: onChanged,
-      activeThumbColor: AppColors.primary,
-      inactiveTrackColor: context.colors.surfaceHighest,
-    );
-  }
+  }) =>
+      SwitchListTile(
+        secondary: Icon(icon, color: value ? AppColors.primary : context.colors.textMuted, size: 22),
+        title:
+            Text(title, style: TextStyle(color: context.colors.textPrimary, fontSize: 15, fontWeight: FontWeight.w500)),
+        subtitle: Text(subtitle, style: TextStyle(color: context.colors.textMuted, fontSize: 12)),
+        value: value,
+        onChanged: onChanged,
+        activeThumbColor: AppColors.primary,
+        inactiveTrackColor: context.colors.surfaceHighest,
+      );
 }

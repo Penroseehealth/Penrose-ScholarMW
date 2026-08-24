@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-
 const Color _bioGreen = Color(0xFF10B981);
 
 class BiologyNotebookScreen extends StatefulWidget {
@@ -182,8 +181,7 @@ class _BiologyNotebookScreenState extends State<BiologyNotebookScreen> {
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
           onPressed: () => context.go('/biology'),
         ),
-        title: const Text('📓 Biology Notebook',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text('📓 Biology Notebook', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         actions: [
           if (_showEditor)
             TextButton.icon(
@@ -206,106 +204,96 @@ class _BiologyNotebookScreenState extends State<BiologyNotebookScreen> {
     );
   }
 
-  Widget _buildDesktopLayout() {
-    return Row(
-      children: [
-        SizedBox(
-          width: 260,
-          child: _buildSidebar(),
-        ),
-        const VerticalDivider(color: Colors.white10, width: 1),
-        Expanded(child: _buildNoteList()),
-      ],
-    );
-  }
-
-  Widget _buildMobileLayout() {
-    return Column(
-      children: [
-        _buildTabBar(),
-        Expanded(
-          child: _selectedNote != null && _showEditor
-              ? _buildEditor()
-              : _buildNoteList(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTabBar() {
-    return Container(
-      height: 44,
-      color: const Color(0xFF0F1623),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: _tabs.length,
-        itemBuilder: (_, i) {
-          final selected = _selectedTab == i;
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-            child: ChoiceChip(
-              label: Text(_tabs[i], style: const TextStyle(fontSize: 12)),
-              selected: selected,
-              onSelected: (_) => setState(() => _selectedTab = i),
-              backgroundColor: Colors.white.withValues(alpha: 0.05),
-              selectedColor: _bioGreen,
-              labelStyle: TextStyle(color: selected ? Colors.white : Colors.white70),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildSidebar() {
-    return Container(
-      color: const Color(0xFF0F1623),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildDesktopLayout() => Row(
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text('SYLLABUS TOPICS',
-                style: TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.w600)),
+          SizedBox(
+            width: 260,
+            child: _buildSidebar(),
           ),
+          const VerticalDivider(color: Colors.white10, width: 1),
+          Expanded(child: _buildNoteList()),
+        ],
+      );
+
+  Widget _buildMobileLayout() => Column(
+        children: [
+          _buildTabBar(),
           Expanded(
-            child: ListView.builder(
-              itemCount: _syllabusTopics.length,
-              itemBuilder: (_, i) {
-                final selected = _selectedTopic == _syllabusTopics[i];
-                return ListTile(
-                  dense: true,
-                  selected: selected,
-                  selectedTileColor: _bioGreen.withValues(alpha: 0.1),
-                  leading: Icon(
-                    selected ? Icons.bookmark_rounded : Icons.circle,
-                    size: selected ? 16 : 6,
-                    color: selected ? _bioGreen : Colors.white24,
-                  ),
-                  title: Text(
-                    _syllabusTopics[i],
-                    style: TextStyle(
-                      color: selected ? _bioGreen : Colors.white60,
-                      fontSize: 13,
-                      fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-                    ),
-                  ),
-                  onTap: () {
-                    setState(() {
-                      _selectedTopic = _syllabusTopics[i];
-                      _showEditor = false;
-                      _selectedNote = null;
-                    });
-                  },
-                );
-              },
-            ),
+            child: _selectedNote != null && _showEditor ? _buildEditor() : _buildNoteList(),
           ),
         ],
-      ),
-    );
-  }
+      );
+
+  Widget _buildTabBar() => Container(
+        height: 44,
+        color: const Color(0xFF0F1623),
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          itemCount: _tabs.length,
+          itemBuilder: (_, i) {
+            final selected = _selectedTab == i;
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+              child: ChoiceChip(
+                label: Text(_tabs[i], style: const TextStyle(fontSize: 12)),
+                selected: selected,
+                onSelected: (_) => setState(() => _selectedTab = i),
+                backgroundColor: Colors.white.withValues(alpha: 0.05),
+                selectedColor: _bioGreen,
+                labelStyle: TextStyle(color: selected ? Colors.white : Colors.white70),
+              ),
+            );
+          },
+        ),
+      );
+
+  Widget _buildSidebar() => Container(
+        color: const Color(0xFF0F1623),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Text('SYLLABUS TOPICS',
+                  style: TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.w600)),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _syllabusTopics.length,
+                itemBuilder: (_, i) {
+                  final selected = _selectedTopic == _syllabusTopics[i];
+                  return ListTile(
+                    dense: true,
+                    selected: selected,
+                    selectedTileColor: _bioGreen.withValues(alpha: 0.1),
+                    leading: Icon(
+                      selected ? Icons.bookmark_rounded : Icons.circle,
+                      size: selected ? 16 : 6,
+                      color: selected ? _bioGreen : Colors.white24,
+                    ),
+                    title: Text(
+                      _syllabusTopics[i],
+                      style: TextStyle(
+                        color: selected ? _bioGreen : Colors.white60,
+                        fontSize: 13,
+                        fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+                      ),
+                    ),
+                    onTap: () {
+                      setState(() {
+                        _selectedTopic = _syllabusTopics[i];
+                        _showEditor = false;
+                        _selectedNote = null;
+                      });
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      );
 
   Widget _buildNoteList() {
     List<_NotebookEntry> filtered;
@@ -325,11 +313,9 @@ class _BiologyNotebookScreenState extends State<BiologyNotebookScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.note_add_rounded,
-                size: 48, color: Colors.white.withValues(alpha: 0.15)),
+            Icon(Icons.note_add_rounded, size: 48, color: Colors.white.withValues(alpha: 0.15)),
             const SizedBox(height: 12),
-            Text('No notes yet',
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.4))),
+            Text('No notes yet', style: TextStyle(color: Colors.white.withValues(alpha: 0.4))),
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: _newNote,
@@ -370,10 +356,7 @@ class _BiologyNotebookScreenState extends State<BiologyNotebookScreen> {
                     children: [
                       Expanded(
                         child: Text(note.title,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600)),
+                            style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),
                       ),
                       if (note.syllabusLinked)
                         Container(
@@ -383,8 +366,7 @@ class _BiologyNotebookScreenState extends State<BiologyNotebookScreen> {
                             color: _bioGreen.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Text('Syllabus',
-                              style: TextStyle(color: _bioGreen, fontSize: 10)),
+                          child: const Text('Syllabus', style: TextStyle(color: _bioGreen, fontSize: 10)),
                         ),
                       IconButton(
                         icon: Icon(
@@ -412,8 +394,7 @@ class _BiologyNotebookScreenState extends State<BiologyNotebookScreen> {
                     note.content,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.5), fontSize: 13, height: 1.4),
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 13, height: 1.4),
                   ),
                   const SizedBox(height: 10),
                   Row(
@@ -443,71 +424,69 @@ class _BiologyNotebookScreenState extends State<BiologyNotebookScreen> {
     );
   }
 
-  Widget _buildEditor() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (_selectedNote != null)
-            Row(
-              children: [
-                TextButton.icon(
-                  onPressed: () => setState(() {
-                    _showEditor = false;
-                    _selectedNote = null;
-                  }),
-                  icon: const Icon(Icons.arrow_back_rounded, size: 16, color: Colors.white54),
-                  label: const Text('Back', style: TextStyle(color: Colors.white54)),
-                ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 20),
-                  onPressed: () => _deleteNote(_selectedNote!),
-                ),
-              ],
+  Widget _buildEditor() => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (_selectedNote != null)
+              Row(
+                children: [
+                  TextButton.icon(
+                    onPressed: () => setState(() {
+                      _showEditor = false;
+                      _selectedNote = null;
+                    }),
+                    icon: const Icon(Icons.arrow_back_rounded, size: 16, color: Colors.white54),
+                    label: const Text('Back', style: TextStyle(color: Colors.white54)),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 20),
+                    onPressed: () => _deleteNote(_selectedNote!),
+                  ),
+                ],
+              ),
+            const SizedBox(height: 8),
+            DropdownButton<String>(
+              value: _selectedTopic,
+              isExpanded: true,
+              dropdownColor: const Color(0xFF1A2035),
+              underline: const SizedBox(),
+              items: _syllabusTopics
+                  .map((t) => DropdownMenuItem(value: t, child: Text(t, style: const TextStyle(color: Colors.white70))))
+                  .toList(),
+              onChanged: (v) => setState(() => _selectedTopic = v ?? 'General'),
+              icon: const Icon(Icons.arrow_drop_down_rounded, color: Colors.white54),
             ),
-          const SizedBox(height: 8),
-          DropdownButton<String>(
-            value: _selectedTopic,
-            isExpanded: true,
-            dropdownColor: const Color(0xFF1A2035),
-            underline: const SizedBox(),
-            items: _syllabusTopics.map((t) {
-              return DropdownMenuItem(value: t, child: Text(t, style: const TextStyle(color: Colors.white70)));
-            }).toList(),
-            onChanged: (v) => setState(() => _selectedTopic = v ?? 'General'),
-            icon: const Icon(Icons.arrow_drop_down_rounded, color: Colors.white54),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _noteTitleController,
-            style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-            decoration: InputDecoration(
-              hintText: 'Note title...',
-              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2)),
-              border: InputBorder.none,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: TextField(
-              controller: _noteContentController,
-              maxLines: null,
-              expands: true,
-              style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.85), fontSize: 14, height: 1.6),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _noteTitleController,
+              style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
               decoration: InputDecoration(
-                hintText: 'Start writing your notes here...\n\nUse this space for:\n• Lecture summaries\n• Diagram annotations\n• Revision points\n• Practical observations',
+                hintText: 'Note title...',
                 hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2)),
                 border: InputBorder.none,
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+            const SizedBox(height: 12),
+            Expanded(
+              child: TextField(
+                controller: _noteContentController,
+                maxLines: null,
+                expands: true,
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 14, height: 1.6),
+                decoration: InputDecoration(
+                  hintText:
+                      'Start writing your notes here...\n\nUse this space for:\n• Lecture summaries\n• Diagram annotations\n• Revision points\n• Practical observations',
+                  hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2)),
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
 }
 
 class _NotebookEntry {
@@ -520,4 +499,3 @@ class _NotebookEntry {
 
   const _NotebookEntry(this.title, this.content, this.topic, this.date, this.starred, this.syllabusLinked);
 }
-

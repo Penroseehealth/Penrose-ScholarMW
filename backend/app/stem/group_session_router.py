@@ -87,12 +87,8 @@ def _session_to_response(
     )
 
 
-async def _enrich_session(
-    session: STEMGroupSession, db: AsyncSession
-) -> GroupSessionResponse:
-    group_result = await db.execute(
-        select(STEMStudyGroup).where(STEMStudyGroup.id == session.group_id)
-    )
+async def _enrich_session(session: STEMGroupSession, db: AsyncSession) -> GroupSessionResponse:
+    group_result = await db.execute(select(STEMStudyGroup).where(STEMStudyGroup.id == session.group_id))
     group = group_result.scalar_one_or_none()
     group_name = group.name if group else "Unknown"
 
@@ -101,16 +97,12 @@ async def _enrich_session(
     started_by_name = starter.full_name if starter else "Unknown"
 
     concepts_result = await db.execute(
-        select(STEMGroupSessionConcept).where(
-            STEMGroupSessionConcept.session_id == session.id
-        )
+        select(STEMGroupSessionConcept).where(STEMGroupSessionConcept.session_id == session.id)
     )
     sc_rows = concepts_result.scalars().all()
     concepts: list[SessionConceptResponse] = []
     for sc in sc_rows:
-        c_result = await db.execute(
-            select(STEMConcept).where(STEMConcept.id == sc.concept_id)
-        )
+        c_result = await db.execute(select(STEMConcept).where(STEMConcept.id == sc.concept_id))
         c = c_result.scalar_one_or_none()
         concepts.append(
             SessionConceptResponse(
@@ -120,15 +112,11 @@ async def _enrich_session(
         )
 
     member_count_result = await db.execute(
-        select(func.count(STEMGroupMember.id)).where(
-            STEMGroupMember.group_id == session.group_id
-        )
+        select(func.count(STEMGroupMember.id)).where(STEMGroupMember.group_id == session.group_id)
     )
     member_count = member_count_result.scalar() or 0
 
-    return _session_to_response(
-        session, group_name, started_by_name, concepts, member_count
-    )
+    return _session_to_response(session, group_name, started_by_name, concepts, member_count)
 
 
 @router.post(
@@ -141,14 +129,10 @@ async def start_group_session(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    group_result = await db.execute(
-        select(STEMStudyGroup).where(STEMStudyGroup.id == body.group_id)
-    )
+    group_result = await db.execute(select(STEMStudyGroup).where(STEMStudyGroup.id == body.group_id))
     group = group_result.scalar_one_or_none()
     if not group:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Group not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group not found")
 
     member_result = await db.execute(
         select(STEMGroupMember).where(
@@ -191,18 +175,12 @@ async def end_group_session(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(
-        select(STEMGroupSession).where(STEMGroupSession.id == session_id)
-    )
+    result = await db.execute(select(STEMGroupSession).where(STEMGroupSession.id == session_id))
     session = result.scalar_one_or_none()
     if not session:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Session not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
     if session.ended_at:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Session already ended"
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Session already ended")
 
     member_result = await db.execute(
         select(STEMGroupMember).where(
@@ -220,9 +198,7 @@ async def end_group_session(
 
     if body.concepts_studied:
         existing_result = await db.execute(
-            select(STEMGroupSessionConcept).where(
-                STEMGroupSessionConcept.session_id == session_id
-            )
+            select(STEMGroupSessionConcept).where(STEMGroupSessionConcept.session_id == session_id)
         )
         existing_ids = {sc.concept_id for sc in existing_result.scalars().all()}
         for cid in body.concepts_studied:
@@ -243,14 +219,10 @@ async def get_group_session(
     session_id: int,
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(
-        select(STEMGroupSession).where(STEMGroupSession.id == session_id)
-    )
+    result = await db.execute(select(STEMGroupSession).where(STEMGroupSession.id == session_id))
     session = result.scalar_one_or_none()
     if not session:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Session not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
     return await _enrich_session(session, db)
 
 
@@ -282,18 +254,12 @@ async def get_group_stats(
     group_id: int,
     db: AsyncSession = Depends(get_db),
 ):
-    group_result = await db.execute(
-        select(STEMStudyGroup).where(STEMStudyGroup.id == group_id)
-    )
+    group_result = await db.execute(select(STEMStudyGroup).where(STEMStudyGroup.id == group_id))
     group = group_result.scalar_one_or_none()
     if not group:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Group not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group not found")
 
-    sessions_result = await db.execute(
-        select(STEMGroupSession).where(STEMGroupSession.group_id == group_id)
-    )
+    sessions_result = await db.execute(select(STEMGroupSession).where(STEMGroupSession.group_id == group_id))
     sessions = sessions_result.scalars().all()
 
     total_sessions = len(sessions)
@@ -302,19 +268,11 @@ async def get_group_stats(
     for s in sessions:
         if s.ended_at and s.started_at:
             total_minutes += int((s.ended_at - s.started_at).total_seconds() / 60)
-        cr = await db.execute(
-            select(STEMGroupSessionConcept).where(
-                STEMGroupSessionConcept.session_id == s.id
-            )
-        )
+        cr = await db.execute(select(STEMGroupSessionConcept).where(STEMGroupSessionConcept.session_id == s.id))
         for sc in cr.scalars().all():
             concept_ids.add(sc.concept_id)
 
-    active_result = await db.execute(
-        select(func.count(STEMGroupMember.id)).where(
-            STEMGroupMember.group_id == group_id
-        )
-    )
+    active_result = await db.execute(select(func.count(STEMGroupMember.id)).where(STEMGroupMember.group_id == group_id))
     active_members = active_result.scalar() or 0
 
     recent = sessions[:5]

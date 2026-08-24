@@ -28,18 +28,14 @@ MATH_SLUG = "mathematics"
 
 @router.get("/tree")
 async def get_math_syllabus_tree(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(
-        select(SyllabusSubject).where(SyllabusSubject.slug == MATH_SLUG)
-    )
+    result = await db.execute(select(SyllabusSubject).where(SyllabusSubject.slug == MATH_SLUG))
     subject = result.scalar_one_or_none()
     if not subject:
         raise HTTPException(status_code=404, detail="Mathematics syllabus not found")
 
     ver_result = await db.execute(
         select(SyllabusVersion)
-        .where(
-            SyllabusVersion.subject_id == subject.id, SyllabusVersion.is_current == True
-        )  # noqa: E712
+        .where(SyllabusVersion.subject_id == subject.id, SyllabusVersion.is_current == True)  # noqa: E712
         .options(joinedload(SyllabusVersion.core_elements))
     )
     version = ver_result.unique().scalar_one_or_none()
@@ -106,9 +102,7 @@ async def get_math_syllabus_tree(db: AsyncSession = Depends(get_db)):
                     )
                 topic_data["subtopics"].append(sub_data)
             for res in topic.resources:
-                topic_data["resources"].append(
-                    {"text": res.resource_text, "type": res.resource_type}
-                )
+                topic_data["resources"].append({"text": res.resource_text, "type": res.resource_type})
             theme_entry["topics"].append(topic_data)
 
     return {
@@ -123,23 +117,17 @@ async def get_math_syllabus_tree(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/tree/{form_number}")
-async def get_math_syllabus_tree_by_form(
-    form_number: int, db: AsyncSession = Depends(get_db)
-):
+async def get_math_syllabus_tree_by_form(form_number: int, db: AsyncSession = Depends(get_db)):
     if form_number not in (1, 2, 3, 4):
         raise HTTPException(status_code=400, detail="Form must be 1, 2, 3, or 4")
 
-    result = await db.execute(
-        select(SyllabusSubject).where(SyllabusSubject.slug == MATH_SLUG)
-    )
+    result = await db.execute(select(SyllabusSubject).where(SyllabusSubject.slug == MATH_SLUG))
     subject = result.scalar_one_or_none()
     if not subject:
         raise HTTPException(status_code=404, detail="Mathematics syllabus not found")
 
     ver_result = await db.execute(
-        select(SyllabusVersion).where(
-            SyllabusVersion.subject_id == subject.id, SyllabusVersion.is_current == True
-        )  # noqa: E712
+        select(SyllabusVersion).where(SyllabusVersion.subject_id == subject.id, SyllabusVersion.is_current == True)  # noqa: E712
     )
     version = ver_result.scalar_one_or_none()
     if not version:
@@ -194,9 +182,7 @@ async def get_math_syllabus_tree_by_form(
                     )
                 topic_data["subtopics"].append(sub_data)
             for res in topic.resources:
-                topic_data["resources"].append(
-                    {"text": res.resource_text, "type": res.resource_type}
-                )
+                topic_data["resources"].append({"text": res.resource_text, "type": res.resource_type})
             theme_entry["topics"].append(topic_data)
         themes.append(theme_entry)
 
@@ -269,13 +255,9 @@ async def create_math_subject(
     db: AsyncSession = Depends(get_db),
     _admin=Depends(require_admin),
 ):
-    existing = await db.execute(
-        select(SyllabusSubject).where(SyllabusSubject.slug == body.slug)
-    )
+    existing = await db.execute(select(SyllabusSubject).where(SyllabusSubject.slug == body.slug))
     if existing.scalar_one_or_none():
-        raise HTTPException(
-            status_code=400, detail="Mathematics subject already exists"
-        )
+        raise HTTPException(status_code=400, detail="Mathematics subject already exists")
 
     subject = SyllabusSubject(
         name=body.name,
@@ -296,9 +278,7 @@ async def create_math_version(
     db: AsyncSession = Depends(get_db),
     _admin=Depends(require_admin),
 ):
-    result = await db.execute(
-        select(SyllabusSubject).where(SyllabusSubject.slug == MATH_SLUG)
-    )
+    result = await db.execute(select(SyllabusSubject).where(SyllabusSubject.slug == MATH_SLUG))
     subject = result.scalar_one_or_none()
     if not subject:
         raise HTTPException(status_code=404, detail="Mathematics subject not found")
@@ -420,9 +400,7 @@ async def create_math_resource(
 
 @router.get("/stats")
 async def get_math_syllabus_stats(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(
-        select(SyllabusSubject).where(SyllabusSubject.slug == MATH_SLUG)
-    )
+    result = await db.execute(select(SyllabusSubject).where(SyllabusSubject.slug == MATH_SLUG))
     subject = result.scalar_one_or_none()
     if not subject:
         return {
@@ -433,9 +411,7 @@ async def get_math_syllabus_stats(db: AsyncSession = Depends(get_db)):
         }
 
     ver_result = await db.execute(
-        select(SyllabusVersion).where(
-            SyllabusVersion.subject_id == subject.id, SyllabusVersion.is_current == True
-        )  # noqa: E712
+        select(SyllabusVersion).where(SyllabusVersion.subject_id == subject.id, SyllabusVersion.is_current == True)  # noqa: E712
     )
     version = ver_result.scalar_one_or_none()
     if not version:
@@ -449,9 +425,7 @@ async def get_math_syllabus_stats(db: AsyncSession = Depends(get_db)):
     topics_r = await db.execute(
         select(SyllabusTopic).where(
             SyllabusTopic.core_element_id.in_(
-                select(SyllabusCoreElement.id).where(
-                    SyllabusCoreElement.version_id == version.id
-                )
+                select(SyllabusCoreElement.id).where(SyllabusCoreElement.version_id == version.id)
             )
         )
     )
@@ -466,9 +440,7 @@ async def get_math_syllabus_stats(db: AsyncSession = Depends(get_db)):
             SyllabusSubtopic.topic_id.in_(
                 select(SyllabusTopic.id).where(
                     SyllabusTopic.core_element_id.in_(
-                        select(SyllabusCoreElement.id).where(
-                            SyllabusCoreElement.version_id == version.id
-                        )
+                        select(SyllabusCoreElement.id).where(SyllabusCoreElement.version_id == version.id)
                     )
                 )
             )
@@ -483,9 +455,7 @@ async def get_math_syllabus_stats(db: AsyncSession = Depends(get_db)):
                     SyllabusSubtopic.topic_id.in_(
                         select(SyllabusTopic.id).where(
                             SyllabusTopic.core_element_id.in_(
-                                select(SyllabusCoreElement.id).where(
-                                    SyllabusCoreElement.version_id == version.id
-                                )
+                                select(SyllabusCoreElement.id).where(SyllabusCoreElement.version_id == version.id)
                             )
                         )
                     )

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 import '../../services/stem_service.dart';
-import '../../widgets/shimmer_loading.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
-import '../../core/theme/theme_colors.dart';
+import '../../widgets/shimmer_loading.dart';
 
 class StemMalawiScreen extends StatefulWidget {
   const StemMalawiScreen({super.key});
@@ -13,8 +14,7 @@ class StemMalawiScreen extends StatefulWidget {
   State<StemMalawiScreen> createState() => _StemMalawiScreenState();
 }
 
-class _StemMalawiScreenState extends State<StemMalawiScreen>
-    with SingleTickerProviderStateMixin {
+class _StemMalawiScreenState extends State<StemMalawiScreen> with SingleTickerProviderStateMixin {
   final StemService _stemService = StemService();
   late TabController _tabController;
 
@@ -39,7 +39,10 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
   }
 
   Future<void> _loadData() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final stats = await _stemService.getMalawiStats();
       final examples = await _stemService.getMalawiExamples();
@@ -53,119 +56,119 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
         });
       }
     } catch (e) {
-      if (mounted) setState(() { _error = e.toString(); _loading = false; });
+      if (mounted)
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        color: AppColors.primary,
-        child: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 100,
-            pinned: true,
-            backgroundColor: AppColors.primaryDark,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Malawi STEM',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: context.colors.textPrimary,
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: RefreshIndicator(
+          onRefresh: _loadData,
+          color: AppColors.primary,
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 100,
+                pinned: true,
+                backgroundColor: AppColors.primaryDark,
+                flexibleSpace: FlexibleSpaceBar(
+                  title: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Malawi STEM',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: context.colors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Connecting STEM to Malawian Context',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w400,
+                          color: context.colors.textMuted,
+                        ),
+                      ),
+                    ],
+                  ),
+                  background: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColors.primaryDark, AppColors.primaryMuted],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Connecting STEM to Malawian Context',
-                    style: TextStyle(
-                      fontSize: 11,
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: _loading ? const SizedBox() : _buildStatsRow(),
+              ),
+              SliverToBoxAdapter(
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  decoration: BoxDecoration(
+                    color: context.colors.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: context.colors.border),
+                  ),
+                  child: TabBar(
+                    controller: _tabController,
+                    indicatorColor: AppColors.primary,
+                    labelColor: context.colors.textPrimary,
+                    unselectedLabelColor: context.colors.textMuted,
+                    labelStyle: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    unselectedLabelStyle: const TextStyle(
+                      fontSize: 13,
                       fontWeight: FontWeight.w400,
-                      color: context.colors.textMuted,
                     ),
-                  ),
-                ],
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.primaryDark, AppColors.primaryMuted],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                    indicatorSize: TabBarIndicatorSize.label,
+                    dividerColor: Colors.transparent,
+                    tabs: const [
+                      Tab(text: 'Local Examples'),
+                      Tab(text: 'MSCE Curriculum'),
+                    ],
                   ),
                 ),
               ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: _loading
-                ? const SizedBox()
-                : _buildStatsRow(),
-          ),
-          SliverToBoxAdapter(
-            child: Container(
-              margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              decoration: BoxDecoration(
-                color: context.colors.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: context.colors.border),
-              ),
-              child: TabBar(
-                controller: _tabController,
-                indicatorColor: AppColors.primary,
-                labelColor: context.colors.textPrimary,
-                unselectedLabelColor: context.colors.textMuted,
-                labelStyle: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
+              if (_error != null)
+                SliverToBoxAdapter(
+                  child: ErrorState(
+                    message: 'Failed to load content',
+                    details: _error,
+                    onRetry: _loadData,
+                  ),
+                )
+              else if (_loading)
+                SliverToBoxAdapter(child: ShimmerLoading.list(count: 3))
+              else
+                SliverFillRemaining(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildExamplesTab(),
+                      _buildCurriculumTab(),
+                    ],
+                  ),
                 ),
-                unselectedLabelStyle: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
-                ),
-                indicatorSize: TabBarIndicatorSize.label,
-                dividerColor: Colors.transparent,
-                tabs: [
-                  const Tab(text: 'Local Examples'),
-                  const Tab(text: 'MSCE Curriculum'),
-                ],
-              ),
-            ),
+              const SliverToBoxAdapter(child: SizedBox(height: 40)),
+            ],
           ),
-          if (_error != null)
-            SliverToBoxAdapter(
-              child: ErrorState(
-                message: 'Failed to load content',
-                details: _error,
-                onRetry: _loadData,
-              ),
-            )
-          else if (_loading)
-            SliverToBoxAdapter(child: ShimmerLoading.list(count: 3))
-          else
-            SliverFillRemaining(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildExamplesTab(),
-                  _buildCurriculumTab(),
-                ],
-              ),
-            ),
-          const SliverToBoxAdapter(child: SizedBox(height: 40)),
-        ],
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildStatsRow() {
     final totalExamples = _stats['total_examples'] ?? 0;
@@ -186,43 +189,45 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
     );
   }
 
-  Widget _buildStatChip(String value, String label) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: context.colors.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: context.colors.border),
-        ),
-        child: Column(
-          children: [
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: AppColors.primary,
+  Widget _buildStatChip(String value, String label) => Expanded(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: context.colors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: context.colors.border),
+          ),
+          child: Column(
+            children: [
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
+                ),
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
-                color: context.colors.textMuted,
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                  color: context.colors.textMuted,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildExamplesTab() {
-    if (_examples.isEmpty) return const EmptyState(icon: Icons.school_rounded, title: 'No local examples found', subtitle: 'Content will appear here once available');
+    if (_examples.isEmpty)
+      return const EmptyState(
+          icon: Icons.school_rounded,
+          title: 'No local examples found',
+          subtitle: 'Content will appear here once available');
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: _examples.length,
@@ -260,7 +265,7 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
               children: [
                 Expanded(
                   child: Text(
-                    example['title'] ?? '',
+                    (example['title'] ?? '') as String,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -278,7 +283,7 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      example['region'],
+                      example['region'] as String,
                       style: TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
@@ -291,7 +296,7 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
             if (example['concept_name'] != null) ...[
               const SizedBox(height: 4),
               Text(
-                example['concept_name'],
+                example['concept_name'] as String,
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -301,7 +306,7 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
             ],
             const SizedBox(height: 8),
             Text(
-              example['description'] ?? '',
+              (example['description'] ?? '') as String,
               style: TextStyle(fontSize: 11, color: context.colors.textMuted),
               maxLines: expanded ? 20 : 2,
               overflow: TextOverflow.ellipsis,
@@ -319,7 +324,7 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  example['local_context'],
+                  example['local_context'] as String,
                   style: TextStyle(fontSize: 11, color: context.colors.textMuted),
                 ),
               ],
@@ -335,7 +340,7 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  example['real_world_application'],
+                  example['real_world_application'] as String,
                   style: TextStyle(fontSize: 11, color: context.colors.textMuted),
                 ),
               ],
@@ -347,11 +352,15 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
   }
 
   Widget _buildCurriculumTab() {
-    if (_curriculum.isEmpty) return const EmptyState(icon: Icons.school_rounded, title: 'No curriculum alignments found', subtitle: 'Content will appear here once available');
+    if (_curriculum.isEmpty)
+      return const EmptyState(
+          icon: Icons.school_rounded,
+          title: 'No curriculum alignments found',
+          subtitle: 'Content will appear here once available');
 
     final grouped = <String, List<dynamic>>{};
     for (final item in _curriculum) {
-      final formLevel = item['form_level'] ?? 'Other';
+      final formLevel = (item['form_level'] ?? 'Other') as String;
       grouped.putIfAbsent(formLevel, () => []).add(item);
     }
     final sortedKeys = grouped.keys.toList()..sort();
@@ -367,117 +376,109 @@ class _StemMalawiScreenState extends State<StemMalawiScreen>
     );
   }
 
-  Widget _buildCurriculumGroup(String formLevel, List<dynamic> items) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: context.colors.primaryGlow,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              'Form $formLevel',
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: AppColors.primary,
+  Widget _buildCurriculumGroup(String formLevel, List<dynamic> items) => Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: context.colors.primaryGlow,
+                borderRadius: BorderRadius.circular(8),
               ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          ...items.map((item) => _buildCurriculumCard(item)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCurriculumCard(dynamic item) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: context.colors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  item['concept_name'] ?? '',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: context.colors.textPrimary,
-                  ),
+              child: Text(
+                'Form $formLevel',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
                 ),
               ),
-              if (item['syllabus_code'] != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: context.colors.infoMuted,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
+            ),
+            const SizedBox(height: 8),
+            ...items.map((item) => _buildCurriculumCard(item)),
+          ],
+        ),
+      );
+
+  Widget _buildCurriculumCard(dynamic item) => Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: context.colors.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
                   child: Text(
-                    item['syllabus_code'],
+                    (item['concept_name'] ?? '') as String,
                     style: TextStyle(
-                      fontSize: 9,
+                      fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: context.colors.info,
+                      color: context.colors.textPrimary,
                     ),
                   ),
                 ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              if (item['form_level'] != null)
-                _buildMetaTag('Form ${item['form_level']}'),
-              if (item['exam_board'] != null) ...[
-                const SizedBox(width: 6),
-                _buildMetaTag(item['exam_board']),
+                if (item['syllabus_code'] != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: context.colors.infoMuted,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      item['syllabus_code'] as String,
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        color: context.colors.info,
+                      ),
+                    ),
+                  ),
               ],
-            ],
-          ),
-          if (item['learning_outcome'] != null) ...[
-            const SizedBox(height: 8),
-            Text(
-              item['learning_outcome'],
-              style: TextStyle(fontSize: 11, color: context.colors.textMuted),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
             ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                if (item['form_level'] != null) _buildMetaTag('Form ${item['form_level']}'),
+                if (item['exam_board'] != null) ...[
+                  const SizedBox(width: 6),
+                  _buildMetaTag(item['exam_board'] as String),
+                ],
+              ],
+            ),
+            if (item['learning_outcome'] != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                item['learning_outcome'] as String,
+                style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMetaTag(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: context.colors.surfaceHighest,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 9,
-          fontWeight: FontWeight.w600,
-          color: context.colors.textSecondary,
         ),
-      ),
-    );
-  }
+      );
 
+  Widget _buildMetaTag(String text) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: context.colors.surfaceHighest,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 9,
+            fontWeight: FontWeight.w600,
+            color: context.colors.textSecondary,
+          ),
+        ),
+      );
 }

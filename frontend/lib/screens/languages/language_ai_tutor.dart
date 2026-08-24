@@ -94,8 +94,7 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
     setState(() => _activeQuickAction = action);
     switch (action) {
       case 'grammar':
-        _messageController.text =
-            'Explain this grammar rule with examples: ';
+        _messageController.text = 'Explain this grammar rule with examples: ';
         break;
       case 'writing':
         _messageController.text = 'Please correct this text: ';
@@ -160,109 +159,87 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: Column(
-        children: [
-          _buildHeader(),
-          Expanded(child: _buildBody()),
-          _buildInputArea(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        border:
-            Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Row(
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: Column(
           children: [
-            GestureDetector(
-              onTap: () => Navigator.maybePop(context),
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: context.colors.surfaceElevated,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: context.colors.border),
-                ),
-                child: Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: context.colors.textSecondary),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: _langTealGlow,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.smart_toy_rounded,
-                  color: _langTeal, size: 22),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('${_languageTitle(widget.slug)} AI Tutor',
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: context.colors.textPrimary)),
-                  Text('Context-aware language coaching',
-                      style: TextStyle(
-                          fontSize: 12, color: context.colors.textMuted)),
-                ],
-              ),
-            ),
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: _langTealGlow,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text('${_userTurnCount()} turns',
-                  style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: _langTeal)),
-            ),
+            _buildHeader(),
+            Expanded(child: _buildBody()),
+            _buildInputArea(),
           ],
         ),
-      ),
-    );
-  }
+      );
 
-  int _userTurnCount() =>
-      _messages.where((m) => m.isUser && !m.isActionTag).length;
+  Widget _buildHeader() => Container(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          border: Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
+        ),
+        child: SafeArea(
+          bottom: false,
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.maybePop(context),
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: context.colors.surfaceElevated,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: context.colors.border),
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: context.colors.textSecondary),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: _langTealGlow,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.smart_toy_rounded, color: _langTeal, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${_languageTitle(widget.slug)} AI Tutor',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
+                    Text('Context-aware language coaching',
+                        style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: _langTealGlow,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text('${_userTurnCount()} turns',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: _langTeal)),
+              ),
+            ],
+          ),
+        ),
+      );
 
-  Widget _buildBody() {
-    return Row(
-      children: [
-        if (MediaQuery.of(context).size.width >= 900)
-          _buildHistorySidebar(),
-        Expanded(child: _buildChatArea()),
-      ],
-    );
-  }
+  int _userTurnCount() => _messages.where((m) => m.isUser && !m.isActionTag).length;
+
+  Widget _buildBody() => Row(
+        children: [
+          if (MediaQuery.of(context).size.width >= 900) _buildHistorySidebar(),
+          Expanded(child: _buildChatArea()),
+        ],
+      );
 
   Widget _buildHistorySidebar() {
-    final sessions = _messages
-        .where((m) => m.isUser && !m.isActionTag)
-        .take(8)
-        .toList();
+    final sessions = _messages.where((m) => m.isUser && !m.isActionTag).take(8).toList();
     return Container(
       width: 260,
       decoration: BoxDecoration(
@@ -275,19 +252,14 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text('Chat History',
-                style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: context.colors.textSecondary)),
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: context.colors.textSecondary)),
           ),
           Expanded(
             child: sessions.isEmpty
                 ? Center(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
-                      child: Text('No history yet',
-                          style:
-                              TextStyle(fontSize: 12, color: context.colors.textMuted)),
+                      child: Text('No history yet', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
                     ),
                   )
                 : ListView.builder(
@@ -297,21 +269,15 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
                       final m = sessions[i];
                       return ListTile(
                         dense: true,
-                        leading: Icon(Icons.chat_bubble_outline_rounded,
-                            size: 14,
-                            color: _langTeal.withValues(alpha: 0.7)),
+                        leading:
+                            Icon(Icons.chat_bubble_outline_rounded, size: 14, color: _langTeal.withValues(alpha: 0.7)),
                         title: Text(
-                          m.text.length > 42
-                              ? '${m.text.substring(0, 42)}…'
-                              : m.text,
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: context.colors.textSecondary),
+                          m.text.length > 42 ? '${m.text.substring(0, 42)}…' : m.text,
+                          style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
                         ),
                         subtitle: Text(
                           '${m.time.hour.toString().padLeft(2, '0')}:${m.time.minute.toString().padLeft(2, '0')}',
-                          style: TextStyle(
-                              fontSize: 10, color: context.colors.textMuted),
+                          style: TextStyle(fontSize: 10, color: context.colors.textMuted),
                         ),
                         onTap: () => _messageController.text = m.text,
                       );
@@ -323,16 +289,14 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
     );
   }
 
-  Widget _buildChatArea() {
-    return Column(
-      children: [
-        Expanded(
-          child: _buildMessageList(),
-        ),
-        _buildQuickActions(),
-      ],
-    );
-  }
+  Widget _buildChatArea() => Column(
+        children: [
+          Expanded(
+            child: _buildMessageList(),
+          ),
+          _buildQuickActions(),
+        ],
+      );
 
   Widget _buildMessageList() {
     if (_messages.length <= 1 && !_sending) {
@@ -349,20 +313,15 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
                   color: _langTeal.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.translate_rounded,
-                    color: _langTeal, size: 40),
+                child: const Icon(Icons.translate_rounded, color: _langTeal, size: 40),
               ),
               const SizedBox(height: 20),
               Text('${_languageTitle(widget.slug)} AI Tutor',
-                  style: TextStyle(
-                      color: context.colors.textPrimary,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold)),
+                  style: TextStyle(color: context.colors.textPrimary, fontSize: 22, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Text(
                 'Grammar · Writing · Conversation · Quizzes',
-                style:
-                    TextStyle(color: context.colors.textMuted, fontSize: 13),
+                style: TextStyle(color: context.colors.textMuted, fontSize: 13),
               ),
             ],
           ),
@@ -386,19 +345,14 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
         alignment: Alignment.centerRight,
         child: Container(
           margin: const EdgeInsets.only(bottom: 8),
-          padding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             color: context.colors.accent.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-                color: context.colors.accent.withValues(alpha: 0.3)),
+            border: Border.all(color: context.colors.accent.withValues(alpha: 0.3)),
           ),
           child: Text(msg.text.replaceAll('__action__', ''),
-              style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: context.colors.accent)),
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.accent)),
         ),
       );
     }
@@ -418,16 +372,13 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
                   _langTealDark.withValues(alpha: 0.10),
                 ])
               : null,
-          color:
-              isUser ? null : AppColors.primary.withValues(alpha: 0.08),
+          color: isUser ? null : AppColors.primary.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(16).copyWith(
             bottomRight: isUser ? const Radius.circular(4) : null,
             bottomLeft: !isUser ? const Radius.circular(4) : null,
           ),
           border: Border.all(
-            color: isUser
-                ? _langTeal.withValues(alpha: 0.3)
-                : AppColors.primary.withValues(alpha: 0.2),
+            color: isUser ? _langTeal.withValues(alpha: 0.3) : AppColors.primary.withValues(alpha: 0.2),
           ),
         ),
         child: Column(
@@ -437,29 +388,21 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.smart_toy_rounded,
-                      size: 13, color: AppColors.primaryLight),
+                  const Icon(Icons.smart_toy_rounded, size: 13, color: AppColors.primaryLight),
                   const SizedBox(width: 6),
                   Text('${_languageTitle(widget.slug)} AI',
-                      style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primaryLight)),
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primaryLight)),
                 ],
               ),
             if (!isUser) const SizedBox(height: 6),
             SelectableText(
               msg.text,
-              style: TextStyle(
-                  color: context.colors.textPrimary,
-                  fontSize: 14,
-                  height: 1.5),
+              style: TextStyle(color: context.colors.textPrimary, fontSize: 14, height: 1.5),
             ),
             const SizedBox(height: 6),
             Text(
               '${msg.time.hour.toString().padLeft(2, '0')}:${msg.time.minute.toString().padLeft(2, '0')}',
-              style: TextStyle(
-                  color: context.colors.textMuted, fontSize: 10),
+              style: TextStyle(color: context.colors.textMuted, fontSize: 10),
             ),
           ],
         ),
@@ -467,150 +410,124 @@ class _LanguageAITutorScreenState extends State<LanguageAITutorScreen> {
     );
   }
 
-  Widget _buildTypingIndicator() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: AppColors.primary.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(16)
-              .copyWith(bottomLeft: const Radius.circular(4)),
-          border: Border.all(
-              color: AppColors.primary.withValues(alpha: 0.2)),
+  Widget _buildTypingIndicator() => Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(16).copyWith(bottomLeft: const Radius.circular(4)),
+            border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.smart_toy_rounded, color: AppColors.primaryLight, size: 14),
+              const SizedBox(width: 8),
+              ...List.generate(
+                  3,
+                  (i) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2),
+                        child: Icon(Icons.circle, size: 6, color: AppColors.primaryLight.withValues(alpha: 0.5)),
+                      )),
+            ],
+          ),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.smart_toy_rounded,
-                color: AppColors.primaryLight, size: 14),
-            const SizedBox(width: 8),
-            ...List.generate(3, (i) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                child: Icon(Icons.circle,
-                    size: 6,
-                    color:
-                        AppColors.primaryLight.withValues(alpha: 0.5)),
-              );
-            }),
-          ],
-        ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildQuickActions() {
-    return Container(
-      height: 52,
-      color: context.colors.surface,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: _quickActions.length,
-        itemBuilder: (_, i) {
-          final a = _quickActions[i];
-          final active = _activeQuickAction == a.$1;
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-            child: GestureDetector(
-              onTap: () => _applyQuickAction(a.$1, a.$2),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                decoration: BoxDecoration(
-                  color: active
-                      ? _langTeal.withValues(alpha: 0.15)
-                      : context.colors.surfaceElevated,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: active ? _langTeal : context.colors.border,
-                    width: active ? 1.5 : 1,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(a.$3,
-                        size: 15,
-                        color:
-                            active ? _langTeal : context.colors.textMuted),
-                    const SizedBox(width: 6),
-                    Text(a.$2,
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: active
-                                ? FontWeight.w700
-                                : FontWeight.w500,
-                            color: active
-                                ? _langTeal
-                                : context.colors.textSecondary)),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildInputArea() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
+  Widget _buildQuickActions() => Container(
+        height: 52,
         color: context.colors.surface,
-        border: Border(top: BorderSide(color: context.colors.border, width: 0.5)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _messageController,
-                style: TextStyle(color: context.colors.textPrimary),
-                textInputAction: TextInputAction.send,
-                onSubmitted: _sendMessage,
-                decoration: InputDecoration(
-                  hintText: 'Ask your tutor anything...',
-                  hintStyle: TextStyle(
-                      color: context.colors.textMuted, fontSize: 13),
-                  filled: true,
-                  fillColor: context.colors.surfaceElevated,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide:
-                        BorderSide(color: _langTeal.withValues(alpha: 0.2)),
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          itemCount: _quickActions.length,
+          itemBuilder: (_, i) {
+            final a = _quickActions[i];
+            final active = _activeQuickAction == a.$1;
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+              child: GestureDetector(
+                onTap: () => _applyQuickAction(a.$1, a.$2),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  decoration: BoxDecoration(
+                    color: active ? _langTeal.withValues(alpha: 0.15) : context.colors.surfaceElevated,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: active ? _langTeal : context.colors.border,
+                      width: active ? 1.5 : 1,
+                    ),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide:
-                        BorderSide(color: _langTeal.withValues(alpha: 0.2)),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(a.$3, size: 15, color: active ? _langTeal : context.colors.textMuted),
+                      const SizedBox(width: 6),
+                      Text(a.$2,
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                              color: active ? _langTeal : context.colors.textSecondary)),
+                    ],
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: _langTeal),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 12),
                 ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Container(
-              decoration: BoxDecoration(
-                  color: _langTeal, borderRadius: BorderRadius.circular(12)),
-              child: IconButton(
-                icon: const Icon(Icons.send_rounded, color: Color(0xFF062B27)),
-                onPressed: () => _sendMessage(_messageController.text),
-              ),
-            ),
-          ],
+            );
+          },
         ),
-      ),
-    );
-  }
+      );
+
+  Widget _buildInputArea() => Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          border: Border(top: BorderSide(color: context.colors.border, width: 0.5)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _messageController,
+                  style: TextStyle(color: context.colors.textPrimary),
+                  textInputAction: TextInputAction.send,
+                  onSubmitted: _sendMessage,
+                  decoration: InputDecoration(
+                    hintText: 'Ask your tutor anything...',
+                    hintStyle: TextStyle(color: context.colors.textMuted, fontSize: 13),
+                    filled: true,
+                    fillColor: context.colors.surfaceElevated,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: _langTeal.withValues(alpha: 0.2)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: _langTeal.withValues(alpha: 0.2)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: _langTeal),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Container(
+                decoration: BoxDecoration(color: _langTeal, borderRadius: BorderRadius.circular(12)),
+                child: IconButton(
+                  icon: const Icon(Icons.send_rounded, color: Color(0xFF062B27)),
+                  onPressed: () => _sendMessage(_messageController.text),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
 }
 
 String _languageTitle(String slug) {
@@ -624,6 +541,5 @@ class _ChatMessage {
   final DateTime time;
   final bool isActionTag;
 
-  const _ChatMessage(this.text, this.isUser, this.time,
-      {this.isActionTag = false});
+  const _ChatMessage(this.text, this.isUser, this.time, {this.isActionTag = false});
 }

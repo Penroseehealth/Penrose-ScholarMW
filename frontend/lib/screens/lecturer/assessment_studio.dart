@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 import '../../services/services.dart';
 import '../../widgets/stem_text.dart';
-import '../../core/theme/theme_colors.dart';
 
 class AssessmentStudio extends StatefulWidget {
   const AssessmentStudio({super.key});
@@ -31,132 +31,126 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
   ];
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('AI Assessment Studio')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSectionHeader('Configure Assessment'),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _topicCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Topic',
-                hintText: 'e.g. Antimicrobial Resistance',
-                prefixIcon: Icon(Icons.topic_outlined),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    initialValue: _difficulty,
-                    decoration: const InputDecoration(labelText: 'Difficulty'),
-                    items: [
-                      const DropdownMenuItem(value: 'easy', child: Text('Easy')),
-                      const DropdownMenuItem(value: 'medium', child: Text('Medium')),
-                      const DropdownMenuItem(value: 'hard', child: Text('Hard')),
-                    ],
-                    onChanged: (v) => setState(() => _difficulty = v ?? 'medium'),
-                  ),
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: const Text('AI Assessment Studio')),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSectionHeader('Configure Assessment'),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _topicCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'Topic',
+                  hintText: 'e.g. Antimicrobial Resistance',
+                  prefixIcon: Icon(Icons.topic_outlined),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: DropdownButtonFormField<int>(
-                    initialValue: _numQuestions,
-                    decoration: const InputDecoration(labelText: 'Questions'),
-                    items: [5, 10, 15, 20, 25, 30]
-                        .map((n) => DropdownMenuItem(value: n, child: Text('$n')))
-                        .toList(),
-                    onChanged: (v) => setState(() => _numQuestions = v ?? 10),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            _buildSectionHeader('Question Types'),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _types.map((t) {
-                final selected = _selectedTypes.contains(t['key']);
-                return FilterChip(
-                  label: Text(t['label'] as String),
-                  selected: selected,
-                  onSelected: (val) {
-                    setState(() {
-                      if (val) {
-                        _selectedTypes.add(t['key'] as String);
-                      } else {
-                        _selectedTypes.remove(t['key']);
-                      }
-                    });
-                  },
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _generating ? null : _generateAssessment,
-                icon: _generating
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : const Icon(Icons.auto_awesome),
-                label: Text(_generating ? 'Generating...' : 'Generate Assessment'),
               ),
-            ),
-            if (_generatedQuestions.isNotEmpty) ...[
-              const SizedBox(height: 24),
-              _buildSectionHeader('Generated Questions (${_generatedQuestions.length})'),
-              const SizedBox(height: 8),
-              ...(_generatedQuestions.asMap().entries.map((e) => _buildQuestionCard(e.key, e.value))),
               const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => setState(() => _editing = !_editing),
-                      icon: Icon(_editing ? Icons.close : Icons.edit),
-                      label: Text(_editing ? 'Done Editing' : 'Review & Edit'),
+                    child: DropdownButtonFormField<String>(
+                      initialValue: _difficulty,
+                      decoration: const InputDecoration(labelText: 'Difficulty'),
+                      items: const [
+                        DropdownMenuItem(value: 'easy', child: Text('Easy')),
+                        DropdownMenuItem(value: 'medium', child: Text('Medium')),
+                        DropdownMenuItem(value: 'hard', child: Text('Hard')),
+                      ],
+                      onChanged: (v) => setState(() => _difficulty = v ?? 'medium'),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 16),
                   Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: _publishAssessment,
-                      icon: const Icon(Icons.publish),
-                      label: const Text('Approve & Publish'),
+                    child: DropdownButtonFormField<int>(
+                      initialValue: _numQuestions,
+                      decoration: const InputDecoration(labelText: 'Questions'),
+                      items: [5, 10, 15, 20, 25, 30].map((n) => DropdownMenuItem(value: n, child: Text('$n'))).toList(),
+                      onChanged: (v) => setState(() => _numQuestions = v ?? 10),
                     ),
                   ),
                 ],
               ),
+              const SizedBox(height: 20),
+              _buildSectionHeader('Question Types'),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _types.map((t) {
+                  final selected = _selectedTypes.contains(t['key']);
+                  return FilterChip(
+                    label: Text(t['label'] as String),
+                    selected: selected,
+                    onSelected: (val) {
+                      setState(() {
+                        if (val) {
+                          _selectedTypes.add(t['key'] as String);
+                        } else {
+                          _selectedTypes.remove(t['key']);
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _generating ? null : _generateAssessment,
+                  icon: _generating
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Icon(Icons.auto_awesome),
+                  label: Text(_generating ? 'Generating...' : 'Generate Assessment'),
+                ),
+              ),
+              if (_generatedQuestions.isNotEmpty) ...[
+                const SizedBox(height: 24),
+                _buildSectionHeader('Generated Questions (${_generatedQuestions.length})'),
+                const SizedBox(height: 8),
+                ...(_generatedQuestions.asMap().entries.map((e) => _buildQuestionCard(e.key, e.value))),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => setState(() => _editing = !_editing),
+                        icon: Icon(_editing ? Icons.close : Icons.edit),
+                        label: Text(_editing ? 'Done Editing' : 'Review & Edit'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _publishAssessment,
+                        icon: const Icon(Icons.publish),
+                        label: const Text('Approve & Publish'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
-          ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-        color: context.colors.textPrimary,
-      ),
-    );
-  }
+  Widget _buildSectionHeader(String title) => Text(
+        title,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: context.colors.textPrimary,
+        ),
+      );
 
   Widget _buildQuestionCard(int index, dynamic q) {
     final typeColors = {
@@ -166,7 +160,7 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
       'essay': context.colors.info,
       'case_study': context.colors.success,
     };
-    final qType = q['question_type'] ?? 'mcq';
+    final qType = (q['question_type'] ?? 'mcq') as String;
     final color = typeColors[qType] ?? AppColors.primary;
 
     return Card(
@@ -200,7 +194,7 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
                 ),
                 const Spacer(),
                 Text(
-                  '${q['marks'] ?? 1} mark${(q['marks'] ?? 1) > 1 ? 's' : ''}',
+                  '${q['marks'] ?? 1} mark${((q['marks'] ?? 1) as int) > 1 ? 's' : ''}',
                   style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
                 ),
               ],
@@ -208,14 +202,14 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
             const SizedBox(height: 8),
             if (_editing)
               TextFormField(
-                initialValue: q['question_text'] ?? '',
+                initialValue: q['question_text'] as String? ?? '',
                 onChanged: (v) => _generatedQuestions[index]['question_text'] = v,
                 decoration: const InputDecoration(isDense: true),
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               )
             else
               StemText(
-                q['question_text'] ?? '',
+                q['question_text'] as String? ?? '',
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               ),
             if (q['options'] != null && (q['options'] as String).isNotEmpty) ...[
@@ -257,9 +251,7 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            response.statusCode == 201
-                ? 'Assessment published successfully'
-                : 'Failed to publish assessment',
+            response.statusCode == 201 ? 'Assessment published successfully' : 'Failed to publish assessment',
           ),
         ),
       );
@@ -285,7 +277,7 @@ class _AssessmentStudioState extends State<AssessmentStudio> {
     if (mounted) {
       setState(() {
         _generating = false;
-        _generatedQuestions = result['success'] ? (result['data']['questions'] ?? []) : [];
+        _generatedQuestions = result['success'] == true ? (result['data']['questions'] as List<dynamic>? ?? []) : [];
       });
       if (_generatedQuestions.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(

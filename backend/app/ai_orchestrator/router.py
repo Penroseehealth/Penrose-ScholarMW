@@ -96,9 +96,7 @@ async def chat(
         )
         session = result.scalar_one_or_none()
         if not session:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Session not found"
-            )
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
     else:
         session = ChatSession(
             user_id=user.id,
@@ -114,13 +112,9 @@ async def chat(
     await db.commit()
 
     history_result = await db.execute(
-        select(ChatMessage)
-        .where(ChatMessage.session_id == session.id)
-        .order_by(ChatMessage.id)
+        select(ChatMessage).where(ChatMessage.session_id == session.id).order_by(ChatMessage.id)
     )
-    history = [
-        {"role": m.role, "content": m.content} for m in history_result.scalars().all()
-    ]
+    history = [{"role": m.role, "content": m.content} for m in history_result.scalars().all()]
 
     model_used = "openai"
     system_prompt = _get_system_prompt(body.agent_type)
@@ -130,16 +124,10 @@ async def chat(
     elif body.model_preference == "cloud" and settings.OPENAI_API_KEY:
         ai_response = await _call_openai(system_prompt, history)
     elif body.model_preference == "local":
-        ai_response = (
-            "Local model is not yet configured. "
-            "Please use 'auto' or 'cloud' preference."
-        )
+        ai_response = "Local model is not yet configured. Please use 'auto' or 'cloud' preference."
         model_used = "local_unavailable"
     elif body.model_preference == "institutional":
-        ai_response = (
-            "Institutional model is not yet configured. "
-            "Please use 'auto' or 'cloud' preference."
-        )
+        ai_response = "Institutional model is not yet configured. Please use 'auto' or 'cloud' preference."
         model_used = "institutional_unavailable"
     else:
         ai_response = await _call_openai(system_prompt, history)
@@ -181,9 +169,7 @@ async def translate_context(
     body: TranslateContextRequest,
     user: User = Depends(get_current_user),
 ):
-    context_block = "\n\n---\n\n".join(
-        f"Document {i + 1}:\n{doc}" for i, doc in enumerate(body.context_documents)
-    )
+    context_block = "\n\n---\n\n".join(f"Document {i + 1}:\n{doc}" for i, doc in enumerate(body.context_documents))
 
     prompt = (
         f"You are an academic assistant. Use the following context documents "

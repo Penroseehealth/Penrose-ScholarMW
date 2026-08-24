@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 import '../../services/stem_service.dart';
-import '../../widgets/shimmer_loading.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
-import '../../core/theme/theme_colors.dart';
+import '../../widgets/shimmer_loading.dart';
 
 class StemRevisionScreen extends StatefulWidget {
   const StemRevisionScreen({super.key});
@@ -43,7 +44,11 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
   }
 
   Future<void> _loadData() async {
-    setState(() { _loading = true; _plansLoading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _plansLoading = true;
+      _error = null;
+    });
     try {
       final due = await _stemService.getDueFlashcards();
       final all = await _stemService.getFlashcards();
@@ -58,7 +63,13 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
         });
       }
     } catch (e) {
-      if (mounted) setState(() { _error = e.toString(); _loading = false; _plansLoading = false; });
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+          _plansLoading = false;
+        });
+      }
     }
   }
 
@@ -187,10 +198,10 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
                       borderSide: const BorderSide(color: AppColors.primary),
                     ),
                   ),
-                  items: [
-                    const DropdownMenuItem(value: 'easy', child: Text('Easy')),
-                    const DropdownMenuItem(value: 'medium', child: Text('Medium')),
-                    const DropdownMenuItem(value: 'hard', child: Text('Hard')),
+                  items: const [
+                    DropdownMenuItem(value: 'easy', child: Text('Easy')),
+                    DropdownMenuItem(value: 'medium', child: Text('Medium')),
+                    DropdownMenuItem(value: 'hard', child: Text('Hard')),
                   ],
                   onChanged: (v) => setDialogState(() => difficulty = v ?? 'medium'),
                 ),
@@ -362,7 +373,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
     final detail = await _stemService.getStudyPlanDetail(planId);
     if (!mounted || detail.isEmpty) return;
 
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: context.colors.surfaceElevated,
@@ -388,7 +399,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
             Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                detail['title'] ?? '',
+                (detail['title'] ?? '') as String,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -400,7 +411,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  detail['description'],
+                  detail['description'] as String,
                   style: TextStyle(fontSize: 13, color: context.colors.textMuted),
                 ),
               ),
@@ -428,7 +439,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
                               ? null
                               : () async {
                                   final navigator = Navigator.of(ctx);
-                                  await _stemService.completePlanItem(planId, item['id']);
+                                  await _stemService.completePlanItem(planId, item['id'] as int);
                                   navigator.pop();
                                   _loadData();
                                 },
@@ -451,7 +462,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            item['title'] ?? '',
+                            (item['title'] ?? '') as String,
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -473,164 +484,170 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        color: AppColors.primary,
-        child: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 90,
-            pinned: true,
-            backgroundColor: AppColors.primaryDark,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'Revision Tools',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textPrimary,
-                ),
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.primaryDark, AppColors.primaryMuted],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-              ),
-            ),
-            bottom: TabBar(
-              controller: _tabController,
-              indicatorColor: context.colors.textPrimary,
-              indicatorWeight: 3,
-              labelColor: context.colors.textPrimary,
-              unselectedLabelColor: context.colors.textMuted,
-              labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-              tabs: [
-                const Tab(text: 'Flashcards'),
-                const Tab(text: 'Study Plans'),
-              ],
-            ),
-          ),
-          if (_error != null)
-            SliverToBoxAdapter(
-              child: ErrorState(
-                message: 'Failed to load revision tools',
-                details: _error,
-                onRetry: _loadData,
-              ),
-            )
-          else if (_loading || _plansLoading)
-            SliverToBoxAdapter(child: ShimmerLoading.list(count: 3))
-          else ...[
-            // Flashcards tab
-            if (_tabController.index == 0) ...[
-              if (_dueCards.isNotEmpty) ...[
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                    child: Text(
-                      'Due for Review',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: context.colors.textPrimary,
-                      ),
-                    ),
-                  ),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) => _buildDueCard(_dueCards[index]),
-                      childCount: _dueCards.length,
-                    ),
-                  ),
-                ),
-                const SliverToBoxAdapter(child: SizedBox(height: 20)),
-              ],
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: Text(
-                    'All Cards',
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: RefreshIndicator(
+          onRefresh: _loadData,
+          color: AppColors.primary,
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 90,
+                pinned: true,
+                backgroundColor: AppColors.primaryDark,
+                flexibleSpace: FlexibleSpaceBar(
+                  title: Text(
+                    'Revision Tools',
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: context.colors.textPrimary,
                     ),
                   ),
-                ),
-              ),
-              if (_allCards.isEmpty)
-                const SliverToBoxAdapter(child: EmptyState(icon: Icons.style_rounded, title: 'No flashcards', subtitle: 'Create your first flashcard to start revising'))
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) => _buildCompactCard(_allCards[index]),
-                      childCount: _allCards.length,
-                    ),
-                  ),
-                ),
-              const SliverToBoxAdapter(child: SizedBox(height: 40)),
-            ],
-            // Study Plans tab
-            if (_tabController.index == 1) ...[
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _showCreatePlanDialog,
-                      icon: const Icon(Icons.add_rounded, size: 18),
-                      label: const Text('Create Plan', style: TextStyle(fontWeight: FontWeight.w700)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.textOnPrimary,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  background: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColors.primaryDark, AppColors.primaryMuted],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
                     ),
                   ),
                 ),
+                bottom: TabBar(
+                  controller: _tabController,
+                  indicatorColor: context.colors.textPrimary,
+                  indicatorWeight: 3,
+                  labelColor: context.colors.textPrimary,
+                  unselectedLabelColor: context.colors.textMuted,
+                  labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                  tabs: const [
+                    Tab(text: 'Flashcards'),
+                    Tab(text: 'Study Plans'),
+                  ],
+                ),
               ),
-              if (_plans.isEmpty)
-                const SliverToBoxAdapter(child: EmptyState(icon: Icons.event_note_rounded, title: 'No study plans', subtitle: 'Create a study plan to track your progress'))
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) => _buildPlanCard(_plans[index]),
-                      childCount: _plans.length,
+              if (_error != null)
+                SliverToBoxAdapter(
+                  child: ErrorState(
+                    message: 'Failed to load revision tools',
+                    details: _error,
+                    onRetry: _loadData,
+                  ),
+                )
+              else if (_loading || _plansLoading)
+                SliverToBoxAdapter(child: ShimmerLoading.list(count: 3))
+              else ...[
+                // Flashcards tab
+                if (_tabController.index == 0) ...[
+                  if (_dueCards.isNotEmpty) ...[
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        child: Text(
+                          'Due for Review',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: context.colors.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) => _buildDueCard(_dueCards[index]),
+                          childCount: _dueCards.length,
+                        ),
+                      ),
+                    ),
+                    const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                  ],
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                      child: Text(
+                        'All Cards',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: context.colors.textPrimary,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              const SliverToBoxAdapter(child: SizedBox(height: 40)),
+                  if (_allCards.isEmpty)
+                    const SliverToBoxAdapter(
+                        child: EmptyState(
+                            icon: Icons.style_rounded,
+                            title: 'No flashcards',
+                            subtitle: 'Create your first flashcard to start revising'))
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) => _buildCompactCard(_allCards[index]),
+                          childCount: _allCards.length,
+                        ),
+                      ),
+                    ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 40)),
+                ],
+                // Study Plans tab
+                if (_tabController.index == 1) ...[
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: _showCreatePlanDialog,
+                          icon: const Icon(Icons.add_rounded, size: 18),
+                          label: const Text('Create Plan', style: TextStyle(fontWeight: FontWeight.w700)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: AppColors.textOnPrimary,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (_plans.isEmpty)
+                    const SliverToBoxAdapter(
+                        child: EmptyState(
+                            icon: Icons.event_note_rounded,
+                            title: 'No study plans',
+                            subtitle: 'Create a study plan to track your progress'))
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) => _buildPlanCard(_plans[index]),
+                          childCount: _plans.length,
+                        ),
+                      ),
+                    ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 40)),
+                ],
+              ],
             ],
-          ],
-        ],
+          ),
         ),
-      ),
-      floatingActionButton: _tabController.index == 0
-          ? FloatingActionButton(
-              onPressed: _showCreateFlashcardDialog,
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.textOnPrimary,
-              child: const Icon(Icons.add_rounded),
-            )
-          : null,
-    );
-  }
+        floatingActionButton: _tabController.index == 0
+            ? FloatingActionButton(
+                onPressed: _showCreateFlashcardDialog,
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.textOnPrimary,
+                child: const Icon(Icons.add_rounded),
+              )
+            : null,
+      );
 
   Widget _buildDueCard(dynamic card) {
     final isRevealed = _revealedCards.contains(card['id']);
@@ -646,7 +663,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            card['front'] ?? '',
+            (card['front'] ?? '') as String,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -658,7 +675,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () => setState(() => _revealedCards.add(card['id'])),
+                onPressed: () => setState(() => _revealedCards.add(card['id'] as int)),
                 icon: const Icon(Icons.visibility_rounded, size: 16),
                 label: const Text('Reveal'),
                 style: OutlinedButton.styleFrom(
@@ -678,7 +695,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                card['back'] ?? '',
+                (card['back'] ?? '') as String,
                 style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
               ),
             ),
@@ -708,80 +725,76 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
     );
   }
 
-  Widget _qualityButton(String label, int quality, Color color, Color bgColor) {
-    return ElevatedButton(
-      onPressed: () {
-        final card = _dueCards.firstWhere((c) => _revealedCards.contains(c['id']), orElse: () => _dueCards.first);
-        _reviewCard(card['id'], quality);
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: bgColor,
-        foregroundColor: color,
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-          side: BorderSide(color: color.withAlpha(80)),
-        ),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
-      ),
-    );
-  }
-
-  Widget _buildCompactCard(dynamic card) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: context.colors.border),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              card['front'] ?? '',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: context.colors.textPrimary,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+  Widget _qualityButton(String label, int quality, Color color, Color bgColor) => ElevatedButton(
+        onPressed: () {
+          final card = _dueCards.firstWhere((c) => _revealedCards.contains(c['id']), orElse: () => _dueCards.first);
+          _reviewCard(card['id'] as int, quality);
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: bgColor,
+          foregroundColor: color,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide(color: color.withAlpha(80)),
           ),
-          if (card['difficulty'] != null)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: _difficultyColor(card['difficulty']),
-                borderRadius: BorderRadius.circular(4),
-              ),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+        ),
+      );
+
+  Widget _buildCompactCard(dynamic card) => Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: context.colors.border),
+        ),
+        child: Row(
+          children: [
+            Expanded(
               child: Text(
-                card['difficulty'],
+                (card['front'] ?? '') as String,
                 style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
                   color: context.colors.textPrimary,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-        ],
-      ),
-    );
-  }
+            if (card['difficulty'] != null)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: _difficultyColor(card['difficulty'] as String),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  card['difficulty'] as String,
+                  style: TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                    color: context.colors.textPrimary,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      );
 
   Widget _buildPlanCard(dynamic plan) {
     final total = (plan['total_items'] ?? 0) as int;
     final completed = (plan['completed_items'] ?? 0) as int;
     final progress = total > 0 ? completed / total : 0.0;
-    final status = plan['status'] ?? 'active';
+    final status = (plan['status'] ?? 'active') as String;
 
     return GestureDetector(
-      onTap: () => _showPlanDetail(plan['id']),
+      onTap: () => _showPlanDetail(plan['id'] as int),
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
@@ -797,7 +810,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
               children: [
                 Expanded(
                   child: Text(
-                    plan['title'] ?? '',
+                    (plan['title'] ?? '') as String,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -827,7 +840,7 @@ class _StemRevisionScreenState extends State<StemRevisionScreen> with SingleTick
             if (plan['subject_slug'] != null) ...[
               const SizedBox(height: 6),
               Text(
-                plan['subject_slug'],
+                plan['subject_slug'] as String,
                 style: TextStyle(fontSize: 12, color: context.colors.textMuted),
               ),
             ],

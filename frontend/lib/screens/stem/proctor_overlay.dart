@@ -1,8 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../services/stem_service.dart';
+
 import '../../core/theme/theme_colors.dart';
+import '../../services/stem_service.dart';
 
 class ProctorOverlay extends StatefulWidget {
   final String examType;
@@ -66,11 +68,11 @@ class ProctorOverlayState extends State<ProctorOverlay> with WidgetsBindingObser
     switch (state) {
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
-        _logEvent('app_background', eventData: null);
+        _logEvent('app_background');
         _flashWarning('App went to background');
         break;
       case AppLifecycleState.resumed:
-        _logEvent('app_resumed', eventData: null);
+        _logEvent('app_resumed');
         break;
       default:
         break;
@@ -119,90 +121,91 @@ class ProctorOverlayState extends State<ProctorOverlay> with WidgetsBindingObser
     });
     _warningTimer?.cancel();
     _warningTimer = Timer(const Duration(seconds: 3), () {
-      if (mounted) setState(() { _showWarning = false; });
+      if (mounted)
+        setState(() {
+          _showWarning = false;
+        });
     });
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Focus(
-      focusNode: _focusNode,
-      autofocus: true,
-      onKeyEvent: _handleKeyEvent,
-      child: Stack(
-        children: [
-          widget.child,
-          if (_showWarning)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: AnimatedOpacity(
-                opacity: _showWarning ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 250),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [context.colors.warning, const Color(0xFFE8A317)],
+  Widget build(BuildContext context) => Focus(
+        focusNode: _focusNode,
+        autofocus: true,
+        onKeyEvent: _handleKeyEvent,
+        child: Stack(
+          children: [
+            widget.child,
+            if (_showWarning)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: AnimatedOpacity(
+                  opacity: _showWarning ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 250),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [context.colors.warning, const Color(0xFFE8A317)],
+                      ),
                     ),
-                  ),
-                  child: SafeArea(
-                    bottom: false,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.shield_outlined, color: Colors.black87, size: 16),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _warningMessage,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black87,
+                    child: SafeArea(
+                      bottom: false,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.shield_outlined, color: Colors.black87, size: 16),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _warningMessage,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black87,
+                              ),
                             ),
                           ),
-                        ),
-                        Text(
-                          'Events: $_focusLostCount',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black54,
+                          Text(
+                            'Events: $_focusLostCount',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black54,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          if (widget.active && !_showWarning)
-            Positioned(
-              top: 8,
-              right: 8,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: context.colors.success.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: context.colors.success.withValues(alpha: 0.3)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.verified_outlined, color: context.colors.success, size: 12),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Proctored',
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: context.colors.success),
-                    ),
-                  ],
+            if (widget.active && !_showWarning)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: context.colors.success.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: context.colors.success.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.verified_outlined, color: context.colors.success, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Proctored',
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: context.colors.success),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 }

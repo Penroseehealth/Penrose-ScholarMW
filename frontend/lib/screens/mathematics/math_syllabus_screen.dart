@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
 
 import '../../core/theme/app_colors.dart';
-import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/services.dart';
 
 class MathSyllabusScreen extends StatefulWidget {
   const MathSyllabusScreen({super.key});
@@ -14,8 +14,7 @@ class MathSyllabusScreen extends StatefulWidget {
   State<MathSyllabusScreen> createState() => _MathSyllabusScreenState();
 }
 
-class _MathSyllabusScreenState extends State<MathSyllabusScreen>
-    with SingleTickerProviderStateMixin {
+class _MathSyllabusScreenState extends State<MathSyllabusScreen> with SingleTickerProviderStateMixin {
   final ApiService _api = ApiService();
   bool _loading = true;
   List<Map<String, dynamic>> _forms = [];
@@ -85,134 +84,128 @@ class _MathSyllabusScreenState extends State<MathSyllabusScreen>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      appBar: AppBar(
-        backgroundColor: context.colors.surface,
-        title: const Row(
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        appBar: AppBar(
+          backgroundColor: context.colors.surface,
+          title: const Row(
+            children: [
+              Icon(Icons.calculate_rounded, size: 22, color: Color(0xFF8B5CF6)),
+              SizedBox(width: 10),
+              Text(
+                'Mathematics Syllabus',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
+          bottom: _forms.isNotEmpty
+              ? TabBar(
+                  controller: _tabCtrl,
+                  isScrollable: true,
+                  tabAlignment: TabAlignment.start,
+                  labelColor: const Color(0xFF8B5CF6),
+                  unselectedLabelColor: context.colors.textMuted,
+                  indicatorColor: const Color(0xFF8B5CF6),
+                  tabs: List.generate(4, (i) {
+                    final formNum = i + 1;
+                    final form = _forms.firstWhere(
+                      (f) => f['year_level'] == formNum,
+                      orElse: () => {},
+                    );
+                    final count = (form['themes'] as List? ?? []).length;
+                    return Tab(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(_formIcons[formNum], size: 16),
+                          const SizedBox(width: 6),
+                          Text('Form $formNum'),
+                          if (count > 0) ...[
+                            const SizedBox(width: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                '$count',
+                                style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    );
+                  }),
+                )
+              : null,
+        ),
+        body: _loading
+            ? const Center(child: CircularProgressIndicator(color: Color(0xFF8B5CF6)))
+            : _forms.isEmpty
+                ? _buildEmptyState()
+                : Column(
+                    children: [
+                      _buildSearchBar(),
+                      Expanded(child: _buildThemesList()),
+                    ],
+                  ),
+      );
+
+  Widget _buildSearchBar() => Container(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+        child: TextField(
+          onChanged: (v) => setState(() => _searchQuery = v),
+          style: TextStyle(color: context.colors.textPrimary, fontSize: 14),
+          decoration: InputDecoration(
+            hintText: 'Search themes, topics, subtopics...',
+            hintStyle: TextStyle(color: context.colors.textMuted, fontSize: 13),
+            prefixIcon: Icon(Icons.search_rounded, size: 20, color: context.colors.textMuted),
+            suffixIcon: _searchQuery.isNotEmpty
+                ? GestureDetector(
+                    onTap: () => setState(() => _searchQuery = ''),
+                    child: Icon(Icons.close_rounded, size: 18, color: context.colors.textMuted),
+                  )
+                : null,
+            filled: true,
+            fillColor: context.colors.surface,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: context.colors.border),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: context.colors.border),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFF8B5CF6)),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          ),
+        ),
+      );
+
+  Widget _buildEmptyState() => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.calculate_rounded, size: 22, color: Color(0xFF8B5CF6)),
-            SizedBox(width: 10),
+            Icon(Icons.calculate_rounded, size: 64, color: context.colors.textMuted.withValues(alpha: 0.3)),
+            const SizedBox(height: 16),
             Text(
               'Mathematics Syllabus',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'The Malawi MSCE Mathematics syllabus\nwill appear here once seeded.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: context.colors.textMuted),
             ),
           ],
         ),
-        bottom: _forms.isNotEmpty
-            ? TabBar(
-                controller: _tabCtrl,
-                isScrollable: true,
-                tabAlignment: TabAlignment.start,
-                labelColor: const Color(0xFF8B5CF6),
-                unselectedLabelColor: context.colors.textMuted,
-                indicatorColor: const Color(0xFF8B5CF6),
-                tabs: List.generate(4, (i) {
-                  final formNum = i + 1;
-                  final form = _forms.firstWhere(
-                    (f) => f['year_level'] == formNum,
-                    orElse: () => {},
-                  );
-                  final count = (form['themes'] as List? ?? []).length;
-                  return Tab(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(_formIcons[formNum], size: 16),
-                        const SizedBox(width: 6),
-                        Text('Form $formNum'),
-                        if (count > 0) ...[
-                          const SizedBox(width: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              '$count',
-                              style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  );
-                }),
-              )
-            : null,
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF8B5CF6)))
-          : _forms.isEmpty
-              ? _buildEmptyState()
-              : Column(
-                  children: [
-                    _buildSearchBar(),
-                    Expanded(child: _buildThemesList()),
-                  ],
-                ),
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-      child: TextField(
-        onChanged: (v) => setState(() => _searchQuery = v),
-        style: TextStyle(color: context.colors.textPrimary, fontSize: 14),
-        decoration: InputDecoration(
-          hintText: 'Search themes, topics, subtopics...',
-          hintStyle: TextStyle(color: context.colors.textMuted, fontSize: 13),
-          prefixIcon: Icon(Icons.search_rounded, size: 20, color: context.colors.textMuted),
-          suffixIcon: _searchQuery.isNotEmpty
-              ? GestureDetector(
-                  onTap: () => setState(() => _searchQuery = ''),
-                  child: Icon(Icons.close_rounded, size: 18, color: context.colors.textMuted),
-                )
-              : null,
-          filled: true,
-          fillColor: context.colors.surface,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: context.colors.border),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: context.colors.border),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFF8B5CF6)),
-          ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.calculate_rounded, size: 64, color: context.colors.textMuted.withValues(alpha: 0.3)),
-          const SizedBox(height: 16),
-          Text(
-            'Mathematics Syllabus',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'The Malawi MSCE Mathematics syllabus\nwill appear here once seeded.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: context.colors.textMuted),
-          ),
-        ],
-      ),
-    );
-  }
+      );
 
   Widget _buildThemesList() {
     final themes = _filteredThemes;
@@ -260,8 +253,8 @@ class _ThemeCardState extends State<_ThemeCard> {
 
   @override
   Widget build(BuildContext context) {
-    final name = widget.theme['name'] ?? '';
-    final description = widget.theme['description'] ?? '';
+    final name = (widget.theme['name'] ?? '') as String;
+    final description = (widget.theme['description'] ?? '') as String;
     final topics = widget.theme['topics'] as List? ?? [];
     final number = widget.theme['number'] ?? 0;
 
@@ -350,7 +343,7 @@ class _ThemeCardState extends State<_ThemeCard> {
           ),
           if (_expanded) ...[
             Divider(height: 1, color: context.colors.border),
-            ...topics.map<Widget>((t) => _TopicTile(topic: t, formNumber: widget.formNumber)),
+            ...topics.map<Widget>((t) => _TopicTile(topic: t as Map<String, dynamic>, formNumber: widget.formNumber)),
             const SizedBox(height: 8),
           ],
         ],
@@ -374,8 +367,8 @@ class _TopicTileState extends State<_TopicTile> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.topic['title'] ?? '';
-    final description = widget.topic['description'] ?? '';
+    final title = (widget.topic['title'] ?? '') as String;
+    final description = (widget.topic['description'] ?? '') as String;
     final subtopics = widget.topic['subtopics'] as List? ?? [];
 
     return Column(
@@ -436,7 +429,7 @@ class _TopicTileState extends State<_TopicTile> {
             ),
           ),
         ),
-        if (_expanded) ...subtopics.map<Widget>((s) => _SubtopicTile(subtopic: s)),
+        if (_expanded) ...subtopics.map<Widget>((s) => _SubtopicTile(subtopic: s as Map<String, dynamic>)),
       ],
     );
   }
@@ -456,7 +449,7 @@ class _SubtopicTileState extends State<_SubtopicTile> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.subtopic['title'] ?? '';
+    final title = (widget.subtopic['title'] ?? '') as String;
     final los = widget.subtopic['learning_objectives'] as List? ?? [];
 
     return Container(
@@ -502,8 +495,7 @@ class _SubtopicTileState extends State<_SubtopicTile> {
               ),
             ),
           ),
-          if (_expanded)
-            ...los.map<Widget>((lo) => _LearningObjectiveCard(lo: lo)),
+          if (_expanded) ...los.map<Widget>((lo) => _LearningObjectiveCard(lo: lo as Map<String, dynamic>)),
         ],
       ),
     );
@@ -517,10 +509,10 @@ class _LearningObjectiveCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final objective = lo['objective'] ?? '';
-    final cognitiveLevel = lo['cognitive_level'] ?? 'Knowledge';
-    final teachingActivity = lo['teaching_activity'] ?? '';
-    final teachingMethod = lo['teaching_method'] ?? '';
+    final objective = (lo['objective'] ?? '') as String;
+    final cognitiveLevel = (lo['cognitive_level'] ?? 'Knowledge') as String;
+    final teachingActivity = (lo['teaching_activity'] ?? '') as String;
+    final teachingMethod = (lo['teaching_method'] ?? '') as String;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(32, 0, 0, 8),
@@ -601,17 +593,16 @@ class _LearningObjectiveCard extends StatelessWidget {
     );
   }
 
-  bool _containsLatex(String text) {
-    return text.contains('\\') ||
-        text.contains('\$') ||
-        text.contains('²') ||
-        text.contains('³') ||
-        text.contains('√') ||
-        text.contains('∫') ||
-        text.contains('∑') ||
-        text.contains('π') ||
-        text.contains('θ');
-  }
+  bool _containsLatex(String text) =>
+      text.contains('\\') ||
+      text.contains('\$') ||
+      text.contains('²') ||
+      text.contains('³') ||
+      text.contains('√') ||
+      text.contains('∫') ||
+      text.contains('∑') ||
+      text.contains('π') ||
+      text.contains('θ');
 
   Widget _buildLatexText(String text) {
     try {
@@ -634,13 +625,20 @@ class _LearningObjectiveCard extends StatelessWidget {
 
   Color _cognitiveColor(String level) {
     switch (level.toLowerCase()) {
-      case 'knowledge': return const Color(0xFF3B82F6);
-      case 'comprehension': return const Color(0xFF10B981);
-      case 'application': return const Color(0xFFF59E0B);
-      case 'analysis': return const Color(0xFFEF4444);
-      case 'evaluation': return const Color(0xFF8B5CF6);
-      case 'synthesis': return const Color(0xFFEC4899);
-      default: return AppColors.textMuted;
+      case 'knowledge':
+        return const Color(0xFF3B82F6);
+      case 'comprehension':
+        return const Color(0xFF10B981);
+      case 'application':
+        return const Color(0xFFF59E0B);
+      case 'analysis':
+        return const Color(0xFFEF4444);
+      case 'evaluation':
+        return const Color(0xFF8B5CF6);
+      case 'synthesis':
+        return const Color(0xFFEC4899);
+      default:
+        return AppColors.textMuted;
     }
   }
 }

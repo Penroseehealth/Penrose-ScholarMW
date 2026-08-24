@@ -8,15 +8,34 @@ class ChinesePinyinLab extends StatefulWidget {
   State<ChinesePinyinLab> createState() => _ChinesePinyinLabState();
 }
 
-class _ChinesePinyinLabState extends State<ChinesePinyinLab>
-    with SingleTickerProviderStateMixin {
+class _ChinesePinyinLabState extends State<ChinesePinyinLab> with SingleTickerProviderStateMixin {
   late TabController _tabCtrl;
   static const Color _accent = Color(0xFFDC2626);
 
   static const List<String> _initials = [
-    'b', 'p', 'm', 'f', 'd', 't', 'n', 'l',
-    'g', 'k', 'h', 'j', 'q', 'x',
-    'zh', 'ch', 'sh', 'r', 'z', 'c', 's', 'y', 'w',
+    'b',
+    'p',
+    'm',
+    'f',
+    'd',
+    't',
+    'n',
+    'l',
+    'g',
+    'k',
+    'h',
+    'j',
+    'q',
+    'x',
+    'zh',
+    'ch',
+    'sh',
+    'r',
+    'z',
+    'c',
+    's',
+    'y',
+    'w',
   ];
 
   static const List<String> _finals = [
@@ -65,16 +84,46 @@ class _ChinesePinyinLabState extends State<ChinesePinyinLab>
     {'pinyin': 'g', 'sound': 'like g in go', 'example': '狗 gǒu (dog)', 'tip': 'Back of tongue touches soft palate'},
     {'pinyin': 'k', 'sound': 'like k in key', 'example': '开 kāi (open)', 'tip': 'Same as g but with more air'},
     {'pinyin': 'h', 'sound': 'like h in hot', 'example': '好 hǎo (good)', 'tip': 'Breathy sound from throat'},
-    {'pinyin': 'j', 'sound': 'like j in jeep', 'example': '鸡 jī (chicken)', 'tip': 'Tongue tip down, blade touches hard palate'},
+    {
+      'pinyin': 'j',
+      'sound': 'like j in jeep',
+      'example': '鸡 jī (chicken)',
+      'tip': 'Tongue tip down, blade touches hard palate'
+    },
     {'pinyin': 'q', 'sound': 'like ch in cheese', 'example': '七 qī (seven)', 'tip': 'Same as j but with air'},
-    {'pinyin': 'x', 'sound': 'like sh but forward', 'example': '西 xī (west)', 'tip': 'Tongue tip down, blade near hard palate'},
+    {
+      'pinyin': 'x',
+      'sound': 'like sh but forward',
+      'example': '西 xī (west)',
+      'tip': 'Tongue tip down, blade near hard palate'
+    },
     {'pinyin': 'zh', 'sound': 'like j retroflex', 'example': '中 zhōng (middle)', 'tip': 'Curl tongue tip back'},
     {'pinyin': 'ch', 'sound': 'like ch retroflex', 'example': '吃 chī (eat)', 'tip': 'Same as zh but with air puff'},
-    {'pinyin': 'sh', 'sound': 'like sh retroflex', 'example': '是 shì (is)', 'tip': 'Curl tongue back, air around sides'},
-    {'pinyin': 'r', 'sound': 'like French r', 'example': '人 rén (person)', 'tip': 'Tongue curled back, vocal cords vibrate'},
-    {'pinyin': 'z', 'sound': 'like ds in reads', 'example': '字 zì (character)', 'tip': 'Tongue tip behind teeth, no air'},
+    {
+      'pinyin': 'sh',
+      'sound': 'like sh retroflex',
+      'example': '是 shì (is)',
+      'tip': 'Curl tongue back, air around sides'
+    },
+    {
+      'pinyin': 'r',
+      'sound': 'like French r',
+      'example': '人 rén (person)',
+      'tip': 'Tongue curled back, vocal cords vibrate'
+    },
+    {
+      'pinyin': 'z',
+      'sound': 'like ds in reads',
+      'example': '字 zì (character)',
+      'tip': 'Tongue tip behind teeth, no air'
+    },
     {'pinyin': 'c', 'sound': 'like ts in cats', 'example': '词 cí (word)', 'tip': 'Same as z but with air puff'},
-    {'pinyin': 's', 'sound': 'like s in sun', 'example': '三 sān (three)', 'tip': 'Tongue near teeth, air hisses through'},
+    {
+      'pinyin': 's',
+      'sound': 'like s in sun',
+      'example': '三 sān (three)',
+      'tip': 'Tongue near teeth, air hisses through'
+    },
     {'pinyin': 'y', 'sound': 'like y in yes', 'example': '一 yī (one)', 'tip': 'Glide into the vowel'},
     {'pinyin': 'w', 'sound': 'like w in wow', 'example': '五 wǔ (five)', 'tip': 'Round lips and glide into vowel'},
   ];
@@ -132,152 +181,167 @@ class _ChinesePinyinLabState extends State<ChinesePinyinLab>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      appBar: AppBar(
-        title: const Text('Pinyin Lab'),
-        backgroundColor: context.colors.surface,
-        foregroundColor: context.colors.textPrimary,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-          onPressed: () => context.pop(),
-        ),
-        bottom: TabBar(
-          controller: _tabCtrl,
-          indicatorColor: _accent,
-          indicatorWeight: 3,
-          labelColor: _accent,
-          unselectedLabelColor: context.colors.textMuted,
-          labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-          tabs: [const Tab(text: 'Chart'), const Tab(text: 'Initials'), const Tab(text: 'Finals')],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabCtrl,
-        children: [_buildChartTab(), _buildInitialsTab(), _buildFinalsTab()],
-      ),
-    );
-  }
-
-  Widget _buildChartTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildToneOverview(),
-          const SizedBox(height: 24),
-          _buildSectionHeader('Pinyin Chart'),
-          const SizedBox(height: 12),
-          _buildPinyinChart(),
-          const SizedBox(height: 24),
-          if (_selectedInitial.isNotEmpty && _selectedFinal.isNotEmpty)
-            _buildCombinationCard(_selectedInitial, _selectedFinal),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildToneOverview() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: context.colors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(children: [
-            const Icon(Icons.graphic_eq_rounded, size: 20, color: _accent),
-            const SizedBox(width: 10),
-            Text('The Four Tones + Neutral', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
-          ]),
-          const SizedBox(height: 16),
-          ..._toneExamples.map((t) => Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: context.colors.surfaceElevated, borderRadius: BorderRadius.circular(10)),
-            child: Row(children: [
-              Container(
-                width: 48, height: 48,
-                decoration: BoxDecoration(color: _accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-                child: Center(child: Text(t['char']!, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600))),
-              ),
-              const SizedBox(width: 12),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Row(children: [
-                  Text(t['pinyin']!, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(color: _accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
-                    child: Text(t['tone']!, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: _accent)),
-                  ),
-                ]),
-                const SizedBox(height: 2),
-                Text('${t['meaning']!} \u2014 ${t['desc']!}', style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
-              ])),
-            ]),
-          )),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title) {
-    return Row(children: [
-      Container(width: 4, height: 20, decoration: BoxDecoration(color: _accent, borderRadius: BorderRadius.circular(2))),
-      const SizedBox(width: 12),
-      Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
-    ]);
-  }
-
-  Widget _buildPinyinChart() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          const SizedBox(width: 60, height: 36),
-          ..._finals.map((f) => Container(
-            width: 54, height: 36, alignment: Alignment.center,
-            decoration: BoxDecoration(color: _accent.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(6)),
-            child: Text(f, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: _accent)),
-          )),
-        ]),
-        ..._initials.map((ini) => Row(children: [
-          Container(
-            width: 60, height: 36, alignment: Alignment.center,
-            decoration: BoxDecoration(color: _accent.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(6)),
-            child: Text(ini, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: _accent)),
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        appBar: AppBar(
+          title: const Text('Pinyin Lab'),
+          backgroundColor: context.colors.surface,
+          foregroundColor: context.colors.textPrimary,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+            onPressed: () => context.pop(),
           ),
-          ..._finals.map((f) {
-            final combo = ini + f;
-            final sel = _selectedInitial == ini && _selectedFinal == f;
-            return GestureDetector(
-              onTap: () => setState(() { _selectedInitial = ini; _selectedFinal = f; }),
-              child: Container(
-                width: 54, height: 36, alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: sel ? _accent.withValues(alpha: 0.2) : context.colors.surface,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: sel ? _accent : context.colors.border, width: sel ? 1.5 : 0.5),
-                ),
-                child: Text(combo, style: TextStyle(
-                  fontSize: 10, fontWeight: sel ? FontWeight.w700 : FontWeight.w500,
-                  color: sel ? _accent : context.colors.textMuted,
+          bottom: TabBar(
+            controller: _tabCtrl,
+            indicatorColor: _accent,
+            indicatorWeight: 3,
+            labelColor: _accent,
+            unselectedLabelColor: context.colors.textMuted,
+            labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+            tabs: const [Tab(text: 'Chart'), Tab(text: 'Initials'), Tab(text: 'Finals')],
+          ),
+        ),
+        body: TabBarView(
+          controller: _tabCtrl,
+          children: [_buildChartTab(), _buildInitialsTab(), _buildFinalsTab()],
+        ),
+      );
+
+  Widget _buildChartTab() => SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildToneOverview(),
+            const SizedBox(height: 24),
+            _buildSectionHeader('Pinyin Chart'),
+            const SizedBox(height: 12),
+            _buildPinyinChart(),
+            const SizedBox(height: 24),
+            if (_selectedInitial.isNotEmpty && _selectedFinal.isNotEmpty)
+              _buildCombinationCard(_selectedInitial, _selectedFinal),
+          ],
+        ),
+      );
+
+  Widget _buildToneOverview() => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: context.colors.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              const Icon(Icons.graphic_eq_rounded, size: 20, color: _accent),
+              const SizedBox(width: 10),
+              Text('The Four Tones + Neutral',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
+            ]),
+            const SizedBox(height: 16),
+            ..._toneExamples.map((t) => Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration:
+                      BoxDecoration(color: context.colors.surfaceElevated, borderRadius: BorderRadius.circular(10)),
+                  child: Row(children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration:
+                          BoxDecoration(color: _accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                      child: Center(
+                          child: Text(t['char']!, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600))),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Row(children: [
+                        Text(t['pinyin']!,
+                            style: TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                              color: _accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
+                          child: Text(t['tone']!,
+                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: _accent)),
+                        ),
+                      ]),
+                      const SizedBox(height: 2),
+                      Text('${t['meaning']!} \u2014 ${t['desc']!}',
+                          style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
+                    ])),
+                  ]),
                 )),
-              ),
-            );
-          }),
-        ])),
-      ]),
-    );
-  }
+          ],
+        ),
+      );
+
+  Widget _buildSectionHeader(String title) => Row(children: [
+        Container(
+            width: 4, height: 20, decoration: BoxDecoration(color: _accent, borderRadius: BorderRadius.circular(2))),
+        const SizedBox(width: 12),
+        Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
+      ]);
+
+  Widget _buildPinyinChart() => SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            const SizedBox(width: 60, height: 36),
+            ..._finals.map((f) => Container(
+                  width: 54,
+                  height: 36,
+                  alignment: Alignment.center,
+                  decoration:
+                      BoxDecoration(color: _accent.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(6)),
+                  child: Text(f, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: _accent)),
+                )),
+          ]),
+          ..._initials.map((ini) => Row(children: [
+                Container(
+                  width: 60,
+                  height: 36,
+                  alignment: Alignment.center,
+                  decoration:
+                      BoxDecoration(color: _accent.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(6)),
+                  child: Text(ini, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: _accent)),
+                ),
+                ..._finals.map((f) {
+                  final combo = ini + f;
+                  final sel = _selectedInitial == ini && _selectedFinal == f;
+                  return GestureDetector(
+                    onTap: () => setState(() {
+                      _selectedInitial = ini;
+                      _selectedFinal = f;
+                    }),
+                    child: Container(
+                      width: 54,
+                      height: 36,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: sel ? _accent.withValues(alpha: 0.2) : context.colors.surface,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: sel ? _accent : context.colors.border, width: sel ? 1.5 : 0.5),
+                      ),
+                      child: Text(combo,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: sel ? FontWeight.w700 : FontWeight.w500,
+                            color: sel ? _accent : context.colors.textMuted,
+                          )),
+                    ),
+                  );
+                }),
+              ])),
+        ]),
+      );
 
   Widget _buildCombinationCard(String initial, String final_) {
     final guide = _initialGuide.firstWhere((g) => g['pinyin'] == initial, orElse: () => {});
@@ -292,7 +356,7 @@ class _ChinesePinyinLabState extends State<ChinesePinyinLab>
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('$initial + $final_ = $initial$final_',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
         const SizedBox(height: 12),
         if (guide.isNotEmpty) ...[
           Text('Initial: ${guide['sound'] ?? ''}', style: TextStyle(fontSize: 13, color: context.colors.textSecondary)),
@@ -308,61 +372,75 @@ class _ChinesePinyinLabState extends State<ChinesePinyinLab>
     );
   }
 
-  Widget _buildInitialsTab() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _initialGuide.length,
-      itemBuilder: (ctx, i) {
-        final g = _initialGuide[i];
-        return Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: context.colors.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: context.colors.border)),
-          child: Row(children: [
-            Container(
-              width: 52, height: 52,
-              decoration: BoxDecoration(color: _accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
-              child: Center(child: Text(g['pinyin']!, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: _accent))),
-            ),
-            const SizedBox(width: 16),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(g['sound']!, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-              const SizedBox(height: 2),
-              Text(g['example']!, style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
-              const SizedBox(height: 2),
-              Text(g['tip']!, style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
-            ])),
-          ]),
-        );
-      },
-    );
-  }
+  Widget _buildInitialsTab() => ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: _initialGuide.length,
+        itemBuilder: (ctx, i) {
+          final g = _initialGuide[i];
+          return Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+                color: context.colors.surface,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: context.colors.border)),
+            child: Row(children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration:
+                    BoxDecoration(color: _accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
+                child: Center(
+                    child: Text(g['pinyin']!,
+                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: _accent))),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(g['sound']!,
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                const SizedBox(height: 2),
+                Text(g['example']!, style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
+                const SizedBox(height: 2),
+                Text(g['tip']!, style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
+              ])),
+            ]),
+          );
+        },
+      );
 
-  Widget _buildFinalsTab() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _finalGuide.length,
-      itemBuilder: (ctx, i) {
-        final g = _finalGuide[i];
-        return Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: context.colors.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: context.colors.border)),
-          child: Row(children: [
-            Container(
-              width: 52, height: 52,
-              decoration: BoxDecoration(color: _accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
-              child: Center(child: Text(g['pinyin']!, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: _accent))),
-            ),
-            const SizedBox(width: 16),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(g['sound']!, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-              const SizedBox(height: 2),
-              Text(g['example']!, style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
-            ])),
-          ]),
-        );
-      },
-    );
-  }
+  Widget _buildFinalsTab() => ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: _finalGuide.length,
+        itemBuilder: (ctx, i) {
+          final g = _finalGuide[i];
+          return Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+                color: context.colors.surface,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: context.colors.border)),
+            child: Row(children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration:
+                    BoxDecoration(color: _accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
+                child: Center(
+                    child: Text(g['pinyin']!,
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: _accent))),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(g['sound']!,
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                const SizedBox(height: 2),
+                Text(g['example']!, style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
+              ])),
+            ]),
+          );
+        },
+      );
 }

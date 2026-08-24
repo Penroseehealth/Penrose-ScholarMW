@@ -11,8 +11,8 @@ class AuthService {
       'password': password,
     });
     if (response.statusCode == 200 && response.body.isNotEmpty) {
-      final data = jsonDecode(response.body);
-      await _api.setTokens(data['access_token'], data['refresh_token']);
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      await _api.setTokens(data['access_token'] as String, data['refresh_token'] as String);
       return {'success': true, 'user': data['user']};
     }
     try {
@@ -44,8 +44,8 @@ class AuthService {
       'year_of_study': yearOfStudy,
     });
     if (response.statusCode == 201 && response.body.isNotEmpty) {
-      final data = jsonDecode(response.body);
-      await _api.setTokens(data['access_token'], data['refresh_token']);
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      await _api.setTokens(data['access_token'] as String, data['refresh_token'] as String);
       return {'success': true, 'user': data['user']};
     }
     try {
@@ -63,12 +63,10 @@ class AuthService {
   Future<Map<String, dynamic>?> getMe() async {
     final response = await _api.get('/auth/me');
     if (response.statusCode == 200 && response.body.isNotEmpty) {
-      return jsonDecode(response.body);
+      return jsonDecode(response.body) as Map<String, dynamic>;
     }
     return null;
   }
 
-  Future<bool> isAuthenticated() async {
-    return _api.hasToken();
-  }
+  Future<bool> isAuthenticated() async => _api.hasToken();
 }

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 import '../../services/stem_service.dart';
-import '../../widgets/shimmer_loading.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
-import '../../core/theme/theme_colors.dart';
+import '../../widgets/shimmer_loading.dart';
 
 class StemGroupsScreen extends StatefulWidget {
   const StemGroupsScreen({super.key});
@@ -60,93 +61,92 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
     } catch (e) {
       if (mounted) {
         setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
+          _error = e.toString();
+          _loading = false;
+        });
       }
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 90,
-            pinned: true,
-            backgroundColor: AppColors.primaryDark,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'Study Groups',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textPrimary,
-                ),
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.primaryDark, AppColors.primaryMuted],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: RefreshIndicator(
+          onRefresh: _loadData,
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 90,
+                pinned: true,
+                backgroundColor: AppColors.primaryDark,
+                flexibleSpace: FlexibleSpaceBar(
+                  title: Text(
+                    'Study Groups',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary,
+                    ),
+                  ),
+                  background: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColors.primaryDark, AppColors.primaryMuted],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
                   ),
                 ),
+                bottom: TabBar(
+                  controller: _tabController,
+                  indicatorColor: AppColors.primaryLight,
+                  labelColor: context.colors.textPrimary,
+                  unselectedLabelColor: context.colors.textMuted,
+                  tabs: const [
+                    Tab(text: 'My Groups'),
+                    Tab(text: 'All Groups'),
+                  ],
+                ),
               ),
-            ),
-            bottom: TabBar(
-              controller: _tabController,
-              indicatorColor: AppColors.primaryLight,
-              labelColor: context.colors.textPrimary,
-              unselectedLabelColor: context.colors.textMuted,
-              tabs: [
-                const Tab(text: 'My Groups'),
-                const Tab(text: 'All Groups'),
-              ],
-            ),
+              if (_error != null && !_loading)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: ErrorState(message: _error!, onRetry: _loadData),
+                  ),
+                )
+              else if (_loading)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: ShimmerLoading.list(),
+                  ),
+                )
+              else
+                SliverFillRemaining(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildMyGroupsTab(),
+                      _buildAllGroupsTab(),
+                    ],
+                  ),
+                ),
+            ],
           ),
-          if (_error != null && !_loading)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: ErrorState(message: _error!, onRetry: _loadData),
-              ),
-            )
-          else if (_loading)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: ShimmerLoading.list(count: 5),
-              ),
-            )
-          else
-            SliverFillRemaining(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildMyGroupsTab(),
-                  _buildAllGroupsTab(),
-                ],
-              ),
-            ),
-        ],
-      ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showCreateGroupDialog,
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add_rounded, color: Colors.white),
-      ),
-    );
-  }
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: _showCreateGroupDialog,
+          backgroundColor: AppColors.primary,
+          child: const Icon(Icons.add_rounded, color: Colors.white),
+        ),
+      );
 
   Widget _buildMyGroupsTab() {
     if (_myGroups.isEmpty) {
-      return const EmptyState(icon: Icons.groups_rounded, title: 'No groups yet', subtitle: 'Join or create a study group to get started');
+      return const EmptyState(
+          icon: Icons.groups_rounded, title: 'No groups yet', subtitle: 'Join or create a study group to get started');
     }
     return ListView.separated(
       padding: const EdgeInsets.all(16),
@@ -156,66 +156,65 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
     );
   }
 
-  Widget _buildAllGroupsTab() {
-    return Column(
-      children: [
-        SizedBox(
-          height: 50,
-          child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            scrollDirection: Axis.horizontal,
-            itemCount: _subjects.length + 1,
-            separatorBuilder: (_, __) => const SizedBox(width: 8),
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                final selected = _selectedSubject.isEmpty;
+  Widget _buildAllGroupsTab() => Column(
+        children: [
+          SizedBox(
+            height: 50,
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              scrollDirection: Axis.horizontal,
+              itemCount: _subjects.length + 1,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  final selected = _selectedSubject.isEmpty;
+                  return ChoiceChip(
+                    label: const Text('All', style: TextStyle(fontSize: 12)),
+                    selected: selected,
+                    selectedColor: AppColors.primary,
+                    backgroundColor: context.colors.surface,
+                    side: BorderSide(color: selected ? AppColors.primary : context.colors.border),
+                    onSelected: (_) {
+                      setState(() => _selectedSubject = '');
+                      _loadData();
+                    },
+                  );
+                }
+                final s = _subjects[index - 1];
+                final selected = _selectedSubject == s['slug'];
                 return ChoiceChip(
-                  label: const Text('All', style: TextStyle(fontSize: 12)),
+                  label: Text(
+                    (s['name'] ?? '') as String,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: selected ? Colors.white : context.colors.textSecondary,
+                    ),
+                  ),
                   selected: selected,
                   selectedColor: AppColors.primary,
                   backgroundColor: context.colors.surface,
                   side: BorderSide(color: selected ? AppColors.primary : context.colors.border),
                   onSelected: (_) {
-                    setState(() => _selectedSubject = '');
+                    setState(() => _selectedSubject = (s['slug'] ?? '') as String);
                     _loadData();
                   },
                 );
-              }
-              final s = _subjects[index - 1];
-              final selected = _selectedSubject == s['slug'];
-              return ChoiceChip(
-                label: Text(
-                  s['name'] ?? '',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: selected ? Colors.white : context.colors.textSecondary,
-                  ),
-                ),
-                selected: selected,
-                selectedColor: AppColors.primary,
-                backgroundColor: context.colors.surface,
-                side: BorderSide(color: selected ? AppColors.primary : context.colors.border),
-                onSelected: (_) {
-                  setState(() => _selectedSubject = s['slug'] ?? '');
-                  _loadData();
-                },
-              );
-            },
+              },
+            ),
           ),
-        ),
-        Expanded(
-          child: _allGroups.isEmpty
-              ? const EmptyState(icon: Icons.groups_rounded, title: 'No groups found', subtitle: 'Try a different subject filter')
-              : ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _allGroups.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
-                  itemBuilder: (context, index) => _buildGroupCard(_allGroups[index]),
-                ),
-        ),
-      ],
-    );
-  }
+          Expanded(
+            child: _allGroups.isEmpty
+                ? const EmptyState(
+                    icon: Icons.groups_rounded, title: 'No groups found', subtitle: 'Try a different subject filter')
+                : ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _allGroups.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) => _buildGroupCard(_allGroups[index]),
+                  ),
+          ),
+        ],
+      );
 
   Widget _buildGroupCard(dynamic group, {bool isMyGroup = false}) {
     final memberCount = group['member_count'] ?? 0;
@@ -238,7 +237,7 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
               children: [
                 Expanded(
                   child: Text(
-                    group['name'] ?? '',
+                    (group['name'] ?? '') as String,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -256,7 +255,7 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      group['subject_name'],
+                      group['subject_name'] as String,
                       style: const TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
@@ -280,7 +279,7 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
             if (group['description'] != null && (group['description'] as String).isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(
-                group['description'],
+                group['description'] as String,
                 style: TextStyle(fontSize: 11, color: context.colors.textMuted),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -292,7 +291,7 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
                 alignment: Alignment.centerRight,
                 child: ElevatedButton.icon(
                   onPressed: () async {
-                    await _stemService.joinGroup(group['id']);
+                    await _stemService.joinGroup(group['id'] as int);
                     _loadData();
                   },
                   icon: const Icon(Icons.login_rounded, size: 14),
@@ -315,8 +314,8 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
   void _openGroupDetail(dynamic group) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => _GroupDetailPage(groupId: group['id'], group: group),
+      MaterialPageRoute<void>(
+        builder: (_) => _GroupDetailPage(groupId: group['id'] as int, group: group),
       ),
     );
   }
@@ -326,7 +325,7 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
     final descController = TextEditingController();
     String? selectedSubject;
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: context.colors.surface,
@@ -410,12 +409,12 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
                   ),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 ),
-                items: _subjects.map<DropdownMenuItem<String>>((s) {
-                  return DropdownMenuItem(
-                    value: s['slug'],
-                    child: Text(s['name'] ?? ''),
-                  );
-                }).toList(),
+                items: _subjects
+                    .map<DropdownMenuItem<String>>((s) => DropdownMenuItem(
+                          value: s['slug'] as String?,
+                          child: Text((s['name'] ?? '') as String),
+                        ))
+                    .toList(),
                 onChanged: (val) => setDialogState(() => selectedSubject = val),
               ),
             ],
@@ -447,7 +446,6 @@ class _StemGroupsScreenState extends State<StemGroupsScreen> with SingleTickerPr
       ),
     );
   }
-
 }
 
 class _GroupDetailPage extends StatefulWidget {
@@ -507,9 +505,9 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
     } catch (e) {
       if (mounted) {
         setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
+          _error = e.toString();
+          _loading = false;
+        });
       }
     }
   }
@@ -520,7 +518,8 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: context.colors.surface,
-        title: Text('Start Study Session', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+        title: Text('Start Study Session',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
         content: TextField(
           controller: titleController,
           style: TextStyle(color: context.colors.textPrimary),
@@ -529,8 +528,10 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
             hintStyle: TextStyle(color: context.colors.textMuted),
             filled: true,
             fillColor: context.colors.surfaceHighest,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.colors.border)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.primary)),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.colors.border)),
+            focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.primary)),
             contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           ),
         ),
@@ -551,8 +552,8 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed: $e'), backgroundColor: Colors.red.shade700),
-      );
+          SnackBar(content: Text('Failed: $e'), backgroundColor: Colors.red.shade700),
+        );
       }
     }
   }
@@ -576,7 +577,8 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
             children: [
               const Icon(Icons.play_circle_outline_rounded, color: AppColors.primary, size: 18),
               const SizedBox(width: 8),
-              Text('Study Sessions', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+              Text('Study Sessions',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
             ],
           ),
           const SizedBox(height: 10),
@@ -600,30 +602,29 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
     );
   }
 
-  Widget _buildSessionStat(String label, String value, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
+  Widget _buildSessionStat(String label, String value, Color color) => Expanded(
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            children: [
+              Text(value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: color)),
+              const SizedBox(height: 2),
+              Text(label,
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: color.withValues(alpha: 0.8))),
+            ],
+          ),
         ),
-        child: Column(
-          children: [
-            Text(value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: color)),
-            const SizedBox(height: 2),
-            Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: color.withValues(alpha: 0.8))),
-          ],
-        ),
-      ),
-    );
-  }
+      );
 
   Widget _buildSessionItem(dynamic session) {
     final isActive = session['ended_at'] == null;
     final duration = session['duration_minutes'];
     final concepts = (session['concepts'] as List<dynamic>?) ?? [];
-    final title = session['title'] ?? 'Untitled Session';
+    final title = (session['title'] ?? 'Untitled Session') as String;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -648,7 +649,8 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.textPrimary)),
+                Text(title,
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.textPrimary)),
                 const SizedBox(height: 2),
                 Text(
                   duration != null ? '$duration min' : (isActive ? 'In progress' : 'Ended'),
@@ -696,9 +698,9 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final members = _detail?['members'] ?? [];
-    final groupName = widget.group['name'] ?? '';
-    final subjectName = widget.group['subject_name'] ?? '';
+    final members = _detail?['members'] as List<dynamic>? ?? [];
+    final groupName = (widget.group['name'] ?? '') as String;
+    final subjectName = (widget.group['subject_name'] ?? '') as String;
 
     return Scaffold(
       backgroundColor: context.colors.background,
@@ -727,207 +729,208 @@ class _GroupDetailPageState extends State<_GroupDetailPage> {
       body: _error != null && !_loading
           ? Center(child: ErrorState(message: _error!, onRetry: _loadDetail))
           : _loading
-          ? Center(child: ShimmerLoading.list(count: 3))
-          : Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: context.colors.surface,
-                    border: Border(bottom: BorderSide(color: context.colors.border)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (subjectName.isNotEmpty)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: context.colors.primaryGlow,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            subjectName,
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Members',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: context.colors.textSecondary,
-                        ),
+              ? Center(child: ShimmerLoading.list(count: 3))
+              : Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: context.colors.surface,
+                        border: Border(bottom: BorderSide(color: context.colors.border)),
                       ),
-                      const SizedBox(height: 8),
-                      SizedBox(
-                        height: 60,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: members.length,
-                          separatorBuilder: (_, __) => const SizedBox(width: 10),
-                          itemBuilder: (context, index) {
-                            final member = members[index];
-                            final isAdmin = member['role'] == 'admin';
-                            return Column(
-                              children: [
-                                CircleAvatar(
-                                  radius: 16,
-                                  backgroundColor: isAdmin ? AppColors.primary : context.colors.surfaceHighest,
-                                  child: Text(
-                                    (member['name'] ?? member['username'] ?? '?')[0].toString().toUpperCase(),
-                                    style: TextStyle(fontSize: 12, color: context.colors.textPrimary),
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      member['name'] ?? member['username'] ?? '',
-                                      style: TextStyle(fontSize: 9, color: context.colors.textMuted),
-                                    ),
-                                    if (isAdmin) ...[
-                                      const SizedBox(width: 3),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.primary,
-                                          borderRadius: BorderRadius.circular(3),
-                                        ),
-                                        child: const Text(
-                                          'ADMIN',
-                                          style: TextStyle(fontSize: 7, fontWeight: FontWeight.w700, color: Colors.white),
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: _messages.isEmpty
-                      ? Center(
-                          child: Text(
-                            'No messages yet. Say hello!',
-                            style: TextStyle(fontSize: 13, color: context.colors.textMuted),
-                          ),
-                        )
-                      : ListView(
-                          padding: const EdgeInsets.all(16),
-                          controller: _scrollController,
-                          children: [
-                            if (_sessions.isNotEmpty || _stats != null) ...[
-                              _buildSessionsSection(),
-                              const SizedBox(height: 16),
-                            ],
-                            ..._messages.map((msg) => Container(
-                              margin: const EdgeInsets.only(bottom: 10),
-                              padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (subjectName.isNotEmpty)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: context.colors.surface,
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: context.colors.border),
+                                color: context.colors.primaryGlow,
+                                borderRadius: BorderRadius.circular(6),
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        msg['sender_name'] ?? msg['sender'] ?? 'Unknown',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w700,
-                                          color: context.colors.textPrimary,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        msg['created_at'] ?? '',
-                                        style: TextStyle(fontSize: 10, color: context.colors.textMuted),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    msg['message'] ?? msg['content'] ?? '',
-                                    style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
-                                  ),
-                                ],
+                              child: Text(
+                                subjectName,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.primary,
+                                ),
                               ),
-                            )),
-                          ],
-                        ),
-                ),
-                Container(
-                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 20),
-                  decoration: BoxDecoration(
-                    color: context.colors.surface,
-                    border: Border(top: BorderSide(color: context.colors.border)),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: context.colors.primaryGlow,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: IconButton(
-                          onPressed: _startSession,
-                          icon: const Icon(Icons.play_circle_outline_rounded, color: AppColors.primary, size: 22),
-                          tooltip: 'Start Session',
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextField(
-                          controller: _messageController,
-                          style: TextStyle(color: context.colors.textPrimary),
-                          decoration: InputDecoration(
-                            hintText: 'Type a message...',
-                            hintStyle: TextStyle(color: context.colors.textMuted),
-                            filled: true,
-                            fillColor: context.colors.surfaceHighest,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: context.colors.border),
                             ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: context.colors.border),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Members',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: context.colors.textSecondary,
                             ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: AppColors.primary),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                           ),
-                          onSubmitted: (_) => _sendMessage(),
-                        ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            height: 60,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: members.length,
+                              separatorBuilder: (_, __) => const SizedBox(width: 10),
+                              itemBuilder: (context, index) {
+                                final member = members[index];
+                                final isAdmin = member['role'] == 'admin';
+                                return Column(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 16,
+                                      backgroundColor: isAdmin ? AppColors.primary : context.colors.surfaceHighest,
+                                      child: Text(
+                                        (member['name'] ?? member['username'] ?? '?')[0].toString().toUpperCase(),
+                                        style: TextStyle(fontSize: 12, color: context.colors.textPrimary),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          (member['name'] ?? member['username'] ?? '') as String,
+                                          style: TextStyle(fontSize: 9, color: context.colors.textMuted),
+                                        ),
+                                        if (isAdmin) ...[
+                                          const SizedBox(width: 3),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.primary,
+                                              borderRadius: BorderRadius.circular(3),
+                                            ),
+                                            child: const Text(
+                                              'ADMIN',
+                                              style: TextStyle(
+                                                  fontSize: 7, fontWeight: FontWeight.w700, color: Colors.white),
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      IconButton(
-                        onPressed: _sendMessage,
-                        icon: const Icon(Icons.send_rounded, color: AppColors.primary),
+                    ),
+                    Expanded(
+                      child: _messages.isEmpty
+                          ? Center(
+                              child: Text(
+                                'No messages yet. Say hello!',
+                                style: TextStyle(fontSize: 13, color: context.colors.textMuted),
+                              ),
+                            )
+                          : ListView(
+                              padding: const EdgeInsets.all(16),
+                              controller: _scrollController,
+                              children: [
+                                if (_sessions.isNotEmpty || _stats != null) ...[
+                                  _buildSessionsSection(),
+                                  const SizedBox(height: 16),
+                                ],
+                                ..._messages.map((msg) => Container(
+                                      margin: const EdgeInsets.only(bottom: 10),
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: context.colors.surface,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(color: context.colors.border),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text(
+                                                (msg['sender_name'] ?? msg['sender'] ?? 'Unknown') as String,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: context.colors.textPrimary,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                (msg['created_at'] ?? '') as String,
+                                                style: TextStyle(fontSize: 10, color: context.colors.textMuted),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            (msg['message'] ?? msg['content'] ?? '') as String,
+                                            style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
+                                          ),
+                                        ],
+                                      ),
+                                    )),
+                              ],
+                            ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 20),
+                      decoration: BoxDecoration(
+                        color: context.colors.surface,
+                        border: Border(top: BorderSide(color: context.colors.border)),
                       ),
-                    ],
-                  ),
+                      child: Row(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: context.colors.primaryGlow,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: IconButton(
+                              onPressed: _startSession,
+                              icon: const Icon(Icons.play_circle_outline_rounded, color: AppColors.primary, size: 22),
+                              tooltip: 'Start Session',
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: _messageController,
+                              style: TextStyle(color: context.colors.textPrimary),
+                              decoration: InputDecoration(
+                                hintText: 'Type a message...',
+                                hintStyle: TextStyle(color: context.colors.textMuted),
+                                filled: true,
+                                fillColor: context.colors.surfaceHighest,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(color: context.colors.border),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(color: context.colors.border),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: const BorderSide(color: AppColors.primary),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                              ),
+                              onSubmitted: (_) => _sendMessage(),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            onPressed: _sendMessage,
+                            icon: const Icon(Icons.send_rounded, color: AppColors.primary),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
     );
   }
 }

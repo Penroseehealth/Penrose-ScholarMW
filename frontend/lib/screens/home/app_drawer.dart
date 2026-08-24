@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/auth_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../providers/auth_provider.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -33,8 +33,10 @@ class AppDrawer extends StatelessWidget {
                 children: [
                   _buildProfileHeader(context, auth),
                   const SizedBox(height: 20),
-                  if (isStaff) ..._buildStaffItems(context, currentPath)
-                  else ..._buildStudentItems(context, currentPath),
+                  if (isStaff)
+                    ..._buildStaffItems(context, currentPath)
+                  else
+                    ..._buildStudentItems(context, currentPath),
                 ],
               ),
             ),
@@ -48,96 +50,94 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildStudentItems(BuildContext context, String currentPath) {
-    return [
-      _buildSectionHeader('ACADEMIC'),
-      _buildDrawerItem(context, Icons.dashboard_rounded, 'Dashboard', '/', currentPath),
-      _buildDrawerItem(context, Icons.school_rounded, 'STEM Intelligence', '/stem', currentPath),
-      _buildDrawerItem(context, Icons.translate_rounded, 'Language Hubs', '/languages', currentPath),
-      _buildDrawerItem(context, Icons.account_tree_rounded, 'Knowledge Graph', '/stem-knowledge-graph', currentPath),
-      _buildDrawerItem(context, Icons.functions_rounded, 'Formula Centre', '/stem-formula-centre', currentPath),
-      _buildDrawerItem(context, Icons.science_rounded, 'STEM Labs', '/stem-labs', currentPath),
-      _buildDrawerItem(context, Icons.psychology_rounded, 'STEM Tutor', '/stem-tutor', currentPath),
-      _buildDrawerItem(context, Icons.trending_up_rounded, 'My Mastery', '/stem-mastery', currentPath),
-      _buildDrawerItem(context, Icons.work_rounded, 'Career Explorer', '/stem-careers', currentPath),
-      _buildDrawerItem(context, Icons.analytics_rounded, 'STEM Analytics', '/stem-analytics', currentPath),
-      _buildDrawerItem(context, Icons.flag_rounded, 'Malawi STEM', '/stem-malawi', currentPath),
-      _buildDrawerItem(context, Icons.style_rounded, 'Revision Tools', '/stem-revision', currentPath),
-      _buildDrawerItem(context, Icons.emoji_events_rounded, 'Achievements', '/stem-gamification', currentPath),
-      _buildDrawerItem(context, Icons.group_rounded, 'Study Groups', '/stem-groups', currentPath),
-      _buildDrawerItem(context, Icons.calendar_today_rounded, 'Classes', '/classes', currentPath),
-      _buildDrawerItem(context, Icons.assignment_rounded, 'Assignments', '/assignments', currentPath),
-      _buildDrawerItem(context, Icons.quiz_rounded, 'Assessments', '/assessments', currentPath),
-      _buildDrawerItem(context, Icons.bar_chart_rounded, 'Grades', '/grades', currentPath),
-      _buildDrawerItem(context, Icons.event_rounded, 'Calendar', '/calendar', currentPath),
-      _buildDrawerItem(context, Icons.notifications_rounded, 'Notifications', '/smart-notifications', currentPath, badge: 3),
-      _buildDrawerItem(context, Icons.chat_bubble_outline_rounded, 'Messages', '/messages', currentPath),
-      _buildDrawerItem(context, Icons.forum_rounded, 'Q&A Forum', '/forum', currentPath),
-      _buildDrawerItem(context, Icons.campaign_rounded, 'Announcements', '/announcements', currentPath),
-      const SizedBox(height: 12),
-      _buildDivider(),
-      const SizedBox(height: 12),
-      _buildSectionHeader('TOOLS'),
-      _buildDrawerItem(context, Icons.edit_note_rounded, 'Notes', '/notes', currentPath),
-      _buildDrawerItem(context, Icons.menu_book_rounded, 'Books & Materials', '/vault', currentPath),
-      _buildDrawerItem(context, Icons.download_rounded, 'Downloads', '/offline-sync', currentPath),
-      _buildDrawerItem(context, Icons.mic_rounded, 'Voice Tutor', '/knowledge-retrieval', currentPath),
-      _buildDrawerItem(context, Icons.insights_rounded, 'Data Analysis', '/data-analysis', currentPath),
-      _buildDrawerItem(context, Icons.code_rounded, 'Coding Playground', '/coding-playground', currentPath),
-      _buildDrawerItem(context, Icons.analytics_rounded, 'Analytics Export', '/analytics-export', currentPath),
-      _buildDrawerItem(context, Icons.admin_panel_settings_rounded, 'Content Manager', '/content-cms', currentPath),
-      const SizedBox(height: 12),
-      _buildDivider(),
-      const SizedBox(height: 12),
-      _buildSectionHeader('ACCOUNT'),
-      _buildDrawerItem(context, Icons.person_rounded, 'Profile', '/profile', currentPath),
-      _buildDrawerItem(context, Icons.notifications_active_rounded, 'Notification Settings', '/notification-settings', currentPath),
-      _buildDrawerItem(context, Icons.settings_rounded, 'Settings', '/settings', currentPath),
-      _buildDrawerItem(context, Icons.help_rounded, 'Help & Support', '/help', currentPath),
-    ];
-  }
+  List<Widget> _buildStudentItems(BuildContext context, String currentPath) => [
+        _buildSectionHeader('ACADEMIC'),
+        _buildDrawerItem(context, Icons.dashboard_rounded, 'Dashboard', '/', currentPath),
+        _buildDrawerItem(context, Icons.school_rounded, 'STEM Intelligence', '/stem', currentPath),
+        _buildDrawerItem(context, Icons.translate_rounded, 'Language Hubs', '/languages', currentPath),
+        _buildDrawerItem(context, Icons.account_tree_rounded, 'Knowledge Graph', '/stem-knowledge-graph', currentPath),
+        _buildDrawerItem(context, Icons.functions_rounded, 'Formula Centre', '/stem-formula-centre', currentPath),
+        _buildDrawerItem(context, Icons.science_rounded, 'STEM Labs', '/stem-labs', currentPath),
+        _buildDrawerItem(context, Icons.psychology_rounded, 'STEM Tutor', '/stem-tutor', currentPath),
+        _buildDrawerItem(context, Icons.trending_up_rounded, 'My Mastery', '/stem-mastery', currentPath),
+        _buildDrawerItem(context, Icons.work_rounded, 'Career Explorer', '/stem-careers', currentPath),
+        _buildDrawerItem(context, Icons.analytics_rounded, 'STEM Analytics', '/stem-analytics', currentPath),
+        _buildDrawerItem(context, Icons.flag_rounded, 'Malawi STEM', '/stem-malawi', currentPath),
+        _buildDrawerItem(context, Icons.style_rounded, 'Revision Tools', '/stem-revision', currentPath),
+        _buildDrawerItem(context, Icons.emoji_events_rounded, 'Achievements', '/stem-gamification', currentPath),
+        _buildDrawerItem(context, Icons.group_rounded, 'Study Groups', '/stem-groups', currentPath),
+        _buildDrawerItem(context, Icons.calendar_today_rounded, 'Classes', '/classes', currentPath),
+        _buildDrawerItem(context, Icons.assignment_rounded, 'Assignments', '/assignments', currentPath),
+        _buildDrawerItem(context, Icons.quiz_rounded, 'Assessments', '/assessments', currentPath),
+        _buildDrawerItem(context, Icons.bar_chart_rounded, 'Grades', '/grades', currentPath),
+        _buildDrawerItem(context, Icons.event_rounded, 'Calendar', '/calendar', currentPath),
+        _buildDrawerItem(context, Icons.notifications_rounded, 'Notifications', '/smart-notifications', currentPath,
+            badge: 3),
+        _buildDrawerItem(context, Icons.chat_bubble_outline_rounded, 'Messages', '/messages', currentPath),
+        _buildDrawerItem(context, Icons.forum_rounded, 'Q&A Forum', '/forum', currentPath),
+        _buildDrawerItem(context, Icons.campaign_rounded, 'Announcements', '/announcements', currentPath),
+        const SizedBox(height: 12),
+        _buildDivider(),
+        const SizedBox(height: 12),
+        _buildSectionHeader('TOOLS'),
+        _buildDrawerItem(context, Icons.edit_note_rounded, 'Notes', '/notes', currentPath),
+        _buildDrawerItem(context, Icons.menu_book_rounded, 'Books & Materials', '/vault', currentPath),
+        _buildDrawerItem(context, Icons.download_rounded, 'Downloads', '/offline-sync', currentPath),
+        _buildDrawerItem(context, Icons.mic_rounded, 'Voice Tutor', '/knowledge-retrieval', currentPath),
+        _buildDrawerItem(context, Icons.insights_rounded, 'Data Analysis', '/data-analysis', currentPath),
+        _buildDrawerItem(context, Icons.code_rounded, 'Coding Playground', '/coding-playground', currentPath),
+        _buildDrawerItem(context, Icons.analytics_rounded, 'Analytics Export', '/analytics-export', currentPath),
+        _buildDrawerItem(context, Icons.admin_panel_settings_rounded, 'Content Manager', '/content-cms', currentPath),
+        const SizedBox(height: 12),
+        _buildDivider(),
+        const SizedBox(height: 12),
+        _buildSectionHeader('ACCOUNT'),
+        _buildDrawerItem(context, Icons.person_rounded, 'Profile', '/profile', currentPath),
+        _buildDrawerItem(context, Icons.notifications_active_rounded, 'Notification Settings', '/notification-settings',
+            currentPath),
+        _buildDrawerItem(context, Icons.settings_rounded, 'Settings', '/settings', currentPath),
+        _buildDrawerItem(context, Icons.help_rounded, 'Help & Support', '/help', currentPath),
+      ];
 
-  List<Widget> _buildStaffItems(BuildContext context, String currentPath) {
-    return [
-      _buildSectionHeader('TEACHING'),
-      _buildDrawerItem(context, Icons.dashboard_rounded, 'Dashboard', '/lecturer', currentPath),
-      _buildDrawerItem(context, Icons.menu_book_rounded, 'My Courses', '/vault', currentPath),
-      _buildDrawerItem(context, Icons.quiz_rounded, 'Assessment Studio', '/assessment-studio', currentPath),
-      _buildDrawerItem(context, Icons.grading_rounded, 'Smart Marking', '/smart-marking', currentPath),
-      _buildDrawerItem(context, Icons.school_rounded, 'Examinations', '/examinations', currentPath),
-      _buildDrawerItem(context, Icons.sticky_note_2_rounded, 'Study Planner', '/study-planner', currentPath),
-      _buildDrawerItem(context, Icons.calendar_today_rounded, 'Classes', '/classes', currentPath),
-      _buildDrawerItem(context, Icons.assignment_rounded, 'Assignments', '/assignments', currentPath),
-      _buildDrawerItem(context, Icons.analytics_rounded, 'Grades & Analytics', '/analytics', currentPath),
-      _buildDrawerItem(context, Icons.admin_panel_settings_rounded, 'Admin Dashboard', '/admin', currentPath),
-      const SizedBox(height: 12),
-      _buildDivider(),
-      const SizedBox(height: 12),
-      _buildSectionHeader('AI TOOLS'),
-      _buildDrawerItem(context, Icons.auto_awesome_rounded, 'Penrose Teaching Assistant', '/ai-tutor', currentPath),
-      _buildDrawerItem(context, Icons.science_rounded, 'STEM Intelligence', '/stem', currentPath),
-      _buildDrawerItem(context, Icons.psychology_rounded, 'STEM Tutor', '/stem-tutor', currentPath),
-      _buildDrawerItem(context, Icons.insights_rounded, 'Data Analysis', '/data-analysis', currentPath),
-      _buildDrawerItem(context, Icons.code_rounded, 'Coding Playground', '/coding-playground', currentPath),
-      _buildDrawerItem(context, Icons.admin_panel_settings_rounded, 'Content Manager', '/content-cms', currentPath),
-      _buildDrawerItem(context, Icons.analytics_rounded, 'Analytics Export', '/analytics-export', currentPath),
-      const SizedBox(height: 12),
-      _buildDivider(),
-      const SizedBox(height: 12),
-      _buildSectionHeader('COMMUNITY'),
-      _buildDrawerItem(context, Icons.forum_rounded, 'Q&A Forum', '/forum', currentPath),
-      _buildDrawerItem(context, Icons.campaign_rounded, 'Announcements', '/announcements', currentPath),
-      _buildDrawerItem(context, Icons.chat_bubble_outline_rounded, 'Messages', '/messages', currentPath),
-      _buildDrawerItem(context, Icons.notifications_rounded, 'Notifications', '/smart-notifications', currentPath),
-      const SizedBox(height: 12),
-      _buildDivider(),
-      const SizedBox(height: 12),
-      _buildSectionHeader('ACCOUNT'),
-      _buildDrawerItem(context, Icons.person_rounded, 'Profile', '/profile', currentPath),
-      _buildDrawerItem(context, Icons.settings_rounded, 'Settings', '/settings', currentPath),
-      _buildDrawerItem(context, Icons.help_rounded, 'Help & Support', '/help', currentPath),
-    ];
-  }
+  List<Widget> _buildStaffItems(BuildContext context, String currentPath) => [
+        _buildSectionHeader('TEACHING'),
+        _buildDrawerItem(context, Icons.dashboard_rounded, 'Dashboard', '/lecturer', currentPath),
+        _buildDrawerItem(context, Icons.menu_book_rounded, 'My Courses', '/vault', currentPath),
+        _buildDrawerItem(context, Icons.quiz_rounded, 'Assessment Studio', '/assessment-studio', currentPath),
+        _buildDrawerItem(context, Icons.grading_rounded, 'Smart Marking', '/smart-marking', currentPath),
+        _buildDrawerItem(context, Icons.school_rounded, 'Examinations', '/examinations', currentPath),
+        _buildDrawerItem(context, Icons.sticky_note_2_rounded, 'Study Planner', '/study-planner', currentPath),
+        _buildDrawerItem(context, Icons.calendar_today_rounded, 'Classes', '/classes', currentPath),
+        _buildDrawerItem(context, Icons.assignment_rounded, 'Assignments', '/assignments', currentPath),
+        _buildDrawerItem(context, Icons.analytics_rounded, 'Grades & Analytics', '/analytics', currentPath),
+        _buildDrawerItem(context, Icons.admin_panel_settings_rounded, 'Admin Dashboard', '/admin', currentPath),
+        const SizedBox(height: 12),
+        _buildDivider(),
+        const SizedBox(height: 12),
+        _buildSectionHeader('AI TOOLS'),
+        _buildDrawerItem(context, Icons.auto_awesome_rounded, 'Penrose Teaching Assistant', '/ai-tutor', currentPath),
+        _buildDrawerItem(context, Icons.science_rounded, 'STEM Intelligence', '/stem', currentPath),
+        _buildDrawerItem(context, Icons.psychology_rounded, 'STEM Tutor', '/stem-tutor', currentPath),
+        _buildDrawerItem(context, Icons.insights_rounded, 'Data Analysis', '/data-analysis', currentPath),
+        _buildDrawerItem(context, Icons.code_rounded, 'Coding Playground', '/coding-playground', currentPath),
+        _buildDrawerItem(context, Icons.admin_panel_settings_rounded, 'Content Manager', '/content-cms', currentPath),
+        _buildDrawerItem(context, Icons.analytics_rounded, 'Analytics Export', '/analytics-export', currentPath),
+        const SizedBox(height: 12),
+        _buildDivider(),
+        const SizedBox(height: 12),
+        _buildSectionHeader('COMMUNITY'),
+        _buildDrawerItem(context, Icons.forum_rounded, 'Q&A Forum', '/forum', currentPath),
+        _buildDrawerItem(context, Icons.campaign_rounded, 'Announcements', '/announcements', currentPath),
+        _buildDrawerItem(context, Icons.chat_bubble_outline_rounded, 'Messages', '/messages', currentPath),
+        _buildDrawerItem(context, Icons.notifications_rounded, 'Notifications', '/smart-notifications', currentPath),
+        const SizedBox(height: 12),
+        _buildDivider(),
+        const SizedBox(height: 12),
+        _buildSectionHeader('ACCOUNT'),
+        _buildDrawerItem(context, Icons.person_rounded, 'Profile', '/profile', currentPath),
+        _buildDrawerItem(context, Icons.settings_rounded, 'Settings', '/settings', currentPath),
+        _buildDrawerItem(context, Icons.help_rounded, 'Help & Support', '/help', currentPath),
+      ];
 
   Widget _buildProfileHeader(BuildContext context, AuthProvider auth) {
     final name = auth.userName.isNotEmpty ? auth.userName : 'Dr. Penrose';
@@ -242,31 +242,27 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 8, top: 4),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-          color: AppColors.textMuted,
-          letterSpacing: 1.5,
+  Widget _buildSectionHeader(String title) => Padding(
+        padding: const EdgeInsets.only(left: 4, bottom: 8, top: 4),
+        child: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textMuted,
+            letterSpacing: 1.5,
+          ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildDivider() {
-    return Container(
-      height: 1,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.transparent, AppColors.border, Colors.transparent],
+  Widget _buildDivider() => Container(
+        height: 1,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.transparent, AppColors.border, Colors.transparent],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildDrawerItem(
     BuildContext context,
@@ -332,37 +328,35 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildLogoutButton(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: Material(
-        color: context.colors.errorMuted,
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
+  Widget _buildLogoutButton(BuildContext context) => SizedBox(
+        width: double.infinity,
+        child: Material(
+          color: context.colors.errorMuted,
           borderRadius: BorderRadius.circular(12),
-          onTap: () => _showLogoutDialog(context),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.logout_rounded, size: 18, color: context.colors.error),
-                const SizedBox(width: 8),
-                Text(
-                  'Log Out',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: context.colors.error,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => _showLogoutDialog(context),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.logout_rounded, size: 18, color: context.colors.error),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Log Out',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: context.colors.error,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
 
   void _showLogoutDialog(BuildContext context) {
     showDialog(

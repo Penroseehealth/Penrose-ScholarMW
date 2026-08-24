@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 import '../../services/services.dart';
 import '../../widgets/ai_governance_widgets.dart';
 import '../../widgets/ai_thinking_indicator.dart';
 import '../../widgets/attachment_picker.dart';
 import '../../widgets/attachment_preview_card.dart';
 import '../../widgets/data_table_chart.dart';
+import '../../widgets/speech_to_text_view.dart';
 import '../../widgets/stem_text.dart';
 import '../../widgets/typewriter_renderer.dart';
 import '../../widgets/voice_recorder.dart';
 import '../../widgets/voice_training_center.dart';
-import '../../widgets/speech_to_text_view.dart';
-import '../../core/theme/theme_colors.dart';
 
 class AiTutorScreen extends StatefulWidget {
   const AiTutorScreen({super.key});
@@ -50,8 +50,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
 
   ThinkingState _detectThinkingState(String message) {
     final lower = message.toLowerCase();
-    if (RegExp(r'x\^|\\frac|\\int|\\sum|\\sqrt|calculus|algebra|derivative|integral')
-        .hasMatch(lower)) {
+    if (RegExp(r'x\^|\\frac|\\int|\\sum|\\sqrt|calculus|algebra|derivative|integral').hasMatch(lower)) {
       return ThinkingState.solving;
     }
     if (_attachments.any((a) => a['file_type'] == 'pdf')) {
@@ -73,218 +72,210 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: context.colors.background,
-      endDrawer: VoiceTrainingCenter(
-        selectedVoiceId: _selectedVoiceId,
-        onVoiceSelected: (id) => setState(() => _selectedVoiceId = id),
-        playbackSpeed: _playbackSpeed,
-        onSpeedChanged: (s) => setState(() => _playbackSpeed = s),
-        autoRead: _autoRead,
-        onAutoReadChanged: (v) => setState(() => _autoRead = v),
-      ),
-      appBar: AppBar(
-        backgroundColor: context.colors.surface,
-        title: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppColors.primary, AppColors.primaryDark],
+  Widget build(BuildContext context) => Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: context.colors.background,
+        endDrawer: VoiceTrainingCenter(
+          selectedVoiceId: _selectedVoiceId,
+          onVoiceSelected: (id) => setState(() => _selectedVoiceId = id),
+          playbackSpeed: _playbackSpeed,
+          onSpeedChanged: (s) => setState(() => _playbackSpeed = s),
+          autoRead: _autoRead,
+          onAutoReadChanged: (v) => setState(() => _autoRead = v),
+        ),
+        appBar: AppBar(
+          backgroundColor: context.colors.surface,
+          title: Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColors.primary, AppColors.primaryDark],
+                  ),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                borderRadius: BorderRadius.circular(10),
+                child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 18),
               ),
-              child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 18),
+              const SizedBox(width: 10),
+              Text(
+                _agentLabels[_agentType] ?? 'ScholarAI',
+                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.record_voice_over_rounded, size: 22),
+              color: context.colors.textSecondary,
+              tooltip: 'Voice Training Center',
+              onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
             ),
-            const SizedBox(width: 10),
-            Text(
-              _agentLabels[_agentType] ?? 'ScholarAI',
-              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+            PopupMenuButton<String>(
+              icon: Icon(Icons.more_vert, color: context.colors.textSecondary),
+              itemBuilder: (ctx) => [
+                ..._agentLabels.entries.map((e) => PopupMenuItem(
+                      value: e.key,
+                      child: Text(e.value, style: TextStyle(color: context.colors.textPrimary)),
+                    )),
+              ],
+              onSelected: (value) => setState(() => _agentType = value),
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.record_voice_over_rounded, size: 22),
-            color: context.colors.textSecondary,
-            tooltip: 'Voice Training Center',
-            onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
-          ),
-          PopupMenuButton<String>(
-            icon: Icon(Icons.more_vert, color: context.colors.textSecondary),
-            itemBuilder: (ctx) => [
-              ..._agentLabels.entries.map((e) => PopupMenuItem(
-                    value: e.key,
-                    child: Text(e.value, style: TextStyle(color: context.colors.textPrimary)),
-                  )),
-            ],
-            onSelected: (value) => setState(() => _agentType = value),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          if (_messages.isEmpty && _attachments.isEmpty) _buildWelcomeScreen(),
-          if (_messages.isNotEmpty || _attachments.isNotEmpty)
-            Expanded(child: _buildChatArea()),
-          if (_attachments.isNotEmpty) _buildAttachmentBar(),
-          if (_showVoiceRecorder) _buildVoiceRecorder(),
-          _buildInputArea(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWelcomeScreen() {
-    return Expanded(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        body: Column(
           children: [
-            const SizedBox(height: 40),
-            Container(
-              padding: const EdgeInsets.all(28),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppColors.primary, AppColors.primaryDark],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.4),
-                    blurRadius: 30,
-                    offset: const Offset(0, 8),
+            if (_messages.isEmpty && _attachments.isEmpty) _buildWelcomeScreen(),
+            if (_messages.isNotEmpty || _attachments.isNotEmpty) Expanded(child: _buildChatArea()),
+            if (_attachments.isNotEmpty) _buildAttachmentBar(),
+            if (_showVoiceRecorder) _buildVoiceRecorder(),
+            _buildInputArea(),
+          ],
+        ),
+      );
+
+  Widget _buildWelcomeScreen() => Expanded(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              const SizedBox(height: 40),
+              Container(
+                padding: const EdgeInsets.all(28),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColors.primary, AppColors.primaryDark],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.4),
+                      blurRadius: 30,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.auto_awesome_rounded, size: 56, color: Colors.white),
+              ),
+              const SizedBox(height: 28),
+              Text(
+                'What would you like to learn?',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'ScholarAI is your multimodal academic assistant',
+                style: TextStyle(fontSize: 14, color: context.colors.textMuted),
+              ),
+              const SizedBox(height: 32),
+              _suggestionChip(Icons.lightbulb_outline, 'Explain a concept'),
+              _suggestionChip(Icons.quiz_outlined, 'Quiz me'),
+              _suggestionChip(Icons.image_rounded, 'Analyze an image'),
+              _suggestionChip(Icons.picture_as_pdf_rounded, 'Summarize a PDF'),
+              _suggestionChip(Icons.mic_rounded, 'Ask by voice'),
+              _suggestionChip(Icons.functions_rounded, 'Solve an equation'),
+            ],
+          ),
+        ),
+      );
+
+  Widget _suggestionChip(IconData icon, String text) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Material(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () {
+              if (text == 'Analyze an image' || text == 'Summarize a PDF') {
+                _showAttachmentPicker();
+              } else if (text == 'Ask by voice') {
+                setState(() => _showVoiceRecorder = true);
+              } else {
+                _messageCtrl.text = text;
+                _sendMessage();
+              }
+            },
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: context.colors.border),
+              ),
+              child: Row(
+                children: [
+                  Icon(icon, size: 18, color: AppColors.primary),
+                  const SizedBox(width: 12),
+                  Text(text,
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: context.colors.textSecondary)),
                 ],
               ),
-              child: const Icon(Icons.auto_awesome_rounded, size: 56, color: Colors.white),
-            ),
-            const SizedBox(height: 28),
-            Text(
-              'What would you like to learn?',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'ScholarAI is your multimodal academic assistant',
-              style: TextStyle(fontSize: 14, color: context.colors.textMuted),
-            ),
-            const SizedBox(height: 32),
-            _suggestionChip(Icons.lightbulb_outline, 'Explain a concept'),
-            _suggestionChip(Icons.quiz_outlined, 'Quiz me'),
-            _suggestionChip(Icons.image_rounded, 'Analyze an image'),
-            _suggestionChip(Icons.picture_as_pdf_rounded, 'Summarize a PDF'),
-            _suggestionChip(Icons.mic_rounded, 'Ask by voice'),
-            _suggestionChip(Icons.functions_rounded, 'Solve an equation'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _suggestionChip(IconData icon, String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Material(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () {
-            if (text == 'Analyze an image' || text == 'Summarize a PDF') {
-              _showAttachmentPicker();
-            } else if (text == 'Ask by voice') {
-              setState(() => _showVoiceRecorder = true);
-            } else {
-              _messageCtrl.text = text;
-              _sendMessage();
-            }
-          },
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: context.colors.border),
-            ),
-            child: Row(
-              children: [
-                Icon(icon, size: 18, color: AppColors.primary),
-                const SizedBox(width: 12),
-                Text(text, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: context.colors.textSecondary)),
-              ],
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildChatArea() {
-    return ListView.builder(
-      controller: _scrollCtrl,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      itemCount: _messages.length + (_isLoading ? 1 : 0),
-      itemBuilder: (ctx, i) {
-        if (i == _messages.length) {
+  Widget _buildChatArea() => ListView.builder(
+        controller: _scrollCtrl,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        itemCount: _messages.length + (_isLoading ? 1 : 0),
+        itemBuilder: (ctx, i) {
+          if (i == _messages.length) {
+            return Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: AIThinkingIndicator(state: _thinkingState),
+              ),
+            );
+          }
+          final msg = _messages[i];
+          final isUser = msg['role'] == 'user';
+          final isTypewriting = _typewriterMessageIndex == i;
+
           return Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: AIThinkingIndicator(state: _thinkingState),
+            alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.85),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (msg['attachments'] != null && (msg['attachments'] as List).isNotEmpty)
+                    _buildAttachedFiles(msg['attachments'] as List<dynamic>),
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: isUser ? AppColors.primary : context.colors.surface,
+                      borderRadius: BorderRadius.circular(16).copyWith(
+                        bottomRight: isUser ? const Radius.circular(4) : null,
+                        bottomLeft: !isUser ? const Radius.circular(4) : null,
+                      ),
+                      border: isUser ? null : Border.all(color: context.colors.border),
+                    ),
+                    child: isUser
+                        ? Text(msg['content'] as String? ?? '',
+                            style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.5))
+                        : _buildAssistantMessage(msg, isTypewriting),
+                  ),
+                  if (!isUser && !isTypewriting)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6, left: 4),
+                      child: AiGovernanceBar(sourcesJson: msg['sources'] as String?),
+                    ),
+                ],
+              ),
             ),
           );
-        }
-        final msg = _messages[i];
-        final isUser = msg['role'] == 'user';
-        final isTypewriting = _typewriterMessageIndex == i;
-
-        return Align(
-          alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.85),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (msg['attachments'] != null && (msg['attachments'] as List).isNotEmpty)
-                  _buildAttachedFiles(msg['attachments']),
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: isUser ? AppColors.primary : context.colors.surface,
-                    borderRadius: BorderRadius.circular(16).copyWith(
-                      bottomRight: isUser ? const Radius.circular(4) : null,
-                      bottomLeft: !isUser ? const Radius.circular(4) : null,
-                    ),
-                    border: isUser ? null : Border.all(color: context.colors.border),
-                  ),
-                  child: isUser
-                      ? Text(msg['content'] ?? '', style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.5))
-                      : _buildAssistantMessage(msg, isTypewriting),
-                ),
-                if (!isUser && !isTypewriting)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6, left: 4),
-                    child: AiGovernanceBar(sourcesJson: msg['sources']),
-                  ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+        },
+      );
 
   Widget _buildAssistantMessage(Map<String, dynamic> msg, bool isTypewriting) {
-    final content = msg['content'] ?? '';
+    final content = (msg['content'] ?? '') as String;
 
     if (isTypewriting) {
       return TypewriterRenderer(
@@ -335,7 +326,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
     final lines = content.split('\n');
     final buffer = StringBuffer();
     var inTable = false;
-    var tableBuffer = StringBuffer();
+    final tableBuffer = StringBuffer();
 
     for (final line in lines) {
       final trimmed = line.trim();
@@ -401,215 +392,208 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
     return result;
   }
 
-  Widget _buildResponseActions(String content) {
-    return Wrap(
-      spacing: 6,
-      runSpacing: 4,
-      children: [
-        _actionBtn(Icons.volume_up_rounded, 'Listen', () => _showTTS(content)),
-        _actionBtn(Icons.copy_rounded, 'Copy', () {}),
-        _actionBtn(Icons.refresh_rounded, 'Regenerate', () {}),
-        _actionBtn(Icons.bookmark_add_rounded, 'Save', () {}),
-      ],
-    );
-  }
-
-  Widget _actionBtn(IconData icon, String label, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: context.colors.surfaceElevated,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: context.colors.border),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 12, color: context.colors.textSecondary),
-            const SizedBox(width: 3),
-            Text(label, style: TextStyle(fontSize: 10, color: context.colors.textSecondary)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAttachedFiles(List attachments) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Wrap(
+  Widget _buildResponseActions(String content) => Wrap(
         spacing: 6,
         runSpacing: 4,
-        children: attachments.map<Widget>((a) {
-          return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: context.colors.surfaceElevated,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: context.colors.border),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(_fileIcon(a['file_type']), size: 12, color: AppColors.primary),
-                const SizedBox(width: 4),
-                Text(a['filename'] ?? '', style: TextStyle(fontSize: 10, color: context.colors.textSecondary)),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
+        children: [
+          _actionBtn(Icons.volume_up_rounded, 'Listen', () => _showTTS(content)),
+          _actionBtn(Icons.copy_rounded, 'Copy', () {}),
+          _actionBtn(Icons.refresh_rounded, 'Regenerate', () {}),
+          _actionBtn(Icons.bookmark_add_rounded, 'Save', () {}),
+        ],
+      );
+
+  Widget _actionBtn(IconData icon, String label, VoidCallback onTap) => GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: context.colors.surfaceElevated,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: context.colors.border),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 12, color: context.colors.textSecondary),
+              const SizedBox(width: 3),
+              Text(label, style: TextStyle(fontSize: 10, color: context.colors.textSecondary)),
+            ],
+          ),
+        ),
+      );
+
+  Widget _buildAttachedFiles(List attachments) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Wrap(
+          spacing: 6,
+          runSpacing: 4,
+          children: attachments
+              .map<Widget>((a) => Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: context.colors.surfaceElevated,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: context.colors.border),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(_fileIcon(a['file_type'] as String?), size: 12, color: AppColors.primary),
+                        const SizedBox(width: 4),
+                        Text(a['filename'] as String? ?? '',
+                            style: TextStyle(fontSize: 10, color: context.colors.textSecondary)),
+                      ],
+                    ),
+                  ))
+              .toList(),
+        ),
+      );
 
   IconData _fileIcon(String? type) {
     switch (type) {
-      case 'pdf': return Icons.picture_as_pdf_rounded;
-      case 'image': return Icons.image_rounded;
-      case 'document': return Icons.article_rounded;
-      case 'spreadsheet': return Icons.table_chart_rounded;
-      case 'audio': return Icons.audio_file_rounded;
-      default: return Icons.insert_drive_file_rounded;
+      case 'pdf':
+        return Icons.picture_as_pdf_rounded;
+      case 'image':
+        return Icons.image_rounded;
+      case 'document':
+        return Icons.article_rounded;
+      case 'spreadsheet':
+        return Icons.table_chart_rounded;
+      case 'audio':
+        return Icons.audio_file_rounded;
+      default:
+        return Icons.insert_drive_file_rounded;
     }
   }
 
-  Widget _buildAttachmentBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: _attachments.map((a) {
-            final status = a['file_id'] != null
-                ? AttachmentStatus.ready
-                : a['error'] != null
-                    ? AttachmentStatus.error
-                    : a['uploading'] == true
-                        ? AttachmentStatus.uploading
-                        : AttachmentStatus.processing;
-            return Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: AttachmentPreviewCard(
-                filename: a['filename'] ?? '',
-                sizeBytes: a['size_bytes'],
-                status: status,
-                onRemove: () => setState(() => _attachments.remove(a)),
-              ),
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildVoiceRecorder() {
-    return VoiceRecorder(
-      onRecordingComplete: (path) {
-        setState(() {
-          _showVoiceRecorder = false;
-          _isLoading = true;
-          _thinkingState = ThinkingState.transcribing;
-        });
-        Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) {
-            setState(() => _isLoading = false);
-            _showSpeechToText(
-              'I need help understanding photosynthesis and its role in energy transfer in plants.',
-            );
-          }
-        });
-      },
-      onCancel: () => setState(() => _showVoiceRecorder = false),
-    );
-  }
-
-  Widget _buildInputArea() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        border: Border(top: BorderSide(color: context.colors.border, width: 0.5)),
-      ),
-      child: SafeArea(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            _inputBtn(Icons.attach_file_rounded, _showAttachmentPicker),
-            const SizedBox(width: 4),
-            _inputBtn(
-              _showVoiceRecorder ? Icons.close_rounded : Icons.mic_rounded,
-              () => setState(() => _showVoiceRecorder = !_showVoiceRecorder),
-              color: _showVoiceRecorder ? context.colors.error : null,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: TextField(
-                controller: _messageCtrl,
-                style: TextStyle(color: context.colors.textPrimary),
-                decoration: InputDecoration(
-                  hintText: 'Ask ScholarAI...',
-                  hintStyle: TextStyle(color: context.colors.textMuted),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(color: context.colors.border),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(color: context.colors.border),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: const BorderSide(color: AppColors.primary),
-                  ),
-                  filled: true,
-                  fillColor: context.colors.surfaceElevated,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+  Widget _buildAttachmentBar() => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: _attachments.map((a) {
+              final status = a['file_id'] != null
+                  ? AttachmentStatus.ready
+                  : a['error'] != null
+                      ? AttachmentStatus.error
+                      : a['uploading'] == true
+                          ? AttachmentStatus.uploading
+                          : AttachmentStatus.processing;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: AttachmentPreviewCard(
+                  filename: a['filename'] as String? ?? '',
+                  sizeBytes: a['size_bytes'] as int?,
+                  status: status,
+                  onRemove: () => setState(() => _attachments.remove(a)),
                 ),
-                maxLines: null,
-                textInputAction: TextInputAction.send,
-                onSubmitted: (_) => _sendMessage(),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Container(
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryDark]),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.4),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
-                onPressed: _sendMessage,
-              ),
-            ),
-          ],
+              );
+            }).toList(),
+          ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _inputBtn(IconData icon, VoidCallback onTap, {Color? color}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40,
-        height: 40,
+  Widget _buildVoiceRecorder() => VoiceRecorder(
+        onRecordingComplete: (path) {
+          setState(() {
+            _showVoiceRecorder = false;
+            _isLoading = true;
+            _thinkingState = ThinkingState.transcribing;
+          });
+          Future.delayed(const Duration(seconds: 2), () {
+            if (mounted) {
+              setState(() => _isLoading = false);
+              _showSpeechToText(
+                'I need help understanding photosynthesis and its role in energy transfer in plants.',
+              );
+            }
+          });
+        },
+        onCancel: () => setState(() => _showVoiceRecorder = false),
+      );
+
+  Widget _buildInputArea() => Container(
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: (color ?? context.colors.textSecondary).withValues(alpha: 0.15),
-          shape: BoxShape.circle,
+          color: context.colors.surface,
+          border: Border(top: BorderSide(color: context.colors.border, width: 0.5)),
         ),
-        child: Icon(icon, size: 20, color: color ?? context.colors.textSecondary),
-      ),
-    );
-  }
+        child: SafeArea(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              _inputBtn(Icons.attach_file_rounded, _showAttachmentPicker),
+              const SizedBox(width: 4),
+              _inputBtn(
+                _showVoiceRecorder ? Icons.close_rounded : Icons.mic_rounded,
+                () => setState(() => _showVoiceRecorder = !_showVoiceRecorder),
+                color: _showVoiceRecorder ? context.colors.error : null,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextField(
+                  controller: _messageCtrl,
+                  style: TextStyle(color: context.colors.textPrimary),
+                  decoration: InputDecoration(
+                    hintText: 'Ask ScholarAI...',
+                    hintStyle: TextStyle(color: context.colors.textMuted),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: BorderSide(color: context.colors.border),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: BorderSide(color: context.colors.border),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: const BorderSide(color: AppColors.primary),
+                    ),
+                    filled: true,
+                    fillColor: context.colors.surfaceElevated,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  ),
+                  maxLines: null,
+                  textInputAction: TextInputAction.send,
+                  onSubmitted: (_) => _sendMessage(),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryDark]),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.4),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                  onPressed: _sendMessage,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+  Widget _inputBtn(IconData icon, VoidCallback onTap, {Color? color}) => GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: (color ?? context.colors.textSecondary).withValues(alpha: 0.15),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, size: 20, color: color ?? context.colors.textSecondary),
+        ),
+      );
 
   void _showAttachmentPicker() async {
     showModalBottomSheet(
@@ -690,7 +674,8 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
             children: [
               Center(
                 child: Container(
-                  width: 36, height: 4,
+                  width: 36,
+                  height: 4,
                   decoration: BoxDecoration(color: context.colors.border, borderRadius: BorderRadius.circular(2)),
                 ),
               ),
@@ -723,42 +708,41 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
   Widget _ttsPlayerRow() {
     bool playing = false;
     return StatefulBuilder(
-      builder: (context, setModalState) {
-        return Row(
-          children: [
-            GestureDetector(
-              onTap: () => setModalState(() => playing = !playing),
-              child: Container(
-                width: 48, height: 48,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryDark]),
-                  shape: BoxShape.circle,
+      builder: (context, setModalState) => Row(
+        children: [
+          GestureDetector(
+            onTap: () => setModalState(() => playing = !playing),
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryDark]),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(playing ? Icons.pause_rounded : Icons.play_arrow_rounded, color: Colors.white, size: 24),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                LinearProgressIndicator(
+                  value: playing ? 0.5 : 0,
+                  backgroundColor: context.colors.border,
+                  valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                  minHeight: 4,
                 ),
-                child: Icon(playing ? Icons.pause_rounded : Icons.play_arrow_rounded, color: Colors.white, size: 24),
-              ),
+                const SizedBox(height: 4),
+                Text(
+                  playing ? 'Playing at ${_playbackSpeed}x' : 'Tap play to listen',
+                  style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  LinearProgressIndicator(
-                    value: playing ? 0.5 : 0,
-                    backgroundColor: context.colors.border,
-                    valueColor: const AlwaysStoppedAnimation(AppColors.primary),
-                    minHeight: 4,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    playing ? 'Playing at ${_playbackSpeed}x' : 'Tap play to listen',
-                    style: TextStyle(fontSize: 11, color: context.colors.textMuted),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
+          ),
+        ],
+      ),
     );
   }
 
@@ -785,7 +769,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
 
     final fileIds = <String>[];
     for (final att in currentAttachments) {
-      if (att['file_id'] != null) fileIds.add(att['file_id']);
+      if (att['file_id'] != null) fileIds.add(att['file_id'] as String);
     }
 
     final result = await _mmService.chatWithFiles(
@@ -799,9 +783,9 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
       final msgIndex = _messages.length;
       setState(() {
         _isLoading = false;
-        if (result['success']) {
+        if (result['success'] == true) {
           final data = result['data'];
-          _sessionId = data['session_id'] ?? _sessionId;
+          _sessionId = (data['session_id'] ?? _sessionId) as int?;
           _messages.add({
             'role': 'assistant',
             'content': data['content'] ?? 'No response',

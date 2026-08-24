@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/theme_provider.dart';
-import '../../core/theme/app_colors.dart';
 import '../../services/services.dart';
-import '../../core/theme/theme_colors.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -82,15 +82,15 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 32),
             _buildInfoSection([
-              _buildInfoRow(Icons.email_outlined, 'Email', user['email'] ?? ''),
-              _buildInfoRow(Icons.phone_outlined, 'Phone', user['phone'] ?? 'Not set'),
-              _buildInfoRow(Icons.business_outlined, 'Institution', user['institution'] ?? 'Not set'),
-              _buildInfoRow(Icons.category_outlined, 'Department', user['department'] ?? 'Not set'),
+              _buildInfoRow(Icons.email_outlined, 'Email', (user['email'] ?? '') as String),
+              _buildInfoRow(Icons.phone_outlined, 'Phone', (user['phone'] ?? 'Not set') as String),
+              _buildInfoRow(Icons.business_outlined, 'Institution', (user['institution'] ?? 'Not set') as String),
+              _buildInfoRow(Icons.category_outlined, 'Department', (user['department'] ?? 'Not set') as String),
             ]),
             if (user['role'] == 'student') ...[
               const SizedBox(height: 12),
               _buildInfoSection([
-                _buildInfoRow(Icons.badge_outlined, 'Student ID', user['student_id'] ?? 'Not set'),
+                _buildInfoRow(Icons.badge_outlined, 'Student ID', (user['student_id'] ?? 'Not set') as String),
                 _buildInfoRow(Icons.calendar_today, 'Year of Study', '${user['year_of_study'] ?? 'N/A'}'),
               ]),
             ],
@@ -170,63 +170,56 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoSection(List<Widget> children) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(children: children),
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String label, String value) {
-    return ListTile(
-      leading: Icon(icon, color: AppColors.textMuted, size: 20),
-      title: Text(label, style: const TextStyle(fontSize: 13, color: AppColors.textMuted)),
-      subtitle: Text(
-        value.isEmpty ? 'Not set' : value,
-        style: const TextStyle(fontSize: 15, color: AppColors.textPrimary),
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-          color: AppColors.textPrimary,
+  Widget _buildInfoSection(List<Widget> children) => Container(
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.border),
         ),
-      ),
-    );
-  }
+        child: Column(children: children),
+      );
+
+  Widget _buildInfoRow(IconData icon, String label, String value) => ListTile(
+        leading: Icon(icon, color: AppColors.textMuted, size: 20),
+        title: Text(label, style: const TextStyle(fontSize: 13, color: AppColors.textMuted)),
+        subtitle: Text(
+          value.isEmpty ? 'Not set' : value,
+          style: const TextStyle(fontSize: 15, color: AppColors.textPrimary),
+        ),
+      );
+
+  Widget _buildSectionTitle(String title) => Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+          ),
+        ),
+      );
 
   Widget _buildSettingsTile({
     required IconData icon,
     required String title,
     Widget? trailing,
     VoidCallback? onTap,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 6),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.borderLight),
-      ),
-      child: ListTile(
-        leading: Icon(icon, color: AppColors.textMuted),
-        title: Text(title, style: const TextStyle(color: AppColors.textPrimary)),
-        trailing: trailing ?? const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 20),
-        onTap: onTap,
-      ),
-    );
-  }
+  }) =>
+      Container(
+        margin: const EdgeInsets.only(bottom: 6),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.borderLight),
+        ),
+        child: ListTile(
+          leading: Icon(icon, color: AppColors.textMuted),
+          title: Text(title, style: const TextStyle(color: AppColors.textPrimary)),
+          trailing: trailing ?? const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 20),
+          onTap: onTap,
+        ),
+      );
 
   void _showChangePasswordDialog(BuildContext context) {
     final currentCtrl = TextEditingController();
@@ -271,7 +264,7 @@ class ProfileScreen extends StatelessWidget {
                     content: Text(
                       response.statusCode == 200
                           ? 'Password changed successfully'
-                          : jsonDecode(response.body)['detail'] ?? 'Password change failed',
+                          : (jsonDecode(response.body)['detail'] as String?) ?? 'Password change failed',
                     ),
                   ),
                 );
@@ -296,26 +289,24 @@ class _DataSaverToggleState extends State<_DataSaverToggle> {
   bool _enabled = false;
 
   @override
-  Widget build(BuildContext context) {
-    return Switch(
-      value: _enabled,
-      onChanged: (v) {
-        setState(() => _enabled = v);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                v
-                    ? 'Data Saver ON — images will load lazily, auto-sync paused'
-                    : 'Data Saver OFF — full experience enabled',
+  Widget build(BuildContext context) => Switch(
+        value: _enabled,
+        onChanged: (v) {
+          setState(() => _enabled = v);
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  v
+                      ? 'Data Saver ON — images will load lazily, auto-sync paused'
+                      : 'Data Saver OFF — full experience enabled',
+                ),
+                duration: const Duration(seconds: 2),
+                backgroundColor: v ? context.colors.warning : context.colors.success,
               ),
-              duration: const Duration(seconds: 2),
-              backgroundColor: v ? context.colors.warning : context.colors.success,
-            ),
-          );
-        }
-      },
-      activeThumbColor: AppColors.primary,
-    );
-  }
+            );
+          }
+        },
+        activeThumbColor: AppColors.primary,
+      );
 }

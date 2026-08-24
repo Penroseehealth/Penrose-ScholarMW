@@ -69,18 +69,12 @@ async def get_formula(id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(STEMFormula).where(STEMFormula.id == id))
     formula = result.scalar_one_or_none()
     if not formula:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Formula not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Formula not found")
     return _formula_to_response(formula)
 
 
-@router.get(
-    "/formulas/categories/{subject_slug}", response_model=list[CategoryResponse]
-)
-async def list_formula_categories(
-    subject_slug: str, db: AsyncSession = Depends(get_db)
-):
+@router.get("/formulas/categories/{subject_slug}", response_model=list[CategoryResponse])
+async def list_formula_categories(subject_slug: str, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         select(STEMFormula.category)
         .where(

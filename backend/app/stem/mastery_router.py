@@ -84,9 +84,7 @@ async def mastery_dashboard(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    records_result = await db.execute(
-        select(MasteryRecord).where(MasteryRecord.user_id == user.id)
-    )
+    records_result = await db.execute(select(MasteryRecord).where(MasteryRecord.user_id == user.id))
     records = records_result.scalars().all()
     records_by_concept = {r.concept_id: r for r in records}
 
@@ -105,23 +103,13 @@ async def mastery_dashboard(
         concept_ids = [row[0] for row in concepts_result.all()]
         total = len(concept_ids)
         mastered = sum(
-            1
-            for cid in concept_ids
-            if cid in records_by_concept
-            and records_by_concept[cid].mastery_level >= 0.8
+            1 for cid in concept_ids if cid in records_by_concept and records_by_concept[cid].mastery_level >= 0.8
         )
         in_progress = sum(
-            1
-            for cid in concept_ids
-            if cid in records_by_concept
-            and 0 < records_by_concept[cid].mastery_level < 0.8
+            1 for cid in concept_ids if cid in records_by_concept and 0 < records_by_concept[cid].mastery_level < 0.8
         )
         avg = (
-            sum(
-                records_by_concept[cid].mastery_level
-                for cid in concept_ids
-                if cid in records_by_concept
-            )
+            sum(records_by_concept[cid].mastery_level for cid in concept_ids if cid in records_by_concept)
             / len([cid for cid in concept_ids if cid in records_by_concept])
             if any(cid in records_by_concept for cid in concept_ids)
             else 0.0
@@ -142,29 +130,21 @@ async def mastery_dashboard(
     for r in records:
         if r.mastery_level < 0.5:
             concept_result = await db.execute(
-                select(STEMConcept)
-                .options(joinedload(STEMConcept.subtopic))
-                .where(STEMConcept.id == r.concept_id)
+                select(STEMConcept).options(joinedload(STEMConcept.subtopic)).where(STEMConcept.id == r.concept_id)
             )
             concept = concept_result.unique().scalar_one_or_none()
 
             subject_title = None
             if concept and concept.subtopic:
-                topic_result = await db.execute(
-                    select(STEMTopic).where(STEMTopic.id == concept.subtopic.topic_id)
-                )
+                topic_result = await db.execute(select(STEMTopic).where(STEMTopic.id == concept.subtopic.topic_id))
                 topic = topic_result.scalar_one_or_none()
                 if topic:
                     disc_result = await db.execute(
-                        select(STEMDiscipline).where(
-                            STEMDiscipline.id == topic.discipline_id
-                        )
+                        select(STEMDiscipline).where(STEMDiscipline.id == topic.discipline_id)
                     )
                     disc = disc_result.scalar_one_or_none()
                     if disc:
-                        subj_result = await db.execute(
-                            select(STEMSubject).where(STEMSubject.id == disc.subject_id)
-                        )
+                        subj_result = await db.execute(select(STEMSubject).where(STEMSubject.id == disc.subject_id))
                         subj = subj_result.scalar_one_or_none()
                         subject_title = subj.title if subj else None
 
@@ -221,9 +201,7 @@ async def get_concept_mastery(
     )
     concept = concept_result.unique().scalar_one_or_none()
     if not concept:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found")
 
     subtopic = concept.subtopic
     topic = subtopic.topic if subtopic else None
@@ -232,9 +210,7 @@ async def get_concept_mastery(
     subject_title = None
     subject_id = discipline.subject_id if discipline else None
     if subject_id:
-        subj_result = await db.execute(
-            select(STEMSubject).where(STEMSubject.id == subject_id)
-        )
+        subj_result = await db.execute(select(STEMSubject).where(STEMSubject.id == subject_id))
         subj = subj_result.scalar_one_or_none()
         subject_title = subj.title if subj else None
 
@@ -266,9 +242,7 @@ async def generate_recommendations(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    records_result = await db.execute(
-        select(MasteryRecord).where(MasteryRecord.user_id == user.id)
-    )
+    records_result = await db.execute(select(MasteryRecord).where(MasteryRecord.user_id == user.id))
     records = records_result.scalars().all()
     weak = [r for r in records if r.mastery_level < 0.6]
 
@@ -277,9 +251,7 @@ async def generate_recommendations(
 
     new_recs: list[MasteryRecommendation] = []
     for r in weak:
-        concept_result = await db.execute(
-            select(STEMConcept).where(STEMConcept.id == r.concept_id)
-        )
+        concept_result = await db.execute(select(STEMConcept).where(STEMConcept.id == r.concept_id))
         concept = concept_result.scalar_one_or_none()
         if not concept:
             continue

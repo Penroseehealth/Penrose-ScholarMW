@@ -1,0 +1,6 @@
+# Backend dev tools — install with: pip install -r requirements-dev.txt
+-r requirements.txt
+pre-commit>=4.0
+ruff>=0.7.0
+mypy>=1.13
+bandit>=1.7

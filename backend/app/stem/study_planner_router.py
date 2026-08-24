@@ -91,9 +91,7 @@ async def generate_study_plan(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    subject_result = await db.execute(
-        select(STEMSubject).where(STEMSubject.subject_slug == req.subject_slug)
-    )
+    subject_result = await db.execute(select(STEMSubject).where(STEMSubject.subject_slug == req.subject_slug))
     subject = subject_result.scalar_one_or_none()
 
     concept_result = await db.execute(
@@ -294,9 +292,7 @@ async def get_today_tasks(
                     plan_id=plan.id,
                     plan_title=plan.title,
                     concept_id=item.concept_id,
-                    concept_title=concept_row.concept_title
-                    if concept_row
-                    else "Unknown",
+                    concept_title=concept_row.concept_title if concept_row else "Unknown",
                     topic_title=concept_row.topic_title if concept_row else None,
                     mastery_level=round(mastery, 4),
                     is_completed=item.is_completed,
@@ -316,9 +312,7 @@ async def get_overview(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    plans_result = await db.execute(
-        select(STEMStudyPlan).where(STEMStudyPlan.user_id == user.id)
-    )
+    plans_result = await db.execute(select(STEMStudyPlan).where(STEMStudyPlan.user_id == user.id))
     plans = plans_result.scalars().all()
 
     total_plans = len(plans)
@@ -332,9 +326,7 @@ async def get_overview(
         counts_result = await db.execute(
             select(
                 func.count(STEMStudyPlanItem.id).label("total"),
-                func.count(func.nullif(STEMStudyPlanItem.is_completed, False)).label(
-                    "completed"
-                ),
+                func.count(func.nullif(STEMStudyPlanItem.is_completed, False)).label("completed"),
             ).where(STEMStudyPlanItem.plan_id == plan.id)
         )
         counts = counts_result.first()

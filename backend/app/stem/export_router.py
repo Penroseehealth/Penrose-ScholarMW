@@ -31,9 +31,7 @@ CSV_MEDIATYPE = "text/csv"
 # ---------------------------------------------------------------------------
 
 
-def _csv_response(
-    rows: list[list[str]], headers: list[str], filename: str
-) -> StreamingResponse:
+def _csv_response(rows: list[list[str]], headers: list[str], filename: str) -> StreamingResponse:
     output = io.StringIO()
     writer = csv.writer(output)
     writer.writerow(headers)
@@ -164,9 +162,7 @@ async def export_exam_results(
     db: AsyncSession = Depends(get_db),
     _user: User = Depends(require_lecturer),
 ):
-    result = await db.execute(
-        select(MockExamResult).order_by(MockExamResult.created_at.desc())
-    )
+    result = await db.execute(select(MockExamResult).order_by(MockExamResult.created_at.desc()))
     exams = list(result.scalars().all())
 
     if not exams:
@@ -283,18 +279,14 @@ async def export_mastery_summary(
     total_map = {row[0]: row[1] for row in total_students_per_concept.all()}
 
     mastered_counts = await db.execute(
-        select(
-            MasteryRecord.concept_id, func.count(func.distinct(MasteryRecord.user_id))
-        )
+        select(MasteryRecord.concept_id, func.count(func.distinct(MasteryRecord.user_id)))
         .where(MasteryRecord.mastery_level >= 0.8)
         .group_by(MasteryRecord.concept_id)
     )
     mastered_map = {row[0]: row[1] for row in mastered_counts.all()}
 
     in_progress_counts = await db.execute(
-        select(
-            MasteryRecord.concept_id, func.count(func.distinct(MasteryRecord.user_id))
-        )
+        select(MasteryRecord.concept_id, func.count(func.distinct(MasteryRecord.user_id)))
         .where(MasteryRecord.mastery_level > 0, MasteryRecord.mastery_level < 0.8)
         .group_by(MasteryRecord.concept_id)
     )
@@ -446,9 +438,7 @@ async def export_subject_overview(
 
     data_rows: list[dict] = []
     for subj in subjects:
-        concept_ids = [
-            cid for cid, sid in concept_subject_map.items() if sid == subj.id
-        ]
+        concept_ids = [cid for cid, sid in concept_subject_map.items() if sid == subj.id]
         total_concepts = len(concept_ids)
 
         all_students: set[int] = set()
@@ -546,9 +536,7 @@ async def export_student_data(
     mastery_records = list(mastery_result.unique().scalars().all())
 
     exams_result = await db.execute(
-        select(MockExamResult)
-        .where(MockExamResult.user_id == student_id)
-        .order_by(MockExamResult.created_at.desc())
+        select(MockExamResult).where(MockExamResult.user_id == student_id).order_by(MockExamResult.created_at.desc())
     )
     exams = list(exams_result.scalars().all())
 
@@ -660,33 +648,21 @@ async def export_summary(
     db: AsyncSession = Depends(get_db),
     _user: User = Depends(require_lecturer),
 ):
-    total_students = (
-        await db.execute(select(func.count(func.distinct(User.id))))
-    ).scalar() or 0
+    total_students = (await db.execute(select(func.count(func.distinct(User.id))))).scalar() or 0
 
-    total_concepts = (
-        await db.execute(select(func.count(STEMConcept.id)))
-    ).scalar() or 0
+    total_concepts = (await db.execute(select(func.count(STEMConcept.id)))).scalar() or 0
 
     avg_mastery_result = await db.execute(select(func.avg(MasteryRecord.mastery_level)))
     avg_mastery = avg_mastery_result.scalar()
     avg_mastery_val = round(float(avg_mastery), 2) if avg_mastery is not None else 0.0
 
-    total_exams = (
-        await db.execute(select(func.count(MockExamResult.id)))
-    ).scalar() or 0
+    total_exams = (await db.execute(select(func.count(MockExamResult.id)))).scalar() or 0
 
-    avg_exam_score_result = await db.execute(
-        select(func.avg(MockExamResult.percentage))
-    )
+    avg_exam_score_result = await db.execute(select(func.avg(MockExamResult.percentage)))
     avg_exam_score = avg_exam_score_result.scalar()
-    avg_exam_score_val = (
-        round(float(avg_exam_score), 2) if avg_exam_score is not None else 0.0
-    )
+    avg_exam_score_val = round(float(avg_exam_score), 2) if avg_exam_score is not None else 0.0
 
-    subjects_result = await db.execute(
-        select(STEMSubject.id, STEMSubject.title, STEMSubject.subject_slug)
-    )
+    subjects_result = await db.execute(select(STEMSubject.id, STEMSubject.title, STEMSubject.subject_slug))
     subjects = subjects_result.all()
 
     subtopics_result = await db.execute(select(STEMSubtopic))
@@ -717,8 +693,7 @@ async def export_summary(
         ).group_by(MockExamResult.subject_slug)
     )
     exam_by_subject = {
-        row.subject_slug: (row.count, float(row.avg_pct) if row.avg_pct else 0.0)
-        for row in exam_agg.all()
+        row.subject_slug: (row.count, float(row.avg_pct) if row.avg_pct else 0.0) for row in exam_agg.all()
     }
 
     mastery_agg = await db.execute(
@@ -727,22 +702,14 @@ async def export_summary(
             func.avg(MasteryRecord.mastery_level).label("avg"),
         ).group_by(MasteryRecord.concept_id)
     )
-    concept_mastery_avg: dict[int, float] = {
-        row.concept_id: float(row.avg) for row in mastery_agg.all()
-    }
+    concept_mastery_avg: dict[int, float] = {row.concept_id: float(row.avg) for row in mastery_agg.all()}
 
     top_subjects = []
     for subj in subjects:
-        concept_ids = [
-            cid for cid, sid in concept_subject_map.items() if sid == subj.id
-        ]
+        concept_ids = [cid for cid, sid in concept_subject_map.items() if sid == subj.id]
         if not concept_ids:
             continue
-        m_values = [
-            concept_mastery_avg[cid]
-            for cid in concept_ids
-            if cid in concept_mastery_avg
-        ]
+        m_values = [concept_mastery_avg[cid] for cid in concept_ids if cid in concept_mastery_avg]
         subj_avg = sum(m_values) / len(m_values) if m_values else 0.0
         exam_info = exam_by_subject.get(subj.subject_slug, (0, 0.0))
         top_subjects.append(
@@ -758,22 +725,16 @@ async def export_summary(
 
     top_subjects.sort(key=lambda x: x["avg_mastery"], reverse=True)
 
-    recent_exams_result = await db.execute(
-        select(MockExamResult).order_by(MockExamResult.created_at.desc()).limit(10)
-    )
+    recent_exams_result = await db.execute(select(MockExamResult).order_by(MockExamResult.created_at.desc()).limit(10))
     recent_exams = recent_exams_result.scalars().all()
     recent_user_ids = {e.user_id for e in recent_exams}
-    recent_users_result = await db.execute(
-        select(User).where(User.id.in_(recent_user_ids))
-    )
+    recent_users_result = await db.execute(select(User).where(User.id.in_(recent_user_ids)))
     recent_users_map = {u.id: u for u in recent_users_result.scalars().all()}
 
     recent_activity = [
         {
             "student_id": e.user_id,
-            "student_name": recent_users_map[e.user_id].full_name
-            if e.user_id in recent_users_map
-            else "",
+            "student_name": recent_users_map[e.user_id].full_name if e.user_id in recent_users_map else "",
             "subject_slug": e.subject_slug,
             "score": e.score_marks,
             "total_questions": e.total_questions,

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../services/stem_service.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../widgets/shimmer_loading.dart';
-import '../../widgets/error_state.dart';
-import '../../modules/subject_module.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../modules/subject_module.dart';
+import '../../services/stem_service.dart';
+import '../../widgets/error_state.dart';
+import '../../widgets/shimmer_loading.dart';
 
 class LearningPathScreen extends StatefulWidget {
   final String slug;
@@ -31,7 +32,10 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   }
 
   Future<void> _loadData() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final results = await Future.wait([
         _stemService.getLearningPath(widget.slug),
@@ -45,7 +49,11 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         });
       }
     } catch (e) {
-      if (mounted) setState(() { _error = e.toString(); _loading = false; });
+      if (mounted)
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
     }
   }
 
@@ -88,10 +96,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             if (_error != null)
               SliverToBoxAdapter(child: ErrorState(message: 'Failed to load', details: _error, onRetry: _loadData))
             else if (_loading)
-              SliverToBoxAdapter(child: ShimmerLoading.list(count: 5))
+              SliverToBoxAdapter(child: ShimmerLoading.list())
             else ...[
-              if (_dueReviews.isNotEmpty)
-                SliverToBoxAdapter(child: _buildDueReviews(accentColor)),
+              if (_dueReviews.isNotEmpty) SliverToBoxAdapter(child: _buildDueReviews(accentColor)),
               SliverToBoxAdapter(child: _buildSummary(accentColor)),
               SliverToBoxAdapter(
                 child: Padding(
@@ -111,62 +118,61 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     );
   }
 
-  Widget _buildDueReviews(Color accent) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.colors.warningMuted,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: context.colors.warning.withValues(alpha: 0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.alarm_rounded, color: context.colors.warning, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                '${_dueReviews.length} concept${_dueReviews.length == 1 ? '' : 's'} due for review',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.warning),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          ...(_dueReviews.take(3).map((r) => Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: GestureDetector(
-              onTap: () => context.push('/stem-concept/${r['concept_id']}?title=${Uri.encodeComponent(r['concept_title'] ?? '')}'),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      r['concept_title'] ?? '',
-                      style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+  Widget _buildDueReviews(Color accent) => Container(
+        margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: context.colors.warningMuted,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: context.colors.warning.withValues(alpha: 0.3)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.alarm_rounded, color: context.colors.warning, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  '${_dueReviews.length} concept${_dueReviews.length == 1 ? '' : 's'} due for review',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.warning),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            ...(_dueReviews.take(3).map((r) => Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: GestureDetector(
+                    onTap: () => context.push(
+                        '/stem-concept/${r['concept_id']}?title=${Uri.encodeComponent((r['concept_title'] ?? '') as String)}'),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            (r['concept_title'] ?? '') as String,
+                            style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Text(
+                          '${((r['mastery_level'] as num?)?.toDouble() ?? 0 * 100).round()}%',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.warning),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    '${((r['mastery_level'] as num?)?.toDouble() ?? 0 * 100).round()}%',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.warning),
-                  ),
-                ],
-              ),
-            ),
-          ))),
-        ],
-      ),
-    );
-  }
+                ))),
+          ],
+        ),
+      );
 
   Widget _buildSummary(Color accent) {
     if (_path == null) return const SizedBox.shrink();
-    final completed = _path!['completed_steps'] ?? 0;
+    final completed = (_path!['completed_steps'] ?? 0) as int;
     final inProgress = _path!['in_progress_steps'] ?? 0;
     final notStarted = _path!['not_started_steps'] ?? 0;
-    final total = _path!['total_steps'] ?? 0;
+    final total = (_path!['total_steps'] ?? 0) as int;
     final minutes = _path!['estimated_total_minutes'] ?? 0;
     final progress = total > 0 ? completed / total : 0.0;
 
@@ -185,7 +191,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Progress', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                Text('Progress',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
                 Text(
                   '${(progress * 100).round()}%',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: accent),
@@ -220,17 +227,15 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     );
   }
 
-  Widget _buildMiniStat(String label, String value, Color color) {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: color)),
-          const SizedBox(height: 2),
-          Text(label, style: TextStyle(fontSize: 10, color: context.colors.textMuted), textAlign: TextAlign.center),
-        ],
-      ),
-    );
-  }
+  Widget _buildMiniStat(String label, String value, Color color) => Expanded(
+        child: Column(
+          children: [
+            Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: color)),
+            const SizedBox(height: 2),
+            Text(label, style: TextStyle(fontSize: 10, color: context.colors.textMuted), textAlign: TextAlign.center),
+          ],
+        ),
+      );
 
   Widget _buildStepsList(Color accent) {
     final steps = (_path?['steps'] as List?) ?? [];
@@ -249,7 +254,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
-          (context, index) => _buildStepItem(steps[index], accent),
+          (context, index) => _buildStepItem(steps[index] as Map<String, dynamic>, accent),
           childCount: steps.length,
         ),
       ),
@@ -258,8 +263,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 
   Widget _buildStepItem(Map<String, dynamic> step, Color accent) {
     final conceptId = step['concept_id'];
-    final title = step['concept_title'] ?? '';
-    final topicTitle = step['topic_title'] ?? '';
+    final title = (step['concept_title'] ?? '') as String;
+    final topicTitle = (step['topic_title'] ?? '') as String;
     final masteryLevel = (step['mastery_level'] as num?)?.toDouble() ?? 0;
     final status = step['status'] ?? 'not_started';
     final est = step['estimated_minutes'] ?? 15;
@@ -362,7 +367,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                   color: context.colors.warningMuted,
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: Text('Start', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: context.colors.warning)),
+                child: Text('Start',
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: context.colors.warning)),
               ),
           ],
         ),

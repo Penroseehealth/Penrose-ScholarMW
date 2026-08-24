@@ -31,7 +31,6 @@ class MathBlock extends StatelessWidget {
           child: Math.tex(
             latex,
             textStyle: effectiveStyle,
-            mathStyle: MathStyle.display,
             onErrorFallback: (error) => _buildError(latex, effectiveStyle),
           ),
         ),
@@ -41,22 +40,20 @@ class MathBlock extends StatelessWidget {
     }
   }
 
-  Widget _buildError(String tex, TextStyle style) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.errorMuted,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        tex,
-        style: style.copyWith(
-          color: AppColors.error,
-          fontFamily: 'monospace',
-          fontSize: 13,
+  Widget _buildError(String tex, TextStyle style) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.errorMuted,
+          borderRadius: BorderRadius.circular(8),
         ),
-      ),
-    );
-  }
+        child: Text(
+          tex,
+          style: style.copyWith(
+            color: AppColors.error,
+            fontFamily: 'monospace',
+            fontSize: 13,
+          ),
+        ),
+      );
 }

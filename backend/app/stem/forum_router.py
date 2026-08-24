@@ -133,10 +133,7 @@ async def list_forum_posts(
     if resolved is not None:
         query = query.where(STEMForumPost.is_resolved == resolved)
     if search:
-        query = query.where(
-            STEMForumPost.title.ilike(f"%{search}%")
-            | STEMForumPost.body.ilike(f"%{search}%")
-        )
+        query = query.where(STEMForumPost.title.ilike(f"%{search}%") | STEMForumPost.body.ilike(f"%{search}%"))
 
     if sort == "votes":
         query = query.order_by(STEMForumPost.upvotes.desc())
@@ -161,9 +158,7 @@ async def list_forum_posts(
 
     responses = []
     for post in posts:
-        count_result = await db.execute(
-            select(func.count()).where(STEMForumAnswer.post_id == post.id)
-        )
+        count_result = await db.execute(select(func.count()).where(STEMForumAnswer.post_id == post.id))
         answer_count = count_result.scalar() or 0
         responses.append(
             ForumPostResponse(
@@ -194,9 +189,7 @@ async def get_forum_post(
     result = await db.execute(select(STEMForumPost).where(STEMForumPost.id == post_id))
     post = result.scalar_one_or_none()
     if not post:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
 
     post.view_count += 1
     await db.flush()
@@ -248,13 +241,9 @@ async def create_forum_answer(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    post_result = await db.execute(
-        select(STEMForumPost).where(STEMForumPost.id == post_id)
-    )
+    post_result = await db.execute(select(STEMForumPost).where(STEMForumPost.id == post_id))
     if not post_result.scalar_one_or_none():
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
 
     answer = STEMForumAnswer(
         post_id=post_id,
@@ -284,9 +273,7 @@ async def resolve_forum_post(
     result = await db.execute(select(STEMForumPost).where(STEMForumPost.id == post_id))
     post = result.scalar_one_or_none()
     if not post:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
     if post.user_id != user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -312,14 +299,10 @@ async def vote_forum_post(
             detail="Vote value must be 1 or -1",
         )
 
-    post_result = await db.execute(
-        select(STEMForumPost).where(STEMForumPost.id == post_id)
-    )
+    post_result = await db.execute(select(STEMForumPost).where(STEMForumPost.id == post_id))
     post = post_result.scalar_one_or_none()
     if not post:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
 
     existing_result = await db.execute(
         select(STEMForumVote).where(
@@ -364,14 +347,10 @@ async def vote_forum_answer(
             detail="Vote value must be 1 or -1",
         )
 
-    answer_result = await db.execute(
-        select(STEMForumAnswer).where(STEMForumAnswer.id == answer_id)
-    )
+    answer_result = await db.execute(select(STEMForumAnswer).where(STEMForumAnswer.id == answer_id))
     answer = answer_result.scalar_one_or_none()
     if not answer:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Answer not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Answer not found")
 
     existing_result = await db.execute(
         select(STEMForumVote).where(
@@ -409,18 +388,12 @@ async def accept_forum_answer(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    answer_result = await db.execute(
-        select(STEMForumAnswer).where(STEMForumAnswer.id == answer_id)
-    )
+    answer_result = await db.execute(select(STEMForumAnswer).where(STEMForumAnswer.id == answer_id))
     answer = answer_result.scalar_one_or_none()
     if not answer:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Answer not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Answer not found")
 
-    post_result = await db.execute(
-        select(STEMForumPost).where(STEMForumPost.id == answer.post_id)
-    )
+    post_result = await db.execute(select(STEMForumPost).where(STEMForumPost.id == answer.post_id))
     post = post_result.scalar_one_or_none()
     if post.user_id != user.id:
         raise HTTPException(
@@ -449,14 +422,10 @@ async def get_forum_stats(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    posts_result = await db.execute(
-        select(func.count()).where(STEMForumPost.user_id == user.id)
-    )
+    posts_result = await db.execute(select(func.count()).where(STEMForumPost.user_id == user.id))
     total_posts = posts_result.scalar() or 0
 
-    answers_result = await db.execute(
-        select(func.count()).where(STEMForumAnswer.user_id == user.id)
-    )
+    answers_result = await db.execute(select(func.count()).where(STEMForumAnswer.user_id == user.id))
     total_answers = answers_result.scalar() or 0
 
     accepted_result = await db.execute(
@@ -468,16 +437,12 @@ async def get_forum_stats(
     accepted_answers = accepted_result.scalar() or 0
 
     post_upvotes_result = await db.execute(
-        select(func.coalesce(func.sum(STEMForumPost.upvotes), 0)).where(
-            STEMForumPost.user_id == user.id
-        )
+        select(func.coalesce(func.sum(STEMForumPost.upvotes), 0)).where(STEMForumPost.user_id == user.id)
     )
     post_upvotes = post_upvotes_result.scalar() or 0
 
     answer_upvotes_result = await db.execute(
-        select(func.coalesce(func.sum(STEMForumAnswer.upvotes), 0)).where(
-            STEMForumAnswer.user_id == user.id
-        )
+        select(func.coalesce(func.sum(STEMForumAnswer.upvotes), 0)).where(STEMForumAnswer.user_id == user.id)
     )
     answer_upvotes = answer_upvotes_result.scalar() or 0
 

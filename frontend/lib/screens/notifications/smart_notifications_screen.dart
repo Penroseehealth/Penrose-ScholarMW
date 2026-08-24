@@ -1,16 +1,16 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/services.dart';
 
 class SmartNotificationsScreen extends StatefulWidget {
   const SmartNotificationsScreen({super.key});
 
   @override
-  State<SmartNotificationsScreen> createState() =>
-      _SmartNotificationsScreenState();
+  State<SmartNotificationsScreen> createState() => _SmartNotificationsScreenState();
 }
 
 class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
@@ -38,22 +38,21 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
 
     try {
       final notifRes = await _api.get('/smart-notifications/');
-      final prefsRes =
-          await _api.get('/smart-notifications/preferences');
+      final prefsRes = await _api.get('/smart-notifications/preferences');
 
       if (!mounted) return;
 
       if (notifRes.statusCode == 200) {
         final notifBody = jsonDecode(notifRes.body);
         setState(() {
-          _notifications = notifBody['notifications'] ?? [];
-          _totalNotifications = notifBody['total'] ?? 0;
+          _notifications = notifBody['notifications'] as List<dynamic>? ?? [];
+          _totalNotifications = notifBody['total'] as int? ?? 0;
         });
       }
 
       if (prefsRes.statusCode == 200) {
         setState(() {
-          _preferences = jsonDecode(prefsRes.body);
+          _preferences = jsonDecode(prefsRes.body) as Map<String, dynamic>;
         });
       }
 
@@ -131,88 +130,85 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              expandedHeight: 70,
-              pinned: true,
-              flexibleSpace: FlexibleSpaceBar(
-                background: Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [AppColors.primary, AppColors.primaryDark],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: RefreshIndicator(
+          onRefresh: _loadData,
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 70,
+                pinned: true,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColors.primary, AppColors.primaryDark],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                     ),
-                  ),
-                  child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'Smart Notifications',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              if (_totalNotifications > 0)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.2),
-                                    borderRadius: BorderRadius.circular(12),
+                    child: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Smart Notifications',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  child: Text(
-                                    '$_totalNotifications new',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
+                                ),
+                                if (_totalNotifications > 0)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      '$_totalNotifications new',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Intelligent alerts & study nudges',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: 14,
+                              ],
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            Text(
+                              'Intelligent alerts & study nudges',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.8),
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: _buildBody(),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: _buildBody(),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildBody() {
     if (_loading) {
@@ -252,8 +248,8 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
 
   Widget _buildNotificationCard(dynamic notification) {
     final type = notification['type'] as String?;
-    final title = notification['title'] ?? '';
-    final message = notification['message'] ?? '';
+    final title = (notification['title'] ?? '') as String;
+    final message = (notification['message'] ?? '') as String;
     final priority = notification['priority'] as String?;
     final link = notification['link'] as String?;
 
@@ -298,8 +294,7 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: _priorityColor(priority).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(6),
@@ -407,8 +402,7 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
       ),
       subtitle: Text(
         subtitle,
-        style:
-            TextStyle(fontSize: 12, color: context.colors.textSecondary),
+        style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
       ),
       trailing: Switch(
         value: value,
@@ -420,62 +414,54 @@ class _SmartNotificationsScreenState extends State<SmartNotificationsScreen> {
 
   // ── Shared Widgets ──────────────────────────────────────
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-        color: context.colors.textPrimary,
-      ),
-    );
-  }
+  Widget _buildSectionHeader(String title) => Text(
+        title,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: context.colors.textPrimary,
+        ),
+      );
 
-  Widget _buildEmptyCard(String message) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: Text(
-            message,
-            style:
-                TextStyle(fontSize: 13, color: context.colors.textSecondary),
+  Widget _buildEmptyCard(String message) => Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Center(
+            child: Text(
+              message,
+              style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildErrorState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          children: [
-            Icon(Icons.error_outline, size: 48, color: context.colors.error),
-            const SizedBox(height: 12),
-            Text(
-              _error!,
-              style:
-                  TextStyle(fontSize: 14, color: context.colors.textSecondary),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadData,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+  Widget _buildErrorState() => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            children: [
+              Icon(Icons.error_outline, size: 48, color: context.colors.error),
+              const SizedBox(height: 12),
+              Text(
+                _error!,
+                style: TextStyle(fontSize: 14, color: context.colors.textSecondary),
+                textAlign: TextAlign.center,
               ),
-              child: const Text('Retry'),
-            ),
-          ],
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadData,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 }

@@ -1,9 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/services.dart';
 
 class MalawiContextScreen extends StatefulWidget {
   const MalawiContextScreen({super.key});
@@ -42,9 +43,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
       final response = await _api.get('/malawi-context/layers');
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body);
-        final data = decoded is List
-            ? decoded
-            : (decoded['layers'] ?? decoded['data'] ?? []);
+        final data = decoded is List ? decoded : ((decoded['layers'] ?? decoded['data'] ?? []) as Iterable);
         setState(() {
           _layers = List.from(data);
           _loading = false;
@@ -64,13 +63,10 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
     });
     try {
       final id = layer['id'] ?? layer['layer_id'];
-      final response =
-          await _api.get('/malawi-context/layers/$id/documents');
+      final response = await _api.get('/malawi-context/layers/$id/documents');
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body);
-        final docs = decoded is List
-            ? decoded
-            : (decoded['documents'] ?? decoded['data'] ?? []);
+        final docs = decoded is List ? decoded : ((decoded['documents'] ?? decoded['data'] ?? []) as Iterable);
         setState(() {
           _layerDocuments = List.from(docs);
           _loadingDocs = false;
@@ -94,16 +90,13 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
 
     try {
       final layerType = _selectedLayer?['layer_type'] ?? '';
-      final response =
-          await _api.post('/malawi-context/query', body: {
+      final response = await _api.post('/malawi-context/query', body: {
         'question': question,
         'layer_type': layerType,
       });
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body);
-        final results = decoded is List
-            ? decoded
-            : (decoded['results'] ?? decoded['documents'] ?? []);
+        final results = decoded is List ? decoded : ((decoded['results'] ?? decoded['documents'] ?? []) as Iterable);
         if (mounted) {
           _showResultsDialog(question, List.from(results));
         }
@@ -189,9 +182,9 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
   }
 
   Widget _buildResultCard(dynamic doc) {
-    final title = doc['title'] ?? doc['name'] ?? 'Untitled';
+    final titleLarge = ((doc['title'] ?? doc['name']) ?? 'Untitled') as String;
     final docType = doc['doc_type'] ?? doc['type'] ?? '';
-    final snippet = doc['snippet'] ?? doc['summary'] ?? '';
+    final snippet = ((doc['snippet'] ?? doc['summary']) ?? '') as String;
     final source = doc['source'] ?? doc['layer_type'] ?? '';
     final score = doc['score'] ?? doc['relevance'];
 
@@ -214,7 +207,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    title,
+                    titleLarge,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
@@ -224,14 +217,13 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                 ),
                 if (score != null)
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: context.colors.success.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      '${(score is num ? (score * 100).round() : score)}%',
+                      '${score is num ? (score * 100).round() : score}%',
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
@@ -246,8 +238,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
               children: [
                 if (docType.toString().isNotEmpty)
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
                       color: context.colors.accent.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -264,8 +255,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                 if (source.toString().isNotEmpty) ...[
                   const SizedBox(width: 6),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -347,48 +337,44 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          _selectedLayer != null
-              ? (_selectedLayer!['name'] ?? 'Layer Documents')
-              : 'Malawi Academic Context',
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: Text(
+            _selectedLayer != null
+                ? ((_selectedLayer!['name'] ?? 'Layer Documents') as String)
+                : 'Malawi Academic Context',
+          ),
+          backgroundColor: context.colors.background,
+          elevation: 0,
+          foregroundColor: context.colors.textPrimary,
+          leading: _selectedLayer != null
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: _clearSelection,
+                )
+              : null,
         ),
         backgroundColor: context.colors.background,
-        elevation: 0,
-        foregroundColor: context.colors.textPrimary,
-        leading: _selectedLayer != null
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: _clearSelection,
-              )
-            : null,
-      ),
-      backgroundColor: context.colors.background,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _querying
-            ? null
-            : () => _showQuerySheet(context),
-        backgroundColor: _querying ? context.colors.textSecondary : AppColors.primary,
-        icon: _querying
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
-            : const Icon(Icons.search, color: Colors.white),
-        label: Text(
-          _querying ? 'Searching...' : 'Query Knowledge',
-          style: const TextStyle(color: Colors.white),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: _querying ? null : () => _showQuerySheet(context),
+          backgroundColor: _querying ? context.colors.textSecondary : AppColors.primary,
+          icon: _querying
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : const Icon(Icons.search, color: Colors.white),
+          label: Text(
+            _querying ? 'Searching...' : 'Query Knowledge',
+            style: const TextStyle(color: Colors.white),
+          ),
         ),
-      ),
-      body: _selectedLayer != null ? _buildLayerDetail() : _buildLayersList(),
-    );
-  }
+        body: _selectedLayer != null ? _buildLayerDetail() : _buildLayersList(),
+      );
 
   Widget _buildLayersList() {
     if (_loading) {
@@ -443,8 +429,8 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
   }
 
   Widget _buildLayerCard(dynamic layer) {
-    final name = layer['name'] ?? 'Unknown Layer';
-    final type = layer['layer_type'] ?? layer['type'] ?? 'unknown';
+    final name = (layer['name'] ?? 'Unknown Layer') as String;
+    final type = ((layer['layer_type'] ?? layer['type']) ?? 'unknown') as String?;
     final docCount = layer['document_count'] ?? layer['doc_count'] ?? 0;
     final color = _layerColor(type);
     final icon = _layerIcon(type);
@@ -486,8 +472,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
                             color: color.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(12),
@@ -551,9 +536,9 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
   }
 
   Widget _buildDocumentCard(dynamic doc) {
-    final title = doc['title'] ?? doc['name'] ?? 'Untitled';
+    final titleLarge = ((doc['title'] ?? doc['name']) ?? 'Untitled') as String;
     final docType = doc['doc_type'] ?? doc['type'] ?? 'document';
-    final snippet = doc['snippet'] ?? doc['summary'] ?? '';
+    final snippet = ((doc['snippet'] ?? doc['summary']) ?? '') as String;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -574,7 +559,7 @@ class _MalawiContextScreenState extends State<MalawiContextScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    title,
+                    titleLarge,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,

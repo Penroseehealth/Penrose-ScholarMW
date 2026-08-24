@@ -27,34 +27,32 @@ class _PenroseScholarAppState extends State<PenroseScholarApp> {
   AppRouter? _appRouter;
 
   @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()..init()),
-        ChangeNotifierProvider(create: (_) => LocaleProvider()),
-        ChangeNotifierProvider(create: (_) => ThemeProvider()..init()),
-      ],
-      child: Consumer3<AuthProvider, LocaleProvider, ThemeProvider>(
-        builder: (context, auth, localeProvider, themeProvider, _) {
-          _appRouter ??= AppRouter(auth);
-          return MaterialApp.router(
-            title: 'Penrose ScholarMW',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.light(),
-            darkTheme: AppTheme.dark(),
-            themeMode: themeProvider.themeMode,
-            locale: localeProvider.locale,
-            supportedLocales: AppLocalizations.supportedLocales,
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            routerConfig: _appRouter!.router,
-          );
-        },
-      ),
-    );
-  }
+  Widget build(BuildContext context) => MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => AuthProvider()..init()),
+          ChangeNotifierProvider(create: (_) => LocaleProvider()),
+          ChangeNotifierProvider(create: (_) => ThemeProvider()..init()),
+        ],
+        child: Consumer3<AuthProvider, LocaleProvider, ThemeProvider>(
+          builder: (context, auth, localeProvider, themeProvider, _) {
+            _appRouter ??= AppRouter(auth);
+            return MaterialApp.router(
+              title: 'Penrose ScholarMW',
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.light(),
+              darkTheme: AppTheme.dark(),
+              themeMode: themeProvider.themeMode,
+              locale: localeProvider.locale,
+              supportedLocales: AppLocalizations.supportedLocales,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              routerConfig: _appRouter!.router,
+            );
+          },
+        ),
+      );
 }

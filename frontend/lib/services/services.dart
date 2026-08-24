@@ -1,16 +1,17 @@
 import 'dart:convert';
+
 import 'api_service.dart';
 
 export 'api_service.dart';
 export 'cache_service.dart';
-export 'stem_service.dart';
 export 'data_saver_service.dart';
+export 'stem_service.dart';
 
 String _extractError(dynamic response, String fallback) {
   try {
-    if (response.body.isEmpty) return fallback;
-    final body = jsonDecode(response.body);
-    return body['detail'] ?? body['error'] ?? body['message'] ?? fallback;
+    if ((response.body as String).isEmpty) return fallback;
+    final body = jsonDecode(response.body as String) as Map<String, dynamic>;
+    return (body['detail'] ?? body['error'] ?? body['message'] ?? fallback) as String;
   } catch (_) {
     return fallback;
   }
@@ -22,7 +23,7 @@ class CourseService {
   Future<List<dynamic>> listCourses() async {
     final response = await _api.getWithCache('/courses/');
     if (response != null && response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return jsonDecode(response.body) as List<dynamic>;
     }
     return [];
   }
@@ -30,7 +31,7 @@ class CourseService {
   Future<Map<String, dynamic>?> getCourse(int id) async {
     final response = await _api.get('/courses/$id');
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return jsonDecode(response.body) as Map<String, dynamic>;
     }
     return null;
   }
@@ -47,7 +48,7 @@ class CourseService {
   Future<List<dynamic>> getSchedule(int courseId) async {
     final response = await _api.get('/courses/$courseId/schedule');
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return jsonDecode(response.body) as List<dynamic>;
     }
     return [];
   }
@@ -77,7 +78,7 @@ class AiService {
   Future<List<dynamic>> listSessions() async {
     final response = await _api.get('/ai/sessions');
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return jsonDecode(response.body) as List<dynamic>;
     }
     return [];
   }
@@ -85,7 +86,7 @@ class AiService {
   Future<Map<String, dynamic>?> getSession(int id) async {
     final response = await _api.get('/ai/sessions/$id');
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return jsonDecode(response.body) as Map<String, dynamic>;
     }
     return null;
   }
@@ -177,7 +178,7 @@ class NotificationService {
   Future<List<dynamic>> listNotifications() async {
     final response = await _api.get('/notifications/');
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return jsonDecode(response.body) as List<dynamic>;
     }
     return [];
   }
@@ -185,7 +186,8 @@ class NotificationService {
   Future<int> unreadCount() async {
     final response = await _api.get('/notifications/unread-count');
     if (response.statusCode == 200) {
-      return jsonDecode(response.body)['count'] ?? 0;
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      return (body['count'] as num?)?.toInt() ?? 0;
     }
     return 0;
   }
@@ -201,7 +203,7 @@ class ResearchService {
   Future<List<dynamic>> listProjects() async {
     final response = await _api.get('/research/projects');
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return jsonDecode(response.body) as List<dynamic>;
     }
     return [];
   }
@@ -220,7 +222,7 @@ class ResearchService {
       'max_results': maxResults,
     });
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return jsonDecode(response.body) as List<dynamic>;
     }
     return [];
   }
@@ -232,7 +234,7 @@ class AssessmentService {
   Future<List<dynamic>> listAssessments(int courseId) async {
     final response = await _api.get('/assessments/course/$courseId');
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return jsonDecode(response.body) as List<dynamic>;
     }
     return [];
   }
@@ -277,12 +279,10 @@ class MultimodalService {
   }
 
   Future<List<dynamic>> listVoices({String? language}) async {
-    final path = language != null
-        ? '/ai/multimodal/voices?language=$language'
-        : '/ai/multimodal/voices';
+    final path = language != null ? '/ai/multimodal/voices?language=$language' : '/ai/multimodal/voices';
     final response = await _api.get(path);
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return jsonDecode(response.body) as List<dynamic>;
     }
     return [];
   }

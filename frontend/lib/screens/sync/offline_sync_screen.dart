@@ -1,9 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/services.dart';
 
 class OfflineSyncScreen extends StatefulWidget {
   const OfflineSyncScreen({super.key});
@@ -47,16 +48,16 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
       if (statusRes.statusCode == 200) {
         final body = jsonDecode(statusRes.body);
         setState(() {
-          _pendingCount = body['pending'] ?? 0;
-          _syncedCount = body['synced'] ?? 0;
-          _conflictCount = body['conflicts'] ?? 0;
+          _pendingCount = (body['pending'] ?? 0) as int;
+          _syncedCount = (body['synced'] ?? 0) as int;
+          _conflictCount = (body['conflicts'] ?? 0) as int;
         });
       }
 
       if (pullRes.statusCode == 200) {
         final pullBody = jsonDecode(pullRes.body);
         setState(() {
-          _syncHistory = pullBody is List ? pullBody : (pullBody['records'] ?? []);
+          _syncHistory = (pullBody is List ? pullBody : pullBody['records'] ?? []) as List;
         });
       }
 
@@ -111,8 +112,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
     }
   }
 
-  Future<void> _resolveConflict(
-      String recordId, String resolution, Map<String, dynamic> merged) async {
+  Future<void> _resolveConflict(String recordId, String resolution, Map<String, dynamic> merged) async {
     try {
       final response = await _api.post(
         '/sync/resolve',
@@ -180,66 +180,64 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              expandedHeight: 70,
-              pinned: true,
-              flexibleSpace: FlexibleSpaceBar(
-                background: Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [AppColors.primary, AppColors.primaryDark],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: RefreshIndicator(
+          onRefresh: _loadData,
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 70,
+                pinned: true,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColors.primary, AppColors.primaryDark],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                     ),
-                  ),
-                  child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const Text(
-                            'Offline Sync',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
+                    child: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            const Text(
+                              'Offline Sync',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Manage data synchronisation & conflicts',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: 14,
+                            const SizedBox(height: 4),
+                            Text(
+                              'Manage data synchronisation & conflicts',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.8),
+                                fontSize: 14,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: _buildBody(),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: _buildBody(),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildBody() {
     if (_loading) {
@@ -279,129 +277,120 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
     );
   }
 
-  Widget _buildStatusOverview() {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildStatusCard(
-            label: 'Pending',
-            value: '$_pendingCount',
-            icon: Icons.cloud_upload_outlined,
-            color: context.colors.warning,
+  Widget _buildStatusOverview() => Row(
+        children: [
+          Expanded(
+            child: _buildStatusCard(
+              label: 'Pending',
+              value: '$_pendingCount',
+              icon: Icons.cloud_upload_outlined,
+              color: context.colors.warning,
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _buildStatusCard(
-            label: 'Synced',
-            value: '$_syncedCount',
-            icon: Icons.cloud_done_outlined,
-            color: context.colors.success,
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildStatusCard(
+              label: 'Synced',
+              value: '$_syncedCount',
+              icon: Icons.cloud_done_outlined,
+              color: context.colors.success,
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _buildStatusCard(
-            label: 'Conflicts',
-            value: '$_conflictCount',
-            icon: Icons.sync_problem_outlined,
-            color: context.colors.error,
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildStatusCard(
+              label: 'Conflicts',
+              value: '$_conflictCount',
+              icon: Icons.sync_problem_outlined,
+              color: context.colors.error,
+            ),
           ),
-        ),
-      ],
-    );
-  }
+        ],
+      );
 
   Widget _buildStatusCard({
     required String label,
     required String value,
     required IconData icon,
     required Color color,
-  }) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 26),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                color: context.colors.textSecondary,
-                fontWeight: FontWeight.w500,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSyncButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: _syncing ? null : _pushSync,
-        icon: _syncing
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
+  }) =>
+      Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            children: [
+              Icon(icon, color: color, size: 26),
+              const SizedBox(height: 8),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: color,
                 ),
-              )
-            : const Icon(Icons.sync, size: 20),
-        label: Text(_syncing ? 'Syncing...' : 'Sync Now'),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: context.colors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildErrorBanner() {
-    return Card(
-      color: context.colors.error.withValues(alpha: 0.06),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            Icon(Icons.warning_amber_rounded,
-                color: context.colors.error, size: 20),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                _error!,
-                style: TextStyle(
-                    fontSize: 13, color: context.colors.textSecondary),
-              ),
+  Widget _buildSyncButton() => SizedBox(
+        width: double.infinity,
+        child: ElevatedButton.icon(
+          onPressed: _syncing ? null : _pushSync,
+          icon: _syncing
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : const Icon(Icons.sync, size: 20),
+          label: Text(_syncing ? 'Syncing...' : 'Sync Now'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-          ],
+          ),
         ),
-      ),
-    );
-  }
+      );
+
+  Widget _buildErrorBanner() => Card(
+        color: context.colors.error.withValues(alpha: 0.06),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: context.colors.error, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  _error!,
+                  style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
 
   Widget _buildSyncHistory() {
     if (_syncHistory.isEmpty) {
@@ -410,7 +399,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
 
     return Column(
       children: _syncHistory.map((record) {
-        final status = record['status'] ?? 'unknown';
+        final status = (record['status'] ?? 'unknown') as String;
         final entityType = record['entity_type'] ?? '';
         final entityId = record['entity_id'] ?? '';
         final action = record['action'] ?? '';
@@ -418,11 +407,9 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
 
         return Card(
           margin: const EdgeInsets.only(bottom: 6),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           child: ListTile(
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
             leading: Container(
               width: 38,
               height: 38,
@@ -438,21 +425,18 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
             ),
             title: Text(
               '$entityType #$entityId',
-              style:
-                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             subtitle: Text(
               '${action.toUpperCase()} · $syncedAt',
-              style: TextStyle(
-                  fontSize: 12, color: context.colors.textSecondary),
+              style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             trailing: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: _statusColor(status).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
@@ -473,8 +457,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
   }
 
   Widget _buildConflictResolution() {
-    final conflicts =
-        _syncHistory.where((r) => r['status'] == 'conflict').toList();
+    final conflicts = _syncHistory.where((r) => r['status'] == 'conflict').toList();
 
     if (conflicts.isEmpty) {
       return _buildEmptyCard('No conflicts to resolve');
@@ -484,13 +467,12 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
       children: conflicts.map((record) {
         final entityType = record['entity_type'] ?? '';
         final entityId = record['entity_id'] ?? '';
-        final payload = record['payload'] ?? {};
-        final recordId = record['id'] ?? '';
+        final payload = (record['payload'] ?? {}) as Map<String, dynamic>;
+        final recordId = (record['id'] ?? '') as String;
 
         return Card(
           margin: const EdgeInsets.only(bottom: 8),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Column(
@@ -498,8 +480,7 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.sync_problem_outlined,
-                        color: context.colors.error, size: 20),
+                    Icon(Icons.sync_problem_outlined, color: context.colors.error, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -517,11 +498,9 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
                   children: [
                     Expanded(
                       child: OutlinedButton.icon(
-                        onPressed: () =>
-                            _resolveConflict(recordId, 'keep_local', payload),
+                        onPressed: () => _resolveConflict(recordId, 'keep_local', payload),
                         icon: const Icon(Icons.phone_android, size: 16),
-                        label: const Text('Keep Local',
-                            style: TextStyle(fontSize: 12)),
+                        label: const Text('Keep Local', style: TextStyle(fontSize: 12)),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: context.colors.info,
                           side: BorderSide(color: context.colors.info),
@@ -535,11 +514,9 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: OutlinedButton.icon(
-                        onPressed: () =>
-                            _resolveConflict(recordId, 'keep_remote', payload),
+                        onPressed: () => _resolveConflict(recordId, 'keep_remote', payload),
                         icon: const Icon(Icons.cloud_outlined, size: 16),
-                        label: const Text('Keep Remote',
-                            style: TextStyle(fontSize: 12)),
+                        label: const Text('Keep Remote', style: TextStyle(fontSize: 12)),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: context.colors.success,
                           side: BorderSide(color: context.colors.success),
@@ -553,11 +530,9 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: OutlinedButton.icon(
-                        onPressed: () =>
-                            _resolveConflict(recordId, 'merge', payload),
+                        onPressed: () => _resolveConflict(recordId, 'merge', payload),
                         icon: const Icon(Icons.merge, size: 16),
-                        label: const Text('Merge',
-                            style: TextStyle(fontSize: 12)),
+                        label: const Text('Merge', style: TextStyle(fontSize: 12)),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: context.colors.secondary,
                           side: BorderSide(color: context.colors.secondary),
@@ -580,62 +555,54 @@ class _OfflineSyncScreenState extends State<OfflineSyncScreen> {
 
   // ── Shared Widgets ──────────────────────────────────────
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-        color: context.colors.textPrimary,
-      ),
-    );
-  }
+  Widget _buildSectionHeader(String title) => Text(
+        title,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: context.colors.textPrimary,
+        ),
+      );
 
-  Widget _buildEmptyCard(String message) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: Text(
-            message,
-            style:
-                TextStyle(fontSize: 13, color: context.colors.textSecondary),
+  Widget _buildEmptyCard(String message) => Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Center(
+            child: Text(
+              message,
+              style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildErrorState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          children: [
-            Icon(Icons.error_outline, size: 48, color: context.colors.error),
-            const SizedBox(height: 12),
-            Text(
-              _error!,
-              style:
-                  TextStyle(fontSize: 14, color: context.colors.textSecondary),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadData,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+  Widget _buildErrorState() => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            children: [
+              Icon(Icons.error_outline, size: 48, color: context.colors.error),
+              const SizedBox(height: 12),
+              Text(
+                _error!,
+                style: TextStyle(fontSize: 14, color: context.colors.textSecondary),
+                textAlign: TextAlign.center,
               ),
-              child: const Text('Retry'),
-            ),
-          ],
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadData,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 }

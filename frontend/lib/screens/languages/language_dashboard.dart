@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
-import '../../services/language_service.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/language_service.dart';
 
 const Color _pathGreen = Color(0xFF22C55E);
 const Color _pathGreenDark = Color(0xFF15803D);
@@ -18,8 +18,7 @@ class LanguageDashboard extends StatefulWidget {
   State<LanguageDashboard> createState() => _LanguageDashboardState();
 }
 
-class _LanguageDashboardState extends State<LanguageDashboard>
-    with SingleTickerProviderStateMixin {
+class _LanguageDashboardState extends State<LanguageDashboard> with SingleTickerProviderStateMixin {
   late AnimationController _fadeCtrl;
   late Animation<double> _fadeAnim;
 
@@ -181,8 +180,7 @@ class _LanguageDashboardState extends State<LanguageDashboard>
     }
   }
 
-  String get _langName =>
-      (_language['name'] as String?) ?? _titleCase(_slug);
+  String get _langName => (_language['name'] as String?) ?? _titleCase(_slug);
 
   String get _nativeName => (_language['native_name'] as String?) ?? '';
 
@@ -240,8 +238,7 @@ class _LanguageDashboardState extends State<LanguageDashboard>
       child: Scaffold(
         backgroundColor: context.colors.background,
         body: _loading
-            ? const Center(
-                child: CircularProgressIndicator(color: AppColors.primary))
+            ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
             : RefreshIndicator(
                 color: accent,
                 backgroundColor: context.colors.surface,
@@ -256,13 +253,11 @@ class _LanguageDashboardState extends State<LanguageDashboard>
                         delegate: SliverChildListDelegate([
                           _buildContinueLearning(),
                           const SizedBox(height: 28),
-                          _buildSectionTitle(
-                              'Learning Path', '🗺️', accent),
+                          _buildSectionTitle('Learning Path', '🗺️', accent),
                           const SizedBox(height: 14),
                           _buildLearningPath(accent),
                           const SizedBox(height: 28),
-                          _buildSectionTitle(
-                              'Modules & Quick Actions', '⚡', accent),
+                          _buildSectionTitle('Modules & Quick Actions', '⚡', accent),
                           const SizedBox(height: 14),
                           _buildModuleGrid(accent),
                         ]),
@@ -275,224 +270,196 @@ class _LanguageDashboardState extends State<LanguageDashboard>
     );
   }
 
-  Widget _buildHeader(Color accent) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        border:
-            Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Row(
-          children: [
-            GestureDetector(
-              onTap: () => context.pop(),
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: context.colors.surfaceElevated,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: context.colors.border),
-                ),
-                child: Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: context.colors.textSecondary),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Container(
-              width: 46,
-              height: 46,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(13),
-                border: Border.all(color: accent.withValues(alpha: 0.25)),
-              ),
-              child: Text(_langIcon,
-                  style: const TextStyle(fontSize: 24, height: 1.1)),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(_langName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: context.colors.textPrimary,
-                          letterSpacing: -0.3)),
-                  Text(
-                    _nativeName.isEmpty ? 'Language Dashboard' : _nativeName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style:
-                        TextStyle(fontSize: 12, color: context.colors.textMuted),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      value: _overallProgress,
-                      strokeWidth: 2.5,
-                      color: accent,
-                      backgroundColor: context.colors.surfaceHighest,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text('${(_overallProgress * 100).toInt()}%',
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: accent)),
-                ],
-              ),
-            ),
-          ],
+  Widget _buildHeader(Color accent) => Container(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          border: Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title, String emoji, Color accent) {
-    return Row(
-      children: [
-        Container(
-          width: 4,
-          height: 20,
-          decoration: BoxDecoration(
-            color: accent,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(title,
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: context.colors.textPrimary,
-                  letterSpacing: -0.3)),
-        ),
-        Text(emoji, style: const TextStyle(fontSize: 15)),
-      ],
-    );
-  }
-
-  Widget _buildContinueLearning() {
-    return Semantics(
-      label: 'Continue learning $_langName',
-      button: true,
-      child: GestureDetector(
-        onTap: () => context.push('/language/$_slug/levels'),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [_pathGreen, _pathGreenDark],
-            ),
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: _pathGreenGlow.withValues(alpha: 0.35),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
+        child: SafeArea(
+          bottom: false,
           child: Row(
             children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(16),
+              GestureDetector(
+                onTap: () => context.pop(),
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: context.colors.surfaceElevated,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: context.colors.border),
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: context.colors.textSecondary),
                 ),
-                child: const Icon(Icons.play_arrow_rounded,
-                    color: Colors.white, size: 32),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 14),
+              Container(
+                width: 46,
+                height: 46,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(13),
+                  border: Border.all(color: accent.withValues(alpha: 0.25)),
+                ),
+                child: Text(_langIcon, style: const TextStyle(fontSize: 24, height: 1.1)),
+              ),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('CONTINUE LEARNING',
-                        style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white.withValues(alpha: 0.75),
-                            letterSpacing: 1.2)),
-                    const SizedBox(height: 4),
-                    Text(_lastLesson,
+                    Text(_langName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white)),
-                    const SizedBox(height: 3),
-                    Text(_lastLevelName,
                         style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white.withValues(alpha: 0.8))),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: LinearProgressIndicator(
-                              value: _lastLessonProgress,
-                              backgroundColor:
-                                  Colors.white.withValues(alpha: 0.25),
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                  Colors.white),
-                              minHeight: 5,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Text('${(_lastLessonProgress * 100).toInt()}%',
-                            style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white)),
-                      ],
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: context.colors.textPrimary,
+                            letterSpacing: -0.3)),
+                    Text(
+                      _nativeName.isEmpty ? 'Language Dashboard' : _nativeName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 12, color: context.colors.textMuted),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
-              const Icon(Icons.arrow_forward_ios_rounded,
-                  size: 16, color: Colors.white),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        value: _overallProgress,
+                        strokeWidth: 2.5,
+                        color: accent,
+                        backgroundColor: context.colors.surfaceHighest,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text('${(_overallProgress * 100).toInt()}%',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: accent)),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
-      ),
-    );
-  }
+      );
+
+  Widget _buildSectionTitle(String title, String emoji, Color accent) => Row(
+        children: [
+          Container(
+            width: 4,
+            height: 20,
+            decoration: BoxDecoration(
+              color: accent,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(title,
+                style: TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.w800, color: context.colors.textPrimary, letterSpacing: -0.3)),
+          ),
+          Text(emoji, style: const TextStyle(fontSize: 15)),
+        ],
+      );
+
+  Widget _buildContinueLearning() => Semantics(
+        label: 'Continue learning $_langName',
+        button: true,
+        child: GestureDetector(
+          onTap: () => context.push('/language/$_slug/levels'),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [_pathGreen, _pathGreenDark],
+              ),
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: _pathGreenGlow.withValues(alpha: 0.35),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 32),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('CONTINUE LEARNING',
+                          style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white.withValues(alpha: 0.75),
+                              letterSpacing: 1.2)),
+                      const SizedBox(height: 4),
+                      Text(_lastLesson,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white)),
+                      const SizedBox(height: 3),
+                      Text(_lastLevelName,
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.8))),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: _lastLessonProgress,
+                                backgroundColor: Colors.white.withValues(alpha: 0.25),
+                                valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                                minHeight: 5,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Text('${(_lastLessonProgress * 100).toInt()}%',
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.white),
+              ],
+            ),
+          ),
+        ),
+      );
 
   Widget _buildLearningPath(Color accent) {
     final progress = _levelProgress;
@@ -512,12 +479,10 @@ class _LanguageDashboardState extends State<LanguageDashboard>
     );
   }
 
-  Widget _buildLevelCard(
-      Map<String, String> level, double progress, Color accent) {
+  Widget _buildLevelCard(Map<String, String> level, double progress, Color accent) {
     final completed = progress >= 1.0;
     final current = progress > 0 && !completed;
-    final statusColor =
-        completed ? context.colors.success : (current ? accent : context.colors.textSecondary);
+    final statusColor = completed ? context.colors.success : (current ? accent : context.colors.textSecondary);
     final levelSlug = level['slug'] ?? '';
 
     return Semantics(
@@ -540,9 +505,7 @@ class _LanguageDashboardState extends State<LanguageDashboard>
               color: context.colors.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: current
-                    ? accent.withValues(alpha: 0.45)
-                    : context.colors.border,
+                color: current ? accent.withValues(alpha: 0.45) : context.colors.border,
                 width: current ? 1.2 : 1,
               ),
             ),
@@ -559,52 +522,38 @@ class _LanguageDashboardState extends State<LanguageDashboard>
                         color: statusColor.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(11),
                       ),
-                      child: Text(level['icon']!,
-                          style: const TextStyle(fontSize: 19)),
+                      child: Text(level['icon']!, style: const TextStyle(fontSize: 19)),
                     ),
                     const Spacer(),
                     if (completed)
-                      Icon(Icons.check_circle_rounded,
-                          size: 18, color: context.colors.success)
+                      Icon(Icons.check_circle_rounded, size: 18, color: context.colors.success)
                     else if (current)
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: accent.withValues(alpha: 0.14),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text('NOW',
-                            style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.8,
-                                color: accent)),
+                            style:
+                                TextStyle(fontSize: 9, fontWeight: FontWeight.w800, letterSpacing: 0.8, color: accent)),
                       )
                     else
-                      Icon(Icons.arrow_forward_ios_rounded,
-                          size: 14, color: context.colors.textMuted),
+                      Icon(Icons.arrow_forward_ios_rounded, size: 14, color: context.colors.textMuted),
                   ],
                 ),
                 const Spacer(),
                 Text(level['form']!,
-                    style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1.0,
-                        color: statusColor)),
+                    style:
+                        TextStyle(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.0, color: statusColor)),
                 const SizedBox(height: 3),
                 Text(level['name']!,
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                        color: context.colors.textPrimary)),
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
                 const SizedBox(height: 2),
                 Text(level['desc']!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        fontSize: 11, color: context.colors.textMuted)),
+                    style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
                 const SizedBox(height: 10),
                 Row(
                   children: [
@@ -621,10 +570,7 @@ class _LanguageDashboardState extends State<LanguageDashboard>
                     ),
                     const SizedBox(width: 8),
                     Text('${(progress * 100).toInt()}%',
-                        style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: statusColor)),
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: statusColor)),
                   ],
                 ),
               ],
@@ -635,21 +581,19 @@ class _LanguageDashboardState extends State<LanguageDashboard>
     );
   }
 
-  Widget _buildModuleGrid(Color accent) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.zero,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 1.55,
-      ),
-      itemCount: _modules.length,
-      itemBuilder: (ctx, i) => _buildModuleCard(_modules[i], accent),
-    );
-  }
+  Widget _buildModuleGrid(Color accent) => GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.zero,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 1.55,
+        ),
+        itemCount: _modules.length,
+        itemBuilder: (ctx, i) => _buildModuleCard(_modules[i], accent),
+      );
 
   Widget _buildModuleCard(_LangModule mod, Color accent) {
     final route = mod.route.replaceAll('%SLUG%', _slug);
@@ -682,22 +626,17 @@ class _LanguageDashboardState extends State<LanguageDashboard>
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: context.colors.borderLight),
                       ),
-                      child: Text(mod.emoji,
-                          style: const TextStyle(fontSize: 17)),
+                      child: Text(mod.emoji, style: const TextStyle(fontSize: 17)),
                     ),
                     const Spacer(),
-                    Icon(Icons.chevron_right_rounded,
-                        size: 18, color: context.colors.textMuted),
+                    Icon(Icons.chevron_right_rounded, size: 18, color: context.colors.textMuted),
                   ],
                 ),
                 const Spacer(),
                 Text(mod.label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: context.colors.textPrimary)),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
               ],
             ),
           ),

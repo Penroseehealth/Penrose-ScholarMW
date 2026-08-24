@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'stem_concept_screen.dart';
-import '../../services/stem_service.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../widgets/shimmer_loading.dart';
+import '../../core/theme/theme_colors.dart';
+import '../../services/stem_service.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
-import '../../core/theme/theme_colors.dart';
+import '../../widgets/shimmer_loading.dart';
+import 'stem_concept_screen.dart';
 
 class StemTopicScreen extends StatefulWidget {
   final int topicId;
@@ -36,7 +37,10 @@ class _StemTopicScreenState extends State<StemTopicScreen> {
   }
 
   Future<void> _loadSubtopics() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final subtopics = await _stemService.getSubtopics(widget.topicId);
       if (mounted) {
@@ -46,7 +50,11 @@ class _StemTopicScreenState extends State<StemTopicScreen> {
         });
       }
     } catch (e) {
-      if (mounted) setState(() { _error = e.toString(); _loading = false; });
+      if (mounted)
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
     }
   }
 
@@ -110,7 +118,7 @@ class _StemTopicScreenState extends State<StemTopicScreen> {
       body: _error != null
           ? ErrorState(message: 'Failed to load subtopics', details: _error, onRetry: _loadSubtopics)
           : _loading
-              ? Center(child: ShimmerLoading.list(count: 5))
+              ? Center(child: ShimmerLoading.list())
               : _subtopics.isEmpty
                   ? const EmptyState(
                       icon: Icons.topic_outlined,
@@ -148,23 +156,21 @@ class _StemTopicScreenState extends State<StemTopicScreen> {
     );
   }
 
-  Widget _buildSubtopicExpansionCard(dynamic subtopic) {
-    return _SubtopicExpansionCard(
-      subtopic: subtopic,
-      getDifficultyColor: _getDifficultyColor,
-      onConceptTap: (concept) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => StemConceptScreen(
-              conceptId: concept['id'],
-              title: concept['name'] ?? concept['title'] ?? 'Concept',
+  Widget _buildSubtopicExpansionCard(dynamic subtopic) => _SubtopicExpansionCard(
+        subtopic: subtopic,
+        getDifficultyColor: _getDifficultyColor,
+        onConceptTap: (concept) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => StemConceptScreen(
+                conceptId: concept['id'] as int,
+                title: (concept['name'] ?? concept['title'] ?? 'Concept') as String,
+              ),
             ),
-          ),
-        );
-      },
-    );
-  }
+          );
+        },
+      );
 }
 
 class _SubtopicExpansionCard extends StatefulWidget {
@@ -194,7 +200,7 @@ class _SubtopicExpansionCardState extends State<_SubtopicExpansionCard> {
     setState(() => _expanded = !_expanded);
     if (_expanded && !_conceptsLoaded) {
       setState(() => _loadingConcepts = true);
-      final concepts = await _stemService.getConcepts(widget.subtopic['id']);
+      final concepts = await _stemService.getConcepts(widget.subtopic['id'] as int);
       if (mounted) {
         setState(() {
           _concepts = concepts;
@@ -229,7 +235,7 @@ class _SubtopicExpansionCardState extends State<_SubtopicExpansionCard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.subtopic['name'] ?? '',
+                          (widget.subtopic['name'] ?? '') as String,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -282,7 +288,7 @@ class _SubtopicExpansionCardState extends State<_SubtopicExpansionCard> {
             else
               ...List.generate(_concepts.length, (index) {
                 final concept = _concepts[index];
-                final diffColor = widget.getDifficultyColor(concept['difficulty']);
+                final diffColor = widget.getDifficultyColor(concept['difficulty'] as String?);
                 final isLast = index == _concepts.length - 1;
 
                 return GestureDetector(
@@ -300,7 +306,7 @@ class _SubtopicExpansionCardState extends State<_SubtopicExpansionCard> {
                       children: [
                         Expanded(
                           child: Text(
-                            concept['name'] ?? concept['title'] ?? '',
+                            (concept['name'] ?? concept['title'] ?? '') as String,
                             style: TextStyle(
                               fontSize: 14,
                               color: context.colors.textSecondary,
@@ -314,7 +320,7 @@ class _SubtopicExpansionCardState extends State<_SubtopicExpansionCard> {
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            concept['difficulty'] ?? 'beginner',
+                            (concept['difficulty'] ?? 'beginner') as String,
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,

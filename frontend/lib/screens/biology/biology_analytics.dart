@@ -10,8 +10,7 @@ class BiologyAnalyticsScreen extends StatefulWidget {
   State<BiologyAnalyticsScreen> createState() => _BiologyAnalyticsScreenState();
 }
 
-class _BiologyAnalyticsScreenState extends State<BiologyAnalyticsScreen>
-    with SingleTickerProviderStateMixin {
+class _BiologyAnalyticsScreenState extends State<BiologyAnalyticsScreen> with SingleTickerProviderStateMixin {
   late AnimationController _fadeCtrl;
   late Animation<double> _fadeAnim;
   String _selectedPeriod = 'All Time';
@@ -111,42 +110,36 @@ class _BiologyAnalyticsScreenState extends State<BiologyAnalyticsScreen>
     );
   }
 
-  Widget _periodDropdown() {
-    return Container(
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: _bioGreen.withValues(alpha: 0.2)),
-      ),
-      child: DropdownButton<String>(
-        value: _selectedPeriod,
-        isDense: true,
-        dropdownColor: const Color(0xFF1A2035),
-        underline: const SizedBox(),
-        items: ['This Week', 'This Month', 'This Term', 'All Time']
-            .map((p) => DropdownMenuItem(
-                value: p,
-                child: Text(p,
-                    style: const TextStyle(color: Colors.white70, fontSize: 12))))
-            .toList(),
-        onChanged: (v) => setState(() => _selectedPeriod = v ?? 'All Time'),
-        icon: const Icon(Icons.arrow_drop_down_rounded, color: Colors.white54, size: 18),
-      ),
-    );
-  }
+  Widget _periodDropdown() => Container(
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: _bioGreen.withValues(alpha: 0.2)),
+        ),
+        child: DropdownButton<String>(
+          value: _selectedPeriod,
+          isDense: true,
+          dropdownColor: const Color(0xFF1A2035),
+          underline: const SizedBox(),
+          items: ['This Week', 'This Month', 'This Term', 'All Time']
+              .map((p) => DropdownMenuItem(
+                  value: p, child: Text(p, style: const TextStyle(color: Colors.white70, fontSize: 12))))
+              .toList(),
+          onChanged: (v) => setState(() => _selectedPeriod = v ?? 'All Time'),
+          icon: const Icon(Icons.arrow_drop_down_rounded, color: Colors.white54, size: 18),
+        ),
+      );
 
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-      ),
-    );
-  }
+  Widget _buildSectionTitle(String title) => Text(
+        title,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      );
 
   Widget _buildOverviewCards(bool isDesktop, bool isTablet, double screenWidth) {
     final cards = [
@@ -165,121 +158,108 @@ class _BiologyAnalyticsScreenState extends State<BiologyAnalyticsScreen>
       return Wrap(
         spacing: 12,
         runSpacing: 12,
-        children: cards.map((c) => SizedBox(
-          width: (screenWidth - 44) / 2,
-          child: _overviewCard(c),
-        )).toList(),
+        children: cards
+            .map((c) => SizedBox(
+                  width: (screenWidth - 44) / 2,
+                  child: _overviewCard(c),
+                ))
+            .toList(),
       );
     }
     return Column(
-      children: cards.map((c) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: _overviewCard(c),
-      )).toList(),
+      children: cards
+          .map((c) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _overviewCard(c),
+              ))
+          .toList(),
     );
   }
 
-  Widget _overviewCard(_OverviewCard card) {
-    return Container(
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF111827),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(card.icon, color: card.color, size: 24),
-          const SizedBox(height: 10),
-          Text(card.value,
-              style: TextStyle(
-                  color: card.color, fontSize: 28, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          Text(card.label,
-              style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.5), fontSize: 12)),
-        ],
-      ),
-    );
-  }
+  Widget _overviewCard(_OverviewCard card) => Container(
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF111827),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(card.icon, color: card.color, size: 24),
+            const SizedBox(height: 10),
+            Text(card.value, style: TextStyle(color: card.color, fontSize: 28, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            Text(card.label, style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12)),
+          ],
+        ),
+      );
 
-  Widget _buildCoreElementBars() {
-    return Column(
-      children: _coreElementProgress.map((cp) {
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: const Color(0xFF111827),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: cp.color.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(cp.icon, color: cp.color, size: 22),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(cp.name,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600)),
-                        Text('${cp.progress}%',
-                            style: TextStyle(
-                                color: cp.color,
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: cp.progress / 100,
-                        backgroundColor: Colors.white.withValues(alpha: 0.06),
-                        valueColor: AlwaysStoppedAnimation(cp.color),
-                        minHeight: 6,
+  Widget _buildCoreElementBars() => Column(
+        children: _coreElementProgress
+            .map((cp) => Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF111827),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: cp.color.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(cp.icon, color: cp.color, size: 22),
                       ),
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Text('${cp.topics} topics',
-                            style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.4),
-                                fontSize: 11)),
-                        const SizedBox(width: 12),
-                        Text('${cp.completed} completed',
-                            style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.4),
-                                fontSize: 11)),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-  }
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(cp.name,
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+                                Text('${cp.progress}%',
+                                    style: TextStyle(color: cp.color, fontSize: 13, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: cp.progress / 100,
+                                backgroundColor: Colors.white.withValues(alpha: 0.06),
+                                valueColor: AlwaysStoppedAnimation(cp.color),
+                                minHeight: 6,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Text('${cp.topics} topics',
+                                    style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 11)),
+                                const SizedBox(width: 12),
+                                Text('${cp.completed} completed',
+                                    style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 11)),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ))
+            .toList(),
+      );
 
   Widget _buildStatsGrid(bool isDesktop) {
     final stats = [
@@ -295,107 +275,92 @@ class _BiologyAnalyticsScreenState extends State<BiologyAnalyticsScreen>
       return Wrap(
         spacing: 12,
         runSpacing: 12,
-        children: stats.map((s) => SizedBox(
-          width: 180,
-          child: _statCard(s),
-        )).toList(),
+        children: stats
+            .map((s) => SizedBox(
+                  width: 180,
+                  child: _statCard(s),
+                ))
+            .toList(),
       );
     }
     return Wrap(
       spacing: 12,
       runSpacing: 12,
-      children: stats.map((s) => SizedBox(
-        width: 160,
-        child: _statCard(s),
-      )).toList(),
+      children: stats
+          .map((s) => SizedBox(
+                width: 160,
+                child: _statCard(s),
+              ))
+          .toList(),
     );
   }
 
-  Widget _statCard(_StatItem stat) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFF111827),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(stat.icon, color: stat.color, size: 22),
-          const SizedBox(height: 10),
-          Text(stat.value,
-              style: TextStyle(
-                  color: stat.color, fontSize: 22, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          Text(stat.label,
-              style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.5), fontSize: 12)),
-        ],
-      ),
-    );
-  }
+  Widget _statCard(_StatItem stat) => Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFF111827),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(stat.icon, color: stat.color, size: 22),
+            const SizedBox(height: 10),
+            Text(stat.value, style: TextStyle(color: stat.color, fontSize: 22, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            Text(stat.label, style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12)),
+          ],
+        ),
+      );
 
-  Widget _buildActivityList() {
-    return Column(
-      children: _recentActivity.map((a) {
-        return Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: const Color(0xFF111827),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: _bioGreen.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(a.icon, color: _bioGreen, size: 20),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(a.title,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 2),
-                    Text(a.source,
-                        style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.4),
-                            fontSize: 11)),
-                  ],
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text('${a.score}%',
-                      style: TextStyle(
-                          color: _scoreColor(a.score),
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 2),
-                  Text(a.time,
-                      style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.3), fontSize: 10)),
-                ],
-              ),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-  }
+  Widget _buildActivityList() => Column(
+        children: _recentActivity
+            .map((a) => Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF111827),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: _bioGreen.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(a.icon, color: _bioGreen, size: 20),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(a.title,
+                                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 2),
+                            Text(a.source, style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 11)),
+                          ],
+                        ),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text('${a.score}%',
+                              style: TextStyle(color: _scoreColor(a.score), fontSize: 14, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 2),
+                          Text(a.time, style: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 10)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ))
+            .toList(),
+      );
 
   Color _scoreColor(int score) {
     if (score >= 80) return _bioGreen;
@@ -421,14 +386,8 @@ class _BiologyAnalyticsScreenState extends State<BiologyAnalyticsScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Study hours this week',
-                  style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.6), fontSize: 13)),
-              const Text('14.5h total',
-                  style: TextStyle(
-                      color: _bioGreen,
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold)),
+              Text('Study hours this week', style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 13)),
+              const Text('14.5h total', style: TextStyle(color: _bioGreen, fontSize: 13, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 16),
@@ -446,30 +405,22 @@ class _BiologyAnalyticsScreenState extends State<BiologyAnalyticsScreen>
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text('${hours[i]}h',
-                            style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.4),
-                                fontSize: 10)),
+                            style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 10)),
                         const SizedBox(height: 4),
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 500),
                           height: 80 * fraction,
                           decoration: BoxDecoration(
-                            color: isToday
-                                ? _bioGreen
-                                : _bioGreen.withValues(alpha: 0.3),
+                            color: isToday ? _bioGreen : _bioGreen.withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(6),
                           ),
                         ),
                         const SizedBox(height: 6),
                         Text(days[i],
                             style: TextStyle(
-                                color: isToday
-                                    ? _bioGreen
-                                    : Colors.white.withValues(alpha: 0.4),
+                                color: isToday ? _bioGreen : Colors.white.withValues(alpha: 0.4),
                                 fontSize: 11,
-                                fontWeight: isToday
-                                    ? FontWeight.bold
-                                    : FontWeight.normal)),
+                                fontWeight: isToday ? FontWeight.bold : FontWeight.normal)),
                       ],
                     ),
                   ),
@@ -505,51 +456,44 @@ class _BiologyAnalyticsScreenState extends State<BiologyAnalyticsScreen>
     ];
 
     return Column(
-      children: recs.map((r) {
-        return Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: const Color(0xFF111827),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: r.color.withValues(alpha: 0.2)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
+      children: recs
+          .map((r) => Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: r.color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
+                  color: const Color(0xFF111827),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: r.color.withValues(alpha: 0.2)),
                 ),
-                child: Icon(r.icon, color: r.color, size: 22),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
-                    Text(r.title,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 4),
-                    Text(r.description,
-                        style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.5),
-                            fontSize: 12,
-                            height: 1.3)),
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: r.color.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(r.icon, color: r.color, size: 22),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(r.title,
+                              style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+                          const SizedBox(height: 4),
+                          Text(r.description,
+                              style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12, height: 1.3)),
+                        ],
+                      ),
+                    ),
+                    Icon(Icons.arrow_forward_ios_rounded, color: Colors.white.withValues(alpha: 0.2), size: 16),
                   ],
                 ),
-              ),
-              Icon(Icons.arrow_forward_ios_rounded,
-                  color: Colors.white.withValues(alpha: 0.2), size: 16),
-            ],
-          ),
-        );
-      }).toList(),
+              ))
+          .toList(),
     );
   }
 }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../services/language_service.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/language_service.dart';
 
 class LanguageLevelDetail extends StatefulWidget {
   const LanguageLevelDetail({super.key});
@@ -18,11 +19,9 @@ class _LanguageLevelDetailState extends State<LanguageLevelDetail> {
   bool _loading = true;
   bool _didLoad = false;
 
-  String get _slug =>
-      GoRouterState.of(context).pathParameters['slug'] ?? 'english';
+  String get _slug => GoRouterState.of(context).pathParameters['slug'] ?? 'english';
 
-  String get _levelSlug =>
-      GoRouterState.of(context).pathParameters['levelSlug'] ?? '';
+  String get _levelSlug => GoRouterState.of(context).pathParameters['levelSlug'] ?? '';
 
   @override
   void didChangeDependencies() {
@@ -40,7 +39,7 @@ class _LanguageLevelDetailState extends State<LanguageLevelDetail> {
       if (!mounted) return;
       setState(() {
         _level = data;
-        _units = data['units'] ?? [];
+        _units = data['units'] as List<dynamic>? ?? [];
         _loading = false;
       });
     } catch (e) {
@@ -51,26 +50,24 @@ class _LanguageLevelDetailState extends State<LanguageLevelDetail> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      appBar: AppBar(
-        title: Text(_level['name'] ?? 'Level Detail'),
-        backgroundColor: context.colors.surface,
-        foregroundColor: context.colors.textPrimary,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-          onPressed: () => context.pop(),
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        appBar: AppBar(
+          title: Text(_level['name'] as String? ?? 'Level Detail'),
+          backgroundColor: context.colors.surface,
+          foregroundColor: context.colors.textPrimary,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+            onPressed: () => context.pop(),
+          ),
         ),
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-          : _units.isEmpty
-              ? _buildEmpty()
-              : _buildContent(),
-    );
-  }
+        body: _loading
+            ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+            : _units.isEmpty
+                ? _buildEmpty()
+                : _buildContent(),
+      );
 
   Widget _buildContent() {
     final name = (_level['name'] ?? '').toString();
@@ -162,9 +159,7 @@ class _LanguageLevelDetailState extends State<LanguageLevelDetail> {
         color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isOpen
-              ? AppColors.primary.withValues(alpha: 0.3)
-              : context.colors.border,
+          color: isOpen ? AppColors.primary.withValues(alpha: 0.3) : context.colors.border,
         ),
       ),
       child: Theme(
@@ -177,9 +172,7 @@ class _LanguageLevelDetailState extends State<LanguageLevelDetail> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: isOpen
-                  ? AppColors.primary.withValues(alpha: 0.12)
-                  : context.colors.surfaceElevated,
+              color: isOpen ? AppColors.primary.withValues(alpha: 0.12) : context.colors.surfaceElevated,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Center(
@@ -217,55 +210,49 @@ class _LanguageLevelDetailState extends State<LanguageLevelDetail> {
                       height: 1.5,
                     )),
               ),
-            ...List.generate(lessonCount, (li) {
-              return Container(
-                margin: const EdgeInsets.only(bottom: 6),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: context.colors.surfaceElevated,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      li == 0
-                          ? Icons.play_circle_filled
-                          : Icons.radio_button_unchecked,
-                      size: 20,
-                      color: li == 0 ? AppColors.primary : context.colors.textMuted,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text('Lesson ${li + 1}',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: context.colors.textPrimary,
-                          )),
-                    ),
-                    Icon(Icons.chevron_right_rounded,
-                        size: 18, color: context.colors.textMuted),
-                  ],
-                ),
-              );
-            }),
+            ...List.generate(
+                lessonCount,
+                (li) => Container(
+                      margin: const EdgeInsets.only(bottom: 6),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: context.colors.surfaceElevated,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            li == 0 ? Icons.play_circle_filled : Icons.radio_button_unchecked,
+                            size: 20,
+                            color: li == 0 ? AppColors.primary : context.colors.textMuted,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text('Lesson ${li + 1}',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: context.colors.textPrimary,
+                                )),
+                          ),
+                          Icon(Icons.chevron_right_rounded, size: 18, color: context.colors.textMuted),
+                        ],
+                      ),
+                    )),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildEmpty() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.school_outlined, size: 48, color: context.colors.textMuted),
-          const SizedBox(height: 12),
-          Text('No units available',
-              style: TextStyle(fontSize: 16, color: context.colors.textMuted)),
-        ],
-      ),
-    );
-  }
+  Widget _buildEmpty() => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.school_outlined, size: 48, color: context.colors.textMuted),
+            const SizedBox(height: 12),
+            Text('No units available', style: TextStyle(fontSize: 16, color: context.colors.textMuted)),
+          ],
+        ),
+      );
 }

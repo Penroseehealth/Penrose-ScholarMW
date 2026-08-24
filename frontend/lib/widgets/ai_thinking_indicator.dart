@@ -25,8 +25,7 @@ class AIThinkingIndicator extends StatefulWidget {
   State<AIThinkingIndicator> createState() => _AIThinkingIndicatorState();
 }
 
-class _AIThinkingIndicatorState extends State<AIThinkingIndicator>
-    with SingleTickerProviderStateMixin {
+class _AIThinkingIndicatorState extends State<AIThinkingIndicator> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _dot1;
   late Animation<double> _dot2;
@@ -92,45 +91,43 @@ class _AIThinkingIndicatorState extends State<AIThinkingIndicator>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.primary.withValues(alpha: 0.3),
-                  AppColors.primaryDark.withValues(alpha: 0.3),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(_getIcon(), size: 16, color: AppColors.primary),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  _getMessage(),
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: context.colors.textSecondary,
-                    fontWeight: FontWeight.w500,
-                  ),
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primary.withValues(alpha: 0.3),
+                    AppColors.primaryDark.withValues(alpha: 0.3),
+                  ],
                 ),
-                const SizedBox(height: 4),
-                AnimatedBuilder(
-                  animation: _controller,
-                  builder: (ctx, _) {
-                    return Row(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(_getIcon(), size: 16, color: AppColors.primary),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    _getMessage(),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: context.colors.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  AnimatedBuilder(
+                    animation: _controller,
+                    builder: (ctx, _) => Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _buildDot(_dot1.value),
@@ -139,25 +136,21 @@ class _AIThinkingIndicatorState extends State<AIThinkingIndicator>
                         const SizedBox(width: 4),
                         _buildDot(_dot3.value),
                       ],
-                    );
-                  },
-                ),
-              ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 
-  Widget _buildDot(double value) {
-    return Container(
-      width: 6,
-      height: 6,
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.3 + value * 0.7),
-        borderRadius: BorderRadius.circular(3),
-      ),
-    );
-  }
+  Widget _buildDot(double value) => Container(
+        width: 6,
+        height: 6,
+        decoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.3 + value * 0.7),
+          borderRadius: BorderRadius.circular(3),
+        ),
+      );
 }

@@ -108,18 +108,12 @@ def _build_mode_footer(mode: str) -> str:
 async def _get_concept_context(concept_id: int, db: AsyncSession) -> dict:
     concept_result = await db.execute(
         select(STEMConcept)
-        .options(
-            joinedload(STEMConcept.subtopic)
-            .joinedload(STEMTopic.discipline)
-            .joinedload(STEMDiscipline.subject)
-        )
+        .options(joinedload(STEMConcept.subtopic).joinedload(STEMTopic.discipline).joinedload(STEMDiscipline.subject))
         .where(STEMConcept.id == concept_id)
     )
     concept = concept_result.unique().scalar_one_or_none()
     if not concept:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found")
 
     subtopic = concept.subtopic
     topic = subtopic.topic if subtopic else None
@@ -142,9 +136,7 @@ SUBJECT_AI_TEMPLATES: dict[str, dict[str, str]] = {
 }
 
 
-def _get_subject_template(
-    subject_slug: str | None, mode: str, user_message: str
-) -> str | None:
+def _get_subject_template(subject_slug: str | None, mode: str, user_message: str) -> str | None:
     if not subject_slug or subject_slug not in SUBJECT_AI_TEMPLATES:
         return None
     templates = SUBJECT_AI_TEMPLATES[subject_slug]
@@ -190,15 +182,11 @@ def _build_system_prompt(context: dict, mode: str, user_message: str) -> str:
     if concept.difficulty_level:
         parts.append(f"Difficulty Level: {concept.difficulty_level}")
 
-    subject_prompt = _get_subject_template(
-        subject.subject_slug if subject else None, mode, user_message
-    )
+    subject_prompt = _get_subject_template(subject.subject_slug if subject else None, mode, user_message)
     if subject_prompt:
         parts.append(f"\nSubject-specific context:\n{subject_prompt}")
 
-    mode_instruction = MODE_INSTRUCTIONS.get(
-        mode, "Provide a helpful explanation of the concept."
-    )
+    mode_instruction = MODE_INSTRUCTIONS.get(mode, "Provide a helpful explanation of the concept.")
     parts.append(f"\nCurrent interaction mode: {mode}")
     parts.append(f"Instructions for this mode: {mode_instruction}")
     parts.append(_build_mode_footer(mode))
@@ -212,8 +200,7 @@ def _build_system_prompt(context: dict, mode: str, user_message: str) -> str:
     if mastery:
         pct = round(mastery.mastery_level * 100, 1)
         parts.append(
-            f"\nStudent mastery of this concept: {pct}% "
-            f"({mastery.attempts} attempts, {mastery.correct} correct)."
+            f"\nStudent mastery of this concept: {pct}% ({mastery.attempts} attempts, {mastery.correct} correct)."
         )
         if mastery.mastery_level < 0.3:
             parts.append(
@@ -227,8 +214,7 @@ def _build_system_prompt(context: dict, mode: str, user_message: str) -> str:
             )
         elif mastery.mastery_level < 0.8:
             parts.append(
-                "The student is progressing well. Challenge them with slightly harder "
-                "problems and deeper explanations."
+                "The student is progressing well. Challenge them with slightly harder problems and deeper explanations."
             )
         else:
             parts.append(
@@ -244,9 +230,7 @@ def _build_system_prompt(context: dict, mode: str, user_message: str) -> str:
     return "\n".join(parts)
 
 
-async def _call_llm(
-    system_prompt: str, message: str, history: list[dict] | None = None
-) -> str:
+async def _call_llm(system_prompt: str, message: str, history: list[dict] | None = None) -> str:
     from app.config.ai_client import AIProviderError, call_ai_text
 
     messages: list[dict[str, str]] = [{"role": "system", "content": system_prompt}]
@@ -301,6 +285,4 @@ async def tutor_chat(
 
 @router.get("/tutor/modes", response_model=list[TutorMode])
 async def get_tutor_modes():
-    return [
-        TutorMode(mode=m["mode"], description=m["description"]) for m in TUTOR_MODES
-    ]
+    return [TutorMode(mode=m["mode"], description=m["description"]) for m in TUTOR_MODES]

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 import '../../services/services.dart';
 import '../../widgets/ai_governance_widgets.dart';
 import '../../widgets/stem_text.dart';
-import '../../core/theme/theme_colors.dart';
 
 class DataAnalysisScreen extends StatefulWidget {
   const DataAnalysisScreen({super.key});
@@ -62,168 +62,158 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
     if (mounted) {
       setState(() {
         _isLoading = false;
-        if (res['success']) {
-          _result = res['data'];
+        if (res['success'] == true) {
+          _result = res['data'] as Map<String, dynamic>?;
         } else {
-          _error = res['error'] ?? 'Analysis failed';
+          _error = (res['error'] ?? 'Analysis failed') as String?;
         }
       });
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      appBar: AppBar(
-        backgroundColor: context.colors.surface,
-        title: const Row(
-          children: [
-            Icon(Icons.insights_rounded, color: AppColors.primary, size: 22),
-            SizedBox(width: 10),
-            Text(
-              'Data Analysis Workspace',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        appBar: AppBar(
+          backgroundColor: context.colors.surface,
+          title: const Row(
+            children: [
+              Icon(Icons.insights_rounded, color: AppColors.primary, size: 22),
+              SizedBox(width: 10),
+              Text(
+                'Data Analysis Workspace',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.refresh_rounded, color: context.colors.textSecondary),
+              tooltip: 'Load sample data',
+              onPressed: _loadSample,
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh_rounded, color: context.colors.textSecondary),
-            tooltip: 'Load sample data',
-            onPressed: _loadSample,
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSectionLabel('Dataset (CSV format)'),
-            const SizedBox(height: 6),
-            _buildCsvInput(),
-            const SizedBox(height: 16),
-            _buildSectionLabel('Ask a question (optional)'),
-            const SizedBox(height: 6),
-            _buildQuestionInput(),
-            const SizedBox(height: 16),
-            Semantics(
-              button: true,
-              label: 'Analyze data',
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _isLoading ? null : _analyze,
-                  icon: _isLoading
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                        )
-                      : const Icon(Icons.analytics_rounded, size: 18),
-                  label: Text(_isLoading ? 'Analyzing...' : 'Analyze Data'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSectionLabel('Dataset (CSV format)'),
+              const SizedBox(height: 6),
+              _buildCsvInput(),
+              const SizedBox(height: 16),
+              _buildSectionLabel('Ask a question (optional)'),
+              const SizedBox(height: 6),
+              _buildQuestionInput(),
+              const SizedBox(height: 16),
+              Semantics(
+                button: true,
+                label: 'Analyze data',
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _isLoading ? null : _analyze,
+                    icon: _isLoading
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Icon(Icons.analytics_rounded, size: 18),
+                    label: Text(_isLoading ? 'Analyzing...' : 'Analyze Data'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                   ),
                 ),
               ),
-            ),
-            if (_error != null) ...[
-              const SizedBox(height: 12),
-              _buildError(_error!),
+              if (_error != null) ...[
+                const SizedBox(height: 12),
+                _buildError(_error!),
+              ],
+              if (_result != null) ...[
+                const SizedBox(height: 24),
+                _buildResults(),
+              ],
             ],
-            if (_result != null) ...[
-              const SizedBox(height: 24),
-              _buildResults(),
-            ],
-          ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildSectionLabel(String text) {
-    return Text(
-      text,
-      style: TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w600,
-        color: context.colors.textSecondary,
-      ),
-    );
-  }
-
-  Widget _buildCsvInput() {
-    return Container(
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: context.colors.border),
-      ),
-      child: TextField(
-        controller: _csvCtrl,
+  Widget _buildSectionLabel(String text) => Text(
+        text,
         style: TextStyle(
-          fontFamily: 'monospace',
-          fontSize: 12,
-          color: context.colors.textPrimary,
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: context.colors.textSecondary,
         ),
-        maxLines: 10,
-        decoration: InputDecoration(
-          hintText: 'name,score,grade\nAlice,85,A\nBob,72,B',
-          hintStyle: TextStyle(
-            color: context.colors.textMuted,
+      );
+
+  Widget _buildCsvInput() => Container(
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: context.colors.border),
+        ),
+        child: TextField(
+          controller: _csvCtrl,
+          style: TextStyle(
             fontFamily: 'monospace',
             fontSize: 12,
+            color: context.colors.textPrimary,
           ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(12),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQuestionInput() {
-    return Container(
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: context.colors.border),
-      ),
-      child: TextField(
-        controller: _questionCtrl,
-        style: TextStyle(fontSize: 13, color: context.colors.textPrimary),
-        decoration: InputDecoration(
-          hintText: 'e.g. What is the average score? Which student performed best?',
-          hintStyle: TextStyle(color: context.colors.textMuted, fontSize: 13),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildError(String msg) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: context.colors.errorMuted,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.error_outline, color: context.colors.error, size: 18),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(msg, style: TextStyle(color: context.colors.error, fontSize: 13)),
+          maxLines: 10,
+          decoration: InputDecoration(
+            hintText: 'name,score,grade\nAlice,85,A\nBob,72,B',
+            hintStyle: TextStyle(
+              color: context.colors.textMuted,
+              fontFamily: 'monospace',
+              fontSize: 12,
+            ),
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.all(12),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      );
+
+  Widget _buildQuestionInput() => Container(
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: context.colors.border),
+        ),
+        child: TextField(
+          controller: _questionCtrl,
+          style: TextStyle(fontSize: 13, color: context.colors.textPrimary),
+          decoration: InputDecoration(
+            hintText: 'e.g. What is the average score? Which student performed best?',
+            hintStyle: TextStyle(color: context.colors.textMuted, fontSize: 13),
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          ),
+        ),
+      );
+
+  Widget _buildError(String msg) => Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: context.colors.errorMuted,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.error_outline, color: context.colors.error, size: 18),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(msg, style: TextStyle(color: context.colors.error, fontSize: 13)),
+            ),
+          ],
+        ),
+      );
 
   Widget _buildResults() {
     final data = _result!;
@@ -259,126 +249,118 @@ Wesley Nkhoma,Mathematics,84,B+,89''';
     );
   }
 
-  Widget _buildStatsCards(Map<String, dynamic> stats) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: stats.entries.map((e) {
-        final s = e.value as Map<String, dynamic>;
-        return Container(
-          width: (MediaQuery.of(context).size.width - 48) / 2,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: context.colors.surface,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: context.colors.border),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                e.key,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.primary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _statRow('Mean', '${s['mean']}'),
-              _statRow('Min', '${s['min']}'),
-              _statRow('Max', '${s['max']}'),
-              _statRow('Std Dev', '${s['std_dev']}'),
-              _statRow('Count', '${s['count']}'),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _statRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: context.colors.textPrimary,
+  Widget _buildStatsCards(Map<String, dynamic> stats) => Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: stats.entries.map((e) {
+          final s = e.value as Map<String, dynamic>;
+          return Container(
+            width: (MediaQuery.of(context).size.width - 48) / 2,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: context.colors.surface,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: context.colors.border),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  e.key,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _statRow('Mean', '${s['mean']}'),
+                _statRow('Min', '${s['min']}'),
+                _statRow('Max', '${s['max']}'),
+                _statRow('Std Dev', '${s['std_dev']}'),
+                _statRow('Count', '${s['count']}'),
+              ],
+            ),
+          );
+        }).toList(),
+      );
 
-  Widget _buildDataTable(List<String> headers, List<dynamic> rows) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: context.colors.border),
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          headingRowColor: WidgetStateProperty.all(context.colors.surfaceElevated),
-          dataRowColor: WidgetStateProperty.all(context.colors.surface),
-          columns: headers
-              .map((h) => DataColumn(
-                    label: Text(
-                      h,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: context.colors.textSecondary,
-                      ),
-                    ),
-                  ))
-              .toList(),
-          rows: rows.take(10).map((row) {
-            final map = row as Map<String, dynamic>;
-            return DataRow(
-              cells: headers
-                  .map((h) => DataCell(
-                        Text(
-                          '${map[h] ?? ''}',
-                          style: TextStyle(fontSize: 11, color: context.colors.textPrimary),
+  Widget _statRow(String label, String value) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: context.colors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+      );
+
+  Widget _buildDataTable(List<String> headers, List<dynamic> rows) => Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: context.colors.border),
+        ),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            headingRowColor: WidgetStateProperty.all(context.colors.surfaceElevated),
+            dataRowColor: WidgetStateProperty.all(context.colors.surface),
+            columns: headers
+                .map((h) => DataColumn(
+                      label: Text(
+                        h,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: context.colors.textSecondary,
                         ),
-                      ))
-                  .toList(),
-            );
-          }).toList(),
+                      ),
+                    ))
+                .toList(),
+            rows: rows.take(10).map((row) {
+              final map = row as Map<String, dynamic>;
+              return DataRow(
+                cells: headers
+                    .map((h) => DataCell(
+                          Text(
+                            '${map[h] ?? ''}',
+                            style: TextStyle(fontSize: 11, color: context.colors.textPrimary),
+                          ),
+                        ))
+                    .toList(),
+              );
+            }).toList(),
+          ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildAnalysisCard(String analysis) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: context.colors.border),
-      ),
-      child: StemText(
-        analysis,
-        style: TextStyle(
-          fontSize: 13,
-          color: context.colors.textPrimary,
-          height: 1.6,
+  Widget _buildAnalysisCard(String analysis) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: context.colors.border),
         ),
-      ),
-    );
-  }
+        child: StemText(
+          analysis,
+          style: TextStyle(
+            fontSize: 13,
+            color: context.colors.textPrimary,
+            height: 1.6,
+          ),
+        ),
+      );
 
   @override
   void dispose() {

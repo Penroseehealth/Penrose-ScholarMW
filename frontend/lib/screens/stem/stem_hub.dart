@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../services/stem_service.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../widgets/shimmer_loading.dart';
+import '../../core/theme/theme_colors.dart';
+import '../../modules/subject_module.dart';
+import '../../services/stem_service.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
-import '../../modules/subject_module.dart';
-import '../../core/theme/theme_colors.dart';
+import '../../widgets/shimmer_loading.dart';
 
 class StemHub extends StatefulWidget {
   const StemHub({super.key});
@@ -22,9 +23,24 @@ class _StemHubState extends State<StemHub> {
   String? _error;
 
   static const _languageHubs = [
-    {'name': 'English', 'slug': 'english', 'colorHex': 0xFF2563EB, 'desc': 'Complete English learning from foundation to academic proficiency'},
-    {'name': 'Chinese', 'slug': 'chinese', 'colorHex': 0xFFDC2626, 'desc': 'Progressive Chinese learning aligned with HSK standards'},
-    {'name': 'Arabic', 'slug': 'arabic', 'colorHex': 0xFF059669, 'desc': 'Structured Arabic from alphabet mastery to academic proficiency'},
+    {
+      'name': 'English',
+      'slug': 'english',
+      'colorHex': 0xFF2563EB,
+      'desc': 'Complete English learning from foundation to academic proficiency'
+    },
+    {
+      'name': 'Chinese',
+      'slug': 'chinese',
+      'colorHex': 0xFFDC2626,
+      'desc': 'Progressive Chinese learning aligned with HSK standards'
+    },
+    {
+      'name': 'Arabic',
+      'slug': 'arabic',
+      'colorHex': 0xFF059669,
+      'desc': 'Structured Arabic from alphabet mastery to academic proficiency'
+    },
   ];
 
   static const _languageIcons = <String, IconData>{
@@ -40,7 +56,10 @@ class _StemHubState extends State<StemHub> {
   }
 
   Future<void> _loadSubjects() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final subjects = await _stemService.getSubjects();
       if (mounted) {
@@ -50,7 +69,11 @@ class _StemHubState extends State<StemHub> {
         });
       }
     } catch (e) {
-      if (mounted) setState(() { _error = e.toString(); _loading = false; });
+      if (mounted)
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
     }
   }
 
@@ -69,122 +92,121 @@ class _StemHubState extends State<StemHub> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: RefreshIndicator(
-        onRefresh: _loadSubjects,
-        color: AppColors.primary,
-        child: CustomScrollView(
-          slivers: [
-          SliverAppBar(
-            expandedHeight: 90,
-            pinned: true,
-            backgroundColor: AppColors.primaryDark,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'STEM Intelligence',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textPrimary,
-                ),
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.primaryDark, AppColors.primaryMuted],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: _buildQuickStats(),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-              child: Row(
-                children: [
-                  const Icon(Icons.translate_rounded, color: AppColors.primary, size: 22),
-                  const SizedBox(width: 10),
-                  Text(
-                    'Language Hubs',
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: RefreshIndicator(
+          onRefresh: _loadSubjects,
+          color: AppColors.primary,
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 90,
+                pinned: true,
+                backgroundColor: AppColors.primaryDark,
+                flexibleSpace: FlexibleSpaceBar(
+                  title: Text(
+                    'STEM Intelligence',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: context.colors.textPrimary,
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 1.8,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => _buildLanguageCard(_languageHubs[index]),
-                childCount: _languageHubs.length,
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
-              child: Text(
-                'STEM Subjects',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textPrimary,
+                  background: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColors.primaryDark, AppColors.primaryMuted],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
+              SliverToBoxAdapter(
+                child: _buildQuickStats(),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.translate_rounded, color: AppColors.primary, size: 22),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Language Hubs',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: context.colors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                    childAspectRatio: 1.8,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => _buildLanguageCard(_languageHubs[index]),
+                    childCount: _languageHubs.length,
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+                  child: Text(
+                    'STEM Subjects',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary,
+                    ),
+                  ),
+                ),
+              ),
+              if (_error != null)
+                SliverToBoxAdapter(
+                    child: ErrorState(message: 'Failed to load subjects', details: _error, onRetry: _loadSubjects))
+              else if (_loading)
+                SliverToBoxAdapter(child: ShimmerLoading.grid())
+              else if (_subjects.isEmpty)
+                const SliverToBoxAdapter(
+                  child: EmptyState(
+                    icon: Icons.school_outlined,
+                    title: 'No subjects available',
+                    subtitle: 'STEM subjects will appear here',
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  sliver: SliverGrid(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                      childAspectRatio: 1.8,
+                    ),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => _buildSubjectCard(_subjects[index]),
+                      childCount: _subjects.length,
+                    ),
+                  ),
+                ),
+              const SliverToBoxAdapter(child: SizedBox(height: 40)),
+            ],
           ),
-          if (_error != null)
-            SliverToBoxAdapter(child: ErrorState(message: 'Failed to load subjects', details: _error, onRetry: _loadSubjects))
-          else if (_loading)
-            SliverToBoxAdapter(child: ShimmerLoading.grid(count: 6))
-          else if (_subjects.isEmpty)
-            const SliverToBoxAdapter(
-              child: EmptyState(
-                icon: Icons.school_outlined,
-                title: 'No subjects available',
-                subtitle: 'STEM subjects will appear here',
-              ),
-            )
-          else
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                  childAspectRatio: 1.8,
-                ),
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) => _buildSubjectCard(_subjects[index]),
-                  childCount: _subjects.length,
-                ),
-              ),
-            ),
-          const SliverToBoxAdapter(child: SizedBox(height: 40)),
-          ],
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildQuickStats() {
     final enabledCount = SubjectModule.values.length;
@@ -202,39 +224,37 @@ class _StemHubState extends State<StemHub> {
     );
   }
 
-  Widget _buildStatChip(String label, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: color,
+  Widget _buildStatChip(String label, Color color) => Expanded(
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: color.withValues(alpha: 0.2)),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
           ),
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildSubjectCard(dynamic subject) {
-    final slug = subject['slug'] ?? subject['subject_slug'] ?? '';
+    final slug = (subject['slug'] ?? subject['subject_slug'] ?? '') as String;
     final module = SubjectModule.fromSlug(slug);
     final accentColor = module?.color ?? _getAccentColor(slug);
     final iconData = module?.icon ?? _getIcon(slug);
 
     return GestureDetector(
       onTap: () {
-        final title = subject['name'] ?? subject['title'] ?? module?.title ?? 'Subject';
+        final title = (subject['name'] ?? subject['title'] ?? module?.title ?? 'Subject') as String;
         context.push('/stem-subject/$slug?title=${Uri.encodeComponent(title)}');
       },
       child: Container(
@@ -271,7 +291,7 @@ class _StemHubState extends State<StemHub> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    subject['title'] ?? subject['name'] ?? '',
+                    (subject['title'] ?? subject['name'] ?? '') as String,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -282,7 +302,7 @@ class _StemHubState extends State<StemHub> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    subject['description'] ?? '',
+                    (subject['description'] ?? '') as String,
                     style: TextStyle(
                       fontSize: 12,
                       color: context.colors.textMuted,

@@ -124,9 +124,7 @@ async def list_questions(
         raise HTTPException(status_code=404, detail="Examination not found")
 
     result = await db.execute(
-        select(ExamQuestion)
-        .where(ExamQuestion.examination_id == exam_id)
-        .order_by(ExamQuestion.order)
+        select(ExamQuestion).where(ExamQuestion.examination_id == exam_id).order_by(ExamQuestion.order)
     )
     questions = result.scalars().all()
     return [ExamQuestionResponse.model_validate(q) for q in questions]
@@ -185,9 +183,7 @@ async def list_exam_submissions(
     if not exam:
         raise HTTPException(status_code=404, detail="Examination not found")
 
-    result = await db.execute(
-        select(ExamSubmission).where(ExamSubmission.examination_id == exam_id)
-    )
+    result = await db.execute(select(ExamSubmission).where(ExamSubmission.examination_id == exam_id))
     submissions = result.scalars().all()
     return [ExamSubmissionResponse.model_validate(s) for s in submissions]
 
@@ -201,9 +197,7 @@ async def submit_exam(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    result = await db.execute(
-        select(Examination).where(Examination.id == data.examination_id)
-    )
+    result = await db.execute(select(Examination).where(Examination.id == data.examination_id))
     exam = result.scalar_one_or_none()
     if not exam:
         raise HTTPException(status_code=404, detail="Examination not found")
@@ -227,9 +221,7 @@ async def list_my_exam_submissions(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    result = await db.execute(
-        select(ExamSubmission).where(ExamSubmission.student_id == current_user.id)
-    )
+    result = await db.execute(select(ExamSubmission).where(ExamSubmission.student_id == current_user.id))
     submissions = result.scalars().all()
     return [ExamSubmissionResponse.model_validate(s) for s in submissions]
 
@@ -244,9 +236,7 @@ async def mark_submission(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_lecturer),
 ):
-    result = await db.execute(
-        select(ExamSubmission).where(ExamSubmission.id == submission_id)
-    )
+    result = await db.execute(select(ExamSubmission).where(ExamSubmission.id == submission_id))
     submission = result.scalar_one_or_none()
     if not submission:
         raise HTTPException(status_code=404, detail="Submission not found")
@@ -326,9 +316,7 @@ async def generate_assessment_questions(
         )
         content = completion.choices[0].message.content
         parsed = json.loads(content)
-        raw_questions = (
-            parsed if isinstance(parsed, list) else parsed.get("questions", [])
-        )
+        raw_questions = parsed if isinstance(parsed, list) else parsed.get("questions", [])
         for q in raw_questions:
             q_type = q.get("question_type", "multiple_choice")
             question = AssessmentQuestion(
@@ -389,11 +377,7 @@ async def quality_review_assessment(
     if not assessment:
         raise HTTPException(status_code=404, detail="Assessment not found")
 
-    result = await db.execute(
-        select(AssessmentQuestion).where(
-            AssessmentQuestion.assessment_id == assessment_id
-        )
-    )
+    result = await db.execute(select(AssessmentQuestion).where(AssessmentQuestion.assessment_id == assessment_id))
     questions = result.scalars().all()
 
     if not questions:
@@ -405,9 +389,7 @@ async def quality_review_assessment(
 
     type_distribution = {}
     for q in questions:
-        type_distribution[q.question_type] = (
-            type_distribution.get(q.question_type, 0) + 1
-        )
+        type_distribution[q.question_type] = type_distribution.get(q.question_type, 0) + 1
 
     total_marks = sum(q.marks for q in questions)
     avg_marks = total_marks / len(questions) if questions else 0
@@ -417,10 +399,7 @@ async def quality_review_assessment(
     try:
         from app.config.ai_client import AIProviderError, call_ai_chat
 
-        questions_summary = "\n".join(
-            f"- [{q.question_type}] {q.question_text} ({q.marks} marks)"
-            for q in questions
-        )
+        questions_summary = "\n".join(f"- [{q.question_type}] {q.question_text} ({q.marks} marks)" for q in questions)
         prompt = (
             f"Review this assessment for quality. Title: {assessment.title}\n"
             f"Questions:\n{questions_summary}\n\n"
@@ -452,8 +431,7 @@ async def quality_review_assessment(
         "question_type_distribution": type_distribution,
         "difficulty_coverage": {
             "easy": type_distribution.get("multiple_choice", 0),
-            "medium": type_distribution.get("short_answer", 0)
-            + type_distribution.get("true_false", 0),
+            "medium": type_distribution.get("short_answer", 0) + type_distribution.get("true_false", 0),
             "hard": type_distribution.get("essay", 0),
         },
     }

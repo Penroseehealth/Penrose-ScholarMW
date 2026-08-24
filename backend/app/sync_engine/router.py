@@ -111,9 +111,7 @@ async def pull_changes(
             "action": r.action,
             "payload": json.loads(r.payload) if r.payload else None,
             "status": r.status,
-            "local_timestamp": r.local_timestamp.isoformat()
-            if r.local_timestamp
-            else None,
+            "local_timestamp": r.local_timestamp.isoformat() if r.local_timestamp else None,
             "synced_at": r.synced_at.isoformat() if r.synced_at else None,
         }
         for r in records
@@ -134,13 +132,9 @@ async def resolve_conflict(
     )
     record = result.scalar_one_or_none()
     if not record:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Sync record not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Sync record not found")
     if record.status != "conflict":
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Record is not a conflict"
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Record is not a conflict")
 
     record.resolution = body.resolution
     record.status = "synced"

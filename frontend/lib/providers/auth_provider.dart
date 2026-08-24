@@ -13,8 +13,8 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _user != null;
   String? get error => _error;
-  String get userRole => _user?['role'] ?? 'student';
-  String get userName => _user?['full_name'] ?? '';
+  String get userRole => (_user?['role'] ?? 'student') as String;
+  String get userName => (_user?['full_name'] ?? '') as String;
 
   Future<void> init() async {
     _isLoading = true;
@@ -29,7 +29,7 @@ class AuthProvider extends ChangeNotifier {
       }
       final result = await _authService.login('student@scholar.mw', 'student123');
       if (result['success'] == true) {
-        _user = result['user'];
+        _user = result['user'] as Map<String, dynamic>?;
       }
     } catch (_) {
       // Auto-login failed — stay unauthenticated
@@ -46,12 +46,12 @@ class AuthProvider extends ChangeNotifier {
     final result = await _authService.login(email, password);
     _isLoading = false;
 
-    if (result['success']) {
-      _user = result['user'];
+    if (result['success'] == true) {
+      _user = result['user'] as Map<String, dynamic>?;
       notifyListeners();
       return true;
     } else {
-      _error = result['error'];
+      _error = result['error'] as String?;
       notifyListeners();
       return false;
     }
@@ -83,12 +83,12 @@ class AuthProvider extends ChangeNotifier {
     );
     _isLoading = false;
 
-    if (result['success']) {
-      _user = result['user'];
+    if (result['success'] == true) {
+      _user = result['user'] as Map<String, dynamic>?;
       notifyListeners();
       return true;
     } else {
-      _error = result['error'];
+      _error = result['error'] as String?;
       notifyListeners();
       return false;
     }

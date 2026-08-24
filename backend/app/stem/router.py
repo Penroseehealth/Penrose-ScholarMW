@@ -188,9 +188,7 @@ class StatsResponse(BaseModel):
 router = APIRouter(prefix="/stem", tags=["STEM Intelligence"])
 
 
-def _subject_to_response(
-    subject: STEMSubject, discipline_count: int = 0
-) -> SubjectResponse:
+def _subject_to_response(subject: STEMSubject, discipline_count: int = 0) -> SubjectResponse:
     return SubjectResponse(
         id=subject.id,
         title=subject.title,
@@ -202,9 +200,7 @@ def _subject_to_response(
     )
 
 
-def _discipline_to_response(
-    discipline: STEMDiscipline, topic_count: int = 0
-) -> DisciplineResponse:
+def _discipline_to_response(discipline: STEMDiscipline, topic_count: int = 0) -> DisciplineResponse:
     return DisciplineResponse(
         id=discipline.id,
         title=discipline.title,
@@ -227,9 +223,7 @@ def _topic_to_response(topic: STEMTopic, subtopic_count: int = 0) -> TopicRespon
     )
 
 
-def _subtopic_to_response(
-    subtopic: STEMSubtopic, concept_count: int = 0
-) -> SubtopicResponse:
+def _subtopic_to_response(subtopic: STEMSubtopic, concept_count: int = 0) -> SubtopicResponse:
     return SubtopicResponse(
         id=subtopic.id,
         title=subtopic.title,
@@ -314,9 +308,7 @@ async def list_subjects(db: AsyncSession = Depends(get_db)):
     subjects = result.scalars().all()
     responses = []
     for subject in subjects:
-        count_result = await db.execute(
-            select(func.count()).where(STEMDiscipline.subject_id == subject.id)
-        )
+        count_result = await db.execute(select(func.count()).where(STEMDiscipline.subject_id == subject.id))
         discipline_count = count_result.scalar() or 0
         responses.append(_subject_to_response(subject, discipline_count))
     return responses
@@ -353,17 +345,11 @@ async def get_subject(slug: str, db: AsyncSession = Depends(get_db)):
     from app.stem.slug_utils import resolve_slug
 
     slug = resolve_slug(slug)
-    result = await db.execute(
-        select(STEMSubject).where(STEMSubject.subject_slug == slug)
-    )
+    result = await db.execute(select(STEMSubject).where(STEMSubject.subject_slug == slug))
     subject = result.scalar_one_or_none()
     if not subject:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found"
-        )
-    count_result = await db.execute(
-        select(func.count()).where(STEMDiscipline.subject_id == subject.id)
-    )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found")
+    count_result = await db.execute(select(func.count()).where(STEMDiscipline.subject_id == subject.id))
     discipline_count = count_result.scalar() or 0
     return _subject_to_response(subject, discipline_count)
 
@@ -373,25 +359,17 @@ async def list_disciplines_for_subject(slug: str, db: AsyncSession = Depends(get
     from app.stem.slug_utils import resolve_slug
 
     slug = resolve_slug(slug)
-    subject_result = await db.execute(
-        select(STEMSubject).where(STEMSubject.subject_slug == slug)
-    )
+    subject_result = await db.execute(select(STEMSubject).where(STEMSubject.subject_slug == slug))
     subject = subject_result.scalar_one_or_none()
     if not subject:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found")
     result = await db.execute(
-        select(STEMDiscipline)
-        .where(STEMDiscipline.subject_id == subject.id)
-        .order_by(STEMDiscipline.order_index)
+        select(STEMDiscipline).where(STEMDiscipline.subject_id == subject.id).order_by(STEMDiscipline.order_index)
     )
     disciplines = result.scalars().all()
     responses = []
     for disc in disciplines:
-        count_result = await db.execute(
-            select(func.count()).where(STEMTopic.discipline_id == disc.id)
-        )
+        count_result = await db.execute(select(func.count()).where(STEMTopic.discipline_id == disc.id))
         topic_count = count_result.scalar() or 0
         responses.append(_discipline_to_response(disc, topic_count))
     return responses
@@ -402,29 +380,19 @@ async def get_discipline(id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(STEMDiscipline).where(STEMDiscipline.id == id))
     discipline = result.scalar_one_or_none()
     if not discipline:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Discipline not found"
-        )
-    count_result = await db.execute(
-        select(func.count()).where(STEMTopic.discipline_id == discipline.id)
-    )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Discipline not found")
+    count_result = await db.execute(select(func.count()).where(STEMTopic.discipline_id == discipline.id))
     topic_count = count_result.scalar() or 0
     return _discipline_to_response(discipline, topic_count)
 
 
 @router.get("/disciplines/{id}/topics", response_model=list[TopicResponse])
 async def list_topics_for_discipline(id: int, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(
-        select(STEMTopic)
-        .where(STEMTopic.discipline_id == id)
-        .order_by(STEMTopic.order_index)
-    )
+    result = await db.execute(select(STEMTopic).where(STEMTopic.discipline_id == id).order_by(STEMTopic.order_index))
     topics = result.scalars().all()
     responses = []
     for topic in topics:
-        count_result = await db.execute(
-            select(func.count()).where(STEMSubtopic.topic_id == topic.id)
-        )
+        count_result = await db.execute(select(func.count()).where(STEMSubtopic.topic_id == topic.id))
         subtopic_count = count_result.scalar() or 0
         responses.append(_topic_to_response(topic, subtopic_count))
     return responses
@@ -435,12 +403,8 @@ async def get_topic(id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(STEMTopic).where(STEMTopic.id == id))
     topic = result.scalar_one_or_none()
     if not topic:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Topic not found"
-        )
-    count_result = await db.execute(
-        select(func.count()).where(STEMSubtopic.topic_id == topic.id)
-    )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Topic not found")
+    count_result = await db.execute(select(func.count()).where(STEMSubtopic.topic_id == topic.id))
     subtopic_count = count_result.scalar() or 0
     return _topic_to_response(topic, subtopic_count)
 
@@ -448,16 +412,12 @@ async def get_topic(id: int, db: AsyncSession = Depends(get_db)):
 @router.get("/topics/{id}/subtopics", response_model=list[SubtopicResponse])
 async def list_subtopics_for_topic(id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(STEMSubtopic)
-        .where(STEMSubtopic.topic_id == id)
-        .order_by(STEMSubtopic.order_index)
+        select(STEMSubtopic).where(STEMSubtopic.topic_id == id).order_by(STEMSubtopic.order_index)
     )
     subtopics = result.scalars().all()
     responses = []
     for sub in subtopics:
-        count_result = await db.execute(
-            select(func.count()).where(STEMConcept.subtopic_id == sub.id)
-        )
+        count_result = await db.execute(select(func.count()).where(STEMConcept.subtopic_id == sub.id))
         concept_count = count_result.scalar() or 0
         responses.append(_subtopic_to_response(sub, concept_count))
     return responses
@@ -468,12 +428,8 @@ async def get_subtopic(id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(STEMSubtopic).where(STEMSubtopic.id == id))
     subtopic = result.scalar_one_or_none()
     if not subtopic:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Subtopic not found"
-        )
-    count_result = await db.execute(
-        select(func.count()).where(STEMConcept.subtopic_id == subtopic.id)
-    )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Subtopic not found")
+    count_result = await db.execute(select(func.count()).where(STEMConcept.subtopic_id == subtopic.id))
     concept_count = count_result.scalar() or 0
     return _subtopic_to_response(subtopic, concept_count)
 
@@ -481,9 +437,7 @@ async def get_subtopic(id: int, db: AsyncSession = Depends(get_db)):
 @router.get("/subtopics/{id}/concepts", response_model=list[ConceptResponse])
 async def list_concepts_for_subtopic(id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(STEMConcept)
-        .where(STEMConcept.subtopic_id == id)
-        .order_by(STEMConcept.order_index)
+        select(STEMConcept).where(STEMConcept.subtopic_id == id).order_by(STEMConcept.order_index)
     )
     return [_concept_to_response(c) for c in result.scalars().all()]
 
@@ -493,9 +447,7 @@ async def get_concept(id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(STEMConcept).where(STEMConcept.id == id))
     concept = result.scalar_one_or_none()
     if not concept:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found")
     return _concept_to_response(concept)
 
 
@@ -521,9 +473,7 @@ async def list_objectives_for_concept(id: int, db: AsyncSession = Depends(get_db
 @router.get("/concepts/{id}/materials", response_model=list[LearningMaterialResponse])
 async def list_materials_for_concept(id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(STLearningMaterial)
-        .where(STLearningMaterial.concept_id == id)
-        .order_by(STLearningMaterial.order_index)
+        select(STLearningMaterial).where(STLearningMaterial.concept_id == id).order_by(STLearningMaterial.order_index)
     )
     return [
         LearningMaterialResponse(
@@ -540,11 +490,7 @@ async def list_materials_for_concept(id: int, db: AsyncSession = Depends(get_db)
 
 @router.get("/concepts/{id}/practices", response_model=list[PracticeResponse])
 async def list_practices_for_concept(id: int, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(
-        select(STPractice)
-        .where(STPractice.concept_id == id)
-        .order_by(STPractice.order_index)
-    )
+    result = await db.execute(select(STPractice).where(STPractice.concept_id == id).order_by(STPractice.order_index))
     return [
         PracticeResponse(
             id=p.id,
@@ -612,9 +558,7 @@ async def get_subject_tree(subject_slug: str, db: AsyncSession = Depends(get_db)
     )
     subject = result.unique().scalar_one_or_none()
     if not subject:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found")
     return TreeSubjectResponse(
         id=subject.id,
         title=subject.title,
@@ -653,14 +597,10 @@ async def search_stem(
     items: list[SearchItem] = []
 
     concept_result = await db.execute(
-        select(STEMConcept).where(
-            STEMConcept.title.ilike(f"%{q}%") | STEMConcept.description.ilike(f"%{q}%")
-        )
+        select(STEMConcept).where(STEMConcept.title.ilike(f"%{q}%") | STEMConcept.description.ilike(f"%{q}%"))
     )
     for concept in concept_result.scalars().all():
-        subtopic_result = await db.execute(
-            select(STEMSubtopic).where(STEMSubtopic.id == concept.subtopic_id)
-        )
+        subtopic_result = await db.execute(select(STEMSubtopic).where(STEMSubtopic.id == concept.subtopic_id))
         subtopic = subtopic_result.scalar_one_or_none()
         items.append(
             SearchItem(
@@ -674,14 +614,11 @@ async def search_stem(
 
     material_result = await db.execute(
         select(STLearningMaterial).where(
-            STLearningMaterial.title.ilike(f"%{q}%")
-            | STLearningMaterial.content.ilike(f"%{q}%")
+            STLearningMaterial.title.ilike(f"%{q}%") | STLearningMaterial.content.ilike(f"%{q}%")
         )
     )
     for material in material_result.scalars().all():
-        concept_result_inner = await db.execute(
-            select(STEMConcept).where(STEMConcept.id == material.concept_id)
-        )
+        concept_result_inner = await db.execute(select(STEMConcept).where(STEMConcept.id == material.concept_id))
         parent_concept = concept_result_inner.scalar_one_or_none()
         items.append(
             SearchItem(
@@ -694,23 +631,17 @@ async def search_stem(
         )
 
     practice_result = await db.execute(
-        select(STPractice).where(
-            STPractice.title.ilike(f"%{q}%") | STPractice.question_text.ilike(f"%{q}%")
-        )
+        select(STPractice).where(STPractice.title.ilike(f"%{q}%") | STPractice.question_text.ilike(f"%{q}%"))
     )
     for practice in practice_result.scalars().all():
-        concept_result_inner = await db.execute(
-            select(STEMConcept).where(STEMConcept.id == practice.concept_id)
-        )
+        concept_result_inner = await db.execute(select(STEMConcept).where(STEMConcept.id == practice.concept_id))
         parent_concept = concept_result_inner.scalar_one_or_none()
         items.append(
             SearchItem(
                 type="practice",
                 id=practice.id,
                 title=practice.title,
-                description=practice.question_text[:200]
-                if practice.question_text
-                else None,
+                description=practice.question_text[:200] if practice.question_text else None,
                 parent_title=parent_concept.title if parent_concept else None,
             )
         )
@@ -731,21 +662,15 @@ async def get_my_mastery(
     return [_mastery_to_response(r) for r in result.scalars().all()]
 
 
-@router.post(
-    "/mastery", response_model=MasteryResponse, status_code=status.HTTP_201_CREATED
-)
+@router.post("/mastery", response_model=MasteryResponse, status_code=status.HTTP_201_CREATED)
 async def record_mastery(
     body: MasteryCreateRequest,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    concept_result = await db.execute(
-        select(STEMConcept).where(STEMConcept.id == body.concept_id)
-    )
+    concept_result = await db.execute(select(STEMConcept).where(STEMConcept.id == body.concept_id))
     if not concept_result.scalar_one_or_none():
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found")
 
     existing_result = await db.execute(
         select(MasteryRecord).where(
@@ -760,9 +685,7 @@ async def record_mastery(
         record.attempts += 1
         if body.correct:
             record.correct += 1
-        record.mastery_level = (
-            record.correct / record.attempts if record.attempts > 0 else 0.0
-        )
+        record.mastery_level = record.correct / record.attempts if record.attempts > 0 else 0.0
         record.last_practiced = now
         record.next_review = _compute_next_review(record.mastery_level)
     else:
@@ -785,15 +708,11 @@ async def record_mastery(
 @router.get("/assessments/{id}")
 async def get_assessment(id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(STEMAssessment)
-        .options(joinedload(STEMAssessment.questions))
-        .where(STEMAssessment.id == id)
+        select(STEMAssessment).options(joinedload(STEMAssessment.questions)).where(STEMAssessment.id == id)
     )
     assessment = result.unique().scalar_one_or_none()
     if not assessment:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Assessment not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assessment not found")
     return {
         "assessment": AssessmentResponse(
             id=assessment.id,
@@ -825,9 +744,7 @@ async def get_stem_stats(
     total_result = await db.execute(select(func.count()).select_from(STEMConcept))
     total_concepts = total_result.scalar() or 0
 
-    mastery_result = await db.execute(
-        select(MasteryRecord).where(MasteryRecord.user_id == user.id)
-    )
+    mastery_result = await db.execute(select(MasteryRecord).where(MasteryRecord.user_id == user.id))
     records = mastery_result.scalars().all()
 
     mastered = sum(1 for r in records if r.mastery_level >= 0.8)
@@ -836,9 +753,7 @@ async def get_stem_stats(
 
     total_attempts = sum(r.attempts for r in records)
     total_correct = sum(r.correct for r in records)
-    average_mastery = (
-        sum(r.mastery_level for r in records) / len(records) if records else 0.0
-    )
+    average_mastery = sum(r.mastery_level for r in records) / len(records) if records else 0.0
 
     now = datetime.now(timezone.utc)
     concepts_due = sum(1 for r in records if r.next_review and r.next_review <= now)

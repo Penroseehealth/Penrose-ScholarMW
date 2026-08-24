@@ -25,13 +25,13 @@ class CacheService {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString('cache_$key');
     if (raw == null) return null;
-    final entry = jsonDecode(raw);
-    final timestamp = DateTime.fromMillisecondsSinceEpoch(entry['timestamp']);
-    if (DateTime.now().difference(timestamp).inMilliseconds > entry['ttl']) {
+    final entry = jsonDecode(raw) as Map<String, dynamic>;
+    final timestamp = DateTime.fromMillisecondsSinceEpoch(entry['timestamp'] as int);
+    if (DateTime.now().difference(timestamp).inMilliseconds > (entry['ttl'] as num)) {
       await prefs.remove('cache_$key');
       return null;
     }
-    return List<Map<String, dynamic>>.from(entry['data']);
+    return List<Map<String, dynamic>>.from(entry['data'] as Iterable<dynamic>);
   }
 
   Future<void> clearAll() async {

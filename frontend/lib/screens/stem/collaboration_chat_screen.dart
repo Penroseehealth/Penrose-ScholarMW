@@ -9,8 +9,8 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../../core/constants/api_constants.dart';
 import '../../core/theme/app_colors.dart';
-import '../../providers/auth_provider.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../providers/auth_provider.dart';
 
 class CollaborationChatScreen extends StatefulWidget {
   final int groupId;
@@ -59,25 +59,41 @@ class _CollaborationChatScreenState extends State<CollaborationChatScreen> {
   }
 
   Future<void> _connect() async {
-    setState(() { _connecting = true; _error = null; });
+    setState(() {
+      _connecting = true;
+      _error = null;
+    });
     final token = await _secureStorage.read(key: 'access_token');
     if (token == null) {
-      setState(() { _connecting = false; _error = 'Not authenticated. Please log in again.'; });
+      setState(() {
+        _connecting = false;
+        _error = 'Not authenticated. Please log in again.';
+      });
       return;
     }
     try {
       _channel = WebSocketChannel.connect(Uri.parse(_buildWsUrl(token)));
       _channel!.stream.listen(_onMessage, onDone: _onDisconnected, onError: (_) => _onDisconnected());
-      setState(() { _connecting = false; _connected = true; _reconnectAttempts = 0; });
+      setState(() {
+        _connecting = false;
+        _connected = true;
+        _reconnectAttempts = 0;
+      });
     } catch (_) {
-      setState(() { _connecting = false; _error = 'Connection failed. Tap to retry.'; });
+      setState(() {
+        _connecting = false;
+        _error = 'Connection failed. Tap to retry.';
+      });
       _scheduleReconnect();
     }
   }
 
   void _onDisconnected() {
     if (!mounted) return;
-    setState(() { _connected = false; _connecting = false; });
+    setState(() {
+      _connected = false;
+      _connecting = false;
+    });
     _scheduleReconnect();
   }
 
@@ -88,7 +104,9 @@ class _CollaborationChatScreenState extends State<CollaborationChatScreen> {
     }
     final delay = Duration(seconds: (1 << _reconnectAttempts).clamp(1, 16));
     _reconnectAttempts++;
-    _reconnectTimer = Timer(delay, () { if (mounted && !_connected) _connect(); });
+    _reconnectTimer = Timer(delay, () {
+      if (mounted && !_connected) _connect();
+    });
   }
 
   void _onMessage(dynamic raw) {
@@ -117,7 +135,10 @@ class _CollaborationChatScreenState extends State<CollaborationChatScreen> {
           _scrollToBottom();
         case 'typing':
           final isT = data['is_typing'] as bool? ?? true;
-          setState(() { _isTyping = isT; _typingUser = isT ? data['user_name'] as String? : null; });
+          setState(() {
+            _isTyping = isT;
+            _typingUser = isT ? data['user_name'] as String? : null;
+          });
         case 'presence':
           final uid = data['user_id'] as int?;
           if (uid != null) {
@@ -187,83 +208,113 @@ class _CollaborationChatScreenState extends State<CollaborationChatScreen> {
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: context.colors.surface,
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back_rounded, color: context.colors.textSecondary),
-        onPressed: () => context.pop(),
-      ),
-      title: Row(children: [
-        Container(
-          width: 36, height: 36,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryDark]),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Center(child: Text(
-            widget.groupName.isNotEmpty ? widget.groupName[0].toUpperCase() : '#',
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
-          )),
+  PreferredSizeWidget _buildAppBar() => AppBar(
+        backgroundColor: context.colors.surface,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_rounded, color: context.colors.textSecondary),
+          onPressed: () => context.pop(),
         ),
-        const SizedBox(width: 12),
-        Expanded(child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(widget.groupName,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
-                maxLines: 1, overflow: TextOverflow.ellipsis),
-            Text(
-              _connected ? '${_onlineUserIds.length} online' : _connecting ? 'Connecting...' : 'Disconnected',
-              style: TextStyle(fontSize: 12, color: _connected ? context.colors.success : _connecting ? context.colors.warning : context.colors.error),
+        title: Row(children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryDark]),
+              borderRadius: BorderRadius.circular(10),
             ),
-          ],
-        )),
-      ]),
-      actions: [
-        if (_onlineUserIds.isNotEmpty)
-          Padding(padding: const EdgeInsets.only(right: 16), child: Row(
-            mainAxisSize: MainAxisSize.min,
+            child: Center(
+                child: Text(
+              widget.groupName.isNotEmpty ? widget.groupName[0].toUpperCase() : '#',
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
+            )),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+              child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(width: 8, height: 8, decoration: BoxDecoration(color: context.colors.success, shape: BoxShape.circle)),
-              const SizedBox(width: 6),
-              Text('${_onlineUserIds.length}',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
+              Text(widget.groupName,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis),
+              Text(
+                _connected
+                    ? '${_onlineUserIds.length} online'
+                    : _connecting
+                        ? 'Connecting...'
+                        : 'Disconnected',
+                style: TextStyle(
+                    fontSize: 12,
+                    color: _connected
+                        ? context.colors.success
+                        : _connecting
+                            ? context.colors.warning
+                            : context.colors.error),
+              ),
             ],
           )),
-      ],
-    );
-  }
+        ]),
+        actions: [
+          if (_onlineUserIds.isNotEmpty)
+            Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(color: context.colors.success, shape: BoxShape.circle)),
+                    const SizedBox(width: 6),
+                    Text('${_onlineUserIds.length}',
+                        style:
+                            TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
+                  ],
+                )),
+        ],
+      );
 
   Widget _buildBody(int? currentUserId) {
     if (_error != null && !_connected && !_connecting) {
-      return GestureDetector(onTap: () { _reconnectAttempts = 0; _connect(); }, child: Center(
-        child: Padding(padding: const EdgeInsets.all(32), child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.wifi_off_rounded, size: 48, color: context.colors.error.withValues(alpha: 0.7)),
-          const SizedBox(height: 16),
-          Text(_error!, textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(10)),
-            child: const Text('Retry', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white)),
-          ),
-        ])),
-      ));
+      return GestureDetector(
+          onTap: () {
+            _reconnectAttempts = 0;
+            _connect();
+          },
+          child: Center(
+            child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(Icons.wifi_off_rounded, size: 48, color: context.colors.error.withValues(alpha: 0.7)),
+                  const SizedBox(height: 16),
+                  Text(_error!,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(10)),
+                    child: const Text('Retry',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white)),
+                  ),
+                ])),
+          ));
     }
     if (_connecting) {
-      return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+      return Center(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
         const CircularProgressIndicator(color: AppColors.primary),
         const SizedBox(height: 16),
         Text('Connecting to chat...', style: TextStyle(fontSize: 15, color: context.colors.textSecondary)),
       ]));
     }
     if (_messages.isEmpty) {
-      return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+      return Center(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
         Icon(Icons.forum_outlined, size: 48, color: context.colors.textMuted.withValues(alpha: 0.4)),
         const SizedBox(height: 12),
-        Text('No messages yet', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
+        Text('No messages yet',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
         const SizedBox(height: 4),
         Text('Start the conversation!', style: TextStyle(fontSize: 13, color: context.colors.textMuted)),
       ]));
@@ -296,32 +347,45 @@ class _CollaborationChatScreenState extends State<CollaborationChatScreen> {
           children: [
             if (!isMe) ...[
               Container(
-                width: 32, height: 32,
+                width: 32,
+                height: 32,
                 decoration: BoxDecoration(color: AppColors.primaryMuted, borderRadius: BorderRadius.circular(10)),
-                child: Center(child: Text(initial,
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary))),
+                child: Center(
+                    child: Text(initial,
+                        style:
+                            TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary))),
               ),
               const SizedBox(width: 8),
             ],
-            Flexible(child: Container(
+            Flexible(
+                child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: isMe ? AppColors.primary : context.colors.surfaceElevated,
                 borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(16), topRight: const Radius.circular(16),
-                  bottomLeft: Radius.circular(isMe ? 16 : 4), bottomRight: Radius.circular(isMe ? 4 : 16),
+                  topLeft: const Radius.circular(16),
+                  topRight: const Radius.circular(16),
+                  bottomLeft: Radius.circular(isMe ? 16 : 4),
+                  bottomRight: Radius.circular(isMe ? 4 : 16),
                 ),
                 border: Border.all(color: isMe ? AppColors.primary.withValues(alpha: 0.3) : context.colors.border),
               ),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                if (!isMe) Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primaryLight)),
-                ),
+                if (!isMe)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(name,
+                        style:
+                            const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primaryLight)),
+                  ),
                 Text(content, style: TextStyle(fontSize: 14, color: isMe ? Colors.white : context.colors.textPrimary)),
                 const SizedBox(height: 4),
-                Align(alignment: Alignment.bottomRight, child: Text(time,
-                    style: TextStyle(fontSize: 11, color: isMe ? Colors.white.withValues(alpha: 0.6) : context.colors.textMuted))),
+                Align(
+                    alignment: Alignment.bottomRight,
+                    child: Text(time,
+                        style: TextStyle(
+                            fontSize: 11,
+                            color: isMe ? Colors.white.withValues(alpha: 0.6) : context.colors.textMuted))),
               ]),
             )),
           ],
@@ -335,51 +399,61 @@ class _CollaborationChatScreenState extends State<CollaborationChatScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        ...List.generate(3, (_) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2),
-          child: Container(width: 4, height: 4, decoration: BoxDecoration(color: context.colors.textMuted, shape: BoxShape.circle)),
-        )),
+        ...List.generate(
+            3,
+            (_) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  child: Container(
+                      width: 4,
+                      height: 4,
+                      decoration: BoxDecoration(color: context.colors.textMuted, shape: BoxShape.circle)),
+                )),
         const SizedBox(width: 8),
-        Flexible(child: Text('$_typingUser is typing...',
-            style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: context.colors.textMuted),
-            maxLines: 1, overflow: TextOverflow.ellipsis)),
+        Flexible(
+            child: Text('$_typingUser is typing...',
+                style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: context.colors.textMuted),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis)),
       ]),
     );
   }
 
-  Widget _buildInputBar() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-      decoration: BoxDecoration(color: context.colors.surface, border: Border(top: BorderSide(color: context.colors.border))),
-      child: SafeArea(top: false, child: Row(children: [
-        Expanded(child: Container(
-          decoration: BoxDecoration(color: context.colors.surfaceHighest, borderRadius: BorderRadius.circular(12)),
-          child: TextField(
-            controller: _msgCtl,
-            style: TextStyle(color: context.colors.textPrimary, fontSize: 14),
-            maxLines: null,
-            textInputAction: TextInputAction.send,
-            enabled: _connected,
-            onChanged: _onTextChanged,
-            onSubmitted: (_) => _send(),
-            decoration: InputDecoration(
-              hintText: _connected ? 'Type a message...' : 'Reconnecting...',
-              hintStyle: TextStyle(color: context.colors.textMuted),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            ),
-          ),
-        )),
-        const SizedBox(width: 8),
-        Container(
-          decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-          child: IconButton(
-            onPressed: _connected ? _send : null,
-            icon: Icon(Icons.send_rounded,
-                color: _connected ? Colors.white : Colors.white.withValues(alpha: 0.4), size: 18),
-          ),
-        ),
-      ])),
-    );
-  }
+  Widget _buildInputBar() => Container(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        decoration:
+            BoxDecoration(color: context.colors.surface, border: Border(top: BorderSide(color: context.colors.border))),
+        child: SafeArea(
+            top: false,
+            child: Row(children: [
+              Expanded(
+                  child: Container(
+                decoration:
+                    BoxDecoration(color: context.colors.surfaceHighest, borderRadius: BorderRadius.circular(12)),
+                child: TextField(
+                  controller: _msgCtl,
+                  style: TextStyle(color: context.colors.textPrimary, fontSize: 14),
+                  maxLines: null,
+                  textInputAction: TextInputAction.send,
+                  enabled: _connected,
+                  onChanged: _onTextChanged,
+                  onSubmitted: (_) => _send(),
+                  decoration: InputDecoration(
+                    hintText: _connected ? 'Type a message...' : 'Reconnecting...',
+                    hintStyle: TextStyle(color: context.colors.textMuted),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  ),
+                ),
+              )),
+              const SizedBox(width: 8),
+              Container(
+                decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+                child: IconButton(
+                  onPressed: _connected ? _send : null,
+                  icon: Icon(Icons.send_rounded,
+                      color: _connected ? Colors.white : Colors.white.withValues(alpha: 0.4), size: 18),
+                ),
+              ),
+            ])),
+      );
 }

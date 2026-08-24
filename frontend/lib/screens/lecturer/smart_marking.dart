@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
-import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/services.dart';
 
 class SmartMarkingScreen extends StatefulWidget {
   final int assessmentId;
@@ -67,39 +67,37 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
     );
   }
 
-  Widget _buildStudentInfo(dynamic sub) {
-    return Card(
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-          child: const Icon(Icons.person, color: AppColors.primary),
-        ),
-        title: Text('Student #${sub['student_id']}', style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text('Submitted: ${sub['submitted_at'] ?? 'N/A'}'),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: sub['status'] == 'graded'
-                ? context.colors.success.withValues(alpha: 0.1)
-                : context.colors.warning.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
+  Widget _buildStudentInfo(dynamic sub) => Card(
+        child: ListTile(
+          leading: CircleAvatar(
+            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+            child: const Icon(Icons.person, color: AppColors.primary),
           ),
-          child: Text(
-            sub['status'] ?? 'pending',
-            style: TextStyle(
-              fontSize: 11,
-              color: sub['status'] == 'graded' ? context.colors.success : context.colors.warning,
+          title: Text('Student #${sub['student_id']}', style: const TextStyle(fontWeight: FontWeight.w600)),
+          subtitle: Text('Submitted: ${sub['submitted_at'] ?? 'N/A'}'),
+          trailing: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: sub['status'] == 'graded'
+                  ? context.colors.success.withValues(alpha: 0.1)
+                  : context.colors.warning.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              (sub['status'] ?? 'pending') as String,
+              style: TextStyle(
+                fontSize: 11,
+                color: sub['status'] == 'graded' ? context.colors.success : context.colors.warning,
+              ),
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildSubmissionContent(dynamic sub) {
     String answers = 'No answers submitted';
     try {
-      answers = sub['answers'] ?? answers;
+      answers = (sub['answers'] ?? answers) as String;
     } catch (_) {}
 
     return Card(
@@ -122,7 +120,7 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
 
   Widget _buildAIAnalysis(dynamic sub) {
     final aiMarks = sub['ai_suggested_marks'];
-    final aiFeedback = sub['ai_feedback'] ?? 'AI analysis pending...';
+    final aiFeedback = (sub['ai_feedback'] ?? 'AI analysis pending...') as String;
 
     return Card(
       color: context.colors.info.withValues(alpha: 0.05),
@@ -169,94 +167,85 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
     );
   }
 
-  Widget _buildMarkingDecision(dynamic sub) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Your Decision',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildDecisionButton(
-                    label: 'Accept AI',
-                    icon: Icons.check_circle_outline,
-                    color: context.colors.success,
-                    onPressed: () => _submitDecision('accept'),
+  Widget _buildMarkingDecision(dynamic sub) => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Your Decision',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildDecisionButton(
+                      label: 'Accept AI',
+                      icon: Icons.check_circle_outline,
+                      color: context.colors.success,
+                      onPressed: () => _submitDecision('accept'),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildDecisionButton(
-                    label: 'Modify',
-                    icon: Icons.edit_outlined,
-                    color: context.colors.secondary,
-                    onPressed: () => _showModifyDialog(sub),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildDecisionButton(
+                      label: 'Modify',
+                      icon: Icons.edit_outlined,
+                      color: context.colors.secondary,
+                      onPressed: () => _showModifyDialog(sub),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildDecisionButton(
-                    label: 'Reject',
-                    icon: Icons.cancel_outlined,
-                    color: context.colors.error,
-                    onPressed: () => _submitDecision('reject'),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildDecisionButton(
+                      label: 'Reject',
+                      icon: Icons.cancel_outlined,
+                      color: context.colors.error,
+                      onPressed: () => _submitDecision('reject'),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildDecisionButton({
     required String label,
     required IconData icon,
     required Color color,
     required VoidCallback onPressed,
-  }) {
-    return OutlinedButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon, color: color, size: 18),
-      label: Text(label, style: TextStyle(color: color, fontSize: 12)),
-      style: OutlinedButton.styleFrom(
-        side: BorderSide(color: color.withValues(alpha: 0.3)),
-        padding: const EdgeInsets.symmetric(vertical: 12),
-      ),
-    );
-  }
+  }) =>
+      OutlinedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, color: color, size: 18),
+        label: Text(label, style: TextStyle(color: color, fontSize: 12)),
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: color.withValues(alpha: 0.3)),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+        ),
+      );
 
-  Widget _buildNavigation() {
-    return Row(
-      children: [
-        Expanded(
-          child: OutlinedButton(
-            onPressed: _currentIndex > 0
-                ? () => setState(() => _currentIndex--)
-                : null,
-            child: const Text('Previous'),
+  Widget _buildNavigation() => Row(
+        children: [
+          Expanded(
+            child: OutlinedButton(
+              onPressed: _currentIndex > 0 ? () => setState(() => _currentIndex--) : null,
+              child: const Text('Previous'),
+            ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: ElevatedButton(
-            onPressed: _currentIndex < widget.submissions.length - 1
-                ? () => setState(() => _currentIndex++)
-                : null,
-            child: const Text('Next'),
+          const SizedBox(width: 12),
+          Expanded(
+            child: ElevatedButton(
+              onPressed: _currentIndex < widget.submissions.length - 1 ? () => setState(() => _currentIndex++) : null,
+              child: const Text('Next'),
+            ),
           ),
-        ),
-      ],
-    );
-  }
+        ],
+      );
 
   Future<void> _submitDecision(String decision, {int? finalMarks, String? feedback}) async {
     final sub = widget.submissions[_currentIndex];
@@ -272,9 +261,7 @@ class _SmartMarkingScreenState extends State<SmartMarkingScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            response.statusCode == 200
-                ? 'Marking decision: $decision'
-                : 'Failed to save marking',
+            response.statusCode == 200 ? 'Marking decision: $decision' : 'Failed to save marking',
           ),
         ),
       );

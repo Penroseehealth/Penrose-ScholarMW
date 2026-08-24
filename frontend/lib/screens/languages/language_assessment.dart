@@ -13,8 +13,7 @@ class LanguageAssessmentScreen extends StatefulWidget {
   const LanguageAssessmentScreen({super.key, required this.slug});
 
   @override
-  State<LanguageAssessmentScreen> createState() =>
-      _LanguageAssessmentScreenState();
+  State<LanguageAssessmentScreen> createState() => _LanguageAssessmentScreenState();
 }
 
 class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
@@ -63,193 +62,158 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
   String get _currentLevel => 'A2';
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: Column(
-        children: [
-          _buildHeader(),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildCurrentLevel(),
-                  const SizedBox(height: 24),
-                  Text('Assessment Modules',
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: context.colors.textPrimary)),
-                  const SizedBox(height: 4),
-                  Text(
-                      'Each module adapts to your responses and updates your level.',
-                      style:
-                          TextStyle(fontSize: 12, color: context.colors.textMuted)),
-                  const SizedBox(height: 12),
-                  ..._modules.map(_buildModuleCard),
-                  const SizedBox(height: 20),
-                  _buildStartButton(),
-                  const SizedBox(height: 28),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text('Results History',
-                            style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w800,
-                                color: context.colors.textPrimary)),
-                      ),
-                      GestureDetector(
-                        onTap: () {},
-                        child: const Text('Export',
-                            style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: _langTeal)),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  ..._resultsHistory.map(_buildHistoryTile),
-                  const SizedBox(height: 40),
-                ],
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: Column(
+          children: [
+            _buildHeader(),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildCurrentLevel(),
+                    const SizedBox(height: 24),
+                    Text('Assessment Modules',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
+                    const SizedBox(height: 4),
+                    Text('Each module adapts to your responses and updates your level.',
+                        style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+                    const SizedBox(height: 12),
+                    ..._modules.map(_buildModuleCard),
+                    const SizedBox(height: 20),
+                    _buildStartButton(),
+                    const SizedBox(height: 28),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text('Results History',
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
+                        ),
+                        GestureDetector(
+                          onTap: () {},
+                          child: const Text('Export',
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: _langTeal)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    ..._resultsHistory.map(_buildHistoryTile),
+                    const SizedBox(height: 40),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        border:
-            Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
-      ),
-      child: SafeArea(
-        bottom: false,
+  Widget _buildHeader() => Container(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          border: Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
+        ),
+        child: SafeArea(
+          bottom: false,
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.maybePop(context),
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: context.colors.surfaceElevated,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: context.colors.border),
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: context.colors.textSecondary),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: _langTealGlow,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.assignment_turned_in_rounded, color: _langTeal, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${_languageTitle(widget.slug)} Assessment',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
+                    Text('Placement & level checks', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+  Widget _buildCurrentLevel() => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [
+            _langTeal.withValues(alpha: 0.12),
+            _langTealDark.withValues(alpha: 0.05),
+          ]),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: _langTeal.withValues(alpha: 0.25)),
+        ),
         child: Row(
           children: [
-            GestureDetector(
-              onTap: () => Navigator.maybePop(context),
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: context.colors.surfaceElevated,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: context.colors.border),
-                ),
-                child: Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: context.colors.textSecondary),
-              ),
-            ),
-            const SizedBox(width: 14),
             Container(
-              width: 40,
-              height: 40,
+              width: 74,
+              height: 74,
               decoration: BoxDecoration(
-                color: _langTealGlow,
-                borderRadius: BorderRadius.circular(12),
+                color: _langTeal.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+                border: Border.all(color: _langTeal.withValues(alpha: 0.5), width: 2),
               ),
-              child: const Icon(Icons.assignment_turned_in_rounded,
-                  color: _langTeal, size: 22),
+              child: Center(
+                child: Text(_currentLevel,
+                    style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: _langTeal)),
+              ),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('${_languageTitle(widget.slug)} Assessment',
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: context.colors.textPrimary)),
-                  Text('Placement & level checks',
-                      style:
-                          TextStyle(fontSize: 12, color: context.colors.textMuted)),
+                  Text('Current CEFR Level',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: context.colors.textSecondary)),
+                  const SizedBox(height: 4),
+                  Text('Elementary — A2',
+                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: 0.45,
+                      backgroundColor: context.colors.surfaceHighest,
+                      valueColor: const AlwaysStoppedAnimation<Color>(_langTeal),
+                      minHeight: 6,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text('45% of the way to B1 · keep going!',
+                      style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
                 ],
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildCurrentLevel() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [
-          _langTeal.withValues(alpha: 0.12),
-          _langTealDark.withValues(alpha: 0.05),
-        ]),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _langTeal.withValues(alpha: 0.25)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 74,
-            height: 74,
-            decoration: BoxDecoration(
-              color: _langTeal.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
-              border: Border.all(color: _langTeal.withValues(alpha: 0.5), width: 2),
-            ),
-            child: Center(
-              child: Text(_currentLevel,
-                  style: const TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w900,
-                      color: _langTeal)),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Current CEFR Level',
-                    style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: context.colors.textSecondary)),
-                const SizedBox(height: 4),
-                Text('Elementary — A2',
-                    style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800,
-                        color: context.colors.textPrimary)),
-                const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: 0.45,
-                    backgroundColor: context.colors.surfaceHighest,
-                    valueColor:
-                        const AlwaysStoppedAnimation<Color>(_langTeal),
-                    minHeight: 6,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text('45% of the way to B1 · keep going!',
-                    style:
-                        TextStyle(fontSize: 11, color: context.colors.textMuted)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+      );
 
   Widget _buildModuleCard((String, IconData, Color, int) module) {
     final title = module.$1;
@@ -285,15 +249,8 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(title,
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: context.colors.textPrimary)),
-                    Text('$score%',
-                        style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
-                            color: color)),
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                    Text('$score%', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: color)),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -314,39 +271,32 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
     );
   }
 
-  Widget _buildStartButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: _assessing ? null : () => setState(() => _assessing = true),
-        icon: _assessing
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                    strokeWidth: 2, color: Colors.white))
-            : const Icon(Icons.play_arrow_rounded, size: 22),
-        label: Text(
-          _assessing ? 'Preparing assessment…' : 'Start Full Assessment',
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+  Widget _buildStartButton() => SizedBox(
+        width: double.infinity,
+        child: ElevatedButton.icon(
+          onPressed: _assessing ? null : () => setState(() => _assessing = true),
+          icon: _assessing
+              ? const SizedBox(
+                  width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              : const Icon(Icons.play_arrow_rounded, size: 22),
+          label: Text(
+            _assessing ? 'Preparing assessment…' : 'Start Full Assessment',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _langTeal,
+            foregroundColor: const Color(0xFF062B27),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            disabledBackgroundColor: context.colors.surfaceHighest,
+            disabledForegroundColor: context.colors.textMuted,
+          ),
         ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _langTeal,
-          foregroundColor: const Color(0xFF062B27),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          disabledBackgroundColor: context.colors.surfaceHighest,
-          disabledForegroundColor: context.colors.textMuted,
-        ),
-      ),
-    );
-  }
+      );
 
   Widget _buildHistoryTile(Map<String, dynamic> result) {
     final delta = result['delta'] as int;
-    final deltaColor =
-        delta >= 0 ? context.colors.success : context.colors.error;
+    final deltaColor = delta >= 0 ? context.colors.success : context.colors.error;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -367,10 +317,7 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
             ),
             child: Center(
               child: Text('${result['score']}%',
-                  style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      color: _langTeal)),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: _langTeal)),
             ),
           ),
           const SizedBox(width: 12),
@@ -379,20 +326,15 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(result['label'] as String,
-                    style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: context.colors.textPrimary)),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textPrimary)),
                 const SizedBox(height: 2),
                 Text('${result['date']} · Level ${result['level']}',
-                    style: TextStyle(
-                        fontSize: 11, color: context.colors.textMuted)),
+                    style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
               ],
             ),
           ),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: deltaColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(7),
@@ -400,16 +342,9 @@ class _LanguageAssessmentScreenState extends State<LanguageAssessmentScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(delta >= 0
-                        ? Icons.trending_up_rounded
-                        : Icons.trending_down_rounded,
-                    size: 13, color: deltaColor),
+                Icon(delta >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded, size: 13, color: deltaColor),
                 const SizedBox(width: 3),
-                Text('$delta',
-                    style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
-                        color: deltaColor)),
+                Text('$delta', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: deltaColor)),
               ],
             ),
           ),

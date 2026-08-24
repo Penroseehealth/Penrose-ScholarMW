@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_theme.dart';
-import 'app_drawer.dart';
 import '../../core/theme/theme_colors.dart';
+import 'app_drawer.dart';
 
 class HomeShell extends StatelessWidget {
   final Widget child;
@@ -86,23 +86,23 @@ class HomeShell extends StatelessWidget {
                   backgroundColor: context.colors.surface,
                   leading: const SizedBox(height: 8),
                   trailing: const Expanded(child: SizedBox()),
-                  destinations: [
-                    const NavigationRailDestination(
+                  destinations: const [
+                    NavigationRailDestination(
                       icon: Icon(Icons.dashboard_outlined),
                       selectedIcon: Icon(Icons.dashboard_rounded),
                       label: Text('Dashboard'),
                     ),
-                    const NavigationRailDestination(
+                    NavigationRailDestination(
                       icon: Icon(Icons.auto_awesome_outlined),
                       selectedIcon: Icon(Icons.auto_awesome_rounded),
                       label: Text('ScholarAI'),
                     ),
-                    const NavigationRailDestination(
+                    NavigationRailDestination(
                       icon: Icon(Icons.menu_book_outlined),
                       selectedIcon: Icon(Icons.menu_book_rounded),
                       label: Text('My Learning'),
                     ),
-                    const NavigationRailDestination(
+                    NavigationRailDestination(
                       icon: Icon(Icons.science_outlined),
                       selectedIcon: Icon(Icons.science_rounded),
                       label: Text('Research'),

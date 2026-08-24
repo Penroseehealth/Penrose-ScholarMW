@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
-import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/services.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -43,13 +43,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       if (!mounted) return;
       setState(() {
         if (results[0].statusCode == 200) {
-          _analytics = jsonDecode(results[0].body);
+          _analytics = jsonDecode(results[0].body) as Map<String, dynamic>?;
         }
         if (results[1].statusCode == 200) {
-          _users = jsonDecode(results[1].body);
+          _users = jsonDecode(results[1].body) as List<dynamic>;
         }
         if (results[2].statusCode == 200) {
-          _courses = jsonDecode(results[2].body);
+          _courses = jsonDecode(results[2].body) as List<dynamic>;
         }
         _loading = false;
       });
@@ -64,73 +64,69 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: _loading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-          : _error != null
-              ? _buildError()
-              : RefreshIndicator(
-                  onRefresh: _loadData,
-                  child: CustomScrollView(
-                    slivers: [
-                      SliverAppBar(
-                        expandedHeight: 70,
-                        floating: true,
-                        backgroundColor: context.colors.surface,
-                        title: Semantics(
-                          header: true,
-                          child: Text(
-                            'Admin Dashboard',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700,
-                              color: context.colors.textPrimary,
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: _loading
+            ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+            : _error != null
+                ? _buildError()
+                : RefreshIndicator(
+                    onRefresh: _loadData,
+                    child: CustomScrollView(
+                      slivers: [
+                        SliverAppBar(
+                          expandedHeight: 70,
+                          floating: true,
+                          backgroundColor: context.colors.surface,
+                          title: Semantics(
+                            header: true,
+                            child: Text(
+                              'Admin Dashboard',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: context.colors.textPrimary,
+                              ),
                             ),
                           ),
-                        ),
-                        actions: [
-                          IconButton(
-                            icon: Icon(Icons.refresh_rounded, color: context.colors.textSecondary),
-                            tooltip: 'Refresh data',
-                            onPressed: _loadData,
+                          actions: [
+                            IconButton(
+                              icon: Icon(Icons.refresh_rounded, color: context.colors.textSecondary),
+                              tooltip: 'Refresh data',
+                              onPressed: _loadData,
+                            ),
+                          ],
+                          bottom: PreferredSize(
+                            preferredSize: const Size.fromHeight(48),
+                            child: _buildTabBar(),
                           ),
-                        ],
-                        bottom: PreferredSize(
-                          preferredSize: const Size.fromHeight(48),
-                          child: _buildTabBar(),
                         ),
-                      ),
-                      SliverToBoxAdapter(
-                        child: _selectedTab == 0
-                            ? _buildOverviewTab()
-                            : _selectedTab == 1
-                                ? _buildUsersTab()
-                                : _selectedTab == 99
-                                    ? const SizedBox()
-                                    : _buildCoursesTab(),
-                      ),
-                    ],
+                        SliverToBoxAdapter(
+                          child: _selectedTab == 0
+                              ? _buildOverviewTab()
+                              : _selectedTab == 1
+                                  ? _buildUsersTab()
+                                  : _selectedTab == 99
+                                      ? const SizedBox()
+                                      : _buildCoursesTab(),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-    );
-  }
+      );
 
-  Widget _buildTabBar() {
-    return Container(
-      color: context.colors.surface,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+  Widget _buildTabBar() => Container(
+        color: context.colors.surface,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
-        children: [
-          _buildTab('Overview', 0),
-          _buildTab('Users (${_users.length})', 1),
-          _buildTab('Courses (${_courses.length})', 2),
-          _buildTab('Syllabus', 99),
-        ],
-      ),
-    );
-  }
+          children: [
+            _buildTab('Overview', 0),
+            _buildTab('Users (${_users.length})', 1),
+            _buildTab('Courses (${_courses.length})', 2),
+            _buildTab('Syllabus', 99),
+          ],
+        ),
+      );
 
   Widget _buildTab(String label, int index) {
     final isSelected = _selectedTab == index;
@@ -181,16 +177,21 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             _StatItem('Students', '${overview['total_students'] ?? 0}', Icons.school_rounded, context.colors.success),
             _StatItem('Lecturers', '${overview['total_lecturers'] ?? 0}', Icons.badge_rounded, context.colors.warning),
             _StatItem('Courses', '${overview['total_courses'] ?? 0}', Icons.menu_book_rounded, context.colors.accent),
-            _StatItem('Enrollments', '${overview['total_enrollments'] ?? 0}', Icons.assignment_rounded, context.colors.info),
-            _StatItem('Submissions', '${overview['total_submissions'] ?? 0}', Icons.quiz_rounded, context.colors.lavender),
+            _StatItem(
+                'Enrollments', '${overview['total_enrollments'] ?? 0}', Icons.assignment_rounded, context.colors.info),
+            _StatItem(
+                'Submissions', '${overview['total_submissions'] ?? 0}', Icons.quiz_rounded, context.colors.lavender),
           ]),
           const SizedBox(height: 24),
           const _SectionHeader('ENGAGEMENT (30 DAYS)'),
           const SizedBox(height: 8),
           _buildStatsGrid([
-            _StatItem('New Users', '${engagement['new_users_30d'] ?? 0}', Icons.person_add_rounded, context.colors.success),
-            _StatItem('Active (7d)', '${engagement['active_users_7d'] ?? 0}', Icons.access_time_rounded, AppColors.primary),
-            _StatItem('Recent Submissions', '${engagement['recent_submissions'] ?? 0}', Icons.upload_rounded, context.colors.info),
+            _StatItem(
+                'New Users', '${engagement['new_users_30d'] ?? 0}', Icons.person_add_rounded, context.colors.success),
+            _StatItem(
+                'Active (7d)', '${engagement['active_users_7d'] ?? 0}', Icons.access_time_rounded, AppColors.primary),
+            _StatItem('Recent Submissions', '${engagement['recent_submissions'] ?? 0}', Icons.upload_rounded,
+                context.colors.info),
             _StatItem('Avg Score', '${engagement['avg_score'] ?? 0}%', Icons.star_rounded, context.colors.warning),
           ]),
           const SizedBox(height: 24),
@@ -213,7 +214,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             const SizedBox(height: 16),
             const _SectionHeader('DEPARTMENT BREAKDOWN'),
             const SizedBox(height: 8),
-            _buildDepartmentBreakdown(academics['department_breakdown']),
+            _buildDepartmentBreakdown(academics['department_breakdown'] as List<dynamic>),
           ],
         ],
       ),
@@ -234,7 +235,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       itemCount: _users.length,
-      itemBuilder: (ctx, i) => _buildUserCard(_users[i]),
+      itemBuilder: (ctx, i) => _buildUserCard(_users[i] as Map<String, dynamic>),
     );
   }
 
@@ -252,115 +253,115 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       itemCount: _courses.length,
-      itemBuilder: (ctx, i) => _buildCourseCard(_courses[i]),
+      itemBuilder: (ctx, i) => _buildCourseCard(_courses[i] as Map<String, dynamic>),
     );
   }
 
-  Widget _buildStatsGrid(List<_StatItem> items) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-        childAspectRatio: 1.8,
-      ),
-      itemCount: items.length,
-      itemBuilder: (ctx, i) {
-        final item = items[i];
-        return Semantics(
-          label: '${item.label}: ${item.value}',
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: context.colors.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: context.colors.border),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(item.icon, size: 18, color: item.color),
-                const SizedBox(height: 6),
-                Text(
-                  item.value,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: item.color,
+  Widget _buildStatsGrid(List<_StatItem> items) => GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 1.8,
+        ),
+        itemCount: items.length,
+        itemBuilder: (ctx, i) {
+          final item = items[i];
+          return Semantics(
+            label: '${item.label}: ${item.value}',
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: context.colors.surface,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: context.colors.border),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(item.icon, size: 18, color: item.color),
+                  const SizedBox(height: 6),
+                  Text(
+                    item.value,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: item.color,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  item.label,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: context.colors.textMuted,
-                    fontWeight: FontWeight.w500,
+                  const SizedBox(height: 2),
+                  Text(
+                    item.label,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: context.colors.textMuted,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      },
-    );
-  }
+          );
+        },
+      );
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: context.colors.border),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
+  Widget _buildStatCard(String label, String value, IconData icon, Color color) => Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: context.colors.border),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, size: 22, color: color),
             ),
-            child: Icon(icon, size: 22, color: color),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: color,
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: color,
+                    ),
                   ),
-                ),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: context.colors.textMuted,
-                    fontWeight: FontWeight.w500,
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: context.colors.textMuted,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 
   Widget _buildDepartmentBreakdown(List<dynamic> departments) {
     final total = departments.fold<int>(0, (sum, d) => sum + ((d['count'] as int?) ?? 0));
     final colors = [
-      AppColors.primary, context.colors.success, context.colors.warning,
-      context.colors.info, context.colors.lavender, context.colors.accent,
+      AppColors.primary,
+      context.colors.success,
+      context.colors.warning,
+      context.colors.info,
+      context.colors.lavender,
+      context.colors.accent,
     ];
     return Container(
       padding: const EdgeInsets.all(14),
@@ -380,9 +381,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     height: 14,
                     child: Row(
                       children: List.generate(departments.length, (i) {
-                        final pct = total > 0
-                            ? ((departments[i]['count'] as int) / total)
-                            : 0.0;
+                        final pct = total > 0 ? ((departments[i]['count'] as int) / total) : 0.0;
                         return Expanded(
                           flex: (pct * 1000).toInt().clamp(1, 1000),
                           child: Container(color: colors[i % colors.length]),
@@ -398,26 +397,26 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           Wrap(
             spacing: 12,
             runSpacing: 6,
-            children: List.generate(departments.length, (i) {
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: colors[i % colors.length],
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${departments[i]['department']} (${departments[i]['count']})',
-                    style: TextStyle(fontSize: 11, color: context.colors.textSecondary),
-                  ),
-                ],
-              );
-            }),
+            children: List.generate(
+                departments.length,
+                (i) => Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: colors[i % colors.length],
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${departments[i]['department']} (${departments[i]['count']})',
+                          style: TextStyle(fontSize: 11, color: context.colors.textSecondary),
+                        ),
+                      ],
+                    )),
           ),
         ],
       ),
@@ -454,7 +453,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
               child: Center(
                 child: Text(
-                  (user['full_name'] ?? '?')[0].toUpperCase(),
+                  ((user['full_name'] ?? '?') as String)[0].toUpperCase(),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -469,7 +468,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    user['full_name'] ?? 'Unknown',
+                    (user['full_name'] ?? 'Unknown') as String,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -478,7 +477,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    user['email'] ?? '',
+                    (user['email'] ?? '') as String,
                     style: TextStyle(fontSize: 12, color: context.colors.textMuted),
                   ),
                 ],
@@ -563,7 +562,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    course['code'] ?? '',
+                    (course['code'] ?? '') as String,
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -571,7 +570,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
                   ),
                   Text(
-                    course['title'] ?? 'Untitled',
+                    (course['title'] ?? 'Untitled') as String,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -595,35 +594,33 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildError() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.error_outline_rounded, size: 48, color: context.colors.error),
-            const SizedBox(height: 12),
-            Text(
-              _error!,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: context.colors.textMuted),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _loadData,
-              icon: const Icon(Icons.refresh_rounded, size: 16),
-              label: const Text('Retry'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+  Widget _buildError() => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.error_outline_rounded, size: 48, color: context.colors.error),
+              const SizedBox(height: 12),
+              Text(
+                _error!,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: context.colors.textMuted),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: _loadData,
+                icon: const Icon(Icons.refresh_rounded, size: 16),
+                label: const Text('Retry'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 }
 
 class _SectionHeader extends StatelessWidget {
@@ -631,17 +628,15 @@ class _SectionHeader extends StatelessWidget {
   const _SectionHeader(this.title);
 
   @override
-  Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: 11,
-        fontWeight: FontWeight.w700,
-        color: context.colors.textMuted,
-        letterSpacing: 1.5,
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Text(
+        title,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: context.colors.textMuted,
+          letterSpacing: 1.5,
+        ),
+      );
 }
 
 class _StatItem {

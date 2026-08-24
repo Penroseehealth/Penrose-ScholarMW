@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../services/language_service.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/language_service.dart';
 
 class LanguageVocabulary extends StatefulWidget {
   const LanguageVocabulary({super.key});
@@ -82,63 +83,65 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: SafeArea(
-        child: Column(
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(),
+              _buildMasteryBar(),
+              _buildThemeChips(),
+              _buildSearchBar(),
+              Expanded(
+                child: _loading
+                    ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                    : _filteredVocab.isEmpty
+                        ? _buildEmpty()
+                        : _buildVocabList(),
+              ),
+            ],
+          ),
+        ),
+      );
+
+  Widget _buildHeader() => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          border: Border(bottom: BorderSide(color: context.colors.divider)),
+        ),
+        child: Row(
           children: [
-            _buildHeader(),
-            _buildMasteryBar(),
-            _buildThemeChips(),
-            _buildSearchBar(),
+            IconButton(
+              onPressed: () => context.pop(),
+              icon: Icon(Icons.arrow_back_ios, color: context.colors.textPrimary, size: 20),
+            ),
+            const Icon(Icons.book, color: AppColors.primary, size: 24),
+            const SizedBox(width: 8),
             Expanded(
-              child: _loading
-                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-                  : _filteredVocab.isEmpty
-                      ? _buildEmpty()
-                      : _buildVocabList(),
+              child: Text('Vocabulary',
+                  style: TextStyle(
+                    color: context.colors.textPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  )),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text('${_vocabulary.length} words',
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  )),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        border: Border(bottom: BorderSide(color: context.colors.divider)),
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () => context.pop(),
-            icon: Icon(Icons.arrow_back_ios, color: context.colors.textPrimary, size: 20),
-          ),
-          const Icon(Icons.book, color: AppColors.primary, size: 24),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text('Vocabulary', style: TextStyle(
-              color: context.colors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold,
-            )),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text('${_vocabulary.length} words', style: const TextStyle(
-              color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w600,
-            )),
-          ),
-        ],
-      ),
-    );
-  }
+      );
 
   Widget _buildMasteryBar() {
     final stats = _masteryStats;
@@ -172,27 +175,30 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
     );
   }
 
-  Widget _statChip(String label, int count, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(8),
+  Widget _statChip(String label, int count, Color color) => Expanded(
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            children: [
+              Text('$count',
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  )),
+              Text(label,
+                  style: TextStyle(
+                    color: color.withValues(alpha: 0.8),
+                    fontSize: 10,
+                  )),
+            ],
+          ),
         ),
-        child: Column(
-          children: [
-            Text('$count', style: TextStyle(
-              color: color, fontSize: 16, fontWeight: FontWeight.bold,
-            )),
-            Text(label, style: TextStyle(
-              color: color.withValues(alpha: 0.8), fontSize: 10,
-            )),
-          ],
-        ),
-      ),
-    );
-  }
+      );
 
   Widget _buildThemeChips() {
     if (_themes.isEmpty) return const SizedBox.shrink();
@@ -204,8 +210,9 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
         children: [
           _themeChip(null, 'All'),
           ..._themes.map((t) => _themeChip(
-            t['theme']?.toString(), t['theme']?.toString() ?? '',
-          )),
+                t['theme']?.toString(),
+                t['theme']?.toString() ?? '',
+              )),
         ],
       ),
     );
@@ -226,70 +233,68 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
               color: selected ? AppColors.primary : context.colors.divider,
             ),
           ),
-          child: Text(label, style: TextStyle(
-            color: selected ? Colors.white : context.colors.textSecondary,
-            fontSize: 12, fontWeight: FontWeight.w500,
-          )),
+          child: Text(label,
+              style: TextStyle(
+                color: selected ? Colors.white : context.colors.textSecondary,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              )),
         ),
       ),
     );
   }
 
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: TextField(
-        onChanged: (v) => setState(() => _search = v),
-        style: TextStyle(color: context.colors.textPrimary),
-        decoration: InputDecoration(
-          hintText: 'Search vocabulary...',
-          hintStyle: TextStyle(color: context.colors.textSecondary.withValues(alpha: 0.6)),
-          prefixIcon: Icon(Icons.search, color: context.colors.textSecondary, size: 20),
-          filled: true,
-          fillColor: context.colors.surfaceHighest,
-          contentPadding: const EdgeInsets.symmetric(vertical: 10),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
+  Widget _buildSearchBar() => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        child: TextField(
+          onChanged: (v) => setState(() => _search = v),
+          style: TextStyle(color: context.colors.textPrimary),
+          decoration: InputDecoration(
+            hintText: 'Search vocabulary...',
+            hintStyle: TextStyle(color: context.colors.textSecondary.withValues(alpha: 0.6)),
+            prefixIcon: Icon(Icons.search, color: context.colors.textSecondary, size: 20),
+            filled: true,
+            fillColor: context.colors.surfaceHighest,
+            contentPadding: const EdgeInsets.symmetric(vertical: 10),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildEmpty() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.book_outlined, size: 48, color: context.colors.textSecondary.withValues(alpha: 0.4)),
-          const SizedBox(height: 12),
-          Text('No vocabulary found', style: TextStyle(
-            color: context.colors.textSecondary.withValues(alpha: 0.6), fontSize: 14,
-          )),
-        ],
-      ),
-    );
-  }
+  Widget _buildEmpty() => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.book_outlined, size: 48, color: context.colors.textSecondary.withValues(alpha: 0.4)),
+            const SizedBox(height: 12),
+            Text('No vocabulary found',
+                style: TextStyle(
+                  color: context.colors.textSecondary.withValues(alpha: 0.6),
+                  fontSize: 14,
+                )),
+          ],
+        ),
+      );
 
-  Widget _buildVocabList() {
-    return RefreshIndicator(
-      onRefresh: _loadData,
-      color: AppColors.primary,
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        itemCount: _filteredVocab.length,
-        itemBuilder: (ctx, i) => _vocabCard(_filteredVocab[i], i),
-      ),
-    );
-  }
+  Widget _buildVocabList() => RefreshIndicator(
+        onRefresh: _loadData,
+        color: AppColors.primary,
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          itemCount: _filteredVocab.length,
+          itemBuilder: (ctx, i) => _vocabCard(_filteredVocab[i], i),
+        ),
+      );
 
   Widget _vocabCard(dynamic vocab, int index) {
     final expanded = _expandedIndex == index;
-    final word = vocab['word'] ?? '';
-    final translation = vocab['translation'] ?? '';
-    final pronunciation = vocab['pronunciation'] ?? '';
-    final pos = vocab['part_of_speech'] ?? '';
+    final word = (vocab['word'] ?? '') as String;
+    final translation = (vocab['translation'] ?? '') as String;
+    final pronunciation = (vocab['pronunciation'] ?? '') as String;
+    final pos = (vocab['part_of_speech'] ?? '') as String;
     final example = vocab['example_sentence'] ?? '';
     final exampleTrans = vocab['example_translation'] ?? '';
     final theme = vocab['theme'] ?? '';
@@ -316,13 +321,18 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(word, style: TextStyle(
-                        color: context.colors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold,
-                      )),
+                      Text(word,
+                          style: TextStyle(
+                            color: context.colors.textPrimary,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          )),
                       if (pronunciation.isNotEmpty)
-                        Text(pronunciation, style: TextStyle(
-                          color: context.colors.textSecondary.withValues(alpha: 0.7), fontSize: 13,
-                        )),
+                        Text(pronunciation,
+                            style: TextStyle(
+                              color: context.colors.textSecondary.withValues(alpha: 0.7),
+                              fontSize: 13,
+                            )),
                     ],
                   ),
                 ),
@@ -333,21 +343,27 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
                       color: AppColors.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Text(pos, style: const TextStyle(
-                      color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w600,
-                    )),
+                    child: Text(pos,
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        )),
                   ),
                 const SizedBox(width: 8),
                 Icon(
                   expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                  color: context.colors.textSecondary, size: 20,
+                  color: context.colors.textSecondary,
+                  size: 20,
                 ),
               ],
             ),
             const SizedBox(height: 6),
-            Text(translation, style: TextStyle(
-              color: context.colors.textSecondary, fontSize: 14,
-            )),
+            Text(translation,
+                style: TextStyle(
+                  color: context.colors.textSecondary,
+                  fontSize: 14,
+                )),
             if (theme.toString().isNotEmpty) ...[
               const SizedBox(height: 6),
               Container(
@@ -356,9 +372,11 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
                   color: context.colors.surfaceHighest,
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: Text(theme.toString(), style: TextStyle(
-                  color: context.colors.textSecondary.withValues(alpha: 0.7), fontSize: 10,
-                )),
+                child: Text(theme.toString(),
+                    style: TextStyle(
+                      color: context.colors.textSecondary.withValues(alpha: 0.7),
+                      fontSize: 10,
+                    )),
               ),
             ],
             if (expanded && example.toString().isNotEmpty) ...[
@@ -373,18 +391,25 @@ class _LanguageVocabularyState extends State<LanguageVocabulary> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Example:', style: TextStyle(
-                      color: context.colors.textSecondary.withValues(alpha: 0.6), fontSize: 11,
-                    )),
+                    Text('Example:',
+                        style: TextStyle(
+                          color: context.colors.textSecondary.withValues(alpha: 0.6),
+                          fontSize: 11,
+                        )),
                     const SizedBox(height: 4),
-                    Text(example.toString(), style: TextStyle(
-                      color: context.colors.textPrimary, fontSize: 14, fontStyle: FontStyle.italic,
-                    )),
+                    Text(example.toString(),
+                        style: TextStyle(
+                          color: context.colors.textPrimary,
+                          fontSize: 14,
+                          fontStyle: FontStyle.italic,
+                        )),
                     if (exampleTrans.toString().isNotEmpty) ...[
                       const SizedBox(height: 4),
-                      Text(exampleTrans.toString(), style: TextStyle(
-                        color: context.colors.textSecondary.withValues(alpha: 0.7), fontSize: 12,
-                      )),
+                      Text(exampleTrans.toString(),
+                          style: TextStyle(
+                            color: context.colors.textSecondary.withValues(alpha: 0.7),
+                            fontSize: 12,
+                          )),
                     ],
                   ],
                 ),

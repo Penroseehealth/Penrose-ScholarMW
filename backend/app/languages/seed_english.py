@@ -1233,9 +1233,7 @@ async def seed_english():
                 db.add(unit)
                 await db.flush()
 
-                for lesi, (les_title, les_desc, les_type, vocab_data) in enumerate(
-                    lessons_data
-                ):
+                for lesi, (les_title, les_desc, les_type, vocab_data) in enumerate(lessons_data):
                     lesson = LanguageLesson(
                         unit_id=unit.id,
                         title=les_title,
@@ -1265,9 +1263,7 @@ async def seed_english():
                                 example_sentence=ex_sent,
                                 example_translation=ex_trans,
                                 theme=theme,
-                                difficulty="beginner"
-                                if li < 2
-                                else ("intermediate" if li < 4 else "advanced"),
+                                difficulty="beginner" if li < 2 else ("intermediate" if li < 4 else "advanced"),
                                 order_index=vi,
                             )
                         )

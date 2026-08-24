@@ -1,22 +1,21 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../services/services.dart';
-import '../../widgets/stem_text.dart';
-import '../../services/web_speech_service.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/services.dart';
+import '../../services/web_speech_service.dart';
+import '../../widgets/stem_text.dart';
 
 class KnowledgeRetrievalScreen extends StatefulWidget {
   const KnowledgeRetrievalScreen({super.key});
 
   @override
-  State<KnowledgeRetrievalScreen> createState() =>
-      _KnowledgeRetrievalScreenState();
+  State<KnowledgeRetrievalScreen> createState() => _KnowledgeRetrievalScreenState();
 }
 
-class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
-    with TickerProviderStateMixin {
+class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen> with TickerProviderStateMixin {
   final ApiService _api = ApiService();
   final TextEditingController _questionCtrl = TextEditingController();
   final ScrollController _scrollCtrl = ScrollController();
@@ -37,8 +36,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
       duration: const Duration(milliseconds: 800),
     );
     _messages.add(const _ChatMessage(
-      text:
-          'Hello! I am ScholarAI Knowledge Retrieval. Ask me anything '
+      text: 'Hello! I am ScholarAI Knowledge Retrieval. Ask me anything '
           'from your vault and knowledge documents, and I will find '
           'the most relevant sources for you.',
       isUser: false,
@@ -74,12 +72,16 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
 
     if (_listening) {
       _speech.stopListening();
-      setState(() { _listening = false; });
+      setState(() {
+        _listening = false;
+      });
       _pulseCtrl.stop();
     }
     _speech.cancelSpeech();
     if (_speakingIndex != null) {
-      setState(() { _speakingIndex = null; });
+      setState(() {
+        _speakingIndex = null;
+      });
     }
 
     setState(() {
@@ -95,8 +97,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
     _scrollToBottom();
 
     try {
-      final response =
-          await _api.post('/knowledge/rag-query', body: {
+      final response = await _api.post('/knowledge/rag-query', body: {
         'question': question,
         'max_sources': 5,
       });
@@ -105,12 +106,11 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
         final decoded = _decodeResponse(response.body);
         final answer = decoded['answer'] ?? decoded['response'] ?? 'No answer found.';
         final sources = List<Map<String, dynamic>>.from(
-          (decoded['sources'] ?? decoded['citations'] ?? []).map(
-            (s) => Map<String, dynamic>.from(s),
+          ((decoded['sources'] ?? decoded['citations'] ?? []) as Iterable).map(
+            (s) => Map<String, dynamic>.from(s as Map),
           ),
         );
-        final confidence =
-            (decoded['confidence'] ?? 'medium').toString().toLowerCase();
+        final confidence = (decoded['confidence'] ?? 'medium').toString().toLowerCase();
 
         setState(() {
           _messages.add(_ChatMessage(
@@ -125,7 +125,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
         String errorMsg = 'Sorry, I could not process your request. Please try again.';
         try {
           final body = _decodeResponse(response.body);
-          errorMsg = body['detail'] ?? body['error'] ?? body['message'] ?? errorMsg;
+          errorMsg = (body['detail'] ?? body['error'] ?? body['message'] ?? errorMsg) as String;
         } catch (_) {}
         setState(() {
           _messages.add(_ChatMessage(
@@ -177,18 +177,24 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
     if (_speech.isSupported) {
       _previousText = _questionCtrl.text;
       _questionCtrl.clear();
-      setState(() { _listening = true; });
+      setState(() {
+        _listening = true;
+      });
       _pulseCtrl.repeat(reverse: true);
 
       _speech.startListening(
         onResult: (text, isFinal) {
           if (isFinal && !_loading) {
             _questionCtrl.text = text;
-            setState(() { _listening = false; });
+            setState(() {
+              _listening = false;
+            });
             _pulseCtrl.stop();
             _sendQuestion();
           } else if (!isFinal) {
-            setState(() { _questionCtrl.text = text; });
+            setState(() {
+              _questionCtrl.text = text;
+            });
           }
         },
         onEnd: () {
@@ -204,7 +210,9 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
         },
         onError: (error) {
           if (mounted) {
-            setState(() { _listening = false; });
+            setState(() {
+              _listening = false;
+            });
             _pulseCtrl.stop();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -288,40 +296,45 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
   void _toggleTTS(String text, int index) {
     if (_speakingIndex == index) {
       _speech.cancelSpeech();
-      setState(() { _speakingIndex = null; });
+      setState(() {
+        _speakingIndex = null;
+      });
     } else {
-      setState(() { _speakingIndex = index; });
+      setState(() {
+        _speakingIndex = index;
+      });
       _speech.speak(text).then((_) {
-        if (mounted) setState(() { _speakingIndex = null; });
+        if (mounted)
+          setState(() {
+            _speakingIndex = null;
+          });
       });
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Knowledge Retrieval'),
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Knowledge Retrieval'),
+          backgroundColor: context.colors.background,
+          elevation: 0,
+          foregroundColor: context.colors.textPrimary,
+        ),
         backgroundColor: context.colors.background,
-        elevation: 0,
-        foregroundColor: context.colors.textPrimary,
-      ),
-      backgroundColor: context.colors.background,
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollCtrl,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              itemCount: _messages.length,
-              itemBuilder: (ctx, i) => _buildMessage(_messages[i], i),
+        body: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollCtrl,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                itemCount: _messages.length,
+                itemBuilder: (ctx, i) => _buildMessage(_messages[i], i),
+              ),
             ),
-          ),
-          _buildInputBar(),
-        ],
-      ),
-    );
-  }
+            _buildInputBar(),
+          ],
+        ),
+      );
 
   Widget _buildMessage(_ChatMessage msg, int index) {
     final isUser = msg.isUser;
@@ -334,8 +347,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
           maxWidth: MediaQuery.of(context).size.width * 0.85,
         ),
         child: Column(
-          crossAxisAlignment:
-              isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             if (!isUser)
               Padding(
@@ -377,7 +389,6 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
                     ? null
                     : Border.all(
                         color: context.colors.divider,
-                        width: 1,
                       ),
                 boxShadow: [
                   BoxShadow(
@@ -414,22 +425,16 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        _speakingIndex == index
-                            ? Icons.volume_up
-                            : Icons.volume_off_outlined,
+                        _speakingIndex == index ? Icons.volume_up : Icons.volume_off_outlined,
                         size: 16,
-                        color: _speakingIndex == index
-                            ? AppColors.primary
-                            : context.colors.textSecondary,
+                        color: _speakingIndex == index ? AppColors.primary : context.colors.textSecondary,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         _speakingIndex == index ? 'Speaking...' : 'Listen',
                         style: TextStyle(
                           fontSize: 11,
-                          color: _speakingIndex == index
-                              ? AppColors.primary
-                              : context.colors.textSecondary,
+                          color: _speakingIndex == index ? AppColors.primary : context.colors.textSecondary,
                         ),
                       ),
                     ],
@@ -498,8 +503,8 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
   }
 
   Widget _buildSourceCard(Map<String, dynamic> source) {
-    final title = source['title'] ?? source['document'] ?? 'Unknown Source';
-    final snippet = source['snippet'] ?? source['excerpt'] ?? '';
+    final titleLarge = ((source['title'] ?? source['document']) ?? 'Unknown Source') as String;
+    final snippet = ((source['snippet'] ?? source['excerpt']) ?? '') as String;
     final page = source['page'];
     final score = source['score'] ?? source['relevance'];
 
@@ -526,7 +531,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    title,
+                    titleLarge,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -538,14 +543,13 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
                 ),
                 if (score != null)
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      '${(score is num ? (score * 100).round() : score)}%',
+                      '${score is num ? (score * 100).round() : score}%',
                       style: const TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
@@ -584,110 +588,106 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen>
     );
   }
 
-  Widget _buildInputBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: context.colors.card,
-        border: Border(top: BorderSide(color: context.colors.divider)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 6,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Row(
-          children: [
-            ScaleTransition(
-              scale: Tween(begin: 1.0, end: 1.25).animate(
-                CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
-              ),
-              child: Container(
-                decoration: _listening
-                    ? BoxDecoration(
-                        color: context.colors.error.withValues(alpha: 0.12),
-                        shape: BoxShape.circle,
-                      )
-                    : null,
-                child: IconButton(
-                  onPressed: _toggleListening,
-                  icon: Icon(
-                    _listening ? Icons.mic : Icons.mic_none,
-                    color: _listening ? context.colors.error : AppColors.primary,
-                  ),
-                  tooltip: _listening ? 'Stop Listening' : 'Voice Input',
-                ),
-              ),
-            ),
-            if (_listening)
-              Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: SizedBox(
-                  width: 14,
-                  height: 14,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: context.colors.error,
-                  ),
-                ),
-              ),
-            const SizedBox(width: 4),
-            Expanded(
-              child: TextField(
-                controller: _questionCtrl,
-                textInputAction: TextInputAction.send,
-                decoration: InputDecoration(
-                  hintText: 'Ask ScholarAI anything...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(color: context.colors.divider),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(color: context.colors.divider),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide:
-                        const BorderSide(color: AppColors.primary, width: 1.5),
-                  ),
-                  filled: true,
-                  fillColor: context.colors.surface,
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  isDense: true,
-                ),
-                onSubmitted: (_) => _sendQuestion(),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Container(
-              decoration: BoxDecoration(
-                color: _loading ? context.colors.textSecondary : AppColors.primary,
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                onPressed: _loading ? null : _sendQuestion,
-                icon: _loading
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Icon(Icons.send, color: Colors.white, size: 18),
-              ),
+  Widget _buildInputBar() => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: context.colors.card,
+          border: Border(top: BorderSide(color: context.colors.divider)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 6,
+              offset: const Offset(0, -2),
             ),
           ],
         ),
-      ),
-    );
-  }
+        child: SafeArea(
+          child: Row(
+            children: [
+              ScaleTransition(
+                scale: Tween(begin: 1.0, end: 1.25).animate(
+                  CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
+                ),
+                child: Container(
+                  decoration: _listening
+                      ? BoxDecoration(
+                          color: context.colors.error.withValues(alpha: 0.12),
+                          shape: BoxShape.circle,
+                        )
+                      : null,
+                  child: IconButton(
+                    onPressed: _toggleListening,
+                    icon: Icon(
+                      _listening ? Icons.mic : Icons.mic_none,
+                      color: _listening ? context.colors.error : AppColors.primary,
+                    ),
+                    tooltip: _listening ? 'Stop Listening' : 'Voice Input',
+                  ),
+                ),
+              ),
+              if (_listening)
+                Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: context.colors.error,
+                    ),
+                  ),
+                ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: TextField(
+                  controller: _questionCtrl,
+                  textInputAction: TextInputAction.send,
+                  decoration: InputDecoration(
+                    hintText: 'Ask ScholarAI anything...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: BorderSide(color: context.colors.divider),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: BorderSide(color: context.colors.divider),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                    ),
+                    filled: true,
+                    fillColor: context.colors.surface,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    isDense: true,
+                  ),
+                  onSubmitted: (_) => _sendQuestion(),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                decoration: BoxDecoration(
+                  color: _loading ? context.colors.textSecondary : AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  onPressed: _loading ? null : _sendQuestion,
+                  icon: _loading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.send, color: Colors.white, size: 18),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
 }
 
 class _ChatMessage {

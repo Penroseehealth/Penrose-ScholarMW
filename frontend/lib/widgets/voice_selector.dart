@@ -5,7 +5,7 @@ import '../core/theme/theme_colors.dart';
 
 class VoiceSelector extends StatefulWidget {
   final String? selectedVoiceId;
-  final Function(String voiceId) onVoiceSelected;
+  final void Function(String voiceId) onVoiceSelected;
 
   const VoiceSelector({
     super.key,
@@ -38,47 +38,46 @@ class _VoiceSelectorState extends State<VoiceSelector> {
   String? _previewing;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 36, height: 4,
-                decoration: BoxDecoration(color: context.colors.border, borderRadius: BorderRadius.circular(2)),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Voice Library',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Choose your preferred AI voice',
-              style: TextStyle(fontSize: 13, color: context.colors.textMuted),
-            ),
-            const SizedBox(height: 16),
-            Flexible(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: _voices.length,
-                itemBuilder: (ctx, i) => _voiceCard(_voices[i]),
-              ),
-            ),
-          ],
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
-      ),
-    );
-  }
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(color: context.colors.border, borderRadius: BorderRadius.circular(2)),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Voice Library',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Choose your preferred AI voice',
+                style: TextStyle(fontSize: 13, color: context.colors.textMuted),
+              ),
+              const SizedBox(height: 16),
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _voices.length,
+                  itemBuilder: (ctx, i) => _voiceCard(_voices[i]),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
 
   Widget _voiceCard(Map<String, String> voice) {
     final isSelected = voice['id'] == widget.selectedVoiceId;
@@ -104,7 +103,8 @@ class _VoiceSelectorState extends State<VoiceSelector> {
             child: Row(
               children: [
                 Container(
-                  width: 36, height: 36,
+                  width: 36,
+                  height: 36,
                   decoration: BoxDecoration(
                     color: isSelected ? AppColors.primary.withValues(alpha: 0.2) : context.colors.surfaceHighest,
                     borderRadius: BorderRadius.circular(8),

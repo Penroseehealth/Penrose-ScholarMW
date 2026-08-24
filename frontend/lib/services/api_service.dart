@@ -137,8 +137,8 @@ class ApiService {
         body: jsonEncode({'refresh_token': _refreshToken}),
       );
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        await setTokens(data['access_token'], data['refresh_token']);
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        await setTokens(data['access_token'] as String, data['refresh_token'] as String);
         return true;
       }
       await clearTokens();
@@ -161,7 +161,8 @@ class ApiService {
     return http.Response.fromStream(streamed);
   }
 
-  Future<http.Response> uploadFileBytes(String path, List<int> bytes, String filename, {Map<String, String>? fields}) async {
+  Future<http.Response> uploadFileBytes(String path, List<int> bytes, String filename,
+      {Map<String, String>? fields}) async {
     final h = await headers;
     final uri = Uri.parse('$apiBaseUrl$path');
     final request = http.MultipartRequest('POST', uri);

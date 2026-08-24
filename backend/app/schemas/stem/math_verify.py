@@ -101,12 +101,8 @@ async def verify_math_expression(req: MathVerifyRequest) -> MathVerifyResponse:
     steps: list[MathStep] = []
 
     try:
-        sympy_expr = sympify(
-            _latex_to_sympy(req.expression), locals={req.variable: var}
-        )
-        steps.append(
-            MathStep(description="Parsed expression", expression=str(sympy_expr))
-        )
+        sympy_expr = sympify(_latex_to_sympy(req.expression), locals={req.variable: var})
+        steps.append(MathStep(description="Parsed expression", expression=str(sympy_expr)))
     except Exception as e:
         return MathVerifyResponse(
             valid=False,
@@ -126,9 +122,7 @@ async def verify_math_expression(req: MathVerifyRequest) -> MathVerifyResponse:
     try:
         expanded_form = expand(sympy_expr)
         if str(expanded_form) != str(simplified):
-            steps.append(
-                MathStep(description="Expanded", expression=str(expanded_form))
-            )
+            steps.append(MathStep(description="Expanded", expression=str(expanded_form)))
     except Exception:
         pass
 
@@ -141,9 +135,7 @@ async def verify_math_expression(req: MathVerifyRequest) -> MathVerifyResponse:
 
     if req.expected_simplified:
         try:
-            expected = sympify(
-                _latex_to_sympy(req.expected_simplified), locals={req.variable: var}
-            )
+            expected = sympify(_latex_to_sympy(req.expected_simplified), locals={req.variable: var})
             diff = simplify(simplified - expected)
             if diff == 0:
                 steps.append(
@@ -160,11 +152,7 @@ async def verify_math_expression(req: MathVerifyRequest) -> MathVerifyResponse:
                     )
                 )
         except Exception as e:
-            steps.append(
-                MathStep(
-                    description="Could not verify against expected", expression=str(e)
-                )
-            )
+            steps.append(MathStep(description="Could not verify against expected", expression=str(e)))
 
     latex_str = latex(sympy_expr)
     restrictions = _detect_restrictions(req.expression)

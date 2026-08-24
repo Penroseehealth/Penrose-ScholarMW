@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/services.dart';
 
 class GlobalSearchScreen extends StatefulWidget {
   const GlobalSearchScreen({super.key});
@@ -65,7 +66,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body);
         setState(() {
-          _results = body is List ? body : (body['results'] ?? []);
+          _results = body is List ? body : (body['results'] as List<dynamic>? ?? []);
           _loading = false;
         });
       } else {
@@ -87,7 +88,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
   Map<String, List<dynamic>> _groupResults() {
     final map = <String, List<dynamic>>{};
     for (final item in _results) {
-      final type = item['type'] ?? 'other';
+      final type = (item['type'] ?? 'other') as String;
       map.putIfAbsent(type, () => []).add(item);
     }
     return map;
@@ -132,89 +133,83 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: Column(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppColors.primary, AppColors.primaryDark],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: Column(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [AppColors.primary, AppColors.primaryDark],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
               ),
-            ),
-            child: SafeArea(
-              bottom: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Search',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Find courses, assessments, resources & more',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: _searchController,
-                      focusNode: _searchFocusNode,
-                      onChanged: _onSearchChanged,
-                      autofocus: true,
-                      style: const TextStyle(color: Colors.white, fontSize: 15),
-                      decoration: InputDecoration(
-                        hintText: 'Search everything...',
-                        hintStyle:
-                            TextStyle(color: Colors.white.withValues(alpha: 0.6)),
-                        prefixIcon: const Icon(Icons.search,
-                            color: Colors.white70, size: 22),
-                        suffixIcon: _query.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear,
-                                    color: Colors.white70, size: 20),
-                                onPressed: () {
-                                  _searchController.clear();
-                                  setState(() {
-                                    _results = [];
-                                    _query = '';
-                                    _hasSearched = false;
-                                  });
-                                },
-                              )
-                            : null,
-                        filled: true,
-                        fillColor: Colors.white.withValues(alpha: 0.15),
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 0),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Search',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      Text(
+                        'Find courses, assessments, resources & more',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: _searchController,
+                        focusNode: _searchFocusNode,
+                        onChanged: _onSearchChanged,
+                        autofocus: true,
+                        style: const TextStyle(color: Colors.white, fontSize: 15),
+                        decoration: InputDecoration(
+                          hintText: 'Search everything...',
+                          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+                          prefixIcon: const Icon(Icons.search, color: Colors.white70, size: 22),
+                          suffixIcon: _query.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear, color: Colors.white70, size: 20),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    setState(() {
+                                      _results = [];
+                                      _query = '';
+                                      _hasSearched = false;
+                                    });
+                                  },
+                                )
+                              : null,
+                          filled: true,
+                          fillColor: Colors.white.withValues(alpha: 0.15),
+                          contentPadding: const EdgeInsets.symmetric(),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          Expanded(child: _buildBody()),
-        ],
-      ),
-    );
-  }
+            Expanded(child: _buildBody()),
+          ],
+        ),
+      );
 
   Widget _buildBody() {
     if (_loading) {
@@ -236,63 +231,59 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
     return _buildResults();
   }
 
-  Widget _buildInitialState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.search, size: 56, color: context.colors.textMuted.withValues(alpha: 0.3)),
-            const SizedBox(height: 12),
-            Text(
-              'Type to search',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: context.colors.textSecondary,
+  Widget _buildInitialState() => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.search, size: 56, color: context.colors.textMuted.withValues(alpha: 0.3)),
+              const SizedBox(height: 12),
+              Text(
+                'Type to search',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: context.colors.textSecondary,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Search across courses, assessments, and resources',
-              style: TextStyle(fontSize: 13, color: context.colors.textMuted),
-              textAlign: TextAlign.center,
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                'Search across courses, assessments, and resources',
+                style: TextStyle(fontSize: 13, color: context.colors.textMuted),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildNoResults() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.search_off, size: 56, color: context.colors.textMuted.withValues(alpha: 0.3)),
-            const SizedBox(height: 12),
-            Text(
-              'No results for "$_query"',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: context.colors.textSecondary,
+  Widget _buildNoResults() => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.search_off, size: 56, color: context.colors.textMuted.withValues(alpha: 0.3)),
+              const SizedBox(height: 12),
+              Text(
+                'No results for "$_query"',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: context.colors.textSecondary,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Try different keywords or check your spelling',
-              style: TextStyle(fontSize: 13, color: context.colors.textMuted),
-              textAlign: TextAlign.center,
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                'Try different keywords or check your spelling',
+                style: TextStyle(fontSize: 13, color: context.colors.textMuted),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildResults() {
     final grouped = _groupResults();
@@ -313,8 +304,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
         for (final entry in grouped.entries) ...[
           Row(
             children: [
-              Icon(_groupIcon(entry.key),
-                  size: 18, color: AppColors.primary),
+              Icon(_groupIcon(entry.key), size: 18, color: AppColors.primary),
               const SizedBox(width: 8),
               Text(
                 '${_groupTitle(entry.key)} (${entry.value.length})',
@@ -335,16 +325,15 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
   }
 
   Widget _buildResultItem(dynamic item) {
-    final title = item['title'] ?? '';
-    final subtitle = item['subtitle'] ?? '';
-    final type = item['type'] ?? '';
+    final title = (item['title'] ?? '') as String;
+    final subtitle = (item['subtitle'] ?? '') as String;
+    final type = (item['type'] ?? '') as String;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 6),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
         leading: Container(
           width: 38,
           height: 38,
@@ -363,48 +352,43 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
         subtitle: subtitle.isNotEmpty
             ? Text(
                 subtitle,
-                style: TextStyle(
-                    fontSize: 12, color: context.colors.textSecondary),
+                style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               )
             : null,
-        trailing:
-            Icon(Icons.chevron_right, size: 18, color: context.colors.textSecondary),
+        trailing: Icon(Icons.chevron_right, size: 18, color: context.colors.textSecondary),
       ),
     );
   }
 
-  Widget _buildErrorState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.error_outline, size: 48, color: context.colors.error),
-            const SizedBox(height: 12),
-            Text(
-              _error!,
-              style:
-                  TextStyle(fontSize: 14, color: context.colors.textSecondary),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => _performSearch(_query),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+  Widget _buildErrorState() => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.error_outline, size: 48, color: context.colors.error),
+              const SizedBox(height: 12),
+              Text(
+                _error!,
+                style: TextStyle(fontSize: 14, color: context.colors.textSecondary),
+                textAlign: TextAlign.center,
               ),
-              child: const Text('Retry'),
-            ),
-          ],
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => _performSearch(_query),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 }

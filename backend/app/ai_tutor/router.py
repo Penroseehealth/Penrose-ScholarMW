@@ -44,11 +44,7 @@ def _extract_sources(text: str) -> tuple[str, str | None]:
         return text, None
     content = text[:idx].rstrip()
     sources_block = text[idx + len(marker) :].strip()
-    source_lines = [
-        line.lstrip("- ").strip()
-        for line in sources_block.splitlines()
-        if line.strip().startswith("-")
-    ]
+    source_lines = [line.lstrip("- ").strip() for line in sources_block.splitlines() if line.strip().startswith("-")]
     if not source_lines:
         return content, None
     return content, json.dumps(source_lines)
@@ -96,10 +92,7 @@ async def _call_llm(system_prompt: str, messages: list[dict]) -> str:
         import logging
 
         logging.getLogger(__name__).warning("AI call failed: %s", exc)
-        return (
-            "ScholarAI is currently unavailable. Please try again later. "
-            f"(Detail: {exc})"
-        )
+        return f"ScholarAI is currently unavailable. Please try again later. (Detail: {exc})"
 
 
 class DataAnalysisRequest(BaseModel):
@@ -137,27 +130,19 @@ async def chat(
         await db.refresh(session)
         session_id = session.id
     else:
-        result = await db.execute(
-            select(ChatSession).where(ChatSession.id == session_id)
-        )
+        result = await db.execute(select(ChatSession).where(ChatSession.id == session_id))
         session = result.scalar_one_or_none()
         if not session or session.user_id != user.id:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Session not found"
-            )
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
 
     user_msg = ChatMessage(session_id=session_id, role="user", content=body.message)
     db.add(user_msg)
     await db.commit()
 
     history_result = await db.execute(
-        select(ChatMessage)
-        .where(ChatMessage.session_id == session_id)
-        .order_by(ChatMessage.id)
+        select(ChatMessage).where(ChatMessage.session_id == session_id).order_by(ChatMessage.id)
     )
-    history = [
-        {"role": m.role, "content": m.content} for m in history_result.scalars().all()
-    ]
+    history = [{"role": m.role, "content": m.content} for m in history_result.scalars().all()]
 
     system_prompt = _build_system_prompt(body.agent_type)
 
@@ -205,9 +190,7 @@ async def list_sessions(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(ChatSession)
-        .where(ChatSession.user_id == user.id)
-        .order_by(ChatSession.updated_at.desc())
+        select(ChatSession).where(ChatSession.user_id == user.id).order_by(ChatSession.updated_at.desc())
     )
     return [ChatSessionResponse.model_validate(s) for s in result.scalars().all()]
 
@@ -225,9 +208,7 @@ async def get_session(
     )
     session = result.scalar_one_or_none()
     if not session:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Session not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
     return ChatSessionDetail.model_validate(session)
 
 

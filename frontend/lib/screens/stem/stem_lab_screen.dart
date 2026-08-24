@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 import '../../services/stem_service.dart';
-import '../../widgets/shimmer_loading.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
-import '../../core/theme/theme_colors.dart';
+import '../../widgets/shimmer_loading.dart';
 
 class StemLabScreen extends StatefulWidget {
   final String subjectSlug;
@@ -36,7 +37,10 @@ class _StemLabScreenState extends State<StemLabScreen> {
   }
 
   Future<void> _loadData() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final subjects = await _stemService.getSubjects();
       final labs = await _stemService.getLabs(
@@ -52,143 +56,146 @@ class _StemLabScreenState extends State<StemLabScreen> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() { _error = e.toString(); _loading = false; });
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
       }
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 90,
-            pinned: true,
-            backgroundColor: AppColors.primaryDark,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'STEM Labs',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textPrimary,
-                ),
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.primaryDark, AppColors.primaryMuted],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: RefreshIndicator(
+          onRefresh: _loadData,
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 90,
+                pinned: true,
+                backgroundColor: AppColors.primaryDark,
+                flexibleSpace: FlexibleSpaceBar(
+                  title: Text(
+                    'STEM Labs',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary,
+                    ),
+                  ),
+                  background: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColors.primaryDark, AppColors.primaryMuted],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 50,
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                scrollDirection: Axis.horizontal,
-                itemCount: _subjects.length + 1,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    final selected = _selectedSubject.isEmpty;
-                    return ChoiceChip(
-                      label: const Text('All', style: TextStyle(fontSize: 12)),
-                      selected: selected,
-                      selectedColor: AppColors.primary,
-                      backgroundColor: context.colors.surface,
-                      side: BorderSide(color: selected ? AppColors.primary : context.colors.border),
-                      onSelected: (_) {
-                        setState(() => _selectedSubject = '');
-                        _loadData();
-                      },
-                    );
-                  }
-                  final s = _subjects[index - 1];
-                  final selected = _selectedSubject == s['slug'];
-                  return ChoiceChip(
-                    label: Text(
-                      s['name'] ?? '',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: selected ? Colors.white : context.colors.textSecondary,
-                      ),
-                    ),
-                    selected: selected,
-                    selectedColor: AppColors.primary,
-                    backgroundColor: context.colors.surface,
-                    side: BorderSide(color: selected ? AppColors.primary : context.colors.border),
-                    onSelected: (_) {
-                      setState(() => _selectedSubject = s['slug'] ?? '');
-                      _loadData();
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 50,
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _subjects.length + 1,
+                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        final selected = _selectedSubject.isEmpty;
+                        return ChoiceChip(
+                          label: const Text('All', style: TextStyle(fontSize: 12)),
+                          selected: selected,
+                          selectedColor: AppColors.primary,
+                          backgroundColor: context.colors.surface,
+                          side: BorderSide(color: selected ? AppColors.primary : context.colors.border),
+                          onSelected: (_) {
+                            setState(() => _selectedSubject = '');
+                            _loadData();
+                          },
+                        );
+                      }
+                      final s = _subjects[index - 1];
+                      final selected = _selectedSubject == s['slug'];
+                      return ChoiceChip(
+                        label: Text(
+                          (s['name'] ?? '') as String,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: selected ? Colors.white : context.colors.textSecondary,
+                          ),
+                        ),
+                        selected: selected,
+                        selectedColor: AppColors.primary,
+                        backgroundColor: context.colors.surface,
+                        side: BorderSide(color: selected ? AppColors.primary : context.colors.border),
+                        onSelected: (_) {
+                          setState(() => _selectedSubject = (s['slug'] ?? '') as String);
+                          _loadData();
+                        },
+                      );
                     },
-                  );
-                },
+                  ),
+                ),
               ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 44,
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                scrollDirection: Axis.horizontal,
-                itemCount: _labTypes.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (context, index) {
-                  final type = _labTypes[index];
-                  final selected = _selectedLabType == type ||
-                      (_selectedLabType.isEmpty && type == 'all');
-                  return ChoiceChip(
-                    label: Text(
-                      type == 'all' ? 'All Types' : type[0].toUpperCase() + type.substring(1),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: selected ? Colors.white : context.colors.textSecondary,
-                      ),
-                    ),
-                    selected: selected,
-                    selectedColor: context.colors.teal,
-                    backgroundColor: context.colors.surface,
-                    side: BorderSide(color: selected ? context.colors.teal : context.colors.border),
-                    onSelected: (_) {
-                      setState(() => _selectedLabType = type == 'all' ? '' : type);
-                      _loadData();
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 44,
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _labTypes.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    itemBuilder: (context, index) {
+                      final type = _labTypes[index];
+                      final selected = _selectedLabType == type || (_selectedLabType.isEmpty && type == 'all');
+                      return ChoiceChip(
+                        label: Text(
+                          type == 'all' ? 'All Types' : type[0].toUpperCase() + type.substring(1),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: selected ? Colors.white : context.colors.textSecondary,
+                          ),
+                        ),
+                        selected: selected,
+                        selectedColor: context.colors.teal,
+                        backgroundColor: context.colors.surface,
+                        side: BorderSide(color: selected ? context.colors.teal : context.colors.border),
+                        onSelected: (_) {
+                          setState(() => _selectedLabType = type == 'all' ? '' : type);
+                          _loadData();
+                        },
+                      );
                     },
-                  );
-                },
+                  ),
+                ),
               ),
-            ),
+              if (_error != null)
+                SliverToBoxAdapter(
+                    child: ErrorState(message: 'Failed to load labs', details: _error, onRetry: _loadData))
+              else if (_loading)
+                SliverToBoxAdapter(child: ShimmerLoading.list())
+              else if (_labs.isEmpty)
+                const SliverToBoxAdapter(
+                    child: EmptyState(
+                        icon: Icons.science_rounded, title: 'No labs found', subtitle: 'Try adjusting your filters'))
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.all(16),
+                  sliver: SliverList.separated(
+                    itemCount: _labs.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) => _buildLabCard(index, _labs[index]),
+                  ),
+                ),
+              const SliverToBoxAdapter(child: SizedBox(height: 40)),
+            ],
           ),
-          if (_error != null)
-            SliverToBoxAdapter(child: ErrorState(message: 'Failed to load labs', details: _error, onRetry: _loadData))
-          else if (_loading)
-            SliverToBoxAdapter(child: ShimmerLoading.list(count: 5))
-          else if (_labs.isEmpty)
-            const SliverToBoxAdapter(child: EmptyState(icon: Icons.science_rounded, title: 'No labs found', subtitle: 'Try adjusting your filters'))
-          else
-            SliverPadding(
-              padding: const EdgeInsets.all(16),
-              sliver: SliverList.separated(
-                itemCount: _labs.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) => _buildLabCard(index, _labs[index]),
-              ),
-            ),
-          const SliverToBoxAdapter(child: SizedBox(height: 40)),
-          ],
         ),
-      ),
-    );
-  }
+      );
 
   Color _difficultyColor(String? difficulty) {
     switch (difficulty?.toLowerCase()) {
@@ -209,7 +216,7 @@ class _StemLabScreenState extends State<StemLabScreen> {
 
   Widget _buildLabCard(int index, dynamic lab) {
     final expanded = _expandedIndices.contains(index);
-    final difficulty = lab['difficulty'] ?? 'medium';
+    final difficulty = (lab['difficulty'] ?? 'medium') as String;
     final diffColor = _difficultyColor(difficulty);
 
     return Container(
@@ -226,7 +233,7 @@ class _StemLabScreenState extends State<StemLabScreen> {
             children: [
               Expanded(
                 child: Text(
-                  lab['title'] ?? '',
+                  (lab['title'] ?? '') as String,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -263,7 +270,7 @@ class _StemLabScreenState extends State<StemLabScreen> {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    lab['subject'],
+                    lab['subject'] as String,
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -284,7 +291,7 @@ class _StemLabScreenState extends State<StemLabScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            lab['description'] ?? '',
+            (lab['description'] ?? '') as String,
             style: TextStyle(fontSize: 13, color: context.colors.textMuted),
             maxLines: expanded ? 20 : 3,
             overflow: TextOverflow.ellipsis,
@@ -299,19 +306,19 @@ class _StemLabScreenState extends State<StemLabScreen> {
             Wrap(
               spacing: 6,
               runSpacing: 4,
-              children: (lab['materials'] as List).map<Widget>((m) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: context.colors.warningMuted,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    m.toString(),
-                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: context.colors.warning),
-                  ),
-                );
-              }).toList(),
+              children: (lab['materials'] as List)
+                  .map<Widget>((m) => Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: context.colors.warningMuted,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          m.toString(),
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: context.colors.warning),
+                        ),
+                      ))
+                  .toList(),
             ),
           ],
           const SizedBox(height: 8),

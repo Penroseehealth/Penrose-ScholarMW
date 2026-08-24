@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import 'stem_text.dart';
 import '../core/theme/theme_colors.dart';
+import 'stem_text.dart';
 
 class TypewriterRenderer extends StatefulWidget {
   final String content;
@@ -58,7 +58,7 @@ class _TypewriterRendererState extends State<TypewriterRenderer> {
         final chunkSize = _getChunkSize(chars, _charIndex);
         final end = (_charIndex + chunkSize).clamp(0, chars.length);
         setState(() {
-          _displayed += chars.sublist(_charIndex, end).join('');
+          _displayed += chars.sublist(_charIndex, end).join();
           _charIndex = end;
         });
       } else {
@@ -87,11 +87,9 @@ class _TypewriterRendererState extends State<TypewriterRenderer> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return StemText(
-      _displayed,
-      style: widget.style ?? TextStyle(color: context.colors.textPrimary, fontSize: 14, height: 1.6),
-      selectable: true,
-    );
-  }
+  Widget build(BuildContext context) => StemText(
+        _displayed,
+        style: widget.style ?? TextStyle(color: context.colors.textPrimary, fontSize: 14, height: 1.6),
+        selectable: true,
+      );
 }

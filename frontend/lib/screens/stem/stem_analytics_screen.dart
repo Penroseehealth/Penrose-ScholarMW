@@ -1,10 +1,12 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../services/stem_service.dart';
-import '../../widgets/shimmer_loading.dart';
-import '../../widgets/error_state.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/stem_service.dart';
+import '../../widgets/error_state.dart';
+import '../../widgets/shimmer_loading.dart';
 
 class StemAnalyticsScreen extends StatefulWidget {
   const StemAnalyticsScreen({super.key});
@@ -30,7 +32,10 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
   }
 
   Future<void> _loadData() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final results = await Future.wait([
         _stemService.getStudySummary(),
@@ -48,66 +53,68 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
         });
       }
     } catch (e) {
-      if (mounted) setState(() { _error = e.toString(); _loading = false; });
+      if (mounted)
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        color: AppColors.primary,
-        child: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 90,
-            pinned: true,
-            backgroundColor: AppColors.primaryDark,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'STEM Analytics',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textPrimary,
-                ),
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.primaryDark, AppColors.primaryMuted],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: RefreshIndicator(
+          onRefresh: _loadData,
+          color: AppColors.primary,
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 90,
+                pinned: true,
+                backgroundColor: AppColors.primaryDark,
+                flexibleSpace: FlexibleSpaceBar(
+                  title: Text(
+                    'STEM Analytics',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary,
+                    ),
+                  ),
+                  background: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColors.primaryDark, AppColors.primaryMuted],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
+              if (_error != null)
+                SliverToBoxAdapter(
+                  child: ErrorState(
+                    message: 'Failed to load analytics',
+                    details: _error,
+                    onRetry: _loadData,
+                  ),
+                )
+              else if (_loading)
+                SliverToBoxAdapter(child: ShimmerLoading.list(count: 3))
+              else ...[
+                SliverToBoxAdapter(child: _buildSummaryGrid()),
+                SliverToBoxAdapter(child: _buildWeeklyActivity()),
+                SliverToBoxAdapter(child: _buildSubjectProgress()),
+                SliverToBoxAdapter(child: _buildWeakestConcepts()),
+                SliverToBoxAdapter(child: _buildHeatmap()),
+                const SliverToBoxAdapter(child: SizedBox(height: 40)),
+              ],
+            ],
           ),
-          if (_error != null)
-            SliverToBoxAdapter(
-              child: ErrorState(
-                message: 'Failed to load analytics',
-                details: _error,
-                onRetry: _loadData,
-              ),
-            )
-          else if (_loading)
-            SliverToBoxAdapter(child: ShimmerLoading.list(count: 3))
-          else ...[
-            SliverToBoxAdapter(child: _buildSummaryGrid()),
-            SliverToBoxAdapter(child: _buildWeeklyActivity()),
-            SliverToBoxAdapter(child: _buildSubjectProgress()),
-            SliverToBoxAdapter(child: _buildWeakestConcepts()),
-            SliverToBoxAdapter(child: _buildHeatmap()),
-            const SliverToBoxAdapter(child: SizedBox(height: 40)),
-          ],
-        ],
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildSummaryGrid() {
     final totalHours = ((_summary['total_minutes'] ?? 0) as num) / 60.0;
@@ -193,49 +200,53 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
       title: 'Weekly Activity',
       icon: Icons.bar_chart_rounded,
       child: Column(
-        children:         hasData ? List.generate(7, (i) {
-          final frac = dayMinutes[i] / maxMin;
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 30,
-                  child: Text(
-                    dayLabels[i],
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.textMuted),
-                  ),
-                ),
-                Expanded(
-                  child: FractionallySizedBox(
-                    widthFactor: frac.clamp(0.05, 1.0),
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      height: 20,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppColors.primaryDark, AppColors.primary],
+        children: hasData
+            ? List.generate(7, (i) {
+                final frac = dayMinutes[i] / maxMin;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 30,
+                        child: Text(
+                          dayLabels[i],
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.textMuted),
                         ),
-                        borderRadius: BorderRadius.circular(6),
                       ),
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.only(right: 8),
-                      child: Text(
-                        '${dayMinutes[i]}m',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
+                      Expanded(
+                        child: FractionallySizedBox(
+                          widthFactor: frac.clamp(0.05, 1.0),
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            height: 20,
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [AppColors.primaryDark, AppColors.primary],
+                              ),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.only(right: 8),
+                            child: Text(
+                              '${dayMinutes[i]}m',
+                              style: TextStyle(
+                                  fontSize: 10, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
+                );
+              })
+            : [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Text('No activity data yet. Start studying to see your weekly activity!',
+                      style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
                 ),
               ],
-            ),
-          );
-        }) : [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Text('No activity data yet. Start studying to see your weekly activity!', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
-          ),
-        ],
       ),
     );
   }
@@ -260,7 +271,7 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        s['subject_title'] ?? '',
+                        (s['subject_title'] ?? '') as String,
                         style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -321,7 +332,7 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        c['title'] ?? '',
+                        (c['title'] ?? '') as String,
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -332,7 +343,7 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        c['subject_slug'] ?? '',
+                        (c['subject_slug'] ?? '') as String,
                         style: TextStyle(fontSize: 11, color: context.colors.textMuted),
                       ),
                     ],
@@ -399,41 +410,39 @@ class _StemAnalyticsScreenState extends State<StemAnalyticsScreen> {
     );
   }
 
-  Widget _section({required String title, required IconData icon, required Widget child}) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: context.colors.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: context.colors.border),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, size: 16, color: AppColors.primary),
-                const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: context.colors.textPrimary,
+  Widget _section({required String title, required IconData icon, required Widget child}) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: context.colors.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: context.colors.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(icon, size: 16, color: AppColors.primary),
+                  const SizedBox(width: 8),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            child,
-          ],
+                ],
+              ),
+              const SizedBox(height: 14),
+              child,
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 }
 
 class _StatData {

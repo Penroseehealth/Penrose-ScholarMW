@@ -59,9 +59,7 @@ async def create_institution(
     user: User = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
-    existing = await db.execute(
-        select(Institution).where(Institution.code == body.code)
-    )
+    existing = await db.execute(select(Institution).where(Institution.code == body.code))
     if existing.scalar_one_or_none():
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -91,14 +89,10 @@ async def get_institution(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(
-        select(Institution).where(Institution.id == institution_id)
-    )
+    result = await db.execute(select(Institution).where(Institution.id == institution_id))
     institution = result.scalar_one_or_none()
     if not institution:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Institution not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Institution not found")
 
     return {
         "id": institution.id,
@@ -121,14 +115,10 @@ async def update_institution(
     user: User = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(
-        select(Institution).where(Institution.id == institution_id)
-    )
+    result = await db.execute(select(Institution).where(Institution.id == institution_id))
     institution = result.scalar_one_or_none()
     if not institution:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Institution not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Institution not found")
 
     for key, value in body.model_dump(exclude_unset=True).items():
         setattr(institution, key, value)
@@ -154,26 +144,18 @@ async def institution_stats(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(
-        select(Institution).where(Institution.id == institution_id)
-    )
+    result = await db.execute(select(Institution).where(Institution.id == institution_id))
     institution = result.scalar_one_or_none()
     if not institution:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Institution not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Institution not found")
 
-    user_count_result = await db.execute(
-        select(func.count(User.id)).where(User.institution == institution.name)
-    )
+    user_count_result = await db.execute(select(func.count(User.id)).where(User.institution == institution.name))
     user_count = user_count_result.scalar() or 0
 
     course_count_result = await db.execute(select(func.count(Course.id)))
     course_count = course_count_result.scalar() or 0
 
-    active_students_result = await db.execute(
-        select(func.count(Enrollment.id)).where(Enrollment.is_active == True)
-    )
+    active_students_result = await db.execute(select(func.count(Enrollment.id)).where(Enrollment.is_active == True))
     active_students = active_students_result.scalar() or 0
 
     return {

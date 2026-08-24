@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../services/stem_service.dart';
+
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/stem_service.dart';
 
 class StemConceptScreen extends StatefulWidget {
   final int conceptId;
@@ -85,56 +86,54 @@ class _StemConceptScreenState extends State<StemConceptScreen> with SingleTicker
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      appBar: AppBar(
-        backgroundColor: context.colors.surface,
-        elevation: 0,
-        title: Text(
-          widget.title,
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: context.colors.textPrimary,
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        appBar: AppBar(
+          backgroundColor: context.colors.surface,
+          elevation: 0,
+          title: Text(
+            widget.title,
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: context.colors.textPrimary,
+            ),
           ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(49),
-          child: Container(
-            color: context.colors.surface,
-            child: Column(
-              children: [
-                TabBar(
-                  controller: _tabController,
-                  labelColor: AppColors.primary,
-                  unselectedLabelColor: context.colors.textMuted,
-                  indicatorColor: AppColors.primary,
-                  indicatorSize: TabBarIndicatorSize.label,
-                  labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                  unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-                  tabs: [
-                    const Tab(text: 'Learn'),
-                    const Tab(text: 'Objectives'),
-                    const Tab(text: 'Practice'),
-                  ],
-                ),
-                Container(color: context.colors.border, height: 1),
-              ],
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(49),
+            child: Container(
+              color: context.colors.surface,
+              child: Column(
+                children: [
+                  TabBar(
+                    controller: _tabController,
+                    labelColor: AppColors.primary,
+                    unselectedLabelColor: context.colors.textMuted,
+                    indicatorColor: AppColors.primary,
+                    indicatorSize: TabBarIndicatorSize.label,
+                    labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                    tabs: const [
+                      Tab(text: 'Learn'),
+                      Tab(text: 'Objectives'),
+                      Tab(text: 'Practice'),
+                    ],
+                  ),
+                  Container(color: context.colors.border, height: 1),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildLearnTab(),
-          _buildObjectivesTab(),
-          _buildPracticeTab(),
-        ],
-      ),
-    );
-  }
+        body: TabBarView(
+          controller: _tabController,
+          children: [
+            _buildLearnTab(),
+            _buildObjectivesTab(),
+            _buildPracticeTab(),
+          ],
+        ),
+      );
 
   Widget _buildLearnTab() {
     if (_loadingMaterials) {
@@ -209,7 +208,7 @@ class _StemConceptScreenState extends State<StemConceptScreen> with SingleTicker
   }
 
   Widget _buildObjectiveCard(dynamic objective) {
-    final bloomLevel = objective['bloom_level'] ?? '';
+    final bloomLevel = (objective['bloom_level'] ?? '') as String;
     final bloomColor = _getBloomColor(bloomLevel);
 
     return Container(
@@ -243,7 +242,7 @@ class _StemConceptScreenState extends State<StemConceptScreen> with SingleTicker
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  objective['title'] ?? '',
+                  (objective['title'] ?? '') as String,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -253,11 +252,10 @@ class _StemConceptScreenState extends State<StemConceptScreen> with SingleTicker
               ),
             ],
           ),
-          if (objective['description'] != null &&
-              (objective['description'] as String).isNotEmpty) ...[
+          if (objective['description'] != null && (objective['description'] as String).isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(
-              objective['description'],
+              objective['description'] as String,
               style: TextStyle(
                 fontSize: 13,
                 color: context.colors.textMuted,
@@ -288,29 +286,27 @@ class _StemConceptScreenState extends State<StemConceptScreen> with SingleTicker
     }
   }
 
-  Widget _buildEmptyTab(String title, String subtitle) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.inbox_outlined, size: 44, color: context.colors.textMuted.withValues(alpha: 0.4)),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textSecondary),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: TextStyle(fontSize: 13, color: context.colors.textMuted),
-            ),
-          ],
+  Widget _buildEmptyTab(String title, String subtitle) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.inbox_outlined, size: 44, color: context.colors.textMuted.withValues(alpha: 0.4)),
+              const SizedBox(height: 12),
+              Text(
+                title,
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textSecondary),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: TextStyle(fontSize: 13, color: context.colors.textMuted),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 }
 
 class _ExpandableMaterialCard extends StatefulWidget {
@@ -330,86 +326,84 @@ class _ExpandableMaterialCardState extends State<_ExpandableMaterialCard> {
   bool _expanded = false;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: context.colors.border),
-      ),
-      child: Column(
-        children: [
-          GestureDetector(
-            onTap: () => setState(() => _expanded = !_expanded),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: context.colors.primaryGlow,
-                      borderRadius: BorderRadius.circular(10),
+  Widget build(BuildContext context) => Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: context.colors.border),
+        ),
+        child: Column(
+          children: [
+            GestureDetector(
+              onTap: () => setState(() => _expanded = !_expanded),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: context.colors.primaryGlow,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(widget.icon, color: AppColors.primary, size: 18),
                     ),
-                    child: Icon(widget.icon, color: AppColors.primary, size: 18),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.material['title'] ?? '',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: context.colors.textPrimary,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            (widget.material['title'] ?? '') as String,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: context.colors.textPrimary,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          widget.material['material_type'] ?? 'text',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: context.colors.textMuted,
+                          const SizedBox(height: 2),
+                          Text(
+                            (widget.material['material_type'] ?? 'text') as String,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: context.colors.textMuted,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  AnimatedRotation(
-                    turns: _expanded ? 0.25 : 0,
-                    duration: const Duration(milliseconds: 200),
-                    child: Icon(
-                      Icons.expand_more_rounded,
-                      color: context.colors.textMuted,
-                      size: 22,
+                    AnimatedRotation(
+                      turns: _expanded ? 0.25 : 0,
+                      duration: const Duration(milliseconds: 200),
+                      child: Icon(
+                        Icons.expand_more_rounded,
+                        color: context.colors.textMuted,
+                        size: 22,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (_expanded) ...[
-            Divider(height: 1, color: context.colors.border),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                widget.material['content'] ?? '',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: context.colors.textSecondary,
-                  height: 1.6,
+                  ],
                 ),
               ),
             ),
+            if (_expanded) ...[
+              Divider(height: 1, color: context.colors.border),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  (widget.material['content'] ?? '') as String,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: context.colors.textSecondary,
+                    height: 1.6,
+                  ),
+                ),
+              ),
+            ],
           ],
-        ],
-      ),
-    );
-  }
+        ),
+      );
 }
 
 class _PracticeQuestionCard extends StatefulWidget {
@@ -475,7 +469,9 @@ class _PracticeQuestionCardState extends State<_PracticeQuestionCard> {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: _answerRevealed
-              ? (_isCorrect ? context.colors.success.withValues(alpha: 0.3) : context.colors.error.withValues(alpha: 0.3))
+              ? (_isCorrect
+                  ? context.colors.success.withValues(alpha: 0.3)
+                  : context.colors.error.withValues(alpha: 0.3))
               : context.colors.border,
         ),
       ),
@@ -505,7 +501,7 @@ class _PracticeQuestionCardState extends State<_PracticeQuestionCard> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  widget.question['title'] ?? '',
+                  (widget.question['title'] ?? '') as String,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -517,7 +513,7 @@ class _PracticeQuestionCardState extends State<_PracticeQuestionCard> {
           ),
           const SizedBox(height: 12),
           Text(
-            widget.question['question_text'] ?? '',
+            (widget.question['question_text'] ?? '') as String,
             style: TextStyle(
               fontSize: 14,
               color: context.colors.textSecondary,
@@ -527,7 +523,7 @@ class _PracticeQuestionCardState extends State<_PracticeQuestionCard> {
           const SizedBox(height: 14),
           if (isMCQ)
             ...List.generate(options.length, (i) {
-              final option = options[i];
+              final option = options[i] as String;
               final isSelected = _selectedOption == option;
               return GestureDetector(
                 onTap: _answerRevealed
@@ -539,9 +535,7 @@ class _PracticeQuestionCardState extends State<_PracticeQuestionCard> {
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: isSelected
-                        ? AppColors.primary.withValues(alpha: 0.1)
-                        : context.colors.surfaceElevated,
+                    color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : context.colors.surfaceElevated,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: isSelected ? AppColors.primary : context.colors.border,
@@ -624,9 +618,8 @@ class _PracticeQuestionCardState extends State<_PracticeQuestionCard> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: (isMCQ ? _selectedOption != null : _answerController.text.trim().isNotEmpty)
-                    ? _checkAnswer
-                    : null,
+                onPressed:
+                    (isMCQ ? _selectedOption != null : _answerController.text.trim().isNotEmpty) ? _checkAnswer : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: AppColors.textOnPrimary,
@@ -671,8 +664,7 @@ class _PracticeQuestionCardState extends State<_PracticeQuestionCard> {
                 ],
               ),
             ),
-            if (widget.question['explanation'] != null &&
-                (widget.question['explanation'] as String).isNotEmpty) ...[
+            if (widget.question['explanation'] != null && (widget.question['explanation'] as String).isNotEmpty) ...[
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(12),
@@ -681,7 +673,7 @@ class _PracticeQuestionCardState extends State<_PracticeQuestionCard> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  widget.question['explanation'],
+                  widget.question['explanation'] as String,
                   style: TextStyle(
                     fontSize: 13,
                     color: context.colors.textSecondary,

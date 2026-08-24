@@ -29,11 +29,7 @@ class DataTableRenderer extends StatelessWidget {
     for (var i = 1; i < lines.length; i++) {
       final line = lines[i];
       if (RegExp(r'^\|[\s\-:|]+\|$').hasMatch(line)) continue;
-      final cells = line
-          .split('|')
-          .map((c) => c.trim())
-          .where((c) => c.isNotEmpty)
-          .toList();
+      final cells = line.split('|').map((c) => c.trim()).where((c) => c.isNotEmpty).toList();
       if (cells.length >= headers.length) {
         final row = <String, String>{};
         for (var j = 0; j < headers.length; j++) {
@@ -89,11 +85,11 @@ class DataTableRenderer extends StatelessWidget {
               horizontalMargin: 12,
               columnSpacing: 16,
               columns: headers.map((h) => DataColumn(label: Text(h))).toList(),
-              rows: rows.map((row) {
-                return DataRow(
-                  cells: headers.map((h) => DataCell(Text(row[h] ?? ''))).toList(),
-                );
-              }).toList(),
+              rows: rows
+                  .map((row) => DataRow(
+                        cells: headers.map((h) => DataCell(Text(row[h] ?? ''))).toList(),
+                      ))
+                  .toList(),
             ),
           ),
           Padding(
@@ -210,13 +206,16 @@ class SimpleBarChart extends StatelessWidget {
     ];
     return SimpleBarChart(
       title: title,
-      bars: data.entries.toList().asMap().entries.map((entry) {
-        return ChartBar(
-          label: entry.value.key,
-          value: entry.value.value,
-          color: colors[entry.key % colors.length],
-        );
-      }).toList(),
+      bars: data.entries
+          .toList()
+          .asMap()
+          .entries
+          .map((entry) => ChartBar(
+                label: entry.value.key,
+                value: entry.value.value,
+                color: colors[entry.key % colors.length],
+              ))
+          .toList(),
     );
   }
 }

@@ -28,16 +28,11 @@ def _build_providers() -> list[tuple[str, AsyncOpenAI, str]]:
     providers: list[tuple[str, AsyncOpenAI, str]] = []
 
     if s.CLOUDFLARE_ACCOUNT_ID and s.CLOUDFLARE_API_TOKEN:
-        base_url = (
-            f"https://api.cloudflare.com/client/v4/accounts/"
-            f"{s.CLOUDFLARE_ACCOUNT_ID}/ai/v1"
-        )
+        base_url = f"https://api.cloudflare.com/client/v4/accounts/{s.CLOUDFLARE_ACCOUNT_ID}/ai/v1"
         providers.append(
             (
                 "cloudflare",
-                AsyncOpenAI(
-                    api_key=s.CLOUDFLARE_API_TOKEN, base_url=base_url, timeout=60.0
-                ),
+                AsyncOpenAI(api_key=s.CLOUDFLARE_API_TOKEN, base_url=base_url, timeout=60.0),
                 s.CLOUDFLARE_AI_MODEL,
             )
         )
@@ -71,9 +66,7 @@ def get_ai_client() -> tuple[AsyncOpenAI, str]:
     """Return the primary (client, model). Preserved for backward compat."""
     providers = _build_providers()
     if not providers:
-        raise RuntimeError(
-            "No AI provider configured. Set CLOUDFLARE_* or HUGGINGFACE_* in .env."
-        )
+        raise RuntimeError("No AI provider configured. Set CLOUDFLARE_* or HUGGINGFACE_* in .env.")
     name, client, model = providers[0]
     log.info("AI primary provider: %s (%s)", name, model)
     return client, model
@@ -123,9 +116,7 @@ async def call_ai_text(
 ) -> str:
     """Convenience wrapper: returns the assistant content string.
     Raises AIProviderError on failure."""
-    completion, _provider = await call_ai_chat(
-        messages, max_tokens=max_tokens, temperature=temperature, **kwargs
-    )
+    completion, _provider = await call_ai_chat(messages, max_tokens=max_tokens, temperature=temperature, **kwargs)
     return completion.choices[0].message.content or "No response generated."
 
 

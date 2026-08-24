@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_colors.dart';
 import '../../services/stem_service.dart';
-import '../../widgets/shimmer_loading.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
-import '../../core/theme/theme_colors.dart';
+import '../../widgets/shimmer_loading.dart';
 
 class StemFormulaCentreScreen extends StatefulWidget {
   const StemFormulaCentreScreen({super.key});
@@ -38,7 +39,10 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
   }
 
   Future<void> _loadData() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final subjects = await _stemService.getSubjects();
       final formulas = await _stemService.getFormulas(
@@ -54,7 +58,11 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
         });
       }
     } catch (e) {
-      if (mounted) setState(() { _error = e.toString(); _loading = false; });
+      if (mounted)
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
     }
   }
 
@@ -64,150 +72,153 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 90,
-            pinned: true,
-            backgroundColor: AppColors.primaryDark,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'Formula Centre',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textPrimary,
-                ),
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.primaryDark, AppColors.primaryMuted],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: RefreshIndicator(
+          onRefresh: _loadData,
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 90,
+                pinned: true,
+                backgroundColor: AppColors.primaryDark,
+                flexibleSpace: FlexibleSpaceBar(
+                  title: Text(
+                    'Formula Centre',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary,
+                    ),
                   ),
-                ),
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: TextField(
-                controller: _searchController,
-                onSubmitted: _onSearch,
-                style: TextStyle(color: context.colors.textPrimary),
-                decoration: InputDecoration(
-                  hintText: 'Search formulas...',
-                  hintStyle: TextStyle(color: context.colors.textMuted),
-                  prefixIcon: Icon(Icons.search_rounded, color: context.colors.textMuted),
-                  suffixIcon: _searchQuery.isNotEmpty
-                      ? IconButton(
-                          icon: Icon(Icons.clear_rounded, color: context.colors.textMuted),
-                          onPressed: () {
-                            _searchController.clear();
-                            _onSearch('');
-                          },
-                        )
-                      : null,
-                  filled: true,
-                  fillColor: context.colors.surface,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: context.colors.border),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: context.colors.border),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                ),
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 50,
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                scrollDirection: Axis.horizontal,
-                itemCount: _subjects.length + 1,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    final selected = _selectedSubject.isEmpty;
-                    return ChoiceChip(
-                      label: const Text('All', style: TextStyle(fontSize: 12)),
-                      selected: selected,
-                      selectedColor: AppColors.primary,
-                      backgroundColor: context.colors.surface,
-                      side: BorderSide(color: selected ? AppColors.primary : context.colors.border),
-                      onSelected: (_) {
-                        setState(() => _selectedSubject = '');
-                        _loadData();
-                      },
-                    );
-                  }
-                  final s = _subjects[index - 1];
-                  final selected = _selectedSubject == s['slug'];
-                  return ChoiceChip(
-                    label: Text(
-                      s['name'] ?? '',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: selected ? Colors.white : context.colors.textSecondary,
+                  background: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColors.primaryDark, AppColors.primaryMuted],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
                     ),
-                    selected: selected,
-                    selectedColor: AppColors.primary,
-                    backgroundColor: context.colors.surface,
-                    side: BorderSide(color: selected ? AppColors.primary : context.colors.border),
-                    onSelected: (_) {
-                      setState(() => _selectedSubject = s['slug'] ?? '');
-                      _loadData();
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: TextField(
+                    controller: _searchController,
+                    onSubmitted: _onSearch,
+                    style: TextStyle(color: context.colors.textPrimary),
+                    decoration: InputDecoration(
+                      hintText: 'Search formulas...',
+                      hintStyle: TextStyle(color: context.colors.textMuted),
+                      prefixIcon: Icon(Icons.search_rounded, color: context.colors.textMuted),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(Icons.clear_rounded, color: context.colors.textMuted),
+                              onPressed: () {
+                                _searchController.clear();
+                                _onSearch('');
+                              },
+                            )
+                          : null,
+                      filled: true,
+                      fillColor: context.colors.surface,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: context.colors.border),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: context.colors.border),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppColors.primary),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    ),
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 50,
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _subjects.length + 1,
+                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        final selected = _selectedSubject.isEmpty;
+                        return ChoiceChip(
+                          label: const Text('All', style: TextStyle(fontSize: 12)),
+                          selected: selected,
+                          selectedColor: AppColors.primary,
+                          backgroundColor: context.colors.surface,
+                          side: BorderSide(color: selected ? AppColors.primary : context.colors.border),
+                          onSelected: (_) {
+                            setState(() => _selectedSubject = '');
+                            _loadData();
+                          },
+                        );
+                      }
+                      final s = _subjects[index - 1];
+                      final selected = _selectedSubject == s['slug'];
+                      return ChoiceChip(
+                        label: Text(
+                          (s['name'] ?? '') as String,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: selected ? Colors.white : context.colors.textSecondary,
+                          ),
+                        ),
+                        selected: selected,
+                        selectedColor: AppColors.primary,
+                        backgroundColor: context.colors.surface,
+                        side: BorderSide(color: selected ? AppColors.primary : context.colors.border),
+                        onSelected: (_) {
+                          setState(() => _selectedSubject = (s['slug'] ?? '') as String);
+                          _loadData();
+                        },
+                      );
                     },
-                  );
-                },
+                  ),
+                ),
               ),
-            ),
+              if (_error != null)
+                SliverToBoxAdapter(
+                    child: ErrorState(message: 'Failed to load formulas', details: _error, onRetry: _loadData))
+              else if (_loading)
+                SliverToBoxAdapter(child: ShimmerLoading.grid())
+              else if (_formulas.isEmpty)
+                const SliverToBoxAdapter(
+                    child: EmptyState(
+                        icon: Icons.functions_rounded,
+                        title: 'No formulas found',
+                        subtitle: 'Try adjusting your search or filters'))
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.all(16),
+                  sliver: SliverGrid(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                      childAspectRatio: 0.85,
+                    ),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => _buildFormulaCard(index, _formulas[index]),
+                      childCount: _formulas.length,
+                    ),
+                  ),
+                ),
+              const SliverToBoxAdapter(child: SizedBox(height: 40)),
+            ],
           ),
-          if (_error != null)
-            SliverToBoxAdapter(child: ErrorState(message: 'Failed to load formulas', details: _error, onRetry: _loadData))
-          else if (_loading)
-            SliverToBoxAdapter(child: ShimmerLoading.grid(count: 6))
-          else if (_formulas.isEmpty)
-            const SliverToBoxAdapter(child: EmptyState(icon: Icons.functions_rounded, title: 'No formulas found', subtitle: 'Try adjusting your search or filters'))
-          else
-            SliverPadding(
-              padding: const EdgeInsets.all(16),
-              sliver: SliverGrid(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 0.85,
-                ),
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) => _buildFormulaCard(index, _formulas[index]),
-                  childCount: _formulas.length,
-                ),
-              ),
-            ),
-          const SliverToBoxAdapter(child: SizedBox(height: 40)),
-        ],
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildFormulaCard(int index, dynamic formula) {
     final expanded = _expandedIndices.contains(index);
@@ -238,7 +249,7 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    formula['title'] ?? '',
+                    (formula['title'] ?? '') as String,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -256,7 +267,7 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      formula['category'],
+                      formula['category'] as String,
                       style: const TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
@@ -275,7 +286,7 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                formula['formula_text'] ?? formula['formula'] ?? '',
+                (formula['formula_text'] ?? formula['formula'] ?? '') as String,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -287,7 +298,7 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              formula['description'] ?? '',
+              (formula['description'] ?? '') as String,
               style: TextStyle(fontSize: 11, color: context.colors.textMuted),
               maxLines: expanded ? 10 : 2,
               overflow: TextOverflow.ellipsis,
@@ -313,5 +324,4 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
       ),
     );
   }
-
 }

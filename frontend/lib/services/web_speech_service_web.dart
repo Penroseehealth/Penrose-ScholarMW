@@ -47,59 +47,64 @@ class WebSpeechServiceImpl implements WebSpeechService {
       return;
     }
 
-    final rec = ctor.callAsConstructor();
+    final rec = ctor.callAsConstructor<JSObject>();
     rec.setProperty('lang'.toJS, lang.toJS);
     rec.setProperty('interimResults'.toJS, true.toJS);
     rec.setProperty('continuous'.toJS, false.toJS);
 
-    rec.setProperty('onresult'.toJS, ((JSAny? event) {
-      final e = event! as JSObject;
-      final results = e.getProperty<JSObject>('results'.toJS);
-      final len = results.getProperty<JSNumber>('length'.toJS).toDartInt;
-      final startIdx = e.getProperty<JSNumber>('resultIndex'.toJS).toDartInt;
+    rec.setProperty(
+        'onresult'.toJS,
+        ((JSAny? event) {
+          final e = event! as JSObject;
+          final results = e.getProperty<JSObject>('results'.toJS);
+          final len = results.getProperty<JSNumber>('length'.toJS).toDartInt;
+          final startIdx = e.getProperty<JSNumber>('resultIndex'.toJS).toDartInt;
 
-      for (var i = startIdx; i < len; i++) {
-        final r = results.getProperty<JSObject>(i.toString().toJS);
-        final isFinal = r.getProperty<JSBoolean>('isFinal'.toJS).toDart;
-        final alt = r.getProperty<JSObject>('0'.toJS);
-        final transcript = alt.getProperty<JSString>('transcript'.toJS).toDart;
-        onResult(transcript, isFinal);
-      }
-    }).toJS);
+          for (var i = startIdx; i < len; i++) {
+            final r = results.getProperty<JSObject>(i.toString().toJS);
+            final isFinal = r.getProperty<JSBoolean>('isFinal'.toJS).toDart;
+            final alt = r.getProperty<JSObject>('0'.toJS);
+            final transcript = alt.getProperty<JSString>('transcript'.toJS).toDart;
+            onResult(transcript, isFinal);
+          }
+        }).toJS);
 
-    rec.setProperty('onend'.toJS, ((JSAny? _) {
-      _recognition = null;
-      onEnd();
-    }).toJS);
+    rec.setProperty(
+        'onend'.toJS,
+        ((JSAny? _) {
+          _recognition = null;
+          onEnd();
+        }).toJS);
 
-    rec.setProperty('onerror'.toJS, ((JSAny? event) {
-      final e = event as JSObject?;
-      final errorType =
-          e?.getProperty<JSString>('error'.toJS).toDart ?? 'unknown';
-      _recognition = null;
+    rec.setProperty(
+        'onerror'.toJS,
+        ((JSAny? event) {
+          final e = event as JSObject?;
+          final errorType = e?.getProperty<JSString>('error'.toJS).toDart ?? 'unknown';
+          _recognition = null;
 
-      String message;
-      switch (errorType) {
-        case 'not-allowed':
-        case 'service-not-allowed':
-          message = 'Microphone permission denied';
-          break;
-        case 'no-speech':
-          message = 'No speech detected';
-          break;
-        case 'network':
-          message = 'Network error';
-          break;
-        case 'aborted':
-          message = '';
-          break;
-        default:
-          message = 'Voice error: $errorType';
-      }
+          String message;
+          switch (errorType) {
+            case 'not-allowed':
+            case 'service-not-allowed':
+              message = 'Microphone permission denied';
+              break;
+            case 'no-speech':
+              message = 'No speech detected';
+              break;
+            case 'network':
+              message = 'Network error';
+              break;
+            case 'aborted':
+              message = '';
+              break;
+            default:
+              message = 'Voice error: $errorType';
+          }
 
-      if (message.isNotEmpty) onError(message);
-      onEnd();
-    }).toJS);
+          if (message.isNotEmpty) onError(message);
+          onEnd();
+        }).toJS);
 
     try {
       rec.callMethod('start'.toJS);
@@ -131,22 +136,26 @@ class WebSpeechServiceImpl implements WebSpeechService {
       final ctor = globalContext.getProperty<JSFunction?>('SpeechSynthesisUtterance'.toJS);
       if (ctor == null) return;
 
-      final utt = ctor.callAsConstructor();
+      final utt = ctor.callAsConstructor<JSObject>();
       utt.setProperty('text'.toJS, text.toJS);
       utt.setProperty('lang'.toJS, lang.toJS);
 
       _speechCompleter = Completer<void>();
       final completer = _speechCompleter!;
 
-      utt.setProperty('onend'.toJS, ((JSAny? _) {
-        if (!completer.isCompleted) completer.complete();
-      }).toJS);
+      utt.setProperty(
+          'onend'.toJS,
+          ((JSAny? _) {
+            if (!completer.isCompleted) completer.complete();
+          }).toJS);
 
-      utt.setProperty('onerror'.toJS, ((JSAny? _) {
-        if (!completer.isCompleted) completer.complete();
-      }).toJS);
+      utt.setProperty(
+          'onerror'.toJS,
+          ((JSAny? _) {
+            if (!completer.isCompleted) completer.complete();
+          }).toJS);
 
-      synth.callMethodVarArgs('speak'.toJS, [utt]);
+      synth.callMethodVarArgs('speak'.toJS, [utt as JSAny?]);
       return await completer.future;
     } catch (_) {
       return Future.value();

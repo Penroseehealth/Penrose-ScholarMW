@@ -112,9 +112,7 @@ async def get_learning_path(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    subject_result = await db.execute(
-        select(STEMSubject).where(STEMSubject.subject_slug == slug)
-    )
+    subject_result = await db.execute(select(STEMSubject).where(STEMSubject.subject_slug == slug))
     subject = subject_result.scalar_one_or_none()
     if not subject:
         return LearningPathResponse(

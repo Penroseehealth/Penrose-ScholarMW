@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 
@@ -28,57 +27,51 @@ class AttachmentPreviewCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: context.colors.surfaceElevated,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: status == AttachmentStatus.error
-              ? context.colors.error
-              : context.colors.border,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildIcon(),
-          const SizedBox(width: 10),
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  filename,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: context.colors.textPrimary,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  _getStatusText(),
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: _getStatusColor(),
-                  ),
-                ),
-              ],
-            ),
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: context.colors.surfaceElevated,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: status == AttachmentStatus.error ? context.colors.error : context.colors.border,
           ),
-          const SizedBox(width: 8),
-          if (status == AttachmentStatus.ready && onView != null)
-            _actionBtn(Icons.visibility_rounded, onView!),
-          if (status != AttachmentStatus.uploading && onRemove != null)
-            _actionBtn(Icons.close_rounded, onRemove!),
-        ],
-      ),
-    );
-  }
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildIcon(),
+            const SizedBox(width: 10),
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    filename,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: context.colors.textPrimary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    _getStatusText(),
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: _getStatusColor(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            if (status == AttachmentStatus.ready && onView != null) _actionBtn(Icons.visibility_rounded, onView!),
+            if (status != AttachmentStatus.uploading && onRemove != null) _actionBtn(Icons.close_rounded, onRemove!),
+          ],
+        ),
+      );
 
   Widget _buildIcon() {
     IconData icon;
@@ -159,20 +152,18 @@ class AttachmentPreviewCard extends StatelessWidget {
     }
   }
 
-  Widget _actionBtn(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 24,
-        height: 24,
-        decoration: BoxDecoration(
-          color: AppColors.surfaceHighest,
-          borderRadius: BorderRadius.circular(6),
+  Widget _actionBtn(IconData icon, VoidCallback onTap) => GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: AppColors.surfaceHighest,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Icon(icon, size: 14, color: AppColors.textSecondary),
         ),
-        child: Icon(icon, size: 14, color: AppColors.textSecondary),
-      ),
-    );
-  }
+      );
 
   static String _formatSize(int bytes) {
     if (bytes < 1024) return '($bytes B)';

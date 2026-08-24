@@ -26,15 +26,11 @@ async def list_assessments(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(
-        select(Assessment).where(Assessment.course_id == course_id)
-    )
+    result = await db.execute(select(Assessment).where(Assessment.course_id == course_id))
     return [AssessmentResponse.model_validate(a) for a in result.scalars().all()]
 
 
-@router.post(
-    "/", response_model=AssessmentResponse, status_code=status.HTTP_201_CREATED
-)
+@router.post("/", response_model=AssessmentResponse, status_code=status.HTTP_201_CREATED)
 async def create_assessment(
     body: AssessmentCreate,
     user: User = Depends(require_lecturer),
@@ -79,9 +75,7 @@ async def list_questions(
     return [QuestionResponse.model_validate(q) for q in result.scalars().all()]
 
 
-@router.post(
-    "/submit", response_model=SubmissionResponse, status_code=status.HTTP_201_CREATED
-)
+@router.post("/submit", response_model=SubmissionResponse, status_code=status.HTTP_201_CREATED)
 async def submit_assessment(
     body: SubmissionCreate,
     user: User = Depends(get_current_user),
@@ -105,9 +99,7 @@ async def list_submissions(
     user: User = Depends(require_lecturer),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(
-        select(Submission).where(Submission.assessment_id == assessment_id)
-    )
+    result = await db.execute(select(Submission).where(Submission.assessment_id == assessment_id))
     return [SubmissionResponse.model_validate(s) for s in result.scalars().all()]
 
 
@@ -121,9 +113,7 @@ async def mark_submission(
     result = await db.execute(select(Submission).where(Submission.id == submission_id))
     submission = result.scalar_one_or_none()
     if not submission:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Submission not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Submission not found")
 
     if body.decision == "accept":
         submission.final_marks = submission.ai_suggested_marks
@@ -148,9 +138,7 @@ async def publish_assessment(
     result = await db.execute(select(Assessment).where(Assessment.id == assessment_id))
     assessment = result.scalar_one_or_none()
     if not assessment:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Assessment not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assessment not found")
     assessment.is_published = True
     await db.commit()
     return {"detail": "Assessment published"}

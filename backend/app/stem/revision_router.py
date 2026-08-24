@@ -161,13 +161,9 @@ async def create_flashcard(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    concept_result = await db.execute(
-        select(STEMConcept).where(STEMConcept.id == body.concept_id)
-    )
+    concept_result = await db.execute(select(STEMConcept).where(STEMConcept.id == body.concept_id))
     if not concept_result.scalar_one_or_none():
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found")
 
     card = STEMFlashcard(
         user_id=user.id,
@@ -203,9 +199,7 @@ async def review_flashcard(
     )
     card = result.scalar_one_or_none()
     if not card:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Flashcard not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Flashcard not found")
 
     quality = body.quality
     if quality >= 3:
@@ -263,9 +257,7 @@ async def delete_flashcard(
     )
     card = result.scalar_one_or_none()
     if not card:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Flashcard not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Flashcard not found")
     await db.delete(card)
     await db.commit()
 
@@ -276,9 +268,7 @@ async def list_study_plans(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(STEMStudyPlan)
-        .where(STEMStudyPlan.user_id == user.id)
-        .order_by(STEMStudyPlan.created_at.desc())
+        select(STEMStudyPlan).where(STEMStudyPlan.user_id == user.id).order_by(STEMStudyPlan.created_at.desc())
     )
     return [_plan_to_response(p) for p in result.scalars().all()]
 
@@ -320,14 +310,10 @@ async def get_study_plan(
     )
     plan = result.scalar_one_or_none()
     if not plan:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Study plan not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Study plan not found")
 
     items_result = await db.execute(
-        select(STEMStudyPlanItem)
-        .where(STEMStudyPlanItem.plan_id == plan.id)
-        .order_by(STEMStudyPlanItem.order_index)
+        select(STEMStudyPlanItem).where(STEMStudyPlanItem.plan_id == plan.id).order_by(STEMStudyPlanItem.order_index)
     )
     items = [_plan_item_to_response(i) for i in items_result.scalars().all()]
 
@@ -363,22 +349,14 @@ async def add_plan_item(
     )
     plan = plan_result.scalar_one_or_none()
     if not plan:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Study plan not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Study plan not found")
 
-    concept_result = await db.execute(
-        select(STEMConcept).where(STEMConcept.id == body.concept_id)
-    )
+    concept_result = await db.execute(select(STEMConcept).where(STEMConcept.id == body.concept_id))
     if not concept_result.scalar_one_or_none():
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found")
 
     max_order_result = await db.execute(
-        select(func.coalesce(func.max(STEMStudyPlanItem.order_index), 0)).where(
-            STEMStudyPlanItem.plan_id == plan.id
-        )
+        select(func.coalesce(func.max(STEMStudyPlanItem.order_index), 0)).where(STEMStudyPlanItem.plan_id == plan.id)
     )
     next_order = max_order_result.scalar() + 1
 
@@ -412,9 +390,7 @@ async def complete_plan_item(
     )
     plan = plan_result.scalar_one_or_none()
     if not plan:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Study plan not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Study plan not found")
 
     item_result = await db.execute(
         select(STEMStudyPlanItem).where(
@@ -432,9 +408,7 @@ async def complete_plan_item(
     if not item.is_completed:
         item.is_completed = True
 
-        total_result = await db.execute(
-            select(func.count()).where(STEMStudyPlanItem.plan_id == plan.id)
-        )
+        total_result = await db.execute(select(func.count()).where(STEMStudyPlanItem.plan_id == plan.id))
         total = total_result.scalar()
 
         completed_result = await db.execute(
@@ -463,22 +437,15 @@ async def generate_flashcards(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    concept_result = await db.execute(
-        select(STEMConcept).where(STEMConcept.id == body.concept_id)
-    )
+    concept_result = await db.execute(select(STEMConcept).where(STEMConcept.id == body.concept_id))
     concept = concept_result.scalar_one_or_none()
     if not concept:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found")
 
     try:
         from app.config.ai_client import AIProviderError, call_ai_chat
 
-        prompt = (
-            f"Generate {body.count} flashcards for the following concept:\n"
-            f"Title: {concept.title}\n"
-        )
+        prompt = f"Generate {body.count} flashcards for the following concept:\nTitle: {concept.title}\n"
         if concept.description:
             prompt += f"Description: {concept.description}\n"
         if concept.learning_objectives_text:

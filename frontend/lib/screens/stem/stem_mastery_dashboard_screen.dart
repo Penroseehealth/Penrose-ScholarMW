@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../services/stem_service.dart';
-import '../../widgets/shimmer_loading.dart';
-import '../../widgets/error_state.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/stem_service.dart';
+import '../../widgets/error_state.dart';
+import '../../widgets/shimmer_loading.dart';
 
 class StemMasteryDashboardScreen extends StatefulWidget {
   const StemMasteryDashboardScreen({super.key});
@@ -26,7 +27,10 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
   }
 
   Future<void> _loadData() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final dashboard = await _stemService.getMasteryDashboard();
       final recommendations = await _stemService.getMasteryRecommendations();
@@ -39,7 +43,10 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
       }
     } catch (e) {
       if (mounted) {
-        setState(() { _error = e.toString(); _loading = false; });
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
       }
     }
   }
@@ -51,54 +58,53 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 90,
-            pinned: true,
-            backgroundColor: AppColors.primaryDark,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'My STEM Mastery',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textPrimary,
-                ),
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.primaryDark, AppColors.primaryMuted],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: RefreshIndicator(
+          onRefresh: _loadData,
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 90,
+                pinned: true,
+                backgroundColor: AppColors.primaryDark,
+                flexibleSpace: FlexibleSpaceBar(
+                  title: Text(
+                    'My STEM Mastery',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary,
+                    ),
+                  ),
+                  background: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColors.primaryDark, AppColors.primaryMuted],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
+              if (_error != null)
+                SliverToBoxAdapter(
+                    child: ErrorState(message: 'Failed to load mastery data', details: _error, onRetry: _loadData))
+              else if (_loading)
+                SliverToBoxAdapter(child: ShimmerLoading.list(count: 3))
+              else ...[
+                SliverToBoxAdapter(child: _buildSubjectMastery()),
+                const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                SliverToBoxAdapter(child: _buildWeakConcepts()),
+                const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                SliverToBoxAdapter(child: _buildRecommendations()),
+              ],
+              const SliverToBoxAdapter(child: SizedBox(height: 40)),
+            ],
           ),
-          if (_error != null)
-            SliverToBoxAdapter(child: ErrorState(message: 'Failed to load mastery data', details: _error, onRetry: _loadData))
-          else if (_loading)
-            SliverToBoxAdapter(child: ShimmerLoading.list(count: 3))
-          else ...[
-            SliverToBoxAdapter(child: _buildSubjectMastery()),
-            const SliverToBoxAdapter(child: SizedBox(height: 20)),
-            SliverToBoxAdapter(child: _buildWeakConcepts()),
-            const SliverToBoxAdapter(child: SizedBox(height: 20)),
-            SliverToBoxAdapter(child: _buildRecommendations()),
-          ],
-          const SliverToBoxAdapter(child: SizedBox(height: 40)),
-          ],
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildSubjectMastery() {
     final subjects = (_dashboard?['subjects'] as List?) ?? [];
@@ -138,8 +144,8 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
           ),
           const SizedBox(height: 12),
           ...subjects.map<Widget>((s) {
-            final name = s['name'] ?? s['subject'] ?? '';
-            final pct = (s['mastery_percentage'] ?? s['mastery'] ?? 0).toDouble();
+            final name = (s['name'] ?? s['subject'] ?? '') as String;
+            final pct = ((s['mastery_percentage'] ?? s['mastery'] ?? 0) as num).toDouble();
             final color = _masteryColor(pct);
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
@@ -219,9 +225,9 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
           ),
           const SizedBox(height: 12),
           ...weak.map<Widget>((c) {
-            final title = c['title'] ?? c['name'] ?? '';
-            final subject = c['subject'] ?? '';
-            final pct = (c['mastery_percentage'] ?? c['mastery'] ?? 0).toDouble();
+            final title = (c['title'] ?? c['name'] ?? '') as String;
+            final subject = (c['subject'] ?? '') as String;
+            final pct = ((c['mastery_percentage'] ?? c['mastery'] ?? 0) as num).toDouble();
             return Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Container(
@@ -305,10 +311,10 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
           ),
           const SizedBox(height: 12),
           ..._recommendations.map<Widget>((r) {
-            final title = r['title'] ?? '';
-            final description = r['description'] ?? '';
+            final title = (r['title'] ?? '') as String;
+            final description = (r['description'] ?? '') as String;
             final priority = r['priority'] ?? 'medium';
-            final id = r['id'];
+            final id = r['id'] as int;
             final Color priorityColor;
             switch (priority.toString().toLowerCase()) {
               case 'high':

@@ -2508,9 +2508,7 @@ MATH_SYLLABUS = {
 async def seed_math_syllabus():
     """Seed the Malawi Mathematics syllabus. Idempotent — skips if already seeded."""
     async with async_session() as db:
-        existing = await db.execute(
-            select(SyllabusSubject).where(SyllabusSubject.slug == "mathematics")
-        )
+        existing = await db.execute(select(SyllabusSubject).where(SyllabusSubject.slug == "mathematics"))
         if existing.scalar_one_or_none():
             return
 

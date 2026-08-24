@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/auth_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../providers/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -81,8 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         labelText: 'Email',
                         prefixIcon: Icon(Icons.email_outlined),
                       ),
-                      validator: (v) =>
-                          v != null && v.contains('@') ? null : 'Enter a valid email',
+                      validator: (v) => v != null && v.contains('@') ? null : 'Enter a valid email',
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -100,8 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: () => setState(() => _obscure = !_obscure),
                         ),
                       ),
-                      validator: (v) =>
-                          v != null && v.length >= 6 ? null : 'Min 6 characters',
+                      validator: (v) => v != null && v.length >= 6 ? null : 'Min 6 characters',
                     ),
                     if (auth.error != null) ...[
                       const SizedBox(height: 12),
@@ -185,47 +183,46 @@ class _LoginScreenState extends State<LoginScreen> {
     required String email,
     required String password,
     required bool isLoading,
-  }) {
-    return Material(
-      color: context.colors.surfaceElevated,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
+  }) =>
+      Material(
+        color: context.colors.surfaceElevated,
         borderRadius: BorderRadius.circular(12),
-        onTap: isLoading
-            ? null
-            : () async {
-                _emailCtrl.text = email;
-                _passwordCtrl.text = password;
-                final auth = context.read<AuthProvider>();
-                final success = await auth.login(email, password);
-                if (success && context.mounted) {
-                  context.go('/');
-                }
-              },
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: context.colors.border),
-          ),
-          child: Column(
-            children: [
-              Icon(icon, size: 22, color: AppColors.primary),
-              const SizedBox(height: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: context.colors.textSecondary,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: isLoading
+              ? null
+              : () async {
+                  _emailCtrl.text = email;
+                  _passwordCtrl.text = password;
+                  final auth = context.read<AuthProvider>();
+                  final success = await auth.login(email, password);
+                  if (success && context.mounted) {
+                    context.go('/');
+                  }
+                },
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: context.colors.border),
+            ),
+            child: Column(
+              children: [
+                Icon(icon, size: 22, color: AppColors.primary),
+                const SizedBox(height: 6),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: context.colors.textSecondary,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
 
   @override
   void dispose() {

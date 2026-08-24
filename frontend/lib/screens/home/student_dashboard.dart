@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/auth_provider.dart';
 import '../../core/theme/app_colors.dart';
-import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../providers/auth_provider.dart';
+import '../../services/services.dart';
 
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({super.key});
@@ -50,7 +50,11 @@ class _StudentDashboardState extends State<StudentDashboard> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final hour = DateTime.now().hour;
-    final greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    final greeting = hour < 12
+        ? 'Good morning'
+        : hour < 17
+            ? 'Good afternoon'
+            : 'Good evening';
     final firstName = (auth.userName.isNotEmpty ? auth.userName : 'Scholar').split(' ').first;
 
     return Scaffold(
@@ -119,92 +123,86 @@ class _StudentDashboardState extends State<StudentDashboard> {
     );
   }
 
-  Widget _buildHeader(BuildContext context, String greeting, String firstName) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 6, 20, 0),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$greeting, $firstName',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: context.colors.textPrimary,
+  Widget _buildHeader(BuildContext context, String greeting, String firstName) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 6, 20, 0),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '$greeting, $firstName',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          _buildHamburgerButton(context),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHamburgerButton(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Scaffold.of(context).openEndDrawer(),
-      child: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: context.colors.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: context.colors.border),
+            _buildHamburgerButton(context),
+          ],
         ),
-        child: Icon(
-          Icons.menu_rounded,
-          color: context.colors.textSecondary,
-          size: 20,
-        ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildQuickActions(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-      child: Row(
-        children: [
-          _buildActionCard(
-            context,
-            icon: Icons.psychology_rounded,
-            label: 'Penrose Learning Assistant',
-            gradient: [const Color(0xFF7C3AED), const Color(0xFF6D28D9)],
-            onTap: () => context.go('/ai-tutor'),
+  Widget _buildHamburgerButton(BuildContext context) => GestureDetector(
+        onTap: () => Scaffold.of(context).openEndDrawer(),
+        child: Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: context.colors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: context.colors.border),
           ),
-          const SizedBox(width: 10),
-          _buildActionCard(
-            context,
-            icon: Icons.translate_rounded,
-            label: 'Language Hubs',
-            gradient: [const Color(0xFF2563EB), const Color(0xFF1D4ED8)],
-            onTap: () => context.go('/languages'),
+          child: Icon(
+            Icons.menu_rounded,
+            color: context.colors.textSecondary,
+            size: 20,
           ),
-          const SizedBox(width: 10),
-          _buildActionCard(
-            context,
-            icon: Icons.quiz_rounded,
-            label: 'Tasks',
-            gradient: [const Color(0xFF059669), const Color(0xFF047857)],
-            onTap: () => context.go('/assignments'),
-          ),
-          const SizedBox(width: 10),
-          _buildActionCard(
-            context,
-            icon: Icons.insights_rounded,
-            label: 'Grades',
-            gradient: [const Color(0xFF0EA5E9), const Color(0xFF0284C7)],
-            onTap: () => context.go('/grades'),
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+      );
+
+  Widget _buildQuickActions(BuildContext context) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+        child: Row(
+          children: [
+            _buildActionCard(
+              context,
+              icon: Icons.psychology_rounded,
+              label: 'Penrose Learning Assistant',
+              gradient: [const Color(0xFF7C3AED), const Color(0xFF6D28D9)],
+              onTap: () => context.go('/ai-tutor'),
+            ),
+            const SizedBox(width: 10),
+            _buildActionCard(
+              context,
+              icon: Icons.translate_rounded,
+              label: 'Language Hubs',
+              gradient: [const Color(0xFF2563EB), const Color(0xFF1D4ED8)],
+              onTap: () => context.go('/languages'),
+            ),
+            const SizedBox(width: 10),
+            _buildActionCard(
+              context,
+              icon: Icons.quiz_rounded,
+              label: 'Tasks',
+              gradient: [const Color(0xFF059669), const Color(0xFF047857)],
+              onTap: () => context.go('/assignments'),
+            ),
+            const SizedBox(width: 10),
+            _buildActionCard(
+              context,
+              icon: Icons.insights_rounded,
+              label: 'Grades',
+              gradient: [const Color(0xFF0EA5E9), const Color(0xFF0284C7)],
+              onTap: () => context.go('/grades'),
+            ),
+          ],
+        ),
+      );
 
   Widget _buildActionCard(
     BuildContext context, {
@@ -212,59 +210,56 @@ class _StudentDashboardState extends State<StudentDashboard> {
     required String label,
     required List<Color> gradient,
     required VoidCallback onTap,
-  }) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: gradient,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
-                color: gradient[0].withValues(alpha: 0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
+  }) =>
+      Expanded(
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: gradient,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Icon(icon, color: Colors.white, size: 20),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: gradient[0].withValues(alpha: 0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
                 ),
-              ),
-            ],
+              ],
+            ),
+            child: Column(
+              children: [
+                Icon(icon, color: Colors.white, size: 20),
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.w700,
-        color: context.colors.textPrimary,
-      ),
-    );
-  }
+  Widget _buildSectionTitle(String title) => Text(
+        title,
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: context.colors.textPrimary,
+        ),
+      );
 
   Widget _buildCourseCard(dynamic course) {
-    final progress = (course['progress'] ?? 0.0).toDouble();
+    final progress = ((course['progress'] ?? 0.0) as num).toDouble();
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -289,7 +284,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  course['title'] ?? '',
+                  (course['title'] ?? '') as String,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -337,73 +332,70 @@ class _StudentDashboardState extends State<StudentDashboard> {
     );
   }
 
-  Widget _buildActivityCard(dynamic notif) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: context.colors.borderLight),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: context.colors.infoMuted,
-              borderRadius: BorderRadius.circular(10),
+  Widget _buildActivityCard(dynamic notif) => Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: context.colors.borderLight),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: context.colors.infoMuted,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(Icons.info_outline_rounded, size: 18, color: context.colors.info),
             ),
-            child: Icon(Icons.info_outline_rounded, size: 18, color: context.colors.info),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    (notif['title'] ?? '') as String,
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    (notif['message'] ?? '') as String,
+                    style: TextStyle(fontSize: 12, color: context.colors.textMuted),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+
+  Widget _buildEmptyState(String title, String subtitle) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Container(
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: context.colors.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: context.colors.border),
           ),
-          const SizedBox(width: 12),
-          Expanded(
+          child: Center(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  notif['title'] ?? '',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  notif['message'] ?? '',
-                  style: TextStyle(fontSize: 12, color: context.colors.textMuted),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                Icon(Icons.inbox_outlined, size: 44, color: context.colors.textMuted.withValues(alpha: 0.4)),
+                const SizedBox(height: 12),
+                Text(title,
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
+                const SizedBox(height: 4),
+                Text(subtitle, style: TextStyle(fontSize: 13, color: context.colors.textMuted)),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(String title, String subtitle) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      child: Container(
-        padding: const EdgeInsets.all(32),
-        decoration: BoxDecoration(
-          color: context.colors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: context.colors.border),
         ),
-        child: Center(
-          child: Column(
-            children: [
-              Icon(Icons.inbox_outlined, size: 44, color: context.colors.textMuted.withValues(alpha: 0.4)),
-              const SizedBox(height: 12),
-              Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
-              const SizedBox(height: 4),
-              Text(subtitle, style: TextStyle(fontSize: 13, color: context.colors.textMuted)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+      );
 }

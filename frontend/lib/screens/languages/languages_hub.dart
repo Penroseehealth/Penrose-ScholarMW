@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
-import '../../services/language_service.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/language_service.dart';
 
 const Color _langBlue = Color(0xFF2563EB);
 const Color _langRed = Color(0xFFDC2626);
@@ -16,8 +16,7 @@ class LanguagesHub extends StatefulWidget {
   State<LanguagesHub> createState() => _LanguagesHubState();
 }
 
-class _LanguagesHubState extends State<LanguagesHub>
-    with SingleTickerProviderStateMixin {
+class _LanguagesHubState extends State<LanguagesHub> with SingleTickerProviderStateMixin {
   late AnimationController _fadeCtrl;
   late Animation<double> _fadeAnim;
 
@@ -73,9 +72,7 @@ class _LanguagesHubState extends State<LanguagesHub>
 
   List<String> get _heroFlags {
     final flags = _languages
-        .map((l) => l is Map<String, dynamic>
-            ? (l['icon']?.toString() ?? '')
-            : '')
+        .map((l) => l is Map<String, dynamic> ? (l['icon']?.toString() ?? '') : '')
         .where((f) => f.isNotEmpty)
         .toList();
     if (flags.length >= 3) return flags.sublist(0, 3);
@@ -117,8 +114,7 @@ class _LanguagesHubState extends State<LanguagesHub>
               child: CustomScrollView(
                 slivers: [
                   SliverPadding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: isDesktop ? 32 : 16, vertical: 20),
+                    padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 16, vertical: 20),
                     sliver: SliverList(
                       delegate: SliverChildListDelegate([
                         _buildHero(),
@@ -147,79 +143,69 @@ class _LanguagesHubState extends State<LanguagesHub>
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        border: Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Row(
-          children: [
-            GestureDetector(
-              onTap: () => context.go('/student'),
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: context.colors.surfaceElevated,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: context.colors.border),
-                ),
-                child: Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: context.colors.textSecondary),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: context.colors.primaryGlow,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.translate_rounded,
-                  color: AppColors.primary, size: 22),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Language Hubs',
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: context.colors.textPrimary,
-                          letterSpacing: -0.3)),
-                  Text('English · Chinese · Arabic',
-                      style: TextStyle(
-                          fontSize: 12, color: context.colors.textMuted)),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: context.colors.warningMuted,
-                borderRadius: BorderRadius.circular(8),
-                border:
-                    Border.all(color: context.colors.warning.withValues(alpha: 0.3)),
-              ),
-              child: Text('BETA',
-                  style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.8,
-                      color: context.colors.warning)),
-            ),
-          ],
+  Widget _buildHeader() => Container(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          border: Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
         ),
-      ),
-    );
-  }
+        child: SafeArea(
+          bottom: false,
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () => context.go('/student'),
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: context.colors.surfaceElevated,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: context.colors.border),
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: context.colors.textSecondary),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: context.colors.primaryGlow,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.translate_rounded, color: AppColors.primary, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Language Hubs',
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: context.colors.textPrimary,
+                            letterSpacing: -0.3)),
+                    Text('English · Chinese · Arabic', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: context.colors.warningMuted,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: context.colors.warning.withValues(alpha: 0.3)),
+                ),
+                child: Text('BETA',
+                    style: TextStyle(
+                        fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.8, color: context.colors.warning)),
+              ),
+            ],
+          ),
+        ),
+      );
 
   Widget _buildHero() {
     final flags = _heroFlags;
@@ -255,14 +241,12 @@ class _LanguagesHubState extends State<LanguagesHub>
                     borderRadius: BorderRadius.circular(13),
                     border: Border.all(color: context.colors.border),
                   ),
-                  child: Text(flags[i],
-                      style: const TextStyle(fontSize: 22)),
+                  child: Text(flags[i], style: const TextStyle(fontSize: 22)),
                 ),
               ],
               const Spacer(),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: context.colors.primaryGlow,
                   borderRadius: BorderRadius.circular(8),
@@ -270,14 +254,10 @@ class _LanguagesHubState extends State<LanguagesHub>
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.auto_awesome_rounded,
-                        size: 14, color: AppColors.primaryLight),
+                    Icon(Icons.auto_awesome_rounded, size: 14, color: AppColors.primaryLight),
                     SizedBox(width: 6),
                     Text('3 Languages',
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primaryLight)),
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primaryLight)),
                   ],
                 ),
               ),
@@ -286,46 +266,34 @@ class _LanguagesHubState extends State<LanguagesHub>
           const SizedBox(height: 18),
           Text('AI-Powered Language Learning',
               style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: context.colors.textPrimary,
-                  letterSpacing: -0.4)),
+                  fontSize: 22, fontWeight: FontWeight.w800, color: context.colors.textPrimary, letterSpacing: -0.4)),
           const SizedBox(height: 8),
           Text(
             'Master English, Chinese and Arabic with adaptive lessons, '
             'spaced-repetition vocabulary and an AI tutor that speaks your language.',
-            style: TextStyle(
-                fontSize: 13,
-                height: 1.5,
-                color: context.colors.textSecondary),
+            style: TextStyle(fontSize: 13, height: 1.5, color: context.colors.textSecondary),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Row(
-      children: [
-        Container(
-          width: 4,
-          height: 20,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-                colors: [AppColors.primary, AppColors.primaryDark]),
-            borderRadius: BorderRadius.circular(2),
+  Widget _buildSectionTitle(String title) => Row(
+        children: [
+          Container(
+            width: 4,
+            height: 20,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryDark]),
+              borderRadius: BorderRadius.circular(2),
+            ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Text(title,
-            style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: context.colors.textPrimary,
-                letterSpacing: -0.3)),
-      ],
-    );
-  }
+          const SizedBox(width: 12),
+          Text(title,
+              style: TextStyle(
+                  fontSize: 18, fontWeight: FontWeight.w800, color: context.colors.textPrimary, letterSpacing: -0.3)),
+        ],
+      );
 
   Widget _buildLanguageGrid(bool isDesktop) {
     if (_loading) {
@@ -337,8 +305,7 @@ class _LanguagesHubState extends State<LanguagesHub>
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: context.colors.border),
         ),
-        child: const CircularProgressIndicator(
-            strokeWidth: 2.5, color: AppColors.primary),
+        child: const CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.primary),
       );
     }
     if (_languages.isEmpty) {
@@ -352,14 +319,10 @@ class _LanguagesHubState extends State<LanguagesHub>
         ),
         child: Column(
           children: [
-            Icon(Icons.language_rounded,
-                size: 32, color: context.colors.textMuted),
+            Icon(Icons.language_rounded, size: 32, color: context.colors.textMuted),
             const SizedBox(height: 10),
             Text('No languages available yet',
-                style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: context.colors.textSecondary)),
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
             const SizedBox(height: 4),
             Text('Check back soon — new languages are on the way.',
                 style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
@@ -377,8 +340,7 @@ class _LanguagesHubState extends State<LanguagesHub>
         childAspectRatio: isDesktop ? 1.15 : 1.45,
       ),
       itemCount: _languages.length,
-      itemBuilder: (ctx, i) =>
-          _buildLanguageCard(_languages[i] as Map<String, dynamic>),
+      itemBuilder: (ctx, i) => _buildLanguageCard(_languages[i] as Map<String, dynamic>),
     );
   }
 
@@ -429,8 +391,7 @@ class _LanguagesHubState extends State<LanguagesHub>
                         borderRadius: BorderRadius.circular(13),
                         border: Border.all(color: context.colors.border),
                       ),
-                      child: Text(flag,
-                          style: const TextStyle(fontSize: 24)),
+                      child: Text(flag, style: const TextStyle(fontSize: 24)),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -449,23 +410,19 @@ class _LanguagesHubState extends State<LanguagesHub>
                             Text(nativeName,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                    fontSize: 11,
-                                    color: context.colors.textMuted)),
+                                style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
                         ],
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Icon(Icons.arrow_forward_ios_rounded,
-                        size: 16, color: color),
+                    Icon(Icons.arrow_forward_ios_rounded, size: 16, color: color),
                   ],
                 ),
                 const SizedBox(height: 12),
                 if (levelSystem.isNotEmpty)
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -473,20 +430,14 @@ class _LanguagesHubState extends State<LanguagesHub>
                     child: Text(levelSystem,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: color)),
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color)),
                   ),
                 const Spacer(),
                 Row(
                   children: [
-                    Expanded(
-                        child: _buildLangStat(
-                            vocabCount, 'Vocabulary', color)),
+                    Expanded(child: _buildLangStat(vocabCount, 'Vocabulary', color)),
                     const SizedBox(width: 8),
-                    Expanded(
-                        child: _buildLangStat(grammarCount, 'Grammar', color)),
+                    Expanded(child: _buildLangStat(grammarCount, 'Grammar', color)),
                     const SizedBox(width: 8),
                     Expanded(child: _buildLangStat(levelCount, 'Levels', color)),
                   ],
@@ -499,145 +450,118 @@ class _LanguagesHubState extends State<LanguagesHub>
     );
   }
 
-  Widget _buildLangStat(String value, String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: context.colors.border),
-      ),
-      child: Column(
-        children: [
-          Text(value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: color,
-                  letterSpacing: -0.3)),
-          const SizedBox(height: 2),
-          Text(label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                  fontSize: 10, color: context.colors.textMuted)),
-        ],
-      ),
-    );
-  }
+  Widget _buildLangStat(String value, String label, Color color) => Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: context.colors.border),
+        ),
+        child: Column(
+          children: [
+            Text(value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: color, letterSpacing: -0.3)),
+            const SizedBox(height: 2),
+            Text(label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 10, color: context.colors.textMuted)),
+          ],
+        ),
+      );
 
-  Widget _buildProgressStats(bool isDesktop) {
-    return GridView.count(
-      crossAxisCount: isDesktop ? 3 : 1,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      childAspectRatio: isDesktop ? 2.2 : 3.4,
-      children: [
-        _buildStatCard('0', 'Day Streak', Icons.local_fire_department_rounded,
-            context.colors.warning, 'Start learning to build your streak'),
-        _buildStatCard('0', 'Mastered Words', Icons.check_circle_rounded,
-            context.colors.success, 'Across all your languages'),
-        _buildStatCard('0h', 'Study Time', Icons.schedule_rounded,
-            context.colors.info, 'Time spent practising this week'),
-      ],
-    );
-  }
-
-  Widget _buildStatCard(
-      String value, String label, IconData icon, Color color, String sub) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.colors.border),
-      ),
-      child: Row(
+  Widget _buildProgressStats(bool isDesktop) => GridView.count(
+        crossAxisCount: isDesktop ? 3 : 1,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: isDesktop ? 2.2 : 3.4,
         children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(11),
-            ),
-            child: Icon(icon, size: 21, color: color),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Text(value,
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800,
-                            color: color,
-                            letterSpacing: -0.4)),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: context.colors.textSecondary)),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 3),
-                Text(sub,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        fontSize: 11, color: context.colors.textMuted)),
-              ],
-            ),
-          ),
+          _buildStatCard('0', 'Day Streak', Icons.local_fire_department_rounded, context.colors.warning,
+              'Start learning to build your streak'),
+          _buildStatCard(
+              '0', 'Mastered Words', Icons.check_circle_rounded, context.colors.success, 'Across all your languages'),
+          _buildStatCard(
+              '0h', 'Study Time', Icons.schedule_rounded, context.colors.info, 'Time spent practising this week'),
         ],
-      ),
-    );
-  }
+      );
+
+  Widget _buildStatCard(String value, String label, IconData icon, Color color, String sub) => Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: context.colors.border),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(11),
+              ),
+              child: Icon(icon, size: 21, color: color),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(value,
+                          style:
+                              TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: color, letterSpacing: -0.4)),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                  Text(sub,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
 
   static final _features = [
-    const _LangFeature(Icons.smart_toy_rounded, 'AI Tutor',
-        'Chat with an AI tutor in your target language'),
-    const _LangFeature(Icons.graphic_eq_rounded, 'Pronunciation Lab',
-        'Train your accent with instant feedback'),
-    const _LangFeature(Icons.forum_rounded, 'Conversation Practice',
-        'Real-life dialogues and roleplay scenarios'),
-    const _LangFeature(Icons.style_rounded, 'Vocabulary Engine',
-        'Spaced-repetition flashcards and word themes'),
-    const _LangFeature(Icons.edit_note_rounded, 'Writing Workspace',
-        'Guided writing tasks with AI corrections'),
-    const _LangFeature(Icons.fact_check_rounded, 'Placement Test',
-        'Find your perfect starting level in minutes'),
+    const _LangFeature(Icons.smart_toy_rounded, 'AI Tutor', 'Chat with an AI tutor in your target language'),
+    const _LangFeature(Icons.graphic_eq_rounded, 'Pronunciation Lab', 'Train your accent with instant feedback'),
+    const _LangFeature(Icons.forum_rounded, 'Conversation Practice', 'Real-life dialogues and roleplay scenarios'),
+    const _LangFeature(Icons.style_rounded, 'Vocabulary Engine', 'Spaced-repetition flashcards and word themes'),
+    const _LangFeature(Icons.edit_note_rounded, 'Writing Workspace', 'Guided writing tasks with AI corrections'),
+    const _LangFeature(Icons.fact_check_rounded, 'Placement Test', 'Find your perfect starting level in minutes'),
   ];
 
-  Widget _buildFeatureGrid(bool isDesktop) {
-    return GridView.count(
-      crossAxisCount: isDesktop ? 3 : 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      childAspectRatio: isDesktop ? 2.0 : 1.55,
-      children: [
-        for (var i = 0; i < _features.length; i++)
-          _buildFeatureCard(_features[i], i),
-      ],
-    );
-  }
+  Widget _buildFeatureGrid(bool isDesktop) => GridView.count(
+        crossAxisCount: isDesktop ? 3 : 2,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: isDesktop ? 2.0 : 1.55,
+        children: [
+          for (var i = 0; i < _features.length; i++) _buildFeatureCard(_features[i], i),
+        ],
+      );
 
   Widget _buildFeatureCard(_LangFeature feature, int index) {
     final accents = [
@@ -681,8 +605,7 @@ class _LanguagesHubState extends State<LanguagesHub>
                     ),
                     const Spacer(),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
                         color: context.colors.surfaceHighest,
                         borderRadius: BorderRadius.circular(6),
@@ -700,18 +623,12 @@ class _LanguagesHubState extends State<LanguagesHub>
                 Text(feature.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: context.colors.textPrimary)),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
                 const SizedBox(height: 3),
                 Text(feature.description,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        fontSize: 11,
-                        height: 1.3,
-                        color: context.colors.textMuted)),
+                    style: TextStyle(fontSize: 11, height: 1.3, color: context.colors.textMuted)),
               ],
             ),
           ),

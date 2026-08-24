@@ -22,9 +22,7 @@ async def list_documents(
     db: AsyncSession = Depends(get_db),
 ):
     if user.role == UserRole.ADMIN:
-        result = await db.execute(
-            select(VaultDocument).order_by(VaultDocument.created_at.desc())
-        )
+        result = await db.execute(select(VaultDocument).order_by(VaultDocument.created_at.desc()))
     elif user.role == UserRole.LECTURER:
         result = await db.execute(
             select(VaultDocument)
@@ -113,9 +111,7 @@ async def search_vault(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(
-        select(VaultDocument).where(VaultDocument.title.ilike(f"%{q}%"))
-    )
+    result = await db.execute(select(VaultDocument).where(VaultDocument.title.ilike(f"%{q}%")))
     return [VaultDocumentResponse.model_validate(d) for d in result.scalars().all()]
 
 
@@ -183,13 +179,9 @@ async def download_document(
     if ext == ".pdf":
         media_type = "application/pdf"
     elif ext in (".docx", ".txt"):
-        media_type = (
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        )
+        media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     elif ext == ".pptx":
-        media_type = (
-            "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-        )
+        media_type = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
     return FileResponse(path=doc.file_path, media_type=media_type, filename=file_name)
 
 

@@ -3,111 +3,110 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/auth_provider.dart';
-import '../screens/auth/login_screen.dart';
-import '../screens/auth/register_screen.dart';
-import '../screens/home/home_shell.dart';
-import '../screens/home/student_dashboard.dart';
-import '../screens/ai_tutor/ai_tutor_screen.dart';
-import '../screens/student/knowledge_vault.dart';
-import '../screens/student/study_plan.dart';
-import '../screens/student/profile_screen.dart';
-import '../screens/analytics/analytics_dashboard.dart';
-import '../screens/student/learning_coach.dart';
-import '../screens/student/malawi_context_screen.dart';
-import '../screens/student/knowledge_retrieval_screen.dart';
-import '../screens/lecturer/lecturer_centre.dart';
-import '../screens/lecturer/assessment_studio.dart';
-import '../screens/lecturer/smart_marking.dart';
-import '../screens/research/research_lab.dart';
-import '../screens/examinations/examination_hall.dart';
-import '../screens/writing/writing_studio.dart';
-import '../screens/gamification/gamification_screen.dart';
-import '../screens/notifications/smart_notifications_screen.dart';
-import '../screens/search/global_search_screen.dart';
-import '../screens/sync/offline_sync_screen.dart';
-import '../screens/stem/stem_hub.dart';
-import '../screens/stem/stem_subject_screen.dart';
-import '../screens/stem/stem_topic_screen.dart';
-import '../screens/biology/biology_dashboard.dart';
-import '../screens/biology/biology_topics.dart';
-import '../screens/biology/biology_virtual_lab.dart';
-import '../screens/biology/biology_diagram_centre.dart';
-import '../screens/biology/biology_practical_hub.dart';
-import '../screens/biology/biology_practice_centre.dart';
-import '../screens/biology/biology_past_papers.dart';
-import '../screens/biology/biology_mock_exam.dart';
-import '../screens/biology/biology_syllabus.dart';
-import '../screens/biology/biology_ai_tutor.dart';
-import '../screens/biology/biology_notebook.dart';
-import '../screens/biology/biology_analytics.dart';
-import '../screens/stem/stem_concept_screen.dart';
-import '../screens/stem/stem_knowledge_graph_screen.dart';
-import '../screens/stem/stem_formula_centre_screen.dart';
-import '../screens/stem/stem_career_explorer_screen.dart';
-import '../screens/stem/stem_lab_screen.dart';
-import '../screens/stem/stem_mastery_dashboard_screen.dart';
-import '../screens/stem/stem_tutor_screen.dart';
-import '../screens/stem/stem_analytics_screen.dart';
-import '../screens/stem/stem_malawi_screen.dart';
-import '../screens/stem/stem_revision_screen.dart';
-import '../screens/stem/stem_gamification_screen.dart';
-import '../screens/stem/stem_groups_screen.dart';
-import '../screens/stem/subject_dashboard_screen.dart';
-import '../screens/stem/learning_path_screen.dart';
-import '../screens/stem/mock_exam_screen.dart';
-import '../screens/stem/certificates_screen.dart';
-import '../screens/stem/exam_analytics_screen.dart';
-import '../screens/stem/study_planner_screen.dart';
-import '../screens/student/messaging_screen.dart';
-import '../screens/student/chat_detail_screen.dart';
-import '../screens/student/notification_settings_screen.dart';
-import '../screens/stem/forum_screen.dart';
-import '../screens/stem/announcements_screen.dart';
-import '../screens/stem/content_cms_screen.dart';
-import '../screens/stem/collaboration_chat_screen.dart';
-import '../screens/stem/analytics_export_screen.dart';
-import '../screens/data_analysis/data_analysis_screen.dart';
-import '../screens/data_analysis/coding_playground_screen.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
 import '../screens/admin/admin_syllabus_screen.dart';
-import '../screens/languages/languages_hub.dart';
-import '../screens/languages/language_dashboard.dart';
-import '../screens/languages/language_vocabulary.dart';
-import '../screens/languages/language_grammar.dart';
-import '../screens/languages/language_listening.dart';
-import '../screens/languages/language_speaking.dart';
-import '../screens/languages/language_reading.dart';
-import '../screens/languages/language_writing.dart';
-import '../screens/languages/language_notebook.dart';
-import '../screens/languages/language_conversation.dart';
+import '../screens/ai_tutor/ai_tutor_screen.dart';
+import '../screens/analytics/analytics_dashboard.dart';
+import '../screens/auth/login_screen.dart';
+import '../screens/auth/register_screen.dart';
+import '../screens/biology/biology_ai_tutor.dart';
+import '../screens/biology/biology_analytics.dart';
+import '../screens/biology/biology_dashboard.dart';
+import '../screens/biology/biology_diagram_centre.dart';
+import '../screens/biology/biology_mock_exam.dart';
+import '../screens/biology/biology_notebook.dart';
+import '../screens/biology/biology_past_papers.dart';
+import '../screens/biology/biology_practical_hub.dart';
+import '../screens/biology/biology_practice_centre.dart';
+import '../screens/biology/biology_syllabus.dart';
+import '../screens/biology/biology_topics.dart';
+import '../screens/biology/biology_virtual_lab.dart';
+import '../screens/data_analysis/coding_playground_screen.dart';
+import '../screens/data_analysis/data_analysis_screen.dart';
+import '../screens/examinations/examination_hall.dart';
+import '../screens/gamification/gamification_screen.dart';
+import '../screens/home/home_shell.dart';
+import '../screens/home/student_dashboard.dart';
 import '../screens/languages/language_ai_tutor.dart';
-import '../screens/languages/language_practice.dart';
 import '../screens/languages/language_assessment.dart';
-import '../screens/languages/language_progress.dart';
-import '../screens/languages/language_levels.dart';
-import '../screens/languages/language_learning_path.dart';
-import '../screens/languages/language_pronunciation.dart';
-import '../screens/languages/language_revision.dart';
+import '../screens/languages/language_conversation.dart';
 import '../screens/languages/language_culture.dart';
-import '../screens/languages/language_offline.dart';
-import '../screens/languages/language_settings.dart';
+import '../screens/languages/language_dashboard.dart';
+import '../screens/languages/language_grammar.dart';
+import '../screens/languages/language_learning_path.dart';
 import '../screens/languages/language_level_detail.dart';
+import '../screens/languages/language_levels.dart';
+import '../screens/languages/language_listening.dart';
+import '../screens/languages/language_notebook.dart';
+import '../screens/languages/language_offline.dart';
+import '../screens/languages/language_practice.dart';
+import '../screens/languages/language_progress.dart';
+import '../screens/languages/language_pronunciation.dart';
+import '../screens/languages/language_reading.dart';
+import '../screens/languages/language_revision.dart';
+import '../screens/languages/language_settings.dart';
+import '../screens/languages/language_speaking.dart';
+import '../screens/languages/language_vocabulary.dart';
+import '../screens/languages/language_writing.dart';
+import '../screens/languages/languages_hub.dart';
+import '../screens/lecturer/assessment_studio.dart';
+import '../screens/lecturer/lecturer_centre.dart';
+import '../screens/lecturer/smart_marking.dart';
+import '../screens/notifications/smart_notifications_screen.dart';
+import '../screens/research/research_lab.dart';
+import '../screens/search/global_search_screen.dart';
+import '../screens/stem/analytics_export_screen.dart';
+import '../screens/stem/announcements_screen.dart';
+import '../screens/stem/certificates_screen.dart';
+import '../screens/stem/collaboration_chat_screen.dart';
+import '../screens/stem/content_cms_screen.dart';
+import '../screens/stem/exam_analytics_screen.dart';
+import '../screens/stem/forum_screen.dart';
+import '../screens/stem/learning_path_screen.dart';
+import '../screens/stem/mock_exam_screen.dart';
+import '../screens/stem/stem_analytics_screen.dart';
+import '../screens/stem/stem_career_explorer_screen.dart';
+import '../screens/stem/stem_concept_screen.dart';
+import '../screens/stem/stem_formula_centre_screen.dart';
+import '../screens/stem/stem_gamification_screen.dart';
+import '../screens/stem/stem_groups_screen.dart';
+import '../screens/stem/stem_hub.dart';
+import '../screens/stem/stem_knowledge_graph_screen.dart';
+import '../screens/stem/stem_lab_screen.dart';
+import '../screens/stem/stem_malawi_screen.dart';
+import '../screens/stem/stem_mastery_dashboard_screen.dart';
+import '../screens/stem/stem_revision_screen.dart';
+import '../screens/stem/stem_subject_screen.dart';
+import '../screens/stem/stem_topic_screen.dart';
+import '../screens/stem/stem_tutor_screen.dart';
+import '../screens/stem/study_planner_screen.dart';
+import '../screens/stem/subject_dashboard_screen.dart';
+import '../screens/student/chat_detail_screen.dart';
+import '../screens/student/knowledge_retrieval_screen.dart';
+import '../screens/student/knowledge_vault.dart';
+import '../screens/student/learning_coach.dart';
+import '../screens/student/malawi_context_screen.dart';
+import '../screens/student/messaging_screen.dart';
+import '../screens/student/notification_settings_screen.dart';
+import '../screens/student/profile_screen.dart';
+import '../screens/student/study_plan.dart';
+import '../screens/sync/offline_sync_screen.dart';
+import '../screens/writing/writing_studio.dart';
 
 class AppRouter {
   final AuthProvider authProvider;
 
   AppRouter(this.authProvider);
 
-  static Widget _fadeTransition(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation, Widget child) {
-    return FadeTransition(
-      opacity: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
-      child: child,
-    );
-  }
+  static Widget _fadeTransition(
+          BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) =>
+      FadeTransition(
+        opacity: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+        child: child,
+      );
 
-  static Widget _slideTransition(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation, Widget child) {
+  static Widget _slideTransition(
+      BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
     final tween = Tween<Offset>(
       begin: const Offset(0.06, 0),
       end: Offset.zero,
@@ -122,24 +121,21 @@ class AppRouter {
     );
   }
 
-  GoRoute _route(String path, Widget Function(GoRouterState) builder) {
-    return GoRoute(
-      path: path,
-      pageBuilder: (context, state) => CustomTransitionPage<void>(
-        key: state.pageKey,
-        child: builder(state),
-        transitionsBuilder: _slideTransition,
-      ),
-    );
-  }
+  GoRoute _route(String path, Widget Function(GoRouterState) builder) => GoRoute(
+        path: path,
+        pageBuilder: (context, state) => CustomTransitionPage<void>(
+          key: state.pageKey,
+          child: builder(state),
+          transitionsBuilder: _slideTransition,
+        ),
+      );
 
   late final GoRouter router = GoRouter(
     initialLocation: '/',
     refreshListenable: authProvider,
     redirect: (context, state) {
       final isAuth = authProvider.isAuthenticated;
-      final isAuthRoute = state.matchedLocation == '/login' ||
-          state.matchedLocation == '/register';
+      final isAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/register';
 
       if (!isAuth && !isAuthRoute) return '/login';
       if (isAuth && isAuthRoute) return '/';
@@ -169,7 +165,6 @@ class AppRouter {
           _route('/', (_) => const HomeRedirect()),
           _route('/student', (_) => const StudentDashboard()),
           _route('/dashboard', (_) => const StudentDashboard()),
-
           _route('/ai-tutor', (_) => const AiTutorScreen()),
           _route('/research', (_) => const ResearchLab()),
           _route('/vault', (_) => const KnowledgeVaultScreen()),
@@ -191,9 +186,8 @@ class AppRouter {
             pageBuilder: (_, state) {
               final slug = state.pathParameters['slug'] ?? 'mathematics';
               final title = state.uri.queryParameters['title'] ?? '';
-              final widget = slug == 'biology'
-                  ? const BiologyDashboard()
-                  : SubjectDashboardScreen(slug: slug, title: title);
+              final widget =
+                  slug == 'biology' ? const BiologyDashboard() : SubjectDashboardScreen(slug: slug, title: title);
               return CustomTransitionPage<void>(
                 key: state.pageKey,
                 child: widget,
@@ -250,41 +244,49 @@ class AppRouter {
               );
             },
           ),
-          GoRoute(path: '/stem-knowledge-graph', pageBuilder: (_, state) {
-            final slug = state.uri.queryParameters['subject'] ?? '';
-            return CustomTransitionPage<void>(
-              key: state.pageKey,
-              child: StemKnowledgeGraphScreen(subjectSlug: slug),
-              transitionsBuilder: _slideTransition,
-            );
-          }),
+          GoRoute(
+              path: '/stem-knowledge-graph',
+              pageBuilder: (_, state) {
+                final slug = state.uri.queryParameters['subject'] ?? '';
+                return CustomTransitionPage<void>(
+                  key: state.pageKey,
+                  child: StemKnowledgeGraphScreen(subjectSlug: slug),
+                  transitionsBuilder: _slideTransition,
+                );
+              }),
           _route('/stem-formula-centre', (_) => const StemFormulaCentreScreen()),
-          GoRoute(path: '/stem-careers', pageBuilder: (_, state) {
-            final slug = state.uri.queryParameters['subject'] ?? '';
-            return CustomTransitionPage<void>(
-              key: state.pageKey,
-              child: StemCareerExplorerScreen(subjectSlug: slug),
-              transitionsBuilder: _slideTransition,
-            );
-          }),
-          GoRoute(path: '/stem-labs', pageBuilder: (_, state) {
-            final slug = state.uri.queryParameters['subject'] ?? '';
-            final type = state.uri.queryParameters['type'] ?? '';
-            return CustomTransitionPage<void>(
-              key: state.pageKey,
-              child: StemLabScreen(subjectSlug: slug, labType: type),
-              transitionsBuilder: _slideTransition,
-            );
-          }),
+          GoRoute(
+              path: '/stem-careers',
+              pageBuilder: (_, state) {
+                final slug = state.uri.queryParameters['subject'] ?? '';
+                return CustomTransitionPage<void>(
+                  key: state.pageKey,
+                  child: StemCareerExplorerScreen(subjectSlug: slug),
+                  transitionsBuilder: _slideTransition,
+                );
+              }),
+          GoRoute(
+              path: '/stem-labs',
+              pageBuilder: (_, state) {
+                final slug = state.uri.queryParameters['subject'] ?? '';
+                final type = state.uri.queryParameters['type'] ?? '';
+                return CustomTransitionPage<void>(
+                  key: state.pageKey,
+                  child: StemLabScreen(subjectSlug: slug, labType: type),
+                  transitionsBuilder: _slideTransition,
+                );
+              }),
           _route('/stem-mastery', (_) => const StemMasteryDashboardScreen()),
-          GoRoute(path: '/stem-tutor', pageBuilder: (_, state) {
-            final conceptId = int.tryParse(state.uri.queryParameters['concept'] ?? '0') ?? 0;
-            return CustomTransitionPage<void>(
-              key: state.pageKey,
-              child: StemTutorScreen(conceptId: conceptId),
-              transitionsBuilder: _slideTransition,
-            );
-          }),
+          GoRoute(
+              path: '/stem-tutor',
+              pageBuilder: (_, state) {
+                final conceptId = int.tryParse(state.uri.queryParameters['concept'] ?? '0') ?? 0;
+                return CustomTransitionPage<void>(
+                  key: state.pageKey,
+                  child: StemTutorScreen(conceptId: conceptId),
+                  transitionsBuilder: _slideTransition,
+                );
+              }),
           _route('/stem-analytics', (_) => const StemAnalyticsScreen()),
           _route('/stem-malawi', (_) => const StemMalawiScreen()),
           _route('/stem-revision', (_) => const StemRevisionScreen()),

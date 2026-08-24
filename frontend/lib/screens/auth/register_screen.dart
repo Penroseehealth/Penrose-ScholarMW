@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/auth_provider.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../providers/auth_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -62,8 +62,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         labelText: 'Email',
                         prefixIcon: Icon(Icons.email_outlined),
                       ),
-                      validator: (v) =>
-                          v != null && v.contains('@') ? null : 'Enter a valid email',
+                      validator: (v) => v != null && v.contains('@') ? null : 'Enter a valid email',
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -77,8 +76,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           onPressed: () => setState(() => _obscure = !_obscure),
                         ),
                       ),
-                      validator: (v) =>
-                          v != null && v.length >= 6 ? null : 'Min 6 characters',
+                      validator: (v) => v != null && v.length >= 6 ? null : 'Min 6 characters',
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
@@ -87,10 +85,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         labelText: 'Role',
                         prefixIcon: Icon(Icons.badge_outlined),
                       ),
-                      items: [
-                        const DropdownMenuItem(value: 'student', child: Text('Student')),
-                        const DropdownMenuItem(value: 'lecturer', child: Text('Lecturer')),
-                        const DropdownMenuItem(value: 'researcher', child: Text('Researcher')),
+                      items: const [
+                        DropdownMenuItem(value: 'student', child: Text('Student')),
+                        DropdownMenuItem(value: 'lecturer', child: Text('Lecturer')),
+                        DropdownMenuItem(value: 'researcher', child: Text('Researcher')),
                       ],
                       onChanged: (v) => setState(() => _role = v ?? 'student'),
                     ),
@@ -152,15 +150,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   password: _passwordCtrl.text,
                                   fullName: _nameCtrl.text.trim(),
                                   role: _role,
-                                  institution: _institutionCtrl.text.isEmpty
-                                      ? null
-                                      : _institutionCtrl.text,
-                                  department: _departmentCtrl.text.isEmpty
-                                      ? null
-                                      : _departmentCtrl.text,
-                                  studentId: _studentIdCtrl.text.isEmpty
-                                      ? null
-                                      : _studentIdCtrl.text,
+                                  institution: _institutionCtrl.text.isEmpty ? null : _institutionCtrl.text,
+                                  department: _departmentCtrl.text.isEmpty ? null : _departmentCtrl.text,
+                                  studentId: _studentIdCtrl.text.isEmpty ? null : _studentIdCtrl.text,
                                   yearOfStudy: _yearOfStudy,
                                 );
                                 if (success && context.mounted) {

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'stem_topic_screen.dart';
-import '../../services/stem_service.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../widgets/shimmer_loading.dart';
+import '../../core/theme/theme_colors.dart';
+import '../../services/stem_service.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
-import '../../core/theme/theme_colors.dart';
+import '../../widgets/shimmer_loading.dart';
+import 'stem_topic_screen.dart';
 
 class StemSubjectScreen extends StatefulWidget {
   final String slug;
@@ -35,7 +36,10 @@ class _StemSubjectScreenState extends State<StemSubjectScreen> {
   }
 
   Future<void> _loadData() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final subject = await _stemService.getSubject(widget.slug);
       final disciplines = await _stemService.getDisciplines(widget.slug);
@@ -47,7 +51,11 @@ class _StemSubjectScreenState extends State<StemSubjectScreen> {
         });
       }
     } catch (e) {
-      if (mounted) setState(() { _error = e.toString(); _loading = false; });
+      if (mounted)
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
     }
   }
 
@@ -71,104 +79,103 @@ class _StemSubjectScreenState extends State<StemSubjectScreen> {
         color: AppColors.primary,
         child: CustomScrollView(
           slivers: [
-          SliverAppBar(
-            expandedHeight: 70,
-            pinned: true,
-            backgroundColor: subjectColor,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                widget.title,
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textPrimary,
-                ),
-              ),
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [subjectColor, subjectColor.withValues(alpha: 0.7)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+            SliverAppBar(
+              expandedHeight: 70,
+              pinned: true,
+              backgroundColor: subjectColor,
+              flexibleSpace: FlexibleSpaceBar(
+                title: Text(
+                  widget.title,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: context.colors.textPrimary,
                   ),
                 ),
-                child: _subject != null
-                    ? Align(
-                        alignment: Alignment.bottomLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                          child: Text(
-                            _subject!['description'] ?? '',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.white70,
+                background: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [subjectColor, subjectColor.withValues(alpha: 0.7)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: _subject != null
+                      ? Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                            child: Text(
+                              (_subject!['description'] ?? '') as String,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.white70,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                      )
-                    : null,
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-              child: Text(
-                'Disciplines',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textPrimary,
+                        )
+                      : null,
                 ),
               ),
             ),
-          ),
-          if (_error != null)
-            SliverToBoxAdapter(child: ErrorState(message: 'Failed to load subject', details: _error, onRetry: _loadData))
-          else if (_loading)
-            SliverToBoxAdapter(child: ShimmerLoading.list(count: 5))
-          else if (_disciplines.isEmpty)
-            const SliverToBoxAdapter(
-              child: EmptyState(
-                icon: Icons.category_outlined,
-                title: 'No disciplines available',
-                subtitle: 'Disciplines will appear here',
-              ),
-            )
-          else
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              sliver: SliverList.builder(
-                itemCount: _disciplines.length,
-                itemBuilder: (context, index) => _buildDisciplineCard(_disciplines[index]),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+                child: Text(
+                  'Disciplines',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: context.colors.textPrimary,
+                  ),
+                ),
               ),
             ),
-          const SliverToBoxAdapter(child: SizedBox(height: 40)),
+            if (_error != null)
+              SliverToBoxAdapter(
+                  child: ErrorState(message: 'Failed to load subject', details: _error, onRetry: _loadData))
+            else if (_loading)
+              SliverToBoxAdapter(child: ShimmerLoading.list())
+            else if (_disciplines.isEmpty)
+              const SliverToBoxAdapter(
+                child: EmptyState(
+                  icon: Icons.category_outlined,
+                  title: 'No disciplines available',
+                  subtitle: 'Disciplines will appear here',
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                sliver: SliverList.builder(
+                  itemCount: _disciplines.length,
+                  itemBuilder: (context, index) => _buildDisciplineCard(_disciplines[index]),
+                ),
+              ),
+            const SliverToBoxAdapter(child: SizedBox(height: 40)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDisciplineCard(dynamic discipline) {
-    return _DisciplineExpansionCard(
-      discipline: discipline,
-      onTopicTap: (topic) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => StemTopicScreen(
-              topicId: topic['id'],
-              title: topic['name'] ?? 'Topic',
-              difficulty: topic['difficulty'] ?? 'beginner',
+  Widget _buildDisciplineCard(dynamic discipline) => _DisciplineExpansionCard(
+        discipline: discipline,
+        onTopicTap: (topic) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => StemTopicScreen(
+                topicId: topic['id'] as int,
+                title: (topic['name'] ?? 'Topic') as String,
+                difficulty: (topic['difficulty'] ?? 'beginner') as String,
+              ),
             ),
-          ),
-        );
-      },
-    );
-  }
+          );
+        },
+      );
 }
 
 class _DisciplineExpansionCard extends StatefulWidget {
@@ -196,7 +203,7 @@ class _DisciplineExpansionCardState extends State<_DisciplineExpansionCard> {
     setState(() => _expanded = !_expanded);
     if (_expanded && !_topicsLoaded) {
       setState(() => _loadingTopics = true);
-      final topics = await _stemService.getTopics(widget.discipline['id']);
+      final topics = await _stemService.getTopics(widget.discipline['id'] as int);
       if (mounted) {
         setState(() {
           _topics = topics;
@@ -243,7 +250,7 @@ class _DisciplineExpansionCardState extends State<_DisciplineExpansionCard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.discipline['name'] ?? '',
+                          (widget.discipline['name'] ?? '') as String,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -296,7 +303,7 @@ class _DisciplineExpansionCardState extends State<_DisciplineExpansionCard> {
             else
               ...List.generate(_topics.length, (index) {
                 final topic = _topics[index];
-                final diffColor = _getDifficultyColor(topic['difficulty']);
+                final diffColor = _getDifficultyColor(topic['difficulty'] as String?);
                 final isLast = index == _topics.length - 1;
 
                 return GestureDetector(
@@ -314,7 +321,7 @@ class _DisciplineExpansionCardState extends State<_DisciplineExpansionCard> {
                       children: [
                         Expanded(
                           child: Text(
-                            topic['name'] ?? '',
+                            (topic['name'] ?? '') as String,
                             style: TextStyle(
                               fontSize: 14,
                               color: context.colors.textSecondary,
@@ -328,7 +335,7 @@ class _DisciplineExpansionCardState extends State<_DisciplineExpansionCard> {
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            topic['difficulty'] ?? 'beginner',
+                            (topic['difficulty'] ?? 'beginner') as String,
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,

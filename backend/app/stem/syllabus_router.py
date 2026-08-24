@@ -108,9 +108,7 @@ class LOUpdate(BaseModel):
 
 @router.get("/subjects")
 async def list_subjects(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(
-        select(SyllabusSubject).where(SyllabusSubject.is_active == True)
-    )
+    result = await db.execute(select(SyllabusSubject).where(SyllabusSubject.is_active == True))
     return [
         {
             "id": s.id,
@@ -131,11 +129,7 @@ async def get_syllabus_tree(slug: str, db: AsyncSession = Depends(get_db)):
 
     slug = resolve_slug(slug)
     subject = (
-        await db.execute(
-            select(SyllabusSubject).where(
-                SyllabusSubject.slug == slug, SyllabusSubject.is_active == True
-            )
-        )
+        await db.execute(select(SyllabusSubject).where(SyllabusSubject.slug == slug, SyllabusSubject.is_active == True))
     ).scalar_one_or_none()
     if not subject:
         raise HTTPException(404, "Subject not found")
@@ -222,11 +216,7 @@ async def list_topics_flat(slug: str, db: AsyncSession = Depends(get_db)):
 
     slug = resolve_slug(slug)
     subject = (
-        await db.execute(
-            select(SyllabusSubject).where(
-                SyllabusSubject.slug == slug, SyllabusSubject.is_active == True
-            )
-        )
+        await db.execute(select(SyllabusSubject).where(SyllabusSubject.slug == slug, SyllabusSubject.is_active == True))
     ).scalar_one_or_none()
     if not subject:
         raise HTTPException(404, "Subject not found")
@@ -235,9 +225,7 @@ async def list_topics_flat(slug: str, db: AsyncSession = Depends(get_db)):
         ce.id
         for ce in (
             await db.execute(
-                select(SyllabusCoreElement)
-                .join(SyllabusVersion)
-                .where(SyllabusVersion.subject_id == subject.id)
+                select(SyllabusCoreElement).join(SyllabusVersion).where(SyllabusVersion.subject_id == subject.id)
             )
         )
         .scalars()
@@ -276,9 +264,7 @@ async def search_syllabus(q: str, db: AsyncSession = Depends(get_db)):
             SyllabusLearningObjective.subtopic_id == SyllabusSubtopic.id,
         )
         .join(SyllabusTopic, SyllabusSubtopic.topic_id == SyllabusTopic.id)
-        .join(
-            SyllabusCoreElement, SyllabusTopic.core_element_id == SyllabusCoreElement.id
-        )
+        .join(SyllabusCoreElement, SyllabusTopic.core_element_id == SyllabusCoreElement.id)
         .join(SyllabusVersion, SyllabusCoreElement.version_id == SyllabusVersion.id)
         .join(SyllabusSubject, SyllabusVersion.subject_id == SyllabusSubject.id)
         .where(
@@ -326,9 +312,7 @@ async def create_version(data: VersionCreate, db: AsyncSession = Depends(get_db)
 
 
 @router.post("/admin/core-elements", dependencies=[Depends(require_admin)])
-async def create_core_element(
-    data: CoreElementCreate, db: AsyncSession = Depends(get_db)
-):
+async def create_core_element(data: CoreElementCreate, db: AsyncSession = Depends(get_db)):
     ce = SyllabusCoreElement(**data.model_dump())
     db.add(ce)
     await db.commit()
@@ -346,12 +330,8 @@ async def create_topic(data: TopicCreate, db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/admin/topics/{topic_id}", dependencies=[Depends(require_admin)])
-async def update_topic(
-    topic_id: int, data: TopicUpdate, db: AsyncSession = Depends(get_db)
-):
-    topic = (
-        await db.execute(select(SyllabusTopic).where(SyllabusTopic.id == topic_id))
-    ).scalar_one_or_none()
+async def update_topic(topic_id: int, data: TopicUpdate, db: AsyncSession = Depends(get_db)):
+    topic = (await db.execute(select(SyllabusTopic).where(SyllabusTopic.id == topic_id))).scalar_one_or_none()
     if not topic:
         raise HTTPException(404, "Topic not found")
     for k, v in data.model_dump(exclude_unset=True).items():
@@ -362,9 +342,7 @@ async def update_topic(
 
 @router.delete("/admin/topics/{topic_id}", dependencies=[Depends(require_admin)])
 async def delete_topic(topic_id: int, db: AsyncSession = Depends(get_db)):
-    topic = (
-        await db.execute(select(SyllabusTopic).where(SyllabusTopic.id == topic_id))
-    ).scalar_one_or_none()
+    topic = (await db.execute(select(SyllabusTopic).where(SyllabusTopic.id == topic_id))).scalar_one_or_none()
     if not topic:
         raise HTTPException(404, "Topic not found")
     await db.delete(topic)
@@ -382,12 +360,8 @@ async def create_subtopic(data: SubtopicCreate, db: AsyncSession = Depends(get_d
 
 
 @router.put("/admin/subtopics/{sub_id}", dependencies=[Depends(require_admin)])
-async def update_subtopic(
-    sub_id: int, data: SubtopicUpdate, db: AsyncSession = Depends(get_db)
-):
-    sub = (
-        await db.execute(select(SyllabusSubtopic).where(SyllabusSubtopic.id == sub_id))
-    ).scalar_one_or_none()
+async def update_subtopic(sub_id: int, data: SubtopicUpdate, db: AsyncSession = Depends(get_db)):
+    sub = (await db.execute(select(SyllabusSubtopic).where(SyllabusSubtopic.id == sub_id))).scalar_one_or_none()
     if not sub:
         raise HTTPException(404, "Subtopic not found")
     for k, v in data.model_dump(exclude_unset=True).items():
@@ -398,9 +372,7 @@ async def update_subtopic(
 
 @router.delete("/admin/subtopics/{sub_id}", dependencies=[Depends(require_admin)])
 async def delete_subtopic(sub_id: int, db: AsyncSession = Depends(get_db)):
-    sub = (
-        await db.execute(select(SyllabusSubtopic).where(SyllabusSubtopic.id == sub_id))
-    ).scalar_one_or_none()
+    sub = (await db.execute(select(SyllabusSubtopic).where(SyllabusSubtopic.id == sub_id))).scalar_one_or_none()
     if not sub:
         raise HTTPException(404, "Subtopic not found")
     await db.delete(sub)
@@ -418,15 +390,9 @@ async def create_learning_objective(data: LOCreate, db: AsyncSession = Depends(g
 
 
 @router.put("/admin/learning-objectives/{lo_id}", dependencies=[Depends(require_admin)])
-async def update_learning_objective(
-    lo_id: int, data: LOUpdate, db: AsyncSession = Depends(get_db)
-):
+async def update_learning_objective(lo_id: int, data: LOUpdate, db: AsyncSession = Depends(get_db)):
     lo = (
-        await db.execute(
-            select(SyllabusLearningObjective).where(
-                SyllabusLearningObjective.id == lo_id
-            )
-        )
+        await db.execute(select(SyllabusLearningObjective).where(SyllabusLearningObjective.id == lo_id))
     ).scalar_one_or_none()
     if not lo:
         raise HTTPException(404, "Learning objective not found")
@@ -436,16 +402,10 @@ async def update_learning_objective(
     return {"ok": True}
 
 
-@router.delete(
-    "/admin/learning-objectives/{lo_id}", dependencies=[Depends(require_admin)]
-)
+@router.delete("/admin/learning-objectives/{lo_id}", dependencies=[Depends(require_admin)])
 async def delete_learning_objective(lo_id: int, db: AsyncSession = Depends(get_db)):
     lo = (
-        await db.execute(
-            select(SyllabusLearningObjective).where(
-                SyllabusLearningObjective.id == lo_id
-            )
-        )
+        await db.execute(select(SyllabusLearningObjective).where(SyllabusLearningObjective.id == lo_id))
     ).scalar_one_or_none()
     if not lo:
         raise HTTPException(404, "Learning objective not found")
@@ -466,9 +426,7 @@ async def create_resource(data: ResourceCreate, db: AsyncSession = Depends(get_d
 @router.post("/admin/topics/reorder", dependencies=[Depends(require_admin)])
 async def reorder_topics(data: ReorderRequest, db: AsyncSession = Depends(get_db)):
     for idx, tid in enumerate(data.ordered_ids):
-        topic = (
-            await db.execute(select(SyllabusTopic).where(SyllabusTopic.id == tid))
-        ).scalar_one_or_none()
+        topic = (await db.execute(select(SyllabusTopic).where(SyllabusTopic.id == tid))).scalar_one_or_none()
         if topic:
             topic.order_index = idx
     await db.commit()
@@ -478,9 +436,7 @@ async def reorder_topics(data: ReorderRequest, db: AsyncSession = Depends(get_db
 @router.post("/admin/subtopics/reorder", dependencies=[Depends(require_admin)])
 async def reorder_subtopics(data: ReorderRequest, db: AsyncSession = Depends(get_db)):
     for idx, sid in enumerate(data.ordered_ids):
-        sub = (
-            await db.execute(select(SyllabusSubtopic).where(SyllabusSubtopic.id == sid))
-        ).scalar_one_or_none()
+        sub = (await db.execute(select(SyllabusSubtopic).where(SyllabusSubtopic.id == sid))).scalar_one_or_none()
         if sub:
             sub.order_index = idx
     await db.commit()

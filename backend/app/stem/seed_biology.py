@@ -1004,9 +1004,7 @@ BIOLOGY_CHAPTERS: list[dict[str, Any]] = [
 async def seed_biology() -> None:
     """Insert all MSCE Biology content into the database."""
     async with async_session() as session:
-        existing = await session.execute(
-            select(STEMSubject).where(STEMSubject.subject_slug == "biology")
-        )
+        existing = await session.execute(select(STEMSubject).where(STEMSubject.subject_slug == "biology"))
         bio_subject = existing.scalar_one_or_none()
         if bio_subject is None:
             bio_subject = STEMSubject(
@@ -1022,14 +1020,10 @@ async def seed_biology() -> None:
         existing_disciplines = await session.execute(
             select(STEMDiscipline).where(STEMDiscipline.subject_id == bio_subject.id)
         )
-        existing_slugs = {
-            d.discipline_slug for d in existing_disciplines.scalars().all()
-        }
+        existing_slugs = {d.discipline_slug for d in existing_disciplines.scalars().all()}
 
         for idx, chapter in enumerate(BIOLOGY_CHAPTERS):
-            disc_slug = (
-                chapter["discipline"].lower().replace(" ", "-").replace("&", "and")
-            )
+            disc_slug = chapter["discipline"].lower().replace(" ", "-").replace("&", "and")
             if disc_slug in existing_slugs:
                 continue
 
@@ -1069,9 +1063,7 @@ async def seed_biology() -> None:
                             subtopic_id=subtopic.id,
                             title=concept_data["title"],
                             description=concept_data.get("description", ""),
-                            difficulty_level=topic_data.get(
-                                "difficulty", "foundational"
-                            ),
+                            difficulty_level=topic_data.get("difficulty", "foundational"),
                             order_index=c_idx,
                         )
                         session.add(concept)

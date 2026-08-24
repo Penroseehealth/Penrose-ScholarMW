@@ -84,9 +84,7 @@ async def list_reports(
     db: AsyncSession = Depends(get_db),
 ):
     if user.role != UserRole.ADMIN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required"
-        )
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
 
     query = select(STEMContentReport)
 
@@ -111,9 +109,7 @@ async def review_report(
     db: AsyncSession = Depends(get_db),
 ):
     if user.role != UserRole.ADMIN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required"
-        )
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
 
     valid_statuses = {"pending", "reviewed", "resolved", "dismissed"}
     if body.status not in valid_statuses:
@@ -122,14 +118,10 @@ async def review_report(
             detail=f"Invalid status. Must be one of: {', '.join(sorted(valid_statuses))}",
         )
 
-    result = await db.execute(
-        select(STEMContentReport).where(STEMContentReport.id == report_id)
-    )
+    result = await db.execute(select(STEMContentReport).where(STEMContentReport.id == report_id))
     report = result.scalar_one_or_none()
     if not report:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Report not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found")
 
     report.status = body.status
     report.reviewed_by = user.id
@@ -144,13 +136,9 @@ async def get_report_stats(
     db: AsyncSession = Depends(get_db),
 ):
     if user.role != UserRole.ADMIN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required"
-        )
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
 
-    pending_result = await db.execute(
-        select(func.count()).where(STEMContentReport.status == "pending")
-    )
+    pending_result = await db.execute(select(func.count()).where(STEMContentReport.status == "pending"))
     pending_count = pending_result.scalar() or 0
 
     type_result = await db.execute(

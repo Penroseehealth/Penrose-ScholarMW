@@ -40,9 +40,7 @@ class MessageResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-async def _get_conversation_or_404(
-    conv_id: int, user: User, db: AsyncSession
-) -> Conversation:
+async def _get_conversation_or_404(conv_id: int, user: User, db: AsyncSession) -> Conversation:
     result = await db.execute(
         select(ConversationMember).where(
             ConversationMember.conversation_id == conv_id,
@@ -54,9 +52,7 @@ async def _get_conversation_or_404(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Conversation not found",
         )
-    conv_result = await db.execute(
-        select(Conversation).where(Conversation.id == conv_id)
-    )
+    conv_result = await db.execute(select(Conversation).where(Conversation.id == conv_id))
     return conv_result.scalar_one()
 
 
@@ -104,9 +100,7 @@ async def get_messages(
 ):
     await _get_conversation_or_404(conv_id, user, db)
     result = await db.execute(
-        select(Message)
-        .where(Message.conversation_id == conv_id)
-        .order_by(Message.created_at.asc())
+        select(Message).where(Message.conversation_id == conv_id).order_by(Message.created_at.asc())
     )
     return [MessageResponse.model_validate(m) for m in result.scalars().all()]
 

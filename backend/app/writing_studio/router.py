@@ -135,9 +135,7 @@ async def list_projects(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    result = await db.execute(
-        select(WritingProject).where(WritingProject.owner_id == current_user.id)
-    )
+    result = await db.execute(select(WritingProject).where(WritingProject.owner_id == current_user.id))
     return result.scalars().all()
 
 
@@ -148,9 +146,7 @@ async def get_project(
     current_user: User = Depends(get_current_user),
 ):
     result = await db.execute(
-        select(WritingProject)
-        .options(selectinload(WritingProject.sections))
-        .where(WritingProject.id == project_id)
+        select(WritingProject).options(selectinload(WritingProject.sections)).where(WritingProject.id == project_id)
     )
     project = result.scalar_one_or_none()
     if not project:
@@ -167,9 +163,7 @@ async def update_project(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    result = await db.execute(
-        select(WritingProject).where(WritingProject.id == project_id)
-    )
+    result = await db.execute(select(WritingProject).where(WritingProject.id == project_id))
     project = result.scalar_one_or_none()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -188,9 +182,7 @@ async def delete_project(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    result = await db.execute(
-        select(WritingProject).where(WritingProject.id == project_id)
-    )
+    result = await db.execute(select(WritingProject).where(WritingProject.id == project_id))
     project = result.scalar_one_or_none()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -211,9 +203,7 @@ async def create_section(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    result = await db.execute(
-        select(WritingProject).where(WritingProject.id == project_id)
-    )
+    result = await db.execute(select(WritingProject).where(WritingProject.id == project_id))
     project = result.scalar_one_or_none()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -241,11 +231,7 @@ async def update_section(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    result = await db.execute(
-        select(WritingSection)
-        .join(WritingProject)
-        .where(WritingSection.id == section_id)
-    )
+    result = await db.execute(select(WritingSection).join(WritingProject).where(WritingSection.id == section_id))
     section = result.scalar_one_or_none()
     if not section:
         raise HTTPException(status_code=404, detail="Section not found")
@@ -267,11 +253,7 @@ async def delete_section(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    result = await db.execute(
-        select(WritingSection)
-        .join(WritingProject)
-        .where(WritingSection.id == section_id)
-    )
+    result = await db.execute(select(WritingSection).join(WritingProject).where(WritingSection.id == section_id))
     section = result.scalar_one_or_none()
     if not section:
         raise HTTPException(status_code=404, detail="Section not found")
@@ -287,11 +269,7 @@ async def writing_assist(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    result = await db.execute(
-        select(WritingSection)
-        .join(WritingProject)
-        .where(WritingSection.id == body.section_id)
-    )
+    result = await db.execute(select(WritingSection).join(WritingProject).where(WritingSection.id == body.section_id))
     section = result.scalar_one_or_none()
     if not section:
         raise HTTPException(status_code=404, detail="Section not found")
@@ -306,8 +284,7 @@ async def writing_assist(
         system_prompt = (
             "You are an academic writing assistant. "
             "Provide specific, actionable suggestions to improve academic writing. "
-            "Focus on clarity, grammar, structure, and scholarly tone."
-            + STEM_LATEX_INSTRUCTION
+            "Focus on clarity, grammar, structure, and scholarly tone." + STEM_LATEX_INSTRUCTION
         )
         user_msg = f"Action: {body.action}\n\nContent:\n{content}"
         text = await call_ai_text(
@@ -321,14 +298,8 @@ async def writing_assist(
         suggestions = [s.strip() for s in text.split("\n") if s.strip()]
         return WritingAssistResponse(
             suggestions=suggestions[:10],
-            improved_text=(
-                text
-                if body.action in ("improve_grammar", "improve_tone", "paraphrase")
-                else None
-            ),
-            analysis=(
-                text if body.action in ("suggest_structure", "identify_gaps") else None
-            ),
+            improved_text=(text if body.action in ("improve_grammar", "improve_tone", "paraphrase") else None),
+            analysis=(text if body.action in ("suggest_structure", "identify_gaps") else None),
         )
     except AIProviderError:
         logger.exception("AI call failed for writing assist")
@@ -408,11 +379,7 @@ async def list_reference_collections(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    result = await db.execute(
-        select(ReferenceCollection).where(
-            ReferenceCollection.owner_id == current_user.id
-        )
-    )
+    result = await db.execute(select(ReferenceCollection).where(ReferenceCollection.owner_id == current_user.id))
     return result.scalars().all()
 
 
@@ -425,9 +392,7 @@ async def delete_reference_collection(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    result = await db.execute(
-        select(ReferenceCollection).where(ReferenceCollection.id == collection_id)
-    )
+    result = await db.execute(select(ReferenceCollection).where(ReferenceCollection.id == collection_id))
     collection = result.scalar_one_or_none()
     if not collection:
         raise HTTPException(status_code=404, detail="Collection not found")
@@ -447,9 +412,7 @@ async def create_citation(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    result = await db.execute(
-        select(ReferenceCollection).where(ReferenceCollection.id == body.collection_id)
-    )
+    result = await db.execute(select(ReferenceCollection).where(ReferenceCollection.id == body.collection_id))
     collection = result.scalar_one_or_none()
     if not collection:
         raise HTTPException(status_code=404, detail="Collection not found")
@@ -481,11 +444,7 @@ async def list_citations(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    stmt = (
-        select(Citation)
-        .join(ReferenceCollection)
-        .where(ReferenceCollection.owner_id == current_user.id)
-    )
+    stmt = select(Citation).join(ReferenceCollection).where(ReferenceCollection.owner_id == current_user.id)
     if collection_id is not None:
         stmt = stmt.where(Citation.collection_id == collection_id)
     result = await db.execute(stmt)
@@ -502,9 +461,7 @@ async def update_citation(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    result = await db.execute(
-        select(Citation).join(ReferenceCollection).where(Citation.id == citation_id)
-    )
+    result = await db.execute(select(Citation).join(ReferenceCollection).where(Citation.id == citation_id))
     citation = result.scalar_one_or_none()
     if not citation:
         raise HTTPException(status_code=404, detail="Citation not found")
@@ -536,9 +493,7 @@ async def delete_citation(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    result = await db.execute(
-        select(Citation).join(ReferenceCollection).where(Citation.id == citation_id)
-    )
+    result = await db.execute(select(Citation).join(ReferenceCollection).where(Citation.id == citation_id))
     citation = result.scalar_one_or_none()
     if not citation:
         raise HTTPException(status_code=404, detail="Citation not found")
@@ -557,9 +512,7 @@ async def generate_bibliography(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    result = await db.execute(
-        select(ReferenceCollection).where(ReferenceCollection.id == body.collection_id)
-    )
+    result = await db.execute(select(ReferenceCollection).where(ReferenceCollection.id == body.collection_id))
     collection = result.scalar_one_or_none()
     if not collection:
         raise HTTPException(status_code=404, detail="Collection not found")

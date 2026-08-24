@@ -1,8 +1,10 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../services/services.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/services.dart';
 
 class LearningCoachScreen extends StatefulWidget {
   const LearningCoachScreen({super.key});
@@ -52,7 +54,7 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
         final plan = jsonDecode(response.body);
         setState(() {
           _selectedPlan = plan is Map<String, dynamic> ? plan : null;
-          _items = (_selectedPlan != null) ? (_selectedPlan!['items'] ?? []) : [];
+          _items = (_selectedPlan != null) ? ((_selectedPlan!['items'] ?? []) as List) : [];
           _loading = false;
         });
       } else {
@@ -107,9 +109,7 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
       grouped.putIfAbsent(day, () => []).add(item);
     }
     final sorted = Map.fromEntries(
-      grouped.entries.toList()
-        ..sort((a, b) =>
-            (dayOrder[a.key] ?? 7).compareTo(dayOrder[b.key] ?? 7)),
+      grouped.entries.toList()..sort((a, b) => (dayOrder[a.key] ?? 7).compareTo(dayOrder[b.key] ?? 7)),
     );
     return sorted;
   }
@@ -144,136 +144,126 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
     }
   }
 
-  String _dayTitle(String day) {
-    return day[0].toUpperCase() + day.substring(1);
-  }
+  String _dayTitle(String day) => day[0].toUpperCase() + day.substring(1);
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Penrose Learning Assistant'),
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Penrose Learning Assistant'),
+          backgroundColor: context.colors.background,
+          elevation: 0,
+          foregroundColor: context.colors.textPrimary,
+        ),
         backgroundColor: context.colors.background,
-        elevation: 0,
-        foregroundColor: context.colors.textPrimary,
-      ),
-      backgroundColor: context.colors.background,
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _loadPlans,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'YOUR WEEKLY AI STUDY PLAN',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: context.colors.textPrimary,
+        body: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : RefreshIndicator(
+                onRefresh: _loadPlans,
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'YOUR WEEKLY AI STUDY PLAN',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: context.colors.textPrimary,
+                            ),
                           ),
                         ),
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: _generating ? null : _generatePlan,
-                        icon: _generating
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2, color: Colors.white),
-                              )
-                            : const Icon(Icons.auto_awesome, size: 18),
-                        label: const Text('Generate New Plan'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                        ElevatedButton.icon(
+                          onPressed: _generating ? null : _generatePlan,
+                          icon: _generating
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                )
+                              : const Icon(Icons.auto_awesome, size: 18),
+                          label: const Text('Generate New Plan'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    if (_selectedPlan != null) ...[
+                      Text(
+                        'Exam: ${_selectedPlan!['exam_date'] ?? 'Not set'} · '
+                        '${_selectedPlan!['hours_per_day'] ?? 2}h/day',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: context.colors.textSecondary,
                         ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 8),
-                  if (_selectedPlan != null) ...[
-                    Text(
-                      'Exam: ${_selectedPlan!['exam_date'] ?? 'Not set'} · '
-                      '${_selectedPlan!['hours_per_day'] ?? 2}h/day',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: context.colors.textSecondary,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 20),
-                  if (_items.isEmpty)
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 60),
-                        child: Column(
-                          children: [
-                            Icon(Icons.school,
-                                size: 64, color: context.colors.textSecondary),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No study plan yet',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: context.colors.textSecondary,
+                    const SizedBox(height: 20),
+                    if (_items.isEmpty)
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 60),
+                          child: Column(
+                            children: [
+                              Icon(Icons.school, size: 64, color: context.colors.textSecondary),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No study plan yet',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: context.colors.textSecondary,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Tap "Generate New Plan" to get started',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: context.colors.textSecondary,
+                              const SizedBox(height: 8),
+                              Text(
+                                'Tap "Generate New Plan" to get started',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: context.colors.textSecondary,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    )
-                  else
-                    ..._groupByDay().entries.map((entry) {
-                      return _buildDaySection(entry.key, entry.value);
-                    }),
-                ],
+                      )
+                    else
+                      ..._groupByDay().entries.map((entry) => _buildDaySection(entry.key, entry.value)),
+                  ],
+                ),
+              ),
+      );
+
+  Widget _buildDaySection(String day, List<dynamic> dayItems) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              _dayTitle(day),
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: AppColors.primary,
               ),
             ),
-    );
-  }
-
-  Widget _buildDaySection(String day, List<dynamic> dayItems) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-          decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(8),
           ),
-          child: Text(
-            _dayTitle(day),
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        ...dayItems.map((item) => _buildItemCard(item)),
-        const SizedBox(height: 16),
-      ],
-    );
-  }
+          const SizedBox(height: 8),
+          ...dayItems.map((item) => _buildItemCard(item as Map<String, dynamic>)),
+          const SizedBox(height: 16),
+        ],
+      );
 
   Widget _buildItemCard(Map<String, dynamic> item) {
     final completed = item['completed'] == true;
@@ -288,9 +278,7 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
         color: completed ? context.colors.successMuted : context.colors.surface,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: completed
-              ? Colors.green.withValues(alpha: 0.3)
-              : context.colors.textSecondary.withValues(alpha: 0.2),
+          color: completed ? Colors.green.withValues(alpha: 0.3) : context.colors.textSecondary.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -309,21 +297,19 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item['subject'] ?? item['topic'] ?? '',
+                  (item['subject'] ?? item['topic'] ?? '') as String,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: context.colors.textPrimary,
-                    decoration:
-                        completed ? TextDecoration.lineThrough : null,
+                    decoration: completed ? TextDecoration.lineThrough : null,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: _chipColor(activityType).withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(12),
@@ -356,8 +342,7 @@ class _LearningCoachScreenState extends State<LearningCoachScreen> {
               style: TextButton.styleFrom(
                 backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                 foregroundColor: AppColors.primary,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(6),
                 ),

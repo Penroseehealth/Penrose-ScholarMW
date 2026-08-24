@@ -780,11 +780,7 @@ async def seed_chinese():
                     await db.flush()
 
                     for vi, vtuple in enumerate(vocab_data):
-                        diff = (
-                            "beginner"
-                            if li < 2
-                            else ("intermediate" if li < 4 else "advanced")
-                        )
+                        diff = "beginner" if li < 2 else ("intermediate" if li < 4 else "advanced")
                         db.add(
                             mk_v(
                                 lesson.id,

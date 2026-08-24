@@ -81,21 +81,16 @@ class DataSaverService {
 
   String getRequestBudgetInfo() {
     if (!_enabled) return 'Data saver off';
-    return _imagesEnabled
-        ? 'Data saver ON (images compressed)'
-        : 'Data saver ON (images off)';
+    return _imagesEnabled ? 'Data saver ON (images compressed)' : 'Data saver ON (images off)';
   }
 
-  bool _isStaticEndpoint(String endpoint) {
-    return endpoint.contains('/stem/') ||
-        endpoint.contains('/courses/') ||
-        endpoint.contains('/knowledge-vault') ||
-        endpoint.contains('/formulas') ||
-        endpoint.contains('/careers') ||
-        endpoint.contains('/malawi');
-  }
+  bool _isStaticEndpoint(String endpoint) =>
+      endpoint.contains('/stem/') ||
+      endpoint.contains('/courses/') ||
+      endpoint.contains('/knowledge-vault') ||
+      endpoint.contains('/formulas') ||
+      endpoint.contains('/careers') ||
+      endpoint.contains('/malawi');
 
-  String _sanitizeKey(String endpoint) {
-    return endpoint.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
-  }
+  String _sanitizeKey(String endpoint) => endpoint.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
 }

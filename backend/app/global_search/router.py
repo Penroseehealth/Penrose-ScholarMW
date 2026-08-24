@@ -55,9 +55,7 @@ async def global_search(
 ):
     results = []
     search_types = (
-        [type]
-        if type and type != "all"
-        else ["course", "assessment", "vault", "research", "chat", "knowledge"]
+        [type] if type and type != "all" else ["course", "assessment", "vault", "research", "chat", "knowledge"]
     )
 
     if "course" in search_types:

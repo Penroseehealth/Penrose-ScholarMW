@@ -312,8 +312,7 @@ class _BiologyAITutorScreenState extends State<BiologyAITutorScreen> {
           children: [
             Icon(Icons.science_rounded, color: _bioGreen, size: 22),
             SizedBox(width: 10),
-            Text('Biology AI Tutor',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            Text('Biology AI Tutor', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ],
         ),
         actions: [
@@ -325,260 +324,237 @@ class _BiologyAITutorScreenState extends State<BiologyAITutorScreen> {
     );
   }
 
-  Widget _syllabusLockBadge() {
-    return GestureDetector(
-      onTap: () => setState(() => _syllabusLocked = !_syllabusLocked),
-      child: Container(
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: _syllabusLocked
-              ? _bioGreen.withValues(alpha: 0.15)
-              : Colors.orange.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: _syllabusLocked
-                ? _bioGreen.withValues(alpha: 0.3)
-                : Colors.orange.withValues(alpha: 0.3),
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              _syllabusLocked ? Icons.lock_rounded : Icons.lock_open_rounded,
-              color: _syllabusLocked ? _bioGreen : Colors.orange,
-              size: 14,
+  Widget _syllabusLockBadge() => GestureDetector(
+        onTap: () => setState(() => _syllabusLocked = !_syllabusLocked),
+        child: Container(
+          margin: const EdgeInsets.only(right: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: _syllabusLocked ? _bioGreen.withValues(alpha: 0.15) : Colors.orange.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: _syllabusLocked ? _bioGreen.withValues(alpha: 0.3) : Colors.orange.withValues(alpha: 0.3),
             ),
-            const SizedBox(width: 4),
-            Text(
-              _syllabusLocked ? 'Syllabus Locked' : 'Free Mode',
-              style: TextStyle(
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                _syllabusLocked ? Icons.lock_rounded : Icons.lock_open_rounded,
                 color: _syllabusLocked ? _bioGreen : Colors.orange,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
+                size: 14,
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDesktopLayout() {
-    return Row(
-      children: [
-        SizedBox(
-          width: 280,
-          child: _buildSidebar(),
-        ),
-        const VerticalDivider(color: Colors.white10, width: 1),
-        Expanded(child: _buildChatArea()),
-      ],
-    );
-  }
-
-  Widget _buildMobileLayout() {
-    return Column(
-      children: [
-        _buildModeBar(),
-        _buildTopicSelector(),
-        Expanded(child: _buildChatArea()),
-      ],
-    );
-  }
-
-  Widget _buildSidebar() {
-    return Container(
-      color: const Color(0xFF0F1623),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Select Topic',
-                    style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 8),
-                Container(
-                  height: 1,
-                  color: Colors.white.withValues(alpha: 0.06),
+              const SizedBox(width: 4),
+              Text(
+                _syllabusLocked ? 'Syllabus Locked' : 'Free Mode',
+                style: TextStyle(
+                  color: _syllabusLocked ? _bioGreen : Colors.orange,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
                 ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.only(bottom: 16),
-              itemCount: _topics.length,
-              itemBuilder: (_, i) {
-                final selected = _selectedTopic == i;
-                return ListTile(
-                  dense: true,
-                  selected: selected,
-                  selectedTileColor: _bioGreen.withValues(alpha: 0.1),
-                  leading: Icon(
-                    Icons.circle_rounded,
-                    size: 8,
-                    color: selected ? _bioGreen : Colors.white24,
-                  ),
-                  title: Text(
-                    _topics[i],
-                    style: TextStyle(
-                      color: selected ? _bioGreen : Colors.white70,
-                      fontSize: 13,
-                      fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-                    ),
-                  ),
-                  onTap: () => setState(() => _selectedTopic = i),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildModeBar() {
-    return Container(
-      height: 48,
-      color: const Color(0xFF0F1623),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: _modes.length,
-        itemBuilder: (_, i) {
-          final m = _modes[i];
-          final selected = _selectedMode == m.$1;
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-            child: ChoiceChip(
-              label: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(m.$3, size: 14, color: selected ? Colors.white : Colors.white54),
-                  const SizedBox(width: 4),
-                  Text(m.$2, style: const TextStyle(fontSize: 12)),
-                ],
               ),
-              selected: selected,
-              onSelected: (_) => setState(() => _selectedMode = m.$1),
-              backgroundColor: Colors.white.withValues(alpha: 0.05),
-              selectedColor: _bioGreen,
-              labelStyle: TextStyle(color: selected ? Colors.white : Colors.white70),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildTopicSelector() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      color: const Color(0xFF0F1623),
-      child: Row(
-        children: [
-          const Icon(Icons.bookmark_rounded, color: _bioGreen, size: 16),
-          const SizedBox(width: 8),
-          Expanded(
-            child: DropdownButton<int?>(
-              value: _selectedTopic,
-              isExpanded: true,
-              dropdownColor: const Color(0xFF1A2035),
-              underline: const SizedBox(),
-              hint: const Text('Select a syllabus topic',
-                  style: TextStyle(color: Colors.white54, fontSize: 13)),
-              items: [
-                const DropdownMenuItem<int?>(
-                  value: null,
-                  child: Text('General Biology', style: TextStyle(color: Colors.white70)),
-                ),
-                ..._topics.asMap().entries.map((e) => DropdownMenuItem(
-                      value: e.key,
-                      child: Text(e.value, style: const TextStyle(color: Colors.white70, fontSize: 13)),
-                    )),
-              ],
-              onChanged: (v) => setState(() => _selectedTopic = v),
-            ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildChatArea() {
-    return Column(
-      children: [
-        Expanded(
-          child: _messages.isEmpty ? _buildWelcome() : _buildMessageList(),
         ),
-        _buildInputArea(),
-      ],
-    );
-  }
+      );
 
-  Widget _buildWelcome() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
+  Widget _buildDesktopLayout() => Row(
+        children: [
+          SizedBox(
+            width: 280,
+            child: _buildSidebar(),
+          ),
+          const VerticalDivider(color: Colors.white10, width: 1),
+          Expanded(child: _buildChatArea()),
+        ],
+      );
+
+  Widget _buildMobileLayout() => Column(
+        children: [
+          _buildModeBar(),
+          _buildTopicSelector(),
+          Expanded(child: _buildChatArea()),
+        ],
+      );
+
+  Widget _buildSidebar() => Container(
+        color: const Color(0xFF0F1623),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: _bioGreen.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Select Topic',
+                      style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  Container(
+                    height: 1,
+                    color: Colors.white.withValues(alpha: 0.06),
+                  ),
+                ],
               ),
-              child: const Icon(Icons.science_rounded, color: _bioGreen, size: 40),
             ),
-            const SizedBox(height: 20),
-            const Text(
-              'Biology AI Tutor',
-              style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Powered by Malawi MSCE Syllabus',
-              style: TextStyle(color: _bioGreen.withValues(alpha: 0.7), fontSize: 13),
-            ),
-            const SizedBox(height: 24),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              alignment: WrapAlignment.center,
-              children: _welcomeSuggestions.take(4).map((s) {
-                return ActionChip(
-                  label: Text(s, style: const TextStyle(color: Colors.white70, fontSize: 12)),
-                  backgroundColor: Colors.white.withValues(alpha: 0.05),
-                  side: BorderSide(color: _bioGreen.withValues(alpha: 0.2)),
-                  onPressed: () => _sendMessage(s),
-                );
-              }).toList(),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.only(bottom: 16),
+                itemCount: _topics.length,
+                itemBuilder: (_, i) {
+                  final selected = _selectedTopic == i;
+                  return ListTile(
+                    dense: true,
+                    selected: selected,
+                    selectedTileColor: _bioGreen.withValues(alpha: 0.1),
+                    leading: Icon(
+                      Icons.circle_rounded,
+                      size: 8,
+                      color: selected ? _bioGreen : Colors.white24,
+                    ),
+                    title: Text(
+                      _topics[i],
+                      style: TextStyle(
+                        color: selected ? _bioGreen : Colors.white70,
+                        fontSize: 13,
+                        fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+                      ),
+                    ),
+                    onTap: () => setState(() => _selectedTopic = i),
+                  );
+                },
+              ),
             ),
           ],
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildMessageList() {
-    return ListView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.all(16),
-      itemCount: _messages.length + (_sending ? 1 : 0),
-      itemBuilder: (_, i) {
-        if (i == _messages.length) {
-          return _buildTypingIndicator();
-        }
-        return _buildMessageBubble(_messages[i]);
-      },
-    );
-  }
+  Widget _buildModeBar() => Container(
+        height: 48,
+        color: const Color(0xFF0F1623),
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          itemCount: _modes.length,
+          itemBuilder: (_, i) {
+            final m = _modes[i];
+            final selected = _selectedMode == m.$1;
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+              child: ChoiceChip(
+                label: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(m.$3, size: 14, color: selected ? Colors.white : Colors.white54),
+                    const SizedBox(width: 4),
+                    Text(m.$2, style: const TextStyle(fontSize: 12)),
+                  ],
+                ),
+                selected: selected,
+                onSelected: (_) => setState(() => _selectedMode = m.$1),
+                backgroundColor: Colors.white.withValues(alpha: 0.05),
+                selectedColor: _bioGreen,
+                labelStyle: TextStyle(color: selected ? Colors.white : Colors.white70),
+              ),
+            );
+          },
+        ),
+      );
+
+  Widget _buildTopicSelector() => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        color: const Color(0xFF0F1623),
+        child: Row(
+          children: [
+            const Icon(Icons.bookmark_rounded, color: _bioGreen, size: 16),
+            const SizedBox(width: 8),
+            Expanded(
+              child: DropdownButton<int?>(
+                value: _selectedTopic,
+                isExpanded: true,
+                dropdownColor: const Color(0xFF1A2035),
+                underline: const SizedBox(),
+                hint: const Text('Select a syllabus topic', style: TextStyle(color: Colors.white54, fontSize: 13)),
+                items: [
+                  const DropdownMenuItem<int?>(
+                    child: Text('General Biology', style: TextStyle(color: Colors.white70)),
+                  ),
+                  ..._topics.asMap().entries.map((e) => DropdownMenuItem(
+                        value: e.key,
+                        child: Text(e.value, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                      )),
+                ],
+                onChanged: (v) => setState(() => _selectedTopic = v),
+              ),
+            ),
+          ],
+        ),
+      );
+
+  Widget _buildChatArea() => Column(
+        children: [
+          Expanded(
+            child: _messages.isEmpty ? _buildWelcome() : _buildMessageList(),
+          ),
+          _buildInputArea(),
+        ],
+      );
+
+  Widget _buildWelcome() => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: _bioGreen.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.science_rounded, color: _bioGreen, size: 40),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Biology AI Tutor',
+                style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Powered by Malawi MSCE Syllabus',
+                style: TextStyle(color: _bioGreen.withValues(alpha: 0.7), fontSize: 13),
+              ),
+              const SizedBox(height: 24),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.center,
+                children: _welcomeSuggestions
+                    .take(4)
+                    .map((s) => ActionChip(
+                          label: Text(s, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                          backgroundColor: Colors.white.withValues(alpha: 0.05),
+                          side: BorderSide(color: _bioGreen.withValues(alpha: 0.2)),
+                          onPressed: () => _sendMessage(s),
+                        ))
+                    .toList(),
+              ),
+            ],
+          ),
+        ),
+      );
+
+  Widget _buildMessageList() => ListView.builder(
+        controller: _scrollController,
+        padding: const EdgeInsets.all(16),
+        itemCount: _messages.length + (_sending ? 1 : 0),
+        itemBuilder: (_, i) {
+          if (i == _messages.length) {
+            return _buildTypingIndicator();
+          }
+          return _buildMessageBubble(_messages[i]);
+        },
+      );
 
   Widget _buildMessageBubble(_ChatMessage msg) {
     final isUser = msg.isUser;
@@ -591,17 +567,13 @@ class _BiologyAITutorScreenState extends State<BiologyAITutorScreen> {
         ),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: isUser
-              ? _bioGreen.withValues(alpha: 0.15)
-              : Colors.white.withValues(alpha: 0.04),
+          color: isUser ? _bioGreen.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(16).copyWith(
             bottomRight: isUser ? const Radius.circular(4) : null,
             bottomLeft: !isUser ? const Radius.circular(4) : null,
           ),
           border: Border.all(
-            color: isUser
-                ? _bioGreen.withValues(alpha: 0.2)
-                : Colors.white.withValues(alpha: 0.06),
+            color: isUser ? _bioGreen.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.06),
           ),
         ),
         child: Column(
@@ -613,28 +585,30 @@ class _BiologyAITutorScreenState extends State<BiologyAITutorScreen> {
                   const Icon(Icons.science_rounded, color: _bioGreen, size: 14),
                   const SizedBox(width: 6),
                   Text('Biology AI',
-                      style: TextStyle(color: _bioGreen.withValues(alpha: 0.7), fontSize: 11, fontWeight: FontWeight.w600)),
+                      style: TextStyle(
+                          color: _bioGreen.withValues(alpha: 0.7), fontSize: 11, fontWeight: FontWeight.w600)),
                 ],
               ),
             if (!isUser) const SizedBox(height: 6),
-            isUser
-                ? SelectableText(
-                    msg.text,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.9),
-                      fontSize: 14,
-                      height: 1.5,
-                    ),
-                  )
-                : StemText(
-                    msg.text,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.85),
-                      fontSize: 14,
-                      height: 1.5,
-                    ),
-                    selectable: true,
-                  ),
+            if (isUser)
+              SelectableText(
+                msg.text,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.9),
+                  fontSize: 14,
+                  height: 1.5,
+                ),
+              )
+            else
+              StemText(
+                msg.text,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.85),
+                  fontSize: 14,
+                  height: 1.5,
+                ),
+                selectable: true,
+              ),
             const SizedBox(height: 6),
             Text(
               '${msg.time.hour.toString().padLeft(2, '0')}:${msg.time.minute.toString().padLeft(2, '0')}',
@@ -646,87 +620,83 @@ class _BiologyAITutorScreenState extends State<BiologyAITutorScreen> {
     );
   }
 
-  Widget _buildTypingIndicator() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.04),
-          borderRadius: BorderRadius.circular(16).copyWith(
-            bottomLeft: const Radius.circular(4),
+  Widget _buildTypingIndicator() => Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.04),
+            borderRadius: BorderRadius.circular(16).copyWith(
+              bottomLeft: const Radius.circular(4),
+            ),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
           ),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.science_rounded, color: _bioGreen, size: 14),
+              const SizedBox(width: 8),
+              ...List.generate(
+                  3,
+                  (i) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2),
+                        child: AnimatedOpacity(
+                          opacity: 1.0,
+                          duration: Duration(milliseconds: 300 + i * 200),
+                          child: Icon(Icons.circle, size: 6, color: _bioGreen.withValues(alpha: 0.5)),
+                        ),
+                      )),
+            ],
+          ),
         ),
+      );
+
+  Widget _buildInputArea() => Container(
+        padding: const EdgeInsets.all(12),
+        color: const Color(0xFF0F1623),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.science_rounded, color: _bioGreen, size: 14),
-            const SizedBox(width: 8),
-            ...List.generate(3, (i) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                child: AnimatedOpacity(
-                  opacity: 1.0,
-                  duration: Duration(milliseconds: 300 + i * 200),
-                  child: Icon(Icons.circle, size: 6, color: _bioGreen.withValues(alpha: 0.5)),
+            Expanded(
+              child: TextField(
+                controller: _messageController,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: 'Ask a Biology question...',
+                  hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
+                  filled: true,
+                  fillColor: Colors.white.withValues(alpha: 0.05),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: _bioGreen.withValues(alpha: 0.2)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: _bioGreen.withValues(alpha: 0.2)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: _bioGreen),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
-              );
-            }),
+                onSubmitted: _sendMessage,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Container(
+              decoration: BoxDecoration(
+                color: _bioGreen,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.send_rounded, color: Colors.white),
+                onPressed: () => _sendMessage(_messageController.text),
+              ),
+            ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildInputArea() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      color: const Color(0xFF0F1623),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _messageController,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                hintText: 'Ask a Biology question...',
-                hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
-                filled: true,
-                fillColor: Colors.white.withValues(alpha: 0.05),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: _bioGreen.withValues(alpha: 0.2)),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: _bioGreen.withValues(alpha: 0.2)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: _bioGreen),
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
-              onSubmitted: _sendMessage,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Container(
-            decoration: BoxDecoration(
-              color: _bioGreen,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.send_rounded, color: Colors.white),
-              onPressed: () => _sendMessage(_messageController.text),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+      );
 }
 
 class _ChatMessage {

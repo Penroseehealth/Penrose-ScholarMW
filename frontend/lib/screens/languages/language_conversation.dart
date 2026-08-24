@@ -13,12 +13,10 @@ class LanguageConversationScreen extends StatefulWidget {
   const LanguageConversationScreen({super.key, required this.slug});
 
   @override
-  State<LanguageConversationScreen> createState() =>
-      _LanguageConversationScreenState();
+  State<LanguageConversationScreen> createState() => _LanguageConversationScreenState();
 }
 
-class _LanguageConversationScreenState
-    extends State<LanguageConversationScreen> {
+class _LanguageConversationScreenState extends State<LanguageConversationScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final List<_ChatMessage> _messages = [];
@@ -27,13 +25,10 @@ class _LanguageConversationScreenState
   int? _activeScenario;
 
   static const _modes = [
-    ('Beginner', Icons.wb_sunny_rounded,
-        'Simple phrases with hints and translations'),
+    ('Beginner', Icons.wb_sunny_rounded, 'Simple phrases with hints and translations'),
     ('Guided', Icons.map_rounded, 'Step-by-step dialogue with prompts'),
-    ('Role Play', Icons.theater_comedy_rounded,
-        'Immersive scenario conversations'),
-    ('Free Conversation', Icons.forum_rounded,
-        'Open-ended chat on any topic'),
+    ('Role Play', Icons.theater_comedy_rounded, 'Immersive scenario conversations'),
+    ('Free Conversation', Icons.forum_rounded, 'Open-ended chat on any topic'),
   ];
 
   static const _scenarios = [
@@ -151,182 +146,148 @@ class _LanguageConversationScreenState
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: Column(
-        children: [
-          _buildHeader(),
-          _buildModeSelector(),
-          Expanded(child: _buildChatArea()),
-          _buildInputArea(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        border:
-            Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Row(
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: Column(
           children: [
-            GestureDetector(
-              onTap: () => Navigator.maybePop(context),
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: context.colors.surfaceElevated,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: context.colors.border),
-                ),
-                child: Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: context.colors.textSecondary),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: _langTealGlow,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.record_voice_over_rounded,
-                  color: _langTeal, size: 22),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('${_languageTitle(widget.slug)} Conversation',
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: context.colors.textPrimary)),
-                  Text('AI Conversation Practice',
-                      style: TextStyle(
-                          fontSize: 12, color: context.colors.textMuted)),
-                ],
-              ),
-            ),
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: _langTealGlow,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text('${_messages.length} msgs',
-                  style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: _langTeal)),
-            ),
+            _buildHeader(),
+            _buildModeSelector(),
+            Expanded(child: _buildChatArea()),
+            _buildInputArea(),
           ],
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildModeSelector() {
-    return Container(
-      height: 52,
-      color: context.colors.surface,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: _modes.length,
-        itemBuilder: (_, i) {
-          final m = _modes[i];
-          final selected = _selectedMode == i;
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-            child: GestureDetector(
-              onTap: () => setState(() => _selectedMode = i),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                decoration: BoxDecoration(
-                  color: selected
-                      ? _langTeal.withValues(alpha: 0.15)
-                      : context.colors.surfaceElevated,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: selected ? _langTeal : context.colors.border,
-                    width: selected ? 1.5 : 1,
+  Widget _buildHeader() => Container(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          border: Border(bottom: BorderSide(color: context.colors.border, width: 0.5)),
+        ),
+        child: SafeArea(
+          bottom: false,
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.maybePop(context),
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: context.colors.surfaceElevated,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: context.colors.border),
                   ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: context.colors.textSecondary),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+              ),
+              const SizedBox(width: 14),
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: _langTealGlow,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.record_voice_over_rounded, color: _langTeal, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(m.$2,
-                        size: 15,
-                        color: selected ? _langTeal : context.colors.textMuted),
-                    const SizedBox(width: 6),
-                    Text(m.$1,
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: selected
-                                ? FontWeight.w700
-                                : FontWeight.w500,
-                            color: selected
-                                ? _langTeal
-                                : context.colors.textSecondary)),
+                    Text('${_languageTitle(widget.slug)} Conversation',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: context.colors.textPrimary)),
+                    Text('AI Conversation Practice', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
                   ],
                 ),
               ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildChatArea() {
-    return Column(
-      children: [
-        if (_activeScenario == null) _buildScenarioCards(),
-        Expanded(child: _buildMessageList()),
-      ],
-    );
-  }
-
-  Widget _buildScenarioCards() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Choose a Scenario',
-              style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textSecondary)),
-          const SizedBox(height: 10),
-          GridView.count(
-            crossAxisCount: 3,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
-            childAspectRatio: 1.15,
-            children: [
-              for (var i = 0; i < _scenarios.length; i++)
-                _buildScenarioCard(i),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: _langTealGlow,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text('${_messages.length} msgs',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: _langTeal)),
+              ),
             ],
           ),
+        ),
+      );
+
+  Widget _buildModeSelector() => Container(
+        height: 52,
+        color: context.colors.surface,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          itemCount: _modes.length,
+          itemBuilder: (_, i) {
+            final m = _modes[i];
+            final selected = _selectedMode == i;
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+              child: GestureDetector(
+                onTap: () => setState(() => _selectedMode = i),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  decoration: BoxDecoration(
+                    color: selected ? _langTeal.withValues(alpha: 0.15) : context.colors.surfaceElevated,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: selected ? _langTeal : context.colors.border,
+                      width: selected ? 1.5 : 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(m.$2, size: 15, color: selected ? _langTeal : context.colors.textMuted),
+                      const SizedBox(width: 6),
+                      Text(m.$1,
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                              color: selected ? _langTeal : context.colors.textSecondary)),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      );
+
+  Widget _buildChatArea() => Column(
+        children: [
+          if (_activeScenario == null) _buildScenarioCards(),
+          Expanded(child: _buildMessageList()),
         ],
-      ),
-    );
-  }
+      );
+
+  Widget _buildScenarioCards() => Container(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Choose a Scenario',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: context.colors.textSecondary)),
+            const SizedBox(height: 10),
+            GridView.count(
+              crossAxisCount: 3,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              childAspectRatio: 1.15,
+              children: [
+                for (var i = 0; i < _scenarios.length; i++) _buildScenarioCard(i),
+              ],
+            ),
+          ],
+        ),
+      );
 
   Widget _buildScenarioCard(int index) {
     final s = _scenarios[index];
@@ -336,9 +297,7 @@ class _LanguageConversationScreenState
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: active
-              ? _langTeal.withValues(alpha: 0.12)
-              : context.colors.surface,
+          color: active ? _langTeal.withValues(alpha: 0.12) : context.colors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: active ? _langTeal : context.colors.border,
@@ -348,40 +307,31 @@ class _LanguageConversationScreenState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(s.$2,
-                color: active ? _langTeal : context.colors.textSecondary,
-                size: 22),
+            Icon(s.$2, color: active ? _langTeal : context.colors.textSecondary, size: 22),
             const SizedBox(height: 6),
             Text(s.$1,
                 style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: active
-                        ? _langTeal
-                        : context.colors.textPrimary)),
+                    fontSize: 11, fontWeight: FontWeight.w700, color: active ? _langTeal : context.colors.textPrimary)),
             Text(s.$3,
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                    fontSize: 9, color: context.colors.textMuted)),
+                style: TextStyle(fontSize: 9, color: context.colors.textMuted)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMessageList() {
-    return ListView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.all(16),
-      itemCount: _messages.length + (_sending ? 1 : 0),
-      itemBuilder: (_, i) {
-        if (i == _messages.length) return _buildTypingIndicator();
-        return _buildMessageBubble(_messages[i]);
-      },
-    );
-  }
+  Widget _buildMessageList() => ListView.builder(
+        controller: _scrollController,
+        padding: const EdgeInsets.all(16),
+        itemCount: _messages.length + (_sending ? 1 : 0),
+        itemBuilder: (_, i) {
+          if (i == _messages.length) return _buildTypingIndicator();
+          return _buildMessageBubble(_messages[i]);
+        },
+      );
 
   Widget _buildMessageBubble(_ChatMessage msg) {
     final isUser = msg.isUser;
@@ -400,16 +350,13 @@ class _LanguageConversationScreenState
                   _langTealDark.withValues(alpha: 0.10),
                 ])
               : null,
-          color:
-              isUser ? null : AppColors.primary.withValues(alpha: 0.08),
+          color: isUser ? null : AppColors.primary.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(16).copyWith(
             bottomRight: isUser ? const Radius.circular(4) : null,
             bottomLeft: !isUser ? const Radius.circular(4) : null,
           ),
           border: Border.all(
-            color: isUser
-                ? _langTeal.withValues(alpha: 0.3)
-                : AppColors.primary.withValues(alpha: 0.2),
+            color: isUser ? _langTeal.withValues(alpha: 0.3) : AppColors.primary.withValues(alpha: 0.2),
           ),
         ),
         child: Column(
@@ -419,9 +366,7 @@ class _LanguageConversationScreenState
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  isUser
-                      ? Icons.person_rounded
-                      : Icons.smart_toy_rounded,
+                  isUser ? Icons.person_rounded : Icons.smart_toy_rounded,
                   size: 13,
                   color: isUser ? _langTeal : AppColors.primaryLight,
                 ),
@@ -429,26 +374,19 @@ class _LanguageConversationScreenState
                 Text(
                   isUser ? 'You' : 'AI Partner',
                   style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color:
-                          isUser ? _langTeal : AppColors.primaryLight),
+                      fontSize: 11, fontWeight: FontWeight.w600, color: isUser ? _langTeal : AppColors.primaryLight),
                 ),
               ],
             ),
             const SizedBox(height: 6),
             SelectableText(
               msg.text,
-              style: TextStyle(
-                  color: context.colors.textPrimary,
-                  fontSize: 14,
-                  height: 1.5),
+              style: TextStyle(color: context.colors.textPrimary, fontSize: 14, height: 1.5),
             ),
             const SizedBox(height: 6),
             Text(
               '${msg.time.hour.toString().padLeft(2, '0')}:${msg.time.minute.toString().padLeft(2, '0')}',
-              style: TextStyle(
-                  color: context.colors.textMuted, fontSize: 10),
+              style: TextStyle(color: context.colors.textMuted, fontSize: 10),
             ),
           ],
         ),
@@ -456,97 +394,81 @@ class _LanguageConversationScreenState
     );
   }
 
-  Widget _buildTypingIndicator() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: AppColors.primary.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(16)
-              .copyWith(bottomLeft: const Radius.circular(4)),
-          border: Border.all(
-              color: AppColors.primary.withValues(alpha: 0.2)),
+  Widget _buildTypingIndicator() => Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(16).copyWith(bottomLeft: const Radius.circular(4)),
+            border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.smart_toy_rounded, color: AppColors.primaryLight, size: 14),
+              const SizedBox(width: 8),
+              ...List.generate(
+                  3,
+                  (i) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2),
+                        child: Icon(Icons.circle, size: 6, color: AppColors.primaryLight.withValues(alpha: 0.5)),
+                      )),
+            ],
+          ),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.smart_toy_rounded,
-                color: AppColors.primaryLight, size: 14),
-            const SizedBox(width: 8),
-            ...List.generate(3, (i) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                child: Icon(Icons.circle,
-                    size: 6,
-                    color: AppColors.primaryLight.withValues(alpha: 0.5)),
-              );
-            }),
-          ],
-        ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildInputArea() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        border: Border(top: BorderSide(color: context.colors.border, width: 0.5)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _messageController,
-                style: TextStyle(color: context.colors.textPrimary),
-                textInputAction: TextInputAction.send,
-                onSubmitted: _sendMessage,
-                decoration: InputDecoration(
-                  hintText: _activeScenario != null
-                      ? 'Reply in the scenario...'
-                      : 'Type a message...',
-                  hintStyle: TextStyle(
-                      color: context.colors.textMuted, fontSize: 13),
-                  filled: true,
-                  fillColor: context.colors.surfaceElevated,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide:
-                        BorderSide(color: _langTeal.withValues(alpha: 0.2)),
+  Widget _buildInputArea() => Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          border: Border(top: BorderSide(color: context.colors.border, width: 0.5)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _messageController,
+                  style: TextStyle(color: context.colors.textPrimary),
+                  textInputAction: TextInputAction.send,
+                  onSubmitted: _sendMessage,
+                  decoration: InputDecoration(
+                    hintText: _activeScenario != null ? 'Reply in the scenario...' : 'Type a message...',
+                    hintStyle: TextStyle(color: context.colors.textMuted, fontSize: 13),
+                    filled: true,
+                    fillColor: context.colors.surfaceElevated,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: _langTeal.withValues(alpha: 0.2)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: _langTeal.withValues(alpha: 0.2)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: _langTeal),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide:
-                        BorderSide(color: _langTeal.withValues(alpha: 0.2)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: _langTeal),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 12),
                 ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Container(
-              decoration:
-                  BoxDecoration(color: _langTeal, borderRadius: BorderRadius.circular(12)),
-              child: IconButton(
-                icon: const Icon(Icons.send_rounded, color: Color(0xFF062B27)),
-                onPressed: () => _sendMessage(_messageController.text),
+              const SizedBox(width: 10),
+              Container(
+                decoration: BoxDecoration(color: _langTeal, borderRadius: BorderRadius.circular(12)),
+                child: IconButton(
+                  icon: const Icon(Icons.send_rounded, color: Color(0xFF062B27)),
+                  onPressed: () => _sendMessage(_messageController.text),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 }
 
 String _languageTitle(String slug) {

@@ -26,9 +26,7 @@ ACTION_POINTS = {
 
 
 async def _get_or_create_points(user_id: int, db: AsyncSession) -> ScholarPoints:
-    result = await db.execute(
-        select(ScholarPoints).where(ScholarPoints.user_id == user_id)
-    )
+    result = await db.execute(select(ScholarPoints).where(ScholarPoints.user_id == user_id))
     points = result.scalar_one_or_none()
     if not points:
         points = ScholarPoints(user_id=user_id)
@@ -49,9 +47,7 @@ async def get_points(
         "total_earned": points.total_earned,
         "level": points.level,
         "streak_days": points.streak_days,
-        "last_activity_date": (
-            points.last_activity_date.isoformat() if points.last_activity_date else None
-        ),
+        "last_activity_date": (points.last_activity_date.isoformat() if points.last_activity_date else None),
     }
 
 
@@ -75,9 +71,7 @@ async def award_points(
     points.level = (points.total_earned // 100) + 1
 
     if points.last_activity_date:
-        last_date = points.last_activity_date.replace(
-            hour=0, minute=0, second=0, microsecond=0
-        )
+        last_date = points.last_activity_date.replace(hour=0, minute=0, second=0, microsecond=0)
         today = now.replace(hour=0, minute=0, second=0, microsecond=0)
         delta = (today - last_date).days
         if delta == 1:
@@ -108,12 +102,8 @@ async def list_achievements(
     result = await db.execute(select(Achievement))
     all_achievements = result.scalars().all()
 
-    earned_result = await db.execute(
-        select(UserAchievement).where(UserAchievement.user_id == user.id)
-    )
-    earned_map = {
-        ua.achievement_id: ua.earned_at for ua in earned_result.scalars().all()
-    }
+    earned_result = await db.execute(select(UserAchievement).where(UserAchievement.user_id == user.id))
+    earned_map = {ua.achievement_id: ua.earned_at for ua in earned_result.scalars().all()}
 
     return [
         {
@@ -163,9 +153,7 @@ async def check_achievements(
 ):
     points = await _get_or_create_points(user.id, db)
 
-    earned_result = await db.execute(
-        select(UserAchievement.achievement_id).where(UserAchievement.user_id == user.id)
-    )
+    earned_result = await db.execute(select(UserAchievement.achievement_id).where(UserAchievement.user_id == user.id))
     earned_ids = set(earned_result.scalars().all())
 
     all_achievements_result = await db.execute(select(Achievement))

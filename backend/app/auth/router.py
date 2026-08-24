@@ -30,15 +30,11 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 settings = get_settings()
 
 
-@router.post(
-    "/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED
-)
+@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 async def register(body: UserCreate, db: AsyncSession = Depends(get_db)):
     existing = await db.execute(select(User).where(User.email == body.email))
     if existing.scalar_one_or_none():
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail="Email already registered"
-        )
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
 
     if body.role.value == "admin":
         raise HTTPException(
@@ -62,14 +58,8 @@ async def register(body: UserCreate, db: AsyncSession = Depends(get_db)):
 
     access = create_access_token({"sub": str(user.id), "role": user.role.value})
     refresh = create_refresh_token({"sub": str(user.id)})
-    expires_at = datetime.now(timezone.utc) + timedelta(
-        days=settings.REFRESH_TOKEN_EXPIRE_DAYS
-    )
-    db.add(
-        RefreshToken(
-            token_hash=hash_token(refresh), user_id=user.id, expires_at=expires_at
-        )
-    )
+    expires_at = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    db.add(RefreshToken(token_hash=hash_token(refresh), user_id=user.id, expires_at=expires_at))
     await db.commit()
 
     return TokenResponse(
@@ -84,24 +74,14 @@ async def login(body: UserLogin, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == body.email))
     user = result.scalar_one_or_none()
     if not user or not verify_password(body.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
-        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Account disabled"
-        )
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account disabled")
 
     access = create_access_token({"sub": str(user.id), "role": user.role.value})
     refresh = create_refresh_token({"sub": str(user.id)})
-    expires_at = datetime.now(timezone.utc) + timedelta(
-        days=settings.REFRESH_TOKEN_EXPIRE_DAYS
-    )
-    db.add(
-        RefreshToken(
-            token_hash=hash_token(refresh), user_id=user.id, expires_at=expires_at
-        )
-    )
+    expires_at = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    db.add(RefreshToken(token_hash=hash_token(refresh), user_id=user.id, expires_at=expires_at))
     await db.commit()
 
     return TokenResponse(
@@ -115,9 +95,7 @@ async def login(body: UserLogin, db: AsyncSession = Depends(get_db)):
 async def refresh(body: RefreshRequest, db: AsyncSession = Depends(get_db)):
     payload = decode_token(body.refresh_token)
     if not payload or payload.get("type") != "refresh":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
-        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
 
     user_id = payload.get("sub")
     token_hash = hash_token(body.refresh_token)
@@ -137,22 +115,14 @@ async def refresh(body: RefreshRequest, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.id == int(user_id)))
     user = result.scalar_one_or_none()
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
-        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
 
     stored_token.revoked = True
 
     access = create_access_token({"sub": str(user.id), "role": user.role.value})
     refresh_new = create_refresh_token({"sub": str(user.id)})
-    expires_at = datetime.now(timezone.utc) + timedelta(
-        days=settings.REFRESH_TOKEN_EXPIRE_DAYS
-    )
-    db.add(
-        RefreshToken(
-            token_hash=hash_token(refresh_new), user_id=user.id, expires_at=expires_at
-        )
-    )
+    expires_at = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    db.add(RefreshToken(token_hash=hash_token(refresh_new), user_id=user.id, expires_at=expires_at))
     await db.commit()
 
     return TokenResponse(
@@ -168,9 +138,7 @@ async def logout(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(RefreshToken).where(
-            RefreshToken.user_id == user.id, RefreshToken.revoked == False
-        )
+        select(RefreshToken).where(RefreshToken.user_id == user.id, RefreshToken.revoked == False)
     )
     for token in result.scalars().all():
         token.revoked = True
@@ -203,9 +171,7 @@ async def change_password(
     db: AsyncSession = Depends(get_db),
 ):
     if not verify_password(body.current_password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect password"
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect password")
     user.hashed_password = hash_password(body.new_password)
     await db.commit()
     return {"detail": "Password changed"}

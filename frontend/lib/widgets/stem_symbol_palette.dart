@@ -3,7 +3,7 @@ import '../../core/theme/app_colors.dart';
 import '../core/theme/theme_colors.dart';
 
 class StemSymbolPalette extends StatelessWidget {
-  final Function(String) onSymbolTap;
+  final void Function(String) onSymbolTap;
   final bool showInline;
 
   const StemSymbolPalette({
@@ -13,79 +13,71 @@ class StemSymbolPalette extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: showInline ? 220 : 360,
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        border: Border(
-          top: BorderSide(color: context.colors.border),
+  Widget build(BuildContext context) => Container(
+        height: showInline ? 220 : 360,
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          border: Border(
+            top: BorderSide(color: context.colors.border),
+          ),
         ),
-      ),
-      child: DefaultTabController(
-        length: _categories.length,
-        child: Column(
-          children: [
-            TabBar(
-              isScrollable: true,
-              tabAlignment: TabAlignment.start,
-              labelColor: AppColors.primary,
-              unselectedLabelColor: context.colors.textMuted,
-              indicatorColor: AppColors.primary,
-              labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-              unselectedLabelStyle: const TextStyle(fontSize: 11),
-              tabs: _categories.map((c) => Tab(text: c.label)).toList(),
-            ),
-            Expanded(
-              child: TabBarView(
-                children: _categories.map((cat) {
-                  return _buildSymbolGrid(cat.symbols, onSymbolTap);
-                }).toList(),
+        child: DefaultTabController(
+          length: _categories.length,
+          child: Column(
+            children: [
+              TabBar(
+                isScrollable: true,
+                tabAlignment: TabAlignment.start,
+                labelColor: AppColors.primary,
+                unselectedLabelColor: context.colors.textMuted,
+                indicatorColor: AppColors.primary,
+                labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                unselectedLabelStyle: const TextStyle(fontSize: 11),
+                tabs: _categories.map((c) => Tab(text: c.label)).toList(),
               ),
-            ),
-          ],
+              Expanded(
+                child: TabBarView(
+                  children: _categories.map((cat) => _buildSymbolGrid(cat.symbols, onSymbolTap)).toList(),
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildSymbolGrid(
-      List<StemSymbol> symbols, Function(String) onTap) {
-    return GridView.builder(
-      padding: const EdgeInsets.all(8),
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 48,
-        childAspectRatio: 1,
-        crossAxisSpacing: 4,
-        mainAxisSpacing: 4,
-      ),
-      itemCount: symbols.length,
-      itemBuilder: (context, index) {
-        final sym = symbols[index];
-        return InkWell(
-          onTap: () => onTap(sym.latex),
-          borderRadius: BorderRadius.circular(8),
-          child: Container(
-            decoration: BoxDecoration(
-              color: context.colors.surfaceElevated,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: context.colors.border),
-            ),
-            child: Center(
-              child: Text(
-                sym.display,
-                style: TextStyle(
-                  color: context.colors.textPrimary,
-                  fontSize: sym.display.length > 3 ? 10 : 14,
-                  fontWeight: FontWeight.w500,
+  Widget _buildSymbolGrid(List<StemSymbol> symbols, void Function(String) onTap) => GridView.builder(
+        padding: const EdgeInsets.all(8),
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 48,
+          crossAxisSpacing: 4,
+          mainAxisSpacing: 4,
+        ),
+        itemCount: symbols.length,
+        itemBuilder: (context, index) {
+          final sym = symbols[index];
+          return InkWell(
+            onTap: () => onTap(sym.latex),
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              decoration: BoxDecoration(
+                color: context.colors.surfaceElevated,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: context.colors.border),
+              ),
+              child: Center(
+                child: Text(
+                  sym.display,
+                  style: TextStyle(
+                    color: context.colors.textPrimary,
+                    fontSize: sym.display.length > 3 ? 10 : 14,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      },
-    );
-  }
+          );
+        },
+      );
 }
 
 class StemSymbol {

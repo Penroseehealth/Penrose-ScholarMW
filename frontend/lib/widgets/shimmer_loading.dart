@@ -18,50 +18,45 @@ class ShimmerLoading extends StatefulWidget {
   @override
   State<ShimmerLoading> createState() => _ShimmerLoadingState();
 
-  static Widget grid({int count = 6, double childAspectRatio = 1.6}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GridView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          childAspectRatio: childAspectRatio,
+  static Widget grid({int count = 6, double childAspectRatio = 1.6}) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: GridView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+            childAspectRatio: childAspectRatio,
+          ),
+          itemCount: count,
+          itemBuilder: (_, __) => const ShimmerLoading(
+            width: double.infinity,
+            height: double.infinity,
+            borderRadius: 14,
+          ),
         ),
-        itemCount: count,
-        itemBuilder: (_, __) => const ShimmerLoading(
-          width: double.infinity,
-          height: double.infinity,
-          borderRadius: 14,
-        ),
-      ),
-    );
-  }
+      );
 
-  static Widget list({int count = 5, double height = 80}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: List.generate(
-          count,
-          (_) => Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: ShimmerLoading(
-              width: double.infinity,
-              height: height,
-              borderRadius: 14,
+  static Widget list({int count = 5, double height = 80}) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          children: List.generate(
+            count,
+            (_) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: ShimmerLoading(
+                width: double.infinity,
+                height: height,
+                borderRadius: 14,
+              ),
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
 }
 
-class _ShimmerLoadingState extends State<ShimmerLoading>
-    with SingleTickerProviderStateMixin {
+class _ShimmerLoadingState extends State<ShimmerLoading> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -84,11 +79,9 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return Container(
+  Widget build(BuildContext context) => AnimatedBuilder(
+        animation: _animation,
+        builder: (context, child) => Container(
           margin: widget.margin,
           width: widget.width,
           height: widget.height,
@@ -107,43 +100,39 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
               ],
             ),
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
 }
 
 class ShimmerListTile extends StatelessWidget {
   const ShimmerListTile({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      child: Row(
-        children: [
-          const ShimmerLoading(width: 44, height: 44, borderRadius: 12),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ShimmerLoading(
-                  width: MediaQuery.of(context).size.width * 0.5,
-                  height: 14,
-                  borderRadius: 7,
-                ),
-                const SizedBox(height: 8),
-                ShimmerLoading(
-                  width: MediaQuery.of(context).size.width * 0.3,
-                  height: 12,
-                  borderRadius: 6,
-                ),
-              ],
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+        child: Row(
+          children: [
+            const ShimmerLoading(width: 44, height: 44),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ShimmerLoading(
+                    width: MediaQuery.of(context).size.width * 0.5,
+                    height: 14,
+                    borderRadius: 7,
+                  ),
+                  const SizedBox(height: 8),
+                  ShimmerLoading(
+                    width: MediaQuery.of(context).size.width * 0.3,
+                    height: 12,
+                    borderRadius: 6,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 }

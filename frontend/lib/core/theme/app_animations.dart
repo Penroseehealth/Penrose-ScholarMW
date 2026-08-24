@@ -22,46 +22,44 @@ class AppTransitions {
   static PageRouteBuilder fadeThrough({
     required Widget page,
     Duration duration = const Duration(milliseconds: 300),
-  }) {
-    return PageRouteBuilder(
-      pageBuilder: (_, __, ___) => page,
-      transitionDuration: duration,
-      reverseTransitionDuration: duration,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        final fade = CurvedAnimation(
-          parent: animation,
-          curve: AppCurves.enter,
-          reverseCurve: AppCurves.exit,
-        );
-        return FadeTransition(opacity: fade, child: child);
-      },
-    );
-  }
+  }) =>
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => page,
+        transitionDuration: duration,
+        reverseTransitionDuration: duration,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final fade = CurvedAnimation(
+            parent: animation,
+            curve: AppCurves.enter,
+            reverseCurve: AppCurves.exit,
+          );
+          return FadeTransition(opacity: fade, child: child);
+        },
+      );
 
   static PageRouteBuilder slideFromRight({
     required Widget page,
     Duration duration = const Duration(milliseconds: 300),
-  }) {
-    return PageRouteBuilder(
-      pageBuilder: (_, __, ___) => page,
-      transitionDuration: duration,
-      reverseTransitionDuration: duration,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        final tween = Tween<Offset>(
-          begin: const Offset(0.05, 0),
-          end: Offset.zero,
-        ).chain(CurveTween(curve: AppCurves.enter));
-        final fade = CurvedAnimation(
-          parent: animation,
-          curve: const Interval(0.0, 0.5, curve: AppCurves.enter),
-        );
-        return SlideTransition(
-          position: animation.drive(tween),
-          child: FadeTransition(opacity: fade, child: child),
-        );
-      },
-    );
-  }
+  }) =>
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => page,
+        transitionDuration: duration,
+        reverseTransitionDuration: duration,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final tween = Tween<Offset>(
+            begin: const Offset(0.05, 0),
+            end: Offset.zero,
+          ).chain(CurveTween(curve: AppCurves.enter));
+          final fade = CurvedAnimation(
+            parent: animation,
+            curve: const Interval(0.0, 0.5, curve: AppCurves.enter),
+          );
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: FadeTransition(opacity: fade, child: child),
+          );
+        },
+      );
 
   static Widget slideUp({
     required Animation<double> animation,
@@ -128,10 +126,8 @@ class _FadeInState extends State<FadeIn> with SingleTickerProviderStateMixin {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return SlideTransition(
-      position: _slide,
-      child: FadeTransition(opacity: _opacity, child: widget.child),
-    );
-  }
+  Widget build(BuildContext context) => SlideTransition(
+        position: _slide,
+        child: FadeTransition(opacity: _opacity, child: widget.child),
+      );
 }

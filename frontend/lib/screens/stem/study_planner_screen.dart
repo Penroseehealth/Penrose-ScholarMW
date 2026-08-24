@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../services/stem_service.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../widgets/shimmer_loading.dart';
+import '../../core/theme/theme_colors.dart';
+import '../../services/stem_service.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
-import '../../core/theme/theme_colors.dart';
+import '../../widgets/shimmer_loading.dart';
 
 class StudyPlannerScreen extends StatefulWidget {
   const StudyPlannerScreen({super.key});
@@ -35,7 +36,10 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
   }
 
   Future<void> _loadData() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final results = await Future.wait([
         _stemService.getDailyStudyPlan(),
@@ -48,19 +52,26 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
           _overview = Map<String, dynamic>.from(results[1] as Map);
           _subjects = List<dynamic>.from(results[2] as List);
           if (_subjects.isNotEmpty && _selectedSubjectSlug.isEmpty) {
-            _selectedSubjectSlug = _subjects[0]['slug'] ?? '';
+            _selectedSubjectSlug = (_subjects[0]['slug'] ?? '') as String;
           }
           _loading = false;
         });
       }
     } catch (e) {
-      if (mounted) setState(() { _error = e.toString(); _loading = false; });
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
+      }
     }
   }
 
   Future<void> _generatePlan() async {
     if (_selectedSubjectSlug.isEmpty || _generating) return;
-    setState(() { _generating = true; });
+    setState(() {
+      _generating = true;
+    });
     try {
       await _stemService.generateStudyPlan(
         _selectedSubjectSlug,
@@ -80,75 +91,75 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
         );
       }
     } finally {
-      if (mounted) setState(() { _generating = false; });
+      if (mounted) {
+        setState(() {
+          _generating = false;
+        });
+      }
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        color: AppColors.primary,
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              expandedHeight: 100,
-              pinned: true,
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.colors.textPrimary, size: 18),
-                onPressed: () => Navigator.maybePop(context),
-              ),
-              backgroundColor: AppColors.primaryDark,
-              flexibleSpace: FlexibleSpaceBar(
-                title: Text(
-                  'Study Planner',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: context.colors.background,
+        body: RefreshIndicator(
+          onRefresh: _loadData,
+          color: AppColors.primary,
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 100,
+                pinned: true,
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.colors.textPrimary, size: 18),
+                  onPressed: () => Navigator.maybePop(context),
                 ),
-                background: Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [AppColors.primaryDark, AppColors.primaryMuted],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                backgroundColor: AppColors.primaryDark,
+                flexibleSpace: FlexibleSpaceBar(
+                  title: Text(
+                    'Study Planner',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
+                  ),
+                  background: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColors.primaryDark, AppColors.primaryMuted],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            if (_error != null)
-              SliverToBoxAdapter(child: ErrorState(message: 'Failed to load', details: _error, onRetry: _loadData))
-            else if (_loading)
-              SliverToBoxAdapter(child: ShimmerLoading.list(count: 5))
-            else ...[
-              SliverToBoxAdapter(child: _buildTodaysTasks()),
-              SliverToBoxAdapter(child: _buildGeneratePlan()),
-              SliverToBoxAdapter(child: _buildPlanOverview()),
-              const SliverToBoxAdapter(child: SizedBox(height: 40)),
+              if (_error != null)
+                SliverToBoxAdapter(child: ErrorState(message: 'Failed to load', details: _error, onRetry: _loadData))
+              else if (_loading)
+                SliverToBoxAdapter(child: ShimmerLoading.list())
+              else ...[
+                SliverToBoxAdapter(child: _buildTodaysTasks()),
+                SliverToBoxAdapter(child: _buildGeneratePlan()),
+                SliverToBoxAdapter(child: _buildPlanOverview()),
+                const SliverToBoxAdapter(child: SizedBox(height: 40)),
+              ],
             ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title, IconData icon) {
-    return Row(
-      children: [
-        Icon(icon, color: AppColors.primary, size: 18),
-        const SizedBox(width: 8),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: context.colors.textPrimary,
           ),
         ),
-      ],
-    );
-  }
+      );
+
+  Widget _buildSectionHeader(String title, IconData icon) => Row(
+        children: [
+          Icon(icon, color: AppColors.primary, size: 18),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: context.colors.textPrimary,
+            ),
+          ),
+        ],
+      );
 
   Widget _buildTodaysTasks() {
     final tasks = _dailyTasks;
@@ -184,12 +195,12 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
   }
 
   Widget _buildTaskItem(Map<String, dynamic> task, int index) {
-    final conceptTitle = task['concept_title'] ?? task['title'] ?? 'Untitled';
-    final topicName = task['topic_title'] ?? task['topic'] ?? '';
+    final conceptTitle = (task['concept_title'] ?? task['title'] ?? 'Untitled') as String;
+    final topicName = (task['topic_title'] ?? task['topic'] ?? '') as String;
     final mastery = (task['mastery_level'] as num?)?.toDouble() ?? 0;
     final priority = (task['priority'] ?? 'medium').toString().toLowerCase();
-    final minutes = task['estimated_minutes'] ?? task['minutes'] ?? 0;
-    final taskId = task['id'] ?? task['concept_id'] ?? index;
+    final minutes = (task['estimated_minutes'] ?? task['minutes'] ?? 0) as num;
+    final taskId = (task['id'] ?? task['concept_id'] ?? index) as int;
     final isDone = _completedTasks.contains(taskId);
 
     final priorityColor = switch (priority) {
@@ -238,9 +249,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                     width: 1.5,
                   ),
                 ),
-                child: isDone
-                    ? Icon(Icons.check_rounded, size: 14, color: context.colors.success)
-                    : null,
+                child: isDone ? Icon(Icons.check_rounded, size: 14, color: context.colors.success) : null,
               ),
             ),
             const SizedBox(width: 12),
@@ -307,172 +316,181 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
     );
   }
 
-  Widget _buildGeneratePlan() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: context.colors.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: context.colors.border),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSectionHeader('Generate Study Plan', Icons.auto_awesome_outlined),
-            const SizedBox(height: 14),
-            if (_subjects.isNotEmpty) ...[
-              SizedBox(
-                height: 38,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _subjects.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
-                  itemBuilder: (ctx, i) {
-                    final s = _subjects[i];
-                    final slug = s['slug'] ?? '';
-                    final title = s['title'] ?? s['name'] ?? slug;
-                    final selected = slug == _selectedSubjectSlug;
-                    return GestureDetector(
-                      onTap: () => setState(() { _selectedSubjectSlug = slug; }),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: selected ? AppColors.primary.withValues(alpha: 0.2) : context.colors.surfaceElevated,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: selected ? AppColors.primary.withValues(alpha: 0.4) : context.colors.border,
+  Widget _buildGeneratePlan() => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: context.colors.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: context.colors.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSectionHeader('Generate Study Plan', Icons.auto_awesome_outlined),
+              const SizedBox(height: 14),
+              if (_subjects.isNotEmpty) ...[
+                SizedBox(
+                  height: 38,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _subjects.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    itemBuilder: (ctx, i) {
+                      final s = _subjects[i];
+                      final slug = (s['slug'] ?? '') as String;
+                      final title = (s['title'] ?? s['name'] ?? slug) as String;
+                      final selected = slug == _selectedSubjectSlug;
+                      return GestureDetector(
+                        onTap: () => setState(() {
+                          _selectedSubjectSlug = slug;
+                        }),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: selected ? AppColors.primary.withValues(alpha: 0.2) : context.colors.surfaceElevated,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: selected ? AppColors.primary.withValues(alpha: 0.4) : context.colors.border,
+                            ),
+                          ),
+                          child: Text(
+                            title,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: selected ? AppColors.primary : context.colors.textSecondary,
+                            ),
                           ),
                         ),
-                        child: Text(
-                          title,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: selected ? AppColors.primary : context.colors.textSecondary,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Daily Minutes',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.textSecondary),
-                ),
-                Text(
-                  '${_dailyMinutes.round()} min',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary),
+                      );
+                    },
+                  ),
                 ),
               ],
-            ),
-            SliderTheme(
-              data: SliderThemeData(
-                activeTrackColor: AppColors.primary,
-                inactiveTrackColor: context.colors.surfaceHighest,
-                thumbColor: AppColors.primary,
-                overlayColor: context.colors.primaryGlow,
-                trackHeight: 4,
-                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-              ),
-              child: Slider(
-                value: _dailyMinutes,
-                min: 30,
-                max: 120,
-                divisions: 6,
-                onChanged: (v) => setState(() { _dailyMinutes = v; }),
-              ),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Duration',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.textSecondary),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  decoration: BoxDecoration(
-                    color: context.colors.surfaceElevated,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: context.colors.border),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Daily Minutes',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.textSecondary),
                   ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<int>(
-                      value: _daysAhead,
-                      dropdownColor: context.colors.surfaceHighest,
-                      style: TextStyle(fontSize: 12, color: context.colors.textPrimary),
-                      isDense: true,
-                      items: [
-                        const DropdownMenuItem(value: 7, child: Text('7 days')),
-                        const DropdownMenuItem(value: 14, child: Text('14 days')),
-                        const DropdownMenuItem(value: 21, child: Text('21 days')),
-                        const DropdownMenuItem(value: 28, child: Text('28 days')),
-                      ],
-                      onChanged: (v) {
-                        if (v != null) setState(() { _daysAhead = v; });
-                      },
+                  Text(
+                    '${_dailyMinutes.round()} min',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary),
+                  ),
+                ],
+              ),
+              SliderTheme(
+                data: SliderThemeData(
+                  activeTrackColor: AppColors.primary,
+                  inactiveTrackColor: context.colors.surfaceHighest,
+                  thumbColor: AppColors.primary,
+                  overlayColor: context.colors.primaryGlow,
+                  trackHeight: 4,
+                  thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                ),
+                child: Slider(
+                  value: _dailyMinutes,
+                  min: 30,
+                  max: 120,
+                  divisions: 6,
+                  onChanged: (v) => setState(() {
+                    _dailyMinutes = v;
+                  }),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Duration',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.textSecondary),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: context.colors.surfaceElevated,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: context.colors.border),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<int>(
+                        value: _daysAhead,
+                        dropdownColor: context.colors.surfaceHighest,
+                        style: TextStyle(fontSize: 12, color: context.colors.textPrimary),
+                        isDense: true,
+                        items: const [
+                          DropdownMenuItem(value: 7, child: Text('7 days')),
+                          DropdownMenuItem(value: 14, child: Text('14 days')),
+                          DropdownMenuItem(value: 21, child: Text('21 days')),
+                          DropdownMenuItem(value: 28, child: Text('28 days')),
+                        ],
+                        onChanged: (v) {
+                          if (v != null) {
+                            setState(() {
+                              _daysAhead = v;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: GestureDetector(
+                  onTap: _generating ? null : _generatePlan,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      gradient: _generating
+                          ? LinearGradient(
+                              colors: [
+                                AppColors.primary.withValues(alpha: 0.4),
+                                AppColors.primaryMuted.withValues(alpha: 0.4)
+                              ],
+                            )
+                          : const LinearGradient(
+                              colors: [AppColors.primary, AppColors.primaryDark],
+                            ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Center(
+                      child: _generating
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.textOnPrimary),
+                            )
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.auto_awesome_outlined, color: AppColors.textOnPrimary, size: 18),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Generate Plan',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textOnPrimary,
+                                  ),
+                                ),
+                              ],
+                            ),
                     ),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: GestureDetector(
-                onTap: _generating ? null : _generatePlan,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: BoxDecoration(
-                    gradient: _generating
-                        ? LinearGradient(
-                            colors: [AppColors.primary.withValues(alpha: 0.4), AppColors.primaryMuted.withValues(alpha: 0.4)],
-                          )
-                        : const LinearGradient(
-                            colors: [AppColors.primary, AppColors.primaryDark],
-                          ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Center(
-                    child: _generating
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.textOnPrimary),
-                          )
-                        : const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.auto_awesome_outlined, color: AppColors.textOnPrimary, size: 18),
-                              SizedBox(width: 8),
-                              Text(
-                                'Generate Plan',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.textOnPrimary,
-                                ),
-                              ),
-                            ],
-                          ),
-                  ),
-                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildPlanOverview() {
     final plans = _overview['plans'] as List? ?? [];
@@ -495,7 +513,10 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
             _buildOverviewStats(stats),
             if (plans.isNotEmpty) ...[
               const SizedBox(height: 16),
-              ...plans.asMap().entries.map((entry) => _buildPlanCard(entry.value, entry.key, plans.length)),
+              ...plans
+                  .asMap()
+                  .entries
+                  .map((entry) => _buildPlanCard(entry.value as Map<String, dynamic>, entry.key, plans.length)),
             ] else
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -532,31 +553,31 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
     );
   }
 
-  Widget _buildStatChip(String value, String label, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
+  Widget _buildStatChip(String value, String label, Color color) => Expanded(
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: color.withValues(alpha: 0.2)),
+          ),
+          child: Column(
+            children: [
+              Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: color)),
+              const SizedBox(height: 2),
+              Text(label,
+                  style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: color.withValues(alpha: 0.8)),
+                  textAlign: TextAlign.center),
+            ],
+          ),
         ),
-        child: Column(
-          children: [
-            Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: color)),
-            const SizedBox(height: 2),
-            Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: color.withValues(alpha: 0.8)), textAlign: TextAlign.center),
-          ],
-        ),
-      ),
-    );
-  }
+      );
 
   Widget _buildPlanCard(Map<String, dynamic> plan, int index, int total) {
-    final title = plan['title'] ?? 'Untitled Plan';
-    final subject = plan['subject_title'] ?? plan['subject_slug'] ?? '';
-    final completed = plan['completed_items'] ?? 0;
-    final totalItems = plan['total_items'] ?? plan['items_count'] ?? 1;
+    final title = (plan['title'] ?? 'Untitled Plan') as String;
+    final subject = (plan['subject_title'] ?? plan['subject_slug'] ?? '') as String;
+    final completed = (plan['completed_items'] ?? 0) as num;
+    final totalItems = (plan['total_items'] ?? plan['items_count'] ?? 1) as num;
     final status = (plan['status'] ?? 'active').toString().toLowerCase();
     final progress = totalItems > 0 ? completed / totalItems : 0.0;
     final progressPercent = (progress * 100).round();
@@ -640,7 +661,7 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
   }
 
   Future<void> _showPlanDetail(Map<String, dynamic> plan) async {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: context.colors.surface,
@@ -658,29 +679,27 @@ class _MiniMasteryRing extends StatelessWidget {
   const _MiniMasteryRing({required this.mastery, required this.color});
 
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 36,
-      height: 36,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          CircularProgressIndicator(
-            value: mastery / 100,
-            strokeWidth: 3.5,
-            backgroundColor: context.colors.surfaceHighest,
-            valueColor: AlwaysStoppedAnimation<Color>(color),
-          ),
-          Center(
-            child: Text(
-              '${mastery.round()}',
-              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: color),
+  Widget build(BuildContext context) => SizedBox(
+        width: 36,
+        height: 36,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            CircularProgressIndicator(
+              value: mastery / 100,
+              strokeWidth: 3.5,
+              backgroundColor: context.colors.surfaceHighest,
+              valueColor: AlwaysStoppedAnimation<Color>(color),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+            Center(
+              child: Text(
+                '${mastery.round()}',
+                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: color),
+              ),
+            ),
+          ],
+        ),
+      );
 }
 
 class _PlanDetailSheet extends StatefulWidget {
@@ -703,22 +722,35 @@ class _PlanDetailSheetState extends State<_PlanDetailSheet> {
   }
 
   Future<void> _loadDetail() async {
-    final planId = widget.plan['id'];
+    final planId = widget.plan['id'] as int?;
     if (planId == null) {
-      if (mounted) setState(() { _loading = false; });
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+      }
       return;
     }
     try {
       final data = await _stemService.getStudyPlanDetail(planId);
-      if (mounted) setState(() { _detail = data; _loading = false; });
+      if (mounted) {
+        setState(() {
+          _detail = data;
+          _loading = false;
+        });
+      }
     } catch (_) {
-      if (mounted) setState(() { _loading = false; });
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.plan['title'] ?? 'Plan Details';
+    final title = (widget.plan['title'] ?? 'Plan Details') as String;
     final items = _detail?['items'] as List? ?? [];
 
     return DraggableScrollableSheet(
@@ -726,51 +758,52 @@ class _PlanDetailSheetState extends State<_PlanDetailSheet> {
       minChildSize: 0.4,
       maxChildSize: 0.95,
       expand: false,
-      builder: (ctx, scrollController) {
-        return Container(
-          decoration: BoxDecoration(
-            color: context.colors.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: ListView(
-            controller: scrollController,
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 30),
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(color: context.colors.border, borderRadius: BorderRadius.circular(2)),
-                ),
+      builder: (ctx, scrollController) => Container(
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: ListView(
+          controller: scrollController,
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 30),
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(color: context.colors.border, borderRadius: BorderRadius.circular(2)),
               ),
-              const SizedBox(height: 16),
-              Center(
-                child: Text(
-                  title,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
-                ),
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: Text(
+                title,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
               ),
-              const SizedBox(height: 20),
-              if (_loading)
-                const Center(child: CircularProgressIndicator(color: AppColors.primary))
-              else if (items.isEmpty)
-                Center(
-                  child: Text('No items in this plan', style: TextStyle(color: context.colors.textMuted)),
-                )
-              else
-                ...items.asMap().entries.map((entry) => _buildDetailItem(entry.value, entry.key, items.length)),
-            ],
-          ),
-        );
-      },
+            ),
+            const SizedBox(height: 20),
+            if (_loading)
+              const Center(child: CircularProgressIndicator(color: AppColors.primary))
+            else if (items.isEmpty)
+              Center(
+                child: Text('No items in this plan', style: TextStyle(color: context.colors.textMuted)),
+              )
+            else
+              ...items
+                  .asMap()
+                  .entries
+                  .map((entry) => _buildDetailItem(entry.value as Map<String, dynamic>, entry.key, items.length)),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _buildDetailItem(Map<String, dynamic> item, int index, int total) {
-    final conceptTitle = item['concept_title'] ?? item['title'] ?? 'Untitled';
+    final conceptTitle = (item['concept_title'] ?? item['title'] ?? 'Untitled') as String;
     final completed = item['is_completed'] == true || item['completed'] == true;
     final scheduledDate = item['scheduled_date'] ?? item['date'] ?? '';
-    final minutes = item['estimated_minutes'] ?? item['minutes'] ?? 0;
+    final minutes = (item['estimated_minutes'] ?? item['minutes'] ?? 0) as num;
 
     return Container(
       margin: EdgeInsets.only(bottom: index < total - 1 ? 8 : 0),
@@ -830,8 +863,7 @@ class _PlanDetailSheetState extends State<_PlanDetailSheet> {
               ],
             ),
           ),
-          if (minutes > 0)
-            Text('${minutes}m', style: TextStyle(fontSize: 10, color: context.colors.textMuted)),
+          if (minutes > 0) Text('${minutes}m', style: TextStyle(fontSize: 10, color: context.colors.textMuted)),
         ],
       ),
     );

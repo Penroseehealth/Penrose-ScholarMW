@@ -17,16 +17,8 @@ async def admin_dashboard(
     db: AsyncSession = Depends(get_db),
 ):
     total_users = (await db.execute(select(func.count(User.id)))).scalar()
-    total_students = (
-        await db.execute(
-            select(func.count(User.id)).where(User.role == UserRole.STUDENT)
-        )
-    ).scalar()
-    total_lecturers = (
-        await db.execute(
-            select(func.count(User.id)).where(User.role == UserRole.LECTURER)
-        )
-    ).scalar()
+    total_students = (await db.execute(select(func.count(User.id)).where(User.role == UserRole.STUDENT))).scalar()
+    total_lecturers = (await db.execute(select(func.count(User.id)).where(User.role == UserRole.LECTURER))).scalar()
     total_courses = (await db.execute(select(func.count(Course.id)))).scalar()
     total_enrollments = (await db.execute(select(func.count(Enrollment.id)))).scalar()
     total_submissions = (await db.execute(select(func.count(Submission.id)))).scalar()
@@ -84,11 +76,7 @@ async def lecturer_performance(
     lecturers = result.scalars().all()
     perf = []
     for lec in lecturers:
-        courses = (
-            await db.execute(
-                select(func.count(Course.id)).where(Course.lecturer_id == lec.id)
-            )
-        ).scalar()
+        courses = (await db.execute(select(func.count(Course.id)).where(Course.lecturer_id == lec.id))).scalar()
         perf.append(
             {
                 "id": lec.id,
@@ -164,68 +152,38 @@ async def institutional_analytics(
     seven_days_ago = now - timedelta(days=7)
 
     total_users = (await db.execute(select(func.count(User.id)))).scalar() or 0
-    total_students = (
-        await db.execute(
-            select(func.count(User.id)).where(User.role == UserRole.STUDENT)
-        )
-    ).scalar() or 0
+    total_students = (await db.execute(select(func.count(User.id)).where(User.role == UserRole.STUDENT))).scalar() or 0
     total_lecturers = (
-        await db.execute(
-            select(func.count(User.id)).where(User.role == UserRole.LECTURER)
-        )
+        await db.execute(select(func.count(User.id)).where(User.role == UserRole.LECTURER))
     ).scalar() or 0
     total_courses = (await db.execute(select(func.count(Course.id)))).scalar() or 0
-    total_enrollments = (
-        await db.execute(select(func.count(Enrollment.id)))
-    ).scalar() or 0
-    total_submissions = (
-        await db.execute(select(func.count(Submission.id)))
-    ).scalar() or 0
+    total_enrollments = (await db.execute(select(func.count(Enrollment.id)))).scalar() or 0
+    total_submissions = (await db.execute(select(func.count(Submission.id)))).scalar() or 0
 
     new_users_30d = (
-        await db.execute(
-            select(func.count(User.id)).where(User.created_at > thirty_days_ago)
-        )
+        await db.execute(select(func.count(User.id)).where(User.created_at > thirty_days_ago))
     ).scalar() or 0
 
     active_users_7d = (
-        await db.execute(
-            select(func.count(User.id)).where(User.last_seen_at > seven_days_ago)
-        )
+        await db.execute(select(func.count(User.id)).where(User.last_seen_at > seven_days_ago))
     ).scalar() or 0
 
     dept_result = await db.execute(
-        select(User.department, func.count(User.id))
-        .where(User.department.isnot(None))
-        .group_by(User.department)
+        select(User.department, func.count(User.id)).where(User.department.isnot(None)).group_by(User.department)
     )
-    department_breakdown = [
-        {"department": row[0], "count": row[1]} for row in dept_result.all()
-    ]
+    department_breakdown = [{"department": row[0], "count": row[1]} for row in dept_result.all()]
 
-    enrolled_result = await db.execute(
-        select(Enrollment.progress_pct).where(Enrollment.is_active == True)
-    )
+    enrolled_result = await db.execute(select(Enrollment.progress_pct).where(Enrollment.is_active == True))
     progress_values = [r for (r,) in enrolled_result.all()]
-    avg_progress = (
-        round(sum(progress_values) / len(progress_values), 2) if progress_values else 0
-    )
+    avg_progress = round(sum(progress_values) / len(progress_values), 2) if progress_values else 0
     completion_rate = (
-        round(
-            len([p for p in progress_values if p >= 80]) / len(progress_values) * 100, 2
-        )
-        if progress_values
-        else 0
+        round(len([p for p in progress_values if p >= 80]) / len(progress_values) * 100, 2) if progress_values else 0
     )
 
-    submission_result = await db.execute(
-        select(Submission).where(Submission.submitted_at > thirty_days_ago)
-    )
+    submission_result = await db.execute(select(Submission).where(Submission.submitted_at > thirty_days_ago))
     recent_submissions = len(submission_result.scalars().all())
 
-    score_result = await db.execute(
-        select(Submission.final_marks).where(Submission.final_marks.isnot(None))
-    )
+    score_result = await db.execute(select(Submission.final_marks).where(Submission.final_marks.isnot(None)))
     scores = [s for (s,) in score_result.all()]
     avg_score = round(sum(scores) / len(scores), 2) if scores else 0
 
@@ -261,16 +219,10 @@ async def institutional_trends(
     now = datetime.now(timezone.utc)
     trends = []
     for i in range(days, 0, -1):
-        day_start = (now - timedelta(days=i)).replace(
-            hour=0, minute=0, second=0, microsecond=0
-        )
+        day_start = (now - timedelta(days=i)).replace(hour=0, minute=0, second=0, microsecond=0)
         day_end = day_start + timedelta(days=1)
         new_users = (
-            await db.execute(
-                select(func.count(User.id)).where(
-                    User.created_at >= day_start, User.created_at < day_end
-                )
-            )
+            await db.execute(select(func.count(User.id)).where(User.created_at >= day_start, User.created_at < day_end))
         ).scalar() or 0
         new_submissions = (
             await db.execute(
