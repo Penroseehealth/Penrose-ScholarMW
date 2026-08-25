@@ -27,6 +27,7 @@ from app.languages.router import router as languages_router
 from app.malawi_context.router import router as malawi_context_router
 from app.mathematics.router import router as math_syllabus_router
 from app.messaging.router import router as messaging_router
+from app.middleware.security import RateLimitMiddleware
 from app.notifications.router import router as notifications_router
 from app.research.router import router as research_router
 from app.smart_notifications.router import router as smart_notifications_router
@@ -188,6 +189,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(RateLimitMiddleware, requests_per_minute=60, requests_per_hour=500)
 
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(users_router, prefix="/api/v1")

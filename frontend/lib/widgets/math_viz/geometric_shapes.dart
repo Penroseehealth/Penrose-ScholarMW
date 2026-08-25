@@ -1,7 +1,19 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-enum ShapeType { triangle, rightTriangle, quadrilateral, circle, semicircle, tangentCircle, parallelogram, trapezium, polygon, angle, cyclicQuadrilateral }
+enum ShapeType {
+  triangle,
+  rightTriangle,
+  quadrilateral,
+  circle,
+  semicircle,
+  tangentCircle,
+  parallelogram,
+  trapezium,
+  polygon,
+  angle,
+  cyclicQuadrilateral
+}
 
 class GeometricShape {
   final ShapeType type;
@@ -29,7 +41,8 @@ class ArcAnnotation {
   final double startAngle;
   final double sweepAngle;
   final String? label;
-  const ArcAnnotation({required this.center, required this.radius, required this.startAngle, required this.sweepAngle, this.label});
+  const ArcAnnotation(
+      {required this.center, required this.radius, required this.startAngle, required this.sweepAngle, this.label});
 }
 
 class LineLabel {
@@ -151,7 +164,12 @@ class _ShapePainter extends CustomPainter {
             final cx = pts.map((p) => p.dx).reduce((a, b) => a + b) / 4;
             final cy = pts.map((p) => p.dy).reduce((a, b) => a + b) / 4;
             final avgR = pts.map((p) => sqrt(pow(p.dx - cx, 2) + pow(p.dy - cy, 2))).reduce((a, b) => a + b) / 4;
-            canvas.drawCircle(Offset(cx, cy), avgR, Paint()..color = shape.color.withAlpha(40)..style = PaintingStyle.stroke);
+            canvas.drawCircle(
+                Offset(cx, cy),
+                avgR,
+                Paint()
+                  ..color = shape.color.withAlpha(40)
+                  ..style = PaintingStyle.stroke);
           }
 
         case ShapeType.polygon:
@@ -174,7 +192,12 @@ class _ShapePainter extends CustomPainter {
           _drawPoint(canvas, c, textPaint);
           final tangentPt = Offset(c.dx + r1, c.dy);
           final tangentLineEnd = Offset(c.dx + r1, c.dy - r1 * 1.5);
-          canvas.drawLine(tangentPt, tangentLineEnd, Paint()..color = Colors.orangeAccent..strokeWidth = 2);
+          canvas.drawLine(
+              tangentPt,
+              tangentLineEnd,
+              Paint()
+                ..color = Colors.orangeAccent
+                ..strokeWidth = 2);
           _drawPoint(canvas, tangentPt, Paint()..color = Colors.orangeAccent);
           if (shape.label != null) _drawLabel(canvas, tangentPt + Offset(8, 0), shape.label!, labelStyle);
 
@@ -200,7 +223,8 @@ class _ShapePainter extends CustomPainter {
                 if (arc.label != null) {
                   final midAngle = arc.startAngle + arc.sweepAngle / 2;
                   final labelPos = arcCenter + Offset(cos(midAngle), sin(midAngle)) * arc.radius * scale * 0.5;
-                  _drawLabel(canvas, labelPos, arc.label!, labelStyle.copyWith(fontSize: 10, color: Colors.orangeAccent));
+                  _drawLabel(
+                      canvas, labelPos, arc.label!, labelStyle.copyWith(fontSize: 10, color: Colors.orangeAccent));
                 }
               }
             }
@@ -240,10 +264,11 @@ class _ShapePainter extends CustomPainter {
       3: [Offset(-0.8, -0.6), Offset(0.8, -0.6), Offset(0, 0.8)],
       4: [Offset(-0.8, -0.6), Offset(0.8, -0.6), Offset(0.8, 0.6), Offset(-0.8, 0.6)],
     };
-    final defaults = defaultShapes[needed] ?? List.generate(needed, (i) {
-      final angle = 2 * pi * i / needed - pi / 2;
-      return Offset(cos(angle), sin(angle));
-    });
+    final defaults = defaultShapes[needed] ??
+        List.generate(needed, (i) {
+          final angle = 2 * pi * i / needed - pi / 2;
+          return Offset(cos(angle), sin(angle));
+        });
     return defaults.map((p) => _map(p, center, scale)).toList();
   }
 

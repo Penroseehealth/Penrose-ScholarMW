@@ -188,7 +188,8 @@ class MathToolsPanel extends StatelessWidget {
                           itemBuilder: (_, i) => Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('${labels[i]}: ${values[i]}', style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                              Text('${labels[i]}: ${values[i]}',
+                                  style: const TextStyle(color: Colors.white70, fontSize: 13)),
                               IconButton(
                                 icon: const Icon(Icons.close, size: 16, color: Colors.redAccent),
                                 onPressed: () => setState(() {
@@ -260,7 +261,8 @@ class MathToolsPanel extends StatelessWidget {
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
-              final values = dataCtrl.text.split(',').map((s) => double.tryParse(s.trim())).whereType<double>().toList();
+              final values =
+                  dataCtrl.text.split(',').map((s) => double.tryParse(s.trim())).whereType<double>().toList();
               Navigator.pop(ctx);
               if (values.isNotEmpty) {
                 onToolSelected('histogram', {
@@ -314,7 +316,8 @@ class MathToolsPanel extends StatelessWidget {
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
-              final values = dataCtrl.text.split(',').map((s) => double.tryParse(s.trim())).whereType<double>().toList();
+              final values =
+                  dataCtrl.text.split(',').map((s) => double.tryParse(s.trim())).whereType<double>().toList();
               Navigator.pop(ctx);
               if (values.isNotEmpty) {
                 onToolSelected('line', {
