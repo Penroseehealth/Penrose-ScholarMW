@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../stem_text.dart';
+import '../visual_action_controls.dart';
 import 'ai_visual_parser.dart';
 import 'editable_data_grid.dart';
 import 'function_plotter.dart';
@@ -23,6 +24,7 @@ class AIVisualRenderer extends StatefulWidget {
 class _AIVisualRendererState extends State<AIVisualRenderer> {
   late List<double> _currentValues;
   late List<String> _currentLabels;
+  final GlobalKey _visualKey = GlobalKey();
 
   @override
   void initState() {
@@ -35,31 +37,47 @@ class _AIVisualRendererState extends State<AIVisualRenderer> {
 
   @override
   Widget build(BuildContext context) {
+    Widget visualWidget;
     switch (visual.type) {
       case VisualType.graph:
-        return _buildGraph();
+        visualWidget = _buildGraph();
       case VisualType.barChart:
-        return _buildChartWithGrid(StatisticalChartType.bar);
+        visualWidget = _buildChartWithGrid(StatisticalChartType.bar);
       case VisualType.pieChart:
-        return _buildChartWithGrid(StatisticalChartType.pie);
+        visualWidget = _buildChartWithGrid(StatisticalChartType.pie);
       case VisualType.histogram:
-        return _buildChartWithGrid(StatisticalChartType.histogram);
+        visualWidget = _buildChartWithGrid(StatisticalChartType.histogram);
       case VisualType.lineChart:
-        return _buildChartWithGrid(StatisticalChartType.line);
+        visualWidget = _buildChartWithGrid(StatisticalChartType.line);
       case VisualType.frequencyPolygon:
-        return _buildChartWithGrid(StatisticalChartType.frequencyPolygon);
+        visualWidget = _buildChartWithGrid(StatisticalChartType.frequencyPolygon);
       case VisualType.cumulativeFrequency:
-        return _buildChartWithGrid(StatisticalChartType.cumulativeFrequency);
+        visualWidget = _buildChartWithGrid(StatisticalChartType.cumulativeFrequency);
       case VisualType.triangle:
       case VisualType.circle:
       case VisualType.quadrilateral:
       case VisualType.polygon:
       case VisualType.angle:
       case VisualType.tangent:
-        return _buildShape();
-      case VisualType.unknown:
-        return _buildFallback();
+        visualWidget = _buildShape();
+      default:
+        visualWidget = _buildFallback();
     }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        RepaintBoundary(
+          key: _visualKey,
+          child: visualWidget,
+        ),
+        VisualActionControls(
+          visual: visual,
+          visualKey: _visualKey,
+        ),
+      ],
+    );
   }
 
   Widget _buildGraph() {

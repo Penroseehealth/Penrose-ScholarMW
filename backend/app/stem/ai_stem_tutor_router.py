@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.config.settings import get_settings
-from app.config.stem_latex import STEM_LATEX_INSTRUCTION
+from app.config.stem_latex import STEM_LATEX_INSTRUCTION, VISUAL_GENERATION_POLICY
 from app.core.subject_registry import get_subject_module
 from app.database.engine import get_db
 from app.dependencies.auth import get_current_user
@@ -119,7 +119,9 @@ async def _get_concept_context(concept_id: int, db: AsyncSession) -> dict:
     )
     concept = concept_result.unique().scalar_one_or_none()
     if not concept:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found"
+        )
 
     subtopic = concept.subtopic
     topic = subtopic.topic if subtopic else None
@@ -142,7 +144,9 @@ SUBJECT_AI_TEMPLATES: dict[str, dict[str, str]] = {
 }
 
 
-def _get_subject_template(subject_slug: str | None, mode: str, user_message: str) -> str | None:
+def _get_subject_template(
+    subject_slug: str | None, mode: str, user_message: str
+) -> str | None:
     if not subject_slug or subject_slug not in SUBJECT_AI_TEMPLATES:
         return None
     templates = SUBJECT_AI_TEMPLATES[subject_slug]
@@ -188,11 +192,15 @@ def _build_system_prompt(context: dict, mode: str, user_message: str) -> str:
     if concept.difficulty_level:
         parts.append(f"Difficulty Level: {concept.difficulty_level}")
 
-    subject_prompt = _get_subject_template(subject.subject_slug if subject else None, mode, user_message)
+    subject_prompt = _get_subject_template(
+        subject.subject_slug if subject else None, mode, user_message
+    )
     if subject_prompt:
         parts.append(f"\nSubject-specific context:\n{subject_prompt}")
 
-    mode_instruction = MODE_INSTRUCTIONS.get(mode, "Provide a helpful explanation of the concept.")
+    mode_instruction = MODE_INSTRUCTIONS.get(
+        mode, "Provide a helpful explanation of the concept."
+    )
     parts.append(f"\nCurrent interaction mode: {mode}")
     parts.append(f"Instructions for this mode: {mode_instruction}")
     parts.append(_build_mode_footer(mode))
@@ -200,6 +208,7 @@ def _build_system_prompt(context: dict, mode: str, user_message: str) -> str:
     parts.append(
         "\n\nRespond in a helpful, encouraging tone. Use markdown formatting where appropriate."
         + STEM_LATEX_INSTRUCTION
+        + VISUAL_GENERATION_POLICY
     )
 
     mastery = context.get("mastery")
@@ -236,7 +245,9 @@ def _build_system_prompt(context: dict, mode: str, user_message: str) -> str:
     return "\n".join(parts)
 
 
-async def _call_llm(system_prompt: str, message: str, history: list[dict] | None = None) -> str:
+async def _call_llm(
+    system_prompt: str, message: str, history: list[dict] | None = None
+) -> str:
     import logging
 
     from app.config.ai_client import AIProviderError, call_ai_text
@@ -291,4 +302,6 @@ async def tutor_chat(
 
 @router.get("/tutor/modes", response_model=list[TutorMode])
 async def get_tutor_modes():
-    return [TutorMode(mode=m["mode"], description=m["description"]) for m in TUTOR_MODES]
+    return [
+        TutorMode(mode=m["mode"], description=m["description"]) for m in TUTOR_MODES
+    ]

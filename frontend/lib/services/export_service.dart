@@ -76,4 +76,23 @@ h1{color:#1a237e}
 <div class="note-content">$content</div>
 <p style="margin-top:40px;font-size:11px;color:#999">Exported from Penrose ScholarMW</p>
 </body></html>''';
+
+  static String buildVisualHtml({
+    required String title,
+    required String type,
+    required String spec,
+  }) =>
+      '''<!DOCTYPE html>
+<html><head><title>$title</title>
+<style>
+body{font-family:sans-serif;max-width:800px;margin:0 auto;padding:20px;color:#333}
+h1{color:#1a237e;border-bottom:2px solid #1a237e;padding-bottom:8px}
+.meta{font-size:12px;color:#666;margin-bottom:16px}
+.spec{background:#f5f5f5;border:1px solid #ddd;border-radius:8px;padding:16px;
+  font-family:monospace;white-space:pre-wrap;font-size:13px}
+</style></head><body>
+<h1>$title</h1>
+<div class="meta">Type: $type | Format: HTML | Exported from Penrose ScholarMW</div>
+<div class="spec">$spec</div>
+</body></html>''';
 }

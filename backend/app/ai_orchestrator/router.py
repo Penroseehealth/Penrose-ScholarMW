@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.settings import get_settings
-from app.config.stem_latex import STEM_LATEX_INSTRUCTION
+from app.config.stem_latex import STEM_LATEX_INSTRUCTION, VISUAL_GENERATION_POLICY
 from app.database.engine import get_db
 from app.dependencies.auth import get_current_user
 from app.models.models import ChatMessage, ChatSession, User
@@ -64,7 +64,11 @@ def _get_system_prompt(agent_type: str) -> str:
             "improve academic language, and provide citation guidance."
         ),
     }
-    return prompts.get(agent_type, prompts["tutor"]) + STEM_LATEX_INSTRUCTION
+    return (
+        prompts.get(agent_type, prompts["tutor"])
+        + STEM_LATEX_INSTRUCTION
+        + VISUAL_GENERATION_POLICY
+    )
 
 
 class ChatOrchestratorRequest(BaseModel):
@@ -96,7 +100,9 @@ async def chat(
         )
         session = result.scalar_one_or_none()
         if not session:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Session not found"
+            )
     else:
         session = ChatSession(
             user_id=user.id,
@@ -112,9 +118,13 @@ async def chat(
     await db.commit()
 
     history_result = await db.execute(
-        select(ChatMessage).where(ChatMessage.session_id == session.id).order_by(ChatMessage.id)
+        select(ChatMessage)
+        .where(ChatMessage.session_id == session.id)
+        .order_by(ChatMessage.id)
     )
-    history = [{"role": m.role, "content": m.content} for m in history_result.scalars().all()]
+    history = [
+        {"role": m.role, "content": m.content} for m in history_result.scalars().all()
+    ]
 
     model_used = "openai"
     system_prompt = _get_system_prompt(body.agent_type)
@@ -169,7 +179,9 @@ async def translate_context(
     body: TranslateContextRequest,
     user: User = Depends(get_current_user),
 ):
-    context_block = "\n\n---\n\n".join(f"Document {i + 1}:\n{doc}" for i, doc in enumerate(body.context_documents))
+    context_block = "\n\n---\n\n".join(
+        f"Document {i + 1}:\n{doc}" for i, doc in enumerate(body.context_documents)
+    )
 
     prompt = (
         f"You are an academic assistant. Use the following context documents "

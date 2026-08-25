@@ -13,6 +13,11 @@ class ParsedVisual {
   final double? xMax;
   final double? yMin;
   final double? yMax;
+  final String? subject;
+  final String? topic;
+  final String? syllabusObjective;
+  final String? generationSource;
+  final DateTime? generationDate;
 
   const ParsedVisual({
     required this.type,
@@ -27,7 +32,23 @@ class ParsedVisual {
     this.xMax,
     this.yMin,
     this.yMax,
+    this.subject,
+    this.topic,
+    this.syllabusObjective,
+    this.generationSource,
+    this.generationDate,
   });
+
+  Map<String, dynamic> toMetadataMap() => {
+        'type': type.name,
+        'title': title,
+        'subject': subject,
+        'topic': topic,
+        'syllabusObjective': syllabusObjective,
+        'generationSource': generationSource,
+        'generationDate': (generationDate ?? DateTime.now()).toIso8601String(),
+        'rawSpec': rawSpec,
+      };
 }
 
 enum VisualType {
@@ -92,6 +113,11 @@ class AIVisualParser {
         xMax: (map['xMax'] as num?)?.toDouble(),
         yMin: (map['yMin'] as num?)?.toDouble(),
         yMax: (map['yMax'] as num?)?.toDouble(),
+        subject: map['subject'] as String?,
+        topic: map['topic'] as String?,
+        syllabusObjective: map['syllabusObjective'] as String?,
+        generationSource: map['generationSource'] as String? ?? 'ai',
+        generationDate: DateTime.tryParse(map['generationDate'] as String? ?? ''),
       );
     } catch (_) {
       return _parseNaturalLanguage(spec);

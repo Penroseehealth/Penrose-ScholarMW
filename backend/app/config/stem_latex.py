@@ -26,22 +26,55 @@ STEM_LATEX_INSTRUCTION = (
     "NEVER write important mathematical expressions as plain text. "
     "Every equation, formula, and scientific expression must be in LaTeX delimiters. "
     "The app renders them as properly typeset mathematical notation."
-    "\n\nVISUAL REPRESENTATIONS — ALWAYS include a visual when the topic involves "
-    "data, graphs, charts, geometry, functions, statistics, or any visual concept. "
-    "Append a JSON visual block at the end of your response:\n"
-    "Format: <!--visual:{...}-->\n"
-    "Supported types — pick the BEST fit for the data:\n"
-    '  - graph: for functions/plots → {"type":"graph","expression":"x^2","title":"Parabola","xMin":-5,"xMax":5,"yMin":-5,"yMax":5}\n'
-    '  - bar_chart: for comparing categories → {"type":"bar_chart","title":"Scores","labels":["A","B","C"],"values":[10,20,15]}\n'
-    '  - pie_chart: for proportions/percentages → {"type":"pie_chart","title":"Distribution","labels":["X","Y"],"values":[40,60]}\n'
-    '  - histogram: for frequency distributions → {"type":"histogram","title":"Frequency","values":[5,12,8,3]}\n'
-    '  - line_chart: for trends over time → {"type":"line_chart","title":"Trend","values":[2,5,8,4,9]}\n'
-    '  - frequency_polygon: for grouped frequency data → {"type":"frequency_polygon","title":"FP","values":[3,8,15,10,5]}\n'
-    '  - cumulative_frequency: for cumulative distributions → {"type":"cumulative_frequency","title":"CF","values":[10,25,45,70,90]}\n'
-    '  - shape: for geometry → {"type":"shape","shape":"triangle"} (or circle, quadrilateral, parallelogram, trapezium, right_triangle)\n'
-    '  - angle: → {"type":"shape","shape":"angle","points":[[1,1],[0,0],[-1,0.5]]}\n'
-    '  - tangent: → {"type":"shape","shape":"tangent","title":"Tangent line"}\n'
-    "You may include multiple <!--visual:...--> blocks. ALWAYS use visuals when "
-    "the student asks to see data, compare values, analyze statistics, plot functions, "
-    "or draw shapes. The app renders them automatically with interactive editable grids."
+)
+
+VISUAL_GENERATION_POLICY = (
+    "\n\nSTRICT VISUAL GENERATION POLICY — You must follow these rules exactly:\n\n"
+    "RULE 1: DO NOT AUTO-GENERATE VISUALS.\n"
+    "Never automatically generate a visual (diagram, chart, graph, table, illustration, "
+    "or any visual presentation) simply because you believe one might be helpful.\n"
+    "Visual content may ONLY be generated under ONE of these conditions:\n"
+    "  (a) The user EXPLICITLY requests a visual (e.g., 'show me a diagram', 'plot this', "
+    "'draw a graph', 'create a table', 'illustrate', 'visualise').\n"
+    "  (b) The syllabus objective for the current topic REQUIRES visual representation "
+    "to teach, demonstrate, or assess the concept (e.g., interpreting a velocity-time graph, "
+    "identifying parts of a cell, constructing a geometrical figure).\n\n"
+    "RULE 2: BEFORE generating any visual, verify ALL of these:\n"
+    "  - Is the user explicitly requesting a visual? OR does the syllabus objective require it?\n"
+    "  - What type of visual is specifically appropriate for this objective?\n"
+    "  - Is the visual scientifically and educationally necessary?\n"
+    "  - Does the visual match the Malawi MSCE syllabus content for this subject and level?\n"
+    "  - Will the visual genuinely improve understanding rather than merely decorate the response?\n"
+    "If ANY answer is 'no', do NOT generate a visual.\n\n"
+    "RULE 3: Never generate decorative, repetitive, irrelevant, speculative, or unnecessary diagrams.\n"
+    "If a syllabus objective only requires a textual definition or explanation, provide the "
+    "explanation WITHOUT generating a diagram.\n\n"
+    "RULE 4: When a visual IS required, select the MOST appropriate type:\n"
+    "  - Scientific/biological diagrams (cell structures, organ systems, apparatus)\n"
+    "  - Chemical structures and equations\n"
+    "  - Process diagrams, flowcharts, concept maps\n"
+    "  - Graphs (bar, line, pie, histogram, scatter)\n"
+    "  - Mathematical graphs and geometrical constructions\n"
+    "  - Tables for structured data\n"
+    "  - Timelines, maps, data visualisations\n"
+    "Do NOT substitute one visual type for another inappropriately.\n\n"
+    "RULE 5: When you DO generate a visual, append metadata as JSON:\n"
+    '<!--visual:{"type":"...","subject":"...","topic":"...",'
+    '"syllabusObjective":"...","title":"...",...}-->\n'
+    "The 'subject', 'topic', and 'syllabusObjective' fields are MANDATORY when available.\n"
+    "The 'generationSource' field must be 'ai' for AI-generated visuals.\n\n"
+    "Available visual types:\n"
+    "  - graph: for functions/plots\n"
+    "  - bar_chart: for comparing categories\n"
+    "  - pie_chart: for proportions/percentages\n"
+    "  - histogram: for frequency distributions\n"
+    "  - line_chart: for trends over time\n"
+    "  - frequency_polygon: for grouped frequency data\n"
+    "  - cumulative_frequency: for cumulative distributions\n"
+    "  - shape: for geometry (triangle, circle, quadrilateral, parallelogram, trapezium, right_triangle)\n"
+    "  - angle: for angle constructions\n"
+    "  - tangent: for tangent constructions\n\n"
+    "When the user explicitly asks you to generate a visual, create it and include ALL metadata.\n"
+    "When a syllabus objective requires it, create it and reference the objective.\n"
+    "Otherwise: DO NOT generate any visual."
 )
