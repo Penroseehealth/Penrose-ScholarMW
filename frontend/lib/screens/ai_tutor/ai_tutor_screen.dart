@@ -8,6 +8,8 @@ import '../../widgets/ai_thinking_indicator.dart';
 import '../../widgets/attachment_picker.dart';
 import '../../widgets/attachment_preview_card.dart';
 import '../../widgets/data_table_chart.dart';
+import '../../widgets/math_viz/ai_visual_renderer.dart';
+import '../../widgets/math_viz/math_tools_panel.dart';
 import '../../widgets/speech_to_text_view.dart';
 import '../../widgets/stem_text.dart';
 import '../../widgets/typewriter_renderer.dart';
@@ -130,6 +132,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
             if (_messages.isNotEmpty || _attachments.isNotEmpty) Expanded(child: _buildChatArea()),
             if (_attachments.isNotEmpty) _buildAttachmentBar(),
             if (_showVoiceRecorder) _buildVoiceRecorder(),
+            MathToolsPanel(onToolSelected: _onToolSelected),
             _buildInputArea(),
           ],
         ),
@@ -298,6 +301,9 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
   }
 
   Widget _renderResponseContent(String content) {
+    if (AIVisualRenderer.hasVisuals(content)) {
+      return InlineVisualMessage(text: content, isUser: false);
+    }
     final parts = _splitContentParts(content);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -594,6 +600,40 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
           child: Icon(icon, size: 20, color: color ?? context.colors.textSecondary),
         ),
       );
+
+  void _onToolSelected(String type, Map<String, dynamic> params) {
+    String prompt;
+    switch (type) {
+      case 'graph':
+        prompt = 'Graph the function y = ${params['expression']}';
+        break;
+      case 'pie':
+      case 'bar':
+        final labels = (params['labels'] as List?)?.join(', ') ?? '';
+        final values = (params['values'] as List?)?.join(', ') ?? '';
+        final title = params['title'] ?? '';
+        prompt = 'Create a $type chart: $title. Labels: $labels. Values: $values';
+        break;
+      case 'histogram':
+        final values = (params['values'] as List?)?.join(', ') ?? '';
+        prompt = 'Show a histogram with values: $values';
+        break;
+      case 'line':
+        final values = (params['values'] as List?)?.join(', ') ?? '';
+        prompt = 'Plot a line graph with values: $values';
+        break;
+      case 'shape':
+        prompt = 'Draw a ${params['shape']} and explain its properties';
+        break;
+      case 'equation':
+        prompt = 'Show the equation: \$\$${params['latex']}\$\$';
+        break;
+      default:
+        prompt = 'Show a visual for $type';
+    }
+    _messageCtrl.text = prompt;
+    _sendMessage();
+  }
 
   void _showAttachmentPicker() async {
     showModalBottomSheet(

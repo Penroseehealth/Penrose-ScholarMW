@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_math_fork/flutter_math.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
@@ -220,6 +221,34 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
         ),
       );
 
+  Widget _buildFormulaWidget(String formulaText) {
+    if (formulaText.isEmpty) {
+      return const Text('-', style: TextStyle(color: Colors.white38, fontSize: 18));
+    }
+    try {
+      return Math.tex(
+        formulaText,
+        textStyle: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: AppColors.primaryLight,
+        ),
+        mathStyle: MathStyle.display,
+      );
+    } catch (_) {
+      return Text(
+        formulaText,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: AppColors.primaryLight,
+          fontFamily: 'monospace',
+        ),
+        textAlign: TextAlign.center,
+      );
+    }
+  }
+
   Widget _buildFormulaCard(int index, dynamic formula) {
     final expanded = _expandedIndices.contains(index);
     return GestureDetector(
@@ -285,15 +314,8 @@ class _StemFormulaCentreScreenState extends State<StemFormulaCentreScreen> {
                 color: context.colors.surfaceHighest,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(
+              child: _buildFormulaWidget(
                 (formula['formula_text'] ?? formula['formula'] ?? '') as String,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primaryLight,
-                  fontFamily: 'monospace',
-                ),
-                textAlign: TextAlign.center,
               ),
             ),
             const SizedBox(height: 8),

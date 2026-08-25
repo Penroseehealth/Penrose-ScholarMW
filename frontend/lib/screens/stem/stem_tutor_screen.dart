@@ -6,6 +6,8 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 import '../../services/stem_service.dart';
 import '../../widgets/error_state.dart';
+import '../../widgets/math_viz/ai_visual_renderer.dart';
+import '../../widgets/math_viz/math_tools_panel.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/stem_text.dart';
 
@@ -195,6 +197,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
               _buildConceptSelector(),
               _buildModeSelector(),
               Expanded(child: _buildChatArea()),
+              MathToolsPanel(onToolSelected: _onToolSelected),
               _buildInputBar(),
             ],
           ],
@@ -319,6 +322,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
 
   Widget _buildMessageBubble(_ChatMessage msg) {
     final isUser = msg.isUser;
+    final hasVisuals = !isUser && AIVisualRenderer.hasVisuals(msg.text);
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -346,15 +350,17 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
                   height: 1.4,
                 ),
               )
-            : StemText(
-                msg.text,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: context.colors.textSecondary,
-                  height: 1.4,
-                ),
-                selectable: true,
-              ),
+            : hasVisuals
+                ? InlineVisualMessage(text: msg.text, isUser: false)
+                : StemText(
+                    msg.text,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: context.colors.textSecondary,
+                      height: 1.4,
+                    ),
+                    selectable: true,
+                  ),
       ),
     );
   }
@@ -389,6 +395,40 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
           ),
         ),
       );
+
+  void _onToolSelected(String type, Map<String, dynamic> params) {
+    String prompt;
+    switch (type) {
+      case 'graph':
+        prompt = 'Graph the function y = ${params['expression']}';
+        break;
+      case 'pie':
+      case 'bar':
+        final labels = (params['labels'] as List?)?.join(', ') ?? '';
+        final values = (params['values'] as List?)?.join(', ') ?? '';
+        final title = params['title'] ?? '';
+        prompt = 'Create a $type chart: $title. Labels: $labels. Values: $values';
+        break;
+      case 'histogram':
+        final values = (params['values'] as List?)?.join(', ') ?? '';
+        prompt = 'Show a histogram with values: $values';
+        break;
+      case 'line':
+        final values = (params['values'] as List?)?.join(', ') ?? '';
+        prompt = 'Plot a line graph with values: $values';
+        break;
+      case 'shape':
+        prompt = 'Draw a ${params['shape']} and explain its properties';
+        break;
+      case 'equation':
+        prompt = 'Show the equation: \$\$${params['latex']}\$\$';
+        break;
+      default:
+        prompt = 'Show a visual for $type';
+    }
+    _messageController.text = prompt;
+    _sendMessage();
+  }
 
   Widget _buildInputBar() => Container(
         padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
