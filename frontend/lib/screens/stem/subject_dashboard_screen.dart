@@ -165,7 +165,7 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
             _buildRecentActivity(recentActivity, accentColor),
           ],
           const SizedBox(height: 20),
-          _buildSyllabusButton(accentColor),
+          _buildModuleGrid(accentColor),
           const SizedBox(height: 20),
           _buildActionButtons(accentColor),
         ],
@@ -519,42 +519,66 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
     );
   }
 
-  Widget _buildSyllabusButton(Color accent) {
+  Widget _buildModuleGrid(Color accent) {
     final slug = widget.slug;
-    if (slug != 'mathematics' && slug != 'chemistry') {
-      return const SizedBox.shrink();
+    String syllabusRoute;
+    if (slug == 'mathematics') {
+      syllabusRoute = '/math-syllabus';
+    } else if (slug == 'chemistry') {
+      syllabusRoute = '/chem-syllabus';
+    } else {
+      syllabusRoute = '/stem-syllabus/$slug?title=${Uri.encodeComponent(widget.title)}';
     }
-    final route = slug == 'mathematics' ? '/math-syllabus' : '/chem-syllabus';
-    final label = slug == 'mathematics' ? 'View Mathematics Syllabus' : 'View Chemistry Syllabus';
-    final icon = slug == 'mathematics' ? Icons.calculate_rounded : Icons.science_rounded;
+    final modules = <_ModuleItem>[
+      _ModuleItem(Icons.book_rounded, 'Syllabus', 'Official MSCE syllabus', syllabusRoute),
+      _ModuleItem(Icons.psychology_outlined, 'AI Tutor', 'AI-powered assistant', '/stem-tutor'),
+      _ModuleItem(Icons.quiz_rounded, 'Practice', 'MCQ & exercises', '/stem-mastery'),
+      _ModuleItem(Icons.description_rounded, 'Past Papers', 'MSCE past exams', '/mock-exam'),
+      _ModuleItem(Icons.replay_rounded, 'Revision', 'Spaced repetition', '/stem-revision'),
+      _ModuleItem(Icons.insights_rounded, 'Analytics', 'Performance tracking', '/stem-analytics'),
+      _ModuleItem(Icons.note_alt_rounded, 'Notes', 'Your study notes', '/notes'),
+      _ModuleItem(Icons.download_rounded, 'Offline Content', 'Download for offline study', '/offline-sync'),
+    ];
 
-    return GestureDetector(
-      onTap: () => context.push(route),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-        decoration: BoxDecoration(
-          color: accent.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: accent.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: accent, size: 20),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: accent,
-                ),
-              ),
-            ),
-            Icon(Icons.chevron_right_rounded, color: accent, size: 20),
-          ],
-        ),
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: modules.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+        childAspectRatio: 1.6,
       ),
+      itemBuilder: (_, i) {
+        final m = modules[i];
+        return GestureDetector(
+          onTap: () => context.push(m.route),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: context.colors.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: context.colors.border),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(m.icon, color: accent, size: 22),
+                const SizedBox(height: 8),
+                Text(m.label,
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                const SizedBox(height: 2),
+                Text(m.subtitle,
+                    style: TextStyle(fontSize: 10, color: context.colors.textMuted),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -752,4 +776,12 @@ class _DashboardLoading extends StatelessWidget {
           ],
         ),
       );
+}
+
+class _ModuleItem {
+  final IconData icon;
+  final String label;
+  final String subtitle;
+  final String route;
+  const _ModuleItem(this.icon, this.label, this.subtitle, this.route);
 }

@@ -14,6 +14,7 @@ from app.models.stem import (
     MasteryRecord,
     STEMConcept,
     STEMDiscipline,
+    STEMSubtopic,
     STEMTopic,
 )
 from app.modules.chemistry.prompts import CHEMISTRY_AI_TEMPLATES
@@ -108,7 +109,12 @@ def _build_mode_footer(mode: str) -> str:
 async def _get_concept_context(concept_id: int, db: AsyncSession) -> dict:
     concept_result = await db.execute(
         select(STEMConcept)
-        .options(joinedload(STEMConcept.subtopic).joinedload(STEMTopic.discipline).joinedload(STEMDiscipline.subject))
+        .options(
+            joinedload(STEMConcept.subtopic)
+            .joinedload(STEMSubtopic.topic)
+            .joinedload(STEMTopic.discipline)
+            .joinedload(STEMDiscipline.subject)
+        )
         .where(STEMConcept.id == concept_id)
     )
     concept = concept_result.unique().scalar_one_or_none()
@@ -231,6 +237,8 @@ def _build_system_prompt(context: dict, mode: str, user_message: str) -> str:
 
 
 async def _call_llm(system_prompt: str, message: str, history: list[dict] | None = None) -> str:
+    import logging
+
     from app.config.ai_client import AIProviderError, call_ai_text
 
     messages: list[dict[str, str]] = [{"role": "system", "content": system_prompt}]
@@ -242,9 +250,7 @@ async def _call_llm(system_prompt: str, message: str, history: list[dict] | None
     messages.append({"role": "user", "content": message})
     try:
         return await call_ai_text(messages, max_tokens=2000, temperature=0.7)
-    except AIProviderError as exc:
-        import logging
-
+    except (AIProviderError, RuntimeError, TimeoutError, OSError) as exc:
         logging.getLogger(__name__).warning("AI call failed: %s", exc)
         return "The STEM Tutor is currently unavailable. Please try again later."
 

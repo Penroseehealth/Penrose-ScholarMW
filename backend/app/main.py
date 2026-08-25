@@ -12,6 +12,7 @@ from app.ai_tutor.router import router as ai_router
 from app.analytics.router import router as analytics_router
 from app.assessments.router import router as assessments_router
 from app.auth.router import router as auth_router
+from app.chemistry.router import router as chem_syllabus_router
 from app.config.settings import get_settings
 from app.core.security import hash_password
 from app.courses.router import router as courses_router
@@ -24,6 +25,7 @@ from app.knowledge_retrieval.router import router as knowledge_retrieval_router
 from app.knowledge_vault.router import router as vault_router
 from app.languages.router import router as languages_router
 from app.malawi_context.router import router as malawi_context_router
+from app.mathematics.router import router as math_syllabus_router
 from app.messaging.router import router as messaging_router
 from app.notifications.router import router as notifications_router
 from app.research.router import router as research_router
@@ -86,6 +88,12 @@ async def lifespan(app: FastAPI):
     from app.stem.seed_syllabus import seed_syllabus
 
     await seed_syllabus()
+    from app.mathematics.seed_math_syllabus import seed_math_syllabus
+
+    await seed_math_syllabus()
+    from app.chemistry.seed_chemistry import seed_chemistry_syllabus
+
+    await seed_chemistry_syllabus()
     from app.languages.seed_english import seed_english
 
     await seed_english()
@@ -160,7 +168,9 @@ async def _seed_default_users():
         await db.commit()
         await db.refresh(course)
 
-        db.add(Enrollment(student_id=users[2].id, course_id=course.id, progress_pct=35.0))
+        db.add(
+            Enrollment(student_id=users[2].id, course_id=course.id, progress_pct=35.0)
+        )
         await db.commit()
 
 
@@ -228,6 +238,8 @@ app.include_router(content_cms_router, prefix="/api/v1")
 app.include_router(collaboration_router, prefix="/api/v1")
 app.include_router(export_router, prefix="/api/v1")
 app.include_router(syllabus_router, prefix="/api/v1")
+app.include_router(math_syllabus_router, prefix="/api/v1")
+app.include_router(chem_syllabus_router, prefix="/api/v1")
 app.include_router(languages_router, prefix="/api/v1")
 
 
@@ -251,20 +263,32 @@ if WEB_DIR.is_dir():
     from starlette.responses import FileResponse, HTMLResponse
 
     _main_js_path = WEB_DIR / "main.dart.js"
-    _build_hash = hashlib.md5(str(os.path.getmtime(_main_js_path)).encode()).hexdigest()[:12]
+    _build_hash = hashlib.md5(
+        str(os.path.getmtime(_main_js_path)).encode()
+    ).hexdigest()[:12]
     _index_html = (WEB_DIR / "index.html").read_text(encoding="utf-8")
-    _index_html = _index_html.replace("flutter_bootstrap.js", f"flutter_bootstrap.js?v={_build_hash}")
+    _index_html = _index_html.replace(
+        "flutter_bootstrap.js", f"flutter_bootstrap.js?v={_build_hash}"
+    )
     _index_html = _index_html.replace("main.dart.js", f"main.dart.js?v={_build_hash}")
     _bootstrap_js = (WEB_DIR / "flutter_bootstrap.js").read_text(encoding="utf-8")
-    _bootstrap_js = _bootstrap_js.replace("main.dart.js", f"main.dart.js?v={_build_hash}")
+    _bootstrap_js = _bootstrap_js.replace(
+        "main.dart.js", f"main.dart.js?v={_build_hash}"
+    )
 
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
         file_path = WEB_DIR / full_path
         if full_path == "" or full_path == "index.html":
-            return HTMLResponse(_index_html, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
+            return HTMLResponse(
+                _index_html,
+                headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
+            )
         if full_path == "flutter_bootstrap.js":
-            return HTMLResponse(_bootstrap_js, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
+            return HTMLResponse(
+                _bootstrap_js,
+                headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
+            )
         if full_path == "flutter_service_worker.js":
             sw_code = (
                 "self.addEventListener('install', function(e) { self.skipWaiting(); });\n"
@@ -277,10 +301,22 @@ if WEB_DIR.is_dir():
                 "});\n"
             )
             return HTMLResponse(
-                sw_code, headers={"Cache-Control": "no-store", "Content-Type": "application/javascript"}
+                sw_code,
+                headers={
+                    "Cache-Control": "no-store",
+                    "Content-Type": "application/javascript",
+                },
             )
         if file_path.is_file():
-            headers = {"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+            headers = {
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                "Pragma": "no-cache",
+                "Expires": "0",
+            }
             return FileResponse(str(file_path), headers=headers)
-        headers = {"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+        headers = {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0",
+        }
         return HTMLResponse(_index_html, headers=headers)

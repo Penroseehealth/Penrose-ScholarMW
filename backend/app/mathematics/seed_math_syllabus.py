@@ -638,101 +638,199 @@ MATH_SYLLABUS = {
                     "resources": [],
                 },
                 # ── FORM 3 ─────────────────────────────────────────────────
+                # Outcome: Demonstrate understanding of number systems and their
+                # properties and apply them in solving problems in everyday life.
                 {
                     "title": "Quadratic Equations",
                     "year_level": 3,
+                    "description": "Assessment standard: solve problems involving quadratic equations.",
                     "subtopics": [
                         {
-                            "title": "Solving Using the Formula",
-                            "description": "Solving quadratic equations using the quadratic formula x = (−b ± √(b² − 4ac)) / 2a.",
+                            "title": "Factorising Quadratic Expressions",
+                            "description": "Discussing, factorising and solving quadratic expressions.",
                             "learning_objectives": [
                                 {
-                                    "objective": "Solve quadratic equations using the quadratic formula",
-                                    "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "objective": "Discuss and identify quadratic expressions of the form ax² + bx + c",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Discussing quadratic expressions",
+                                    "teaching_method": "Discussion, question and answer",
                                 },
                                 {
-                                    "objective": "Formulate quadratic equations from word problems",
+                                    "objective": "Factorise quadratic expressions by inspection, common factors and difference of two squares",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Problem solving",
+                                    "teaching_activity": "Factorising quadratic expressions",
+                                    "teaching_method": "Guided practice, written exercises",
                                 },
                             ],
                         },
                         {
-                            "title": "Applications of Quadratic Equations",
-                            "description": "Solving real-life problems leading to quadratic equations.",
+                            "title": "Solving Quadratic Equations",
+                            "description": "Solving quadratic equations by factorisation and completing the square.",
                             "learning_objectives": [
                                 {
-                                    "objective": "Apply quadratic equations to solve real-life problems",
+                                    "objective": "Solve quadratic equations by factorisation",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Problem solving",
+                                    "teaching_activity": "Solving quadratic equations by factorisation",
+                                    "teaching_method": "Problem solving, written exercises",
+                                },
+                                {
+                                    "objective": "Complete the square of quadratic expressions of the form x² + bx + c",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Completing the square of quadratic expressions",
+                                    "teaching_method": "Guided practice, pair work",
+                                },
+                                {
+                                    "objective": "Solve quadratic equations by completing the square",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Solving quadratic equations by completing the square",
+                                    "teaching_method": "Guided practice, written exercises",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "The Quadratic Formula and Applications",
+                            "description": "Deriving and applying the quadratic formula; formulating quadratic equations from practical problems.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Derive the quadratic formula from the general quadratic equation by completing the square",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_activity": "Deriving the quadratic formula",
+                                    "teaching_method": "Discussion, demonstration",
+                                },
+                                {
+                                    "objective": "Solve quadratic equations using the quadratic formula x = (-b ± √(b² - 4ac)) / 2a",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Solving quadratic equations using the formula",
+                                    "teaching_method": "Guided practice, written exercises",
+                                },
+                                {
+                                    "objective": "Formulate quadratic equations from practical (everyday life) problems and solve them",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Formulating quadratic equations from practical problems",
+                                    "teaching_method": "Problem solving, discussion, pair work",
                                 },
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Charts", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Irrational Numbers",
                     "year_level": 3,
+                    "description": "Assessment standard: carry out basic operations involving irrational numbers.",
                     "subtopics": [
                         {
-                            "title": "Surds",
-                            "description": "Simplifying, rationalising, and operating with irrational numbers (surds).",
+                            "title": "Recognising Irrational Numbers",
+                            "description": "Describing, identifying and discussing irrational numbers and surds.",
                             "learning_objectives": [
                                 {
-                                    "objective": "Simplify expressions involving surds",
-                                    "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "objective": "Describe and identify irrational numbers as numbers that cannot be expressed as a fraction p/q",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Describing irrational numbers, identifying irrational numbers",
+                                    "teaching_method": "Discussion, demonstration",
                                 },
                                 {
-                                    "objective": "Rationalise the denominator of a fraction containing surds",
+                                    "objective": "Discuss surds and their properties",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Discussing surds",
+                                    "teaching_method": "Discussion, question and answer",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Operations with Surds",
+                            "description": "Simplifying, adding, subtracting, multiplying, dividing surds, conjugate surds and rationalising denominators.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Express surds in their simplest form",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "teaching_activity": "Expressing surds in their simplest form",
+                                    "teaching_method": "Guided practice, written exercises",
                                 },
                                 {
-                                    "objective": "Perform operations with irrational numbers",
+                                    "objective": "Add and subtract surds",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Practical exercises",
+                                    "teaching_activity": "Adding surds, subtracting surds",
+                                    "teaching_method": "Guided practice, written exercises",
+                                },
+                                {
+                                    "objective": "Multiply and divide surds",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Multiplying surds, dividing surds",
+                                    "teaching_method": "Guided practice, written exercises",
+                                },
+                                {
+                                    "objective": "Write conjugate surds and expand conjugate surds",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Writing conjugate surds, expanding conjugate surds",
+                                    "teaching_method": "Guided practice, pair work",
+                                },
+                                {
+                                    "objective": "Rationalise surd denominators",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Rationalising surd denominators",
+                                    "teaching_method": "Guided practice, written exercises",
                                 },
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Charts", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Algebraic Fractions with Linear or Quadratic Denominators",
                     "year_level": 3,
+                    "description": "Assessment standard: carry out basic operations on algebraic expressions.",
                     "subtopics": [
                         {
                             "title": "Simplifying Algebraic Fractions",
-                            "description": "Simplifying algebraic fractions with linear or quadratic denominators.",
+                            "description": "Identifying common factors and expressing algebraic fractions into lowest terms.",
                             "learning_objectives": [
                                 {
-                                    "objective": "Simplify algebraic fractions by factorising the denominator",
+                                    "objective": "Identify common factors in the numerator and denominator of algebraic fractions",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "teaching_activity": "Identifying common factors",
+                                    "teaching_method": "Discussion, guided practice",
+                                },
+                                {
+                                    "objective": "Reduce fractions to their lowest term and express algebraic fractions into their lowest terms",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Reducing fractions to their lowest term, expressing algebraic fractions into their lowest terms",
+                                    "teaching_method": "Guided practice, written exercises",
                                 },
                             ],
                         },
                         {
                             "title": "Operations with Algebraic Fractions",
-                            "description": "Adding, subtracting, multiplying and dividing algebraic fractions.",
+                            "description": "Finding common denominators, adding, subtracting, multiplying and dividing algebraic fractions.",
                             "learning_objectives": [
                                 {
-                                    "objective": "Add and subtract algebraic fractions with linear or quadratic denominators",
+                                    "objective": "Find the common denominator of algebraic fractions",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "teaching_activity": "Finding the common denominator of algebraic fractions",
+                                    "teaching_method": "Guided practice, written exercises",
+                                },
+                                {
+                                    "objective": "Add and subtract algebraic fractions",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Adding algebraic fractions, subtracting algebraic fractions",
+                                    "teaching_method": "Guided practice, written exercises, pair work",
                                 },
                                 {
                                     "objective": "Multiply and divide algebraic fractions",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "teaching_activity": "Multiplying algebraic fractions, dividing algebraic fractions",
+                                    "teaching_method": "Guided practice, written exercises",
                                 },
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Charts", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Subject of the Formulae",
@@ -1000,6 +1098,126 @@ MATH_SYLLABUS = {
                     ],
                     "resources": [],
                 },
+                {
+                    "title": "Subject of the Formulae",
+                    "year_level": 4,
+                    "description": "Outcome: Solve equations by changing the subject of literal equations and formulae involving powers and roots.",
+                    "subtopics": [
+                        {
+                            "title": "Changing the Subject of Literal Equations",
+                            "description": "Identifying the subject of a formula, changing the subject of a formula.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Identify the subject of a formula",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Identifying the subject of formula",
+                                    "teaching_method": "Discussion, explanation, question and answer, written exercises",
+                                },
+                                {
+                                    "objective": "Change the subject of a literal equation to make a specified variable the subject",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Changing the subject of a formula",
+                                    "teaching_method": "Demonstration, written exercises, pair work",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Changing the Subject Involving Powers and Roots",
+                            "description": "Transposing formulae involving powers and roots to change the subject.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Identify the subject of a formula involving powers and roots",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Identifying subject of the formula",
+                                    "teaching_method": "Explanation, question and answer",
+                                },
+                                {
+                                    "objective": "Transpose formulae involving powers and roots to make a different variable the subject",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Transposing formula involving powers and roots",
+                                    "teaching_method": "Demonstration, written exercises, pair work, group work",
+                                },
+                            ],
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Charts", "type": "equipment"},
+                        {"text": "Calculators", "type": "equipment"},
+                        {"text": "Strings", "type": "equipment"},
+                    ],
+                },
+                {
+                    "title": "Exponential and Logarithmic Equations",
+                    "year_level": 4,
+                    "description": "Outcome: Work out problems involving exponential and logarithmic equations.",
+                    "subtopics": [
+                        {
+                            "title": "Solving Exponential Equations",
+                            "description": "Expressing numbers as powers of given bases, modelling exponential equations, solving exponential equations.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Express numbers as powers of given bases",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Expressing numbers as powers of given bases",
+                                    "teaching_method": "Demonstration, explanation, written exercises, oral exercises",
+                                },
+                                {
+                                    "objective": "Model exponential equations from practical situations",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Modelling exponential equations",
+                                    "teaching_method": "Problem solving, discussion, pair work",
+                                },
+                                {
+                                    "objective": "Solve exponential equations using logarithms",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Solving exponential equations",
+                                    "teaching_method": "Guided practice, written exercises, pair work",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Solving Logarithmic Equations",
+                            "description": "Deriving the rules of logarithms, simplifying logarithms of numbers to a given base, formulating logarithmic equations from exponential equations and vice versa, simplifying logarithmic expressions, solving logarithmic equations using rules of logarithms.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Derive the rules of logarithms (product, quotient and power rules)",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_activity": "Deriving the rules of logarithms",
+                                    "teaching_method": "Discussion, demonstration, explanation, written exercises",
+                                },
+                                {
+                                    "objective": "Simplify logarithms of numbers to a given base",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Simplifying logarithm of numbers to a given base",
+                                    "teaching_method": "Written exercises, pair work",
+                                },
+                                {
+                                    "objective": "Formulate logarithmic equations from exponential equations and vice versa",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Formulating logarithmic equations from exponential equations and vice versa",
+                                    "teaching_method": "Discussion, guided practice, group work",
+                                },
+                                {
+                                    "objective": "Simplify logarithmic expressions using the laws of logarithms",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Simplifying logarithmic expressions",
+                                    "teaching_method": "Written exercises, pair work",
+                                },
+                                {
+                                    "objective": "Solve logarithmic equations using rules of logarithms",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Solving logarithmic equations using rules of logarithms",
+                                    "teaching_method": "Problem solving, written exercises, group work",
+                                },
+                            ],
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Charts", "type": "equipment"},
+                        {"text": "Calculators", "type": "equipment"},
+                        {"text": "Strings", "type": "equipment"},
+                    ],
+                },
             ],
         },
         # ═══════════════════════════════════════════════════════════════════════
@@ -1101,23 +1319,87 @@ MATH_SYLLABUS = {
                     ],
                 },
                 # ── FORM 3 ─────────────────────────────────────────────────
+                # Outcome: Describe sets of numbers including properties of vectors,
+                # rotation, reflection, translation and matrices.
+                # Assessment standard: solve problems involving sets.
                 {
                     "title": "Sets",
                     "year_level": 3,
+                    "description": "Describing elements of sets, set operations, algebra of sets and Venn diagrams.",
                     "subtopics": [
                         {
-                            "title": "Union, Intersection and Complement",
-                            "description": "Operations on sets using algebra of sets and laws (commutative, associative, distributive, De Morgan's).",
+                            "title": "Describing Elements of a Set",
+                            "description": "Using set builder notation, identifying universal sets, complements, unions and intersections.",
                             "learning_objectives": [
                                 {
-                                    "objective": "Apply the laws of set algebra to simplify expressions",
+                                    "objective": "Describe sets using set builder notation",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Describing set builder notation",
+                                    "teaching_method": "Discussion, explanation",
+                                },
+                                {
+                                    "objective": "Describe a universal set for a given problem context",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Describing a universal set",
+                                    "teaching_method": "Discussion, question and answer",
+                                },
+                                {
+                                    "objective": "Identify elements of a complement of a set",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "teaching_activity": "Identifying elements of a complement of a set",
+                                    "teaching_method": "Guided practice, written exercises",
+                                },
+                                {
+                                    "objective": "Identify elements of a union of two or three sets",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Identifying elements of a union of two or three sets",
+                                    "teaching_method": "Guided practice, written exercises",
+                                },
+                                {
+                                    "objective": "Identify elements of an intersection of two or three sets",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Identifying elements of an intersection of two or three sets",
+                                    "teaching_method": "Guided practice, written exercises",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Representing Sets in Venn Diagrams",
+                            "description": "Drawing Venn diagrams to illustrate set operations and solving problems using Venn diagrams.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Draw Venn diagrams to illustrate the union of two or three sets",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Drawing Venn diagrams to illustrate the union of two or three sets",
+                                    "teaching_method": "Practical work, peer assessment",
+                                },
+                                {
+                                    "objective": "Draw a Venn diagram to illustrate the intersection of two or three sets",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Drawing a Venn diagram to illustrate the intersection of two or three sets",
+                                    "teaching_method": "Practical work, peer assessment",
+                                },
+                                {
+                                    "objective": "Solve problems involving sets using Venn diagrams",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Solving problems involving sets using Venn diagrams",
+                                    "teaching_method": "Problem solving, group assessment",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Algebra of Sets",
+                            "description": "Applying set laws (commutative, associative, distributive, De Morgan's) to simplify expressions.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Apply the commutative, associative and distributive laws of sets",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Guided practice, written exercises",
                                 },
                                 {
                                     "objective": "Use De Morgan's laws to find complements of union and intersection",
                                     "cognitive_level": "Analysis",
-                                    "teaching_method": "Discussion, examples",
+                                    "teaching_method": "Discussion, examples, pair work",
                                 },
                             ],
                         },
@@ -1133,7 +1415,12 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Natural environment", "type": "equipment"},
+                        {"text": "Charts of the number line", "type": "equipment"},
+                        {"text": "Playing cards", "type": "equipment"},
+                        {"text": "Number cards", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Transformations",
@@ -1249,6 +1536,109 @@ MATH_SYLLABUS = {
                     ],
                     "resources": [
                         {"text": "Graph paper", "type": "equipment"},
+                    ],
+                },
+                {
+                    "title": "Transformations",
+                    "year_level": 4,
+                    "description": "Outcome: The students will be able to describe sets of numbers including properties of vectors, rotation, reflection, translation and matrices in terms of quantity, structure, and space.",
+                    "subtopics": [
+                        {
+                            "title": "Rotation",
+                            "description": "Drawing rotations using squared paper, describing rotations using directions and angles.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Draw rotations of simple plane figures about a given point through a given angle clockwise or anticlockwise",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Drawing rotations using squared paper",
+                                    "teaching_method": "Discussion, demonstration, explanation, question and answer, written exercises, practical work",
+                                },
+                                {
+                                    "objective": "Describe rotations using directions and angles",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Describing rotations using directions and angles",
+                                    "teaching_method": "Discussion, demonstration, explanation, written exercises",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Translation",
+                            "description": "Describing translation, drawing a translation, writing down coordinates of a translation in column vectors.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Describe translation of a plane figure",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Describing translation",
+                                    "teaching_method": "Explanation, demonstration, question and answer",
+                                },
+                                {
+                                    "objective": "Draw a translation of a simple plane figure",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Drawing a translation",
+                                    "teaching_method": "Practical work, written exercises",
+                                },
+                                {
+                                    "objective": "Write down coordinates of a translation in column vectors",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Writing down coordinates of a translation in column vectors",
+                                    "teaching_method": "Written exercises, pair work",
+                                },
+                                {
+                                    "objective": "Translate shapes using column vectors",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Translating shapes using column vectors",
+                                    "teaching_method": "Practical work, peer assessment, group assessment",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Enlargement",
+                            "description": "Defining enlargement, finding the scale factor and centre of enlargement, enlarging shapes by positive whole number and fractional scale factors.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Define the term 'enlargement'",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Defining the term 'enlargement'",
+                                    "teaching_method": "Discussion, explanation, question and answer",
+                                },
+                                {
+                                    "objective": "Find the scale factor of an enlargement",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Finding the scale factor of an enlargement",
+                                    "teaching_method": "Demonstration, written exercises",
+                                },
+                                {
+                                    "objective": "Find the centre of an enlargement",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Finding the centre of an enlargement",
+                                    "teaching_method": "Demonstration, practical work, pair work",
+                                },
+                                {
+                                    "objective": "Enlarge shapes by a positive whole number scale factor",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Enlarging shapes by a positive whole number scale factor",
+                                    "teaching_method": "Practical work, written exercises, peer assessment",
+                                },
+                                {
+                                    "objective": "Enlarge shapes by a fractional scale factor",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Enlarging shapes by a fractional scale factor",
+                                    "teaching_method": "Practical work, written exercises, group assessment",
+                                },
+                            ],
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Charts", "type": "equipment"},
+                        {"text": "Mathematical sets", "type": "equipment"},
+                        {"text": "Squared paper", "type": "equipment"},
+                        {"text": "Graph paper", "type": "equipment"},
+                        {"text": "Interlocking blocks", "type": "equipment"},
+                        {"text": "Crayons (coloured pencils/chalk)", "type": "equipment"},
+                        {"text": "Computers", "type": "equipment"},
+                        {"text": "Pictures", "type": "equipment"},
+                        {"text": "Magnifying glasses", "type": "equipment"},
+                        {"text": "Geoboards", "type": "equipment"},
                     ],
                 },
             ],
@@ -1555,30 +1945,81 @@ MATH_SYLLABUS = {
                     ],
                 },
                 # ── FORM 3 ─────────────────────────────────────────────────
+                # Outcome: Solve problems involving shape, size, spaces and
+                # relationships between sides and angles of triangles, Pythagoras
+                # theorem and trigonometric functions.
+                # Assessment standard: solve problems involving circles.
                 {
                     "title": "Circle Geometry (Chord Properties)",
                     "year_level": 3,
+                    "description": "Identifying parts of a circle, describing chord properties and applying them to solve problems.",
                     "subtopics": [
                         {
-                            "title": "Chord Properties",
-                            "description": "Properties of chords: perpendicular from the centre bisects the chord, equal chords are equidistant from the centre, etc.",
+                            "title": "Parts of a Circle and Chord Properties",
+                            "description": "Identifying parts of a circle (chord, radius, sector, segment, diameter, arc) and describing chord properties theorems.",
                             "learning_objectives": [
                                 {
-                                    "objective": "State and apply the perpendicular bisector chord property",
-                                    "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "objective": "Identify parts of a circle: chord, radius, sector, segment, diameter and arc",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Identifying parts of the circle such as chord, radius, sector, segment, diameter, arc",
+                                    "teaching_method": "Discussion, demonstration, explanation",
                                 },
                                 {
-                                    "objective": "Apply properties of equal chords and their distances from the centre",
+                                    "objective": "Describe chord properties of a circle",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Describing chord properties of a circle",
+                                    "teaching_method": "Discussion, explanation, question and answer",
+                                },
+                                {
+                                    "objective": "Discuss the theorem: the perpendicular to a chord from the centre bisects the chord and its converse",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Discussing the theorem on perpendicular bisector of a chord",
+                                    "teaching_method": "Discussion, demonstration, written exercises",
+                                },
+                                {
+                                    "objective": "Discuss the theorem: equal chords of a circle are equidistant from the centre and its converse",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Discussing the theorem on equal chords equidistant from the centre",
+                                    "teaching_method": "Discussion, demonstration, written exercises",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Applying Chord Properties",
+                            "description": "Calculating lengths and distances involving chords and solving practical problems.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Calculate the length of a chord given the radius and distance from the centre",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Problem solving",
+                                    "teaching_activity": "Calculating the length of the chord given radius and distance from the centre",
+                                    "teaching_method": "Guided practice, written exercises, pair work",
+                                },
+                                {
+                                    "objective": "Calculate the distance from the centre given the length of a chord and radius",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Calculating the distance from the centre given the length of a chord and radius",
+                                    "teaching_method": "Guided practice, written exercises",
+                                },
+                                {
+                                    "objective": "Calculate the radius given the length of a chord and distance from the centre",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Calculating radius given length of a chord and distance from the centre",
+                                    "teaching_method": "Guided practice, written exercises, pair work",
+                                },
+                                {
+                                    "objective": "Solve practical problems involving chords of a circle",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Solving practical problems involving chords",
+                                    "teaching_method": "Problem solving, group assessment, practical work",
                                 },
                             ],
                         },
                     ],
                     "resources": [
-                        {"text": "Compass", "type": "equipment"},
-                        {"text": "Ruler", "type": "equipment"},
+                        {"text": "Charts", "type": "equipment"},
+                        {"text": "Mathematical sets", "type": "equipment"},
+                        {"text": "Geoboards", "type": "equipment"},
+                        {"text": "Models of circles", "type": "equipment"},
                     ],
                 },
                 {
@@ -1707,6 +2148,188 @@ MATH_SYLLABUS = {
                     "resources": [],
                 },
                 # ── FORM 4 ─────────────────────────────────────────────────
+                {
+                    "title": "Circle Geometry (Angle Properties)",
+                    "year_level": 4,
+                    "description": "Outcome: The students will be able to solve problems involving shape, size, spaces relationships between the sides and the angles of triangles, Pythagoras theorem and trigonometric functions.",
+                    "subtopics": [
+                        {
+                            "title": "Angle Properties of a Circle",
+                            "description": "Describing angle properties of a circle: angle at the centre is twice the angle at the circumference, angle in a semicircle is a right angle, angles subtended by the same arc/chord are equal.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Establish that the angle at the centre is twice the angle at the circumference subtended by the same arc",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Establishing that the angle at the centre is twice the angle at the circumference",
+                                    "teaching_method": "Question and answer, demonstration, explanations, discussions, pair and group work",
+                                },
+                                {
+                                    "objective": "Establish that the angle in a semicircle is a right angle",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Establishing that angle in a semicircle is a right angle",
+                                    "teaching_method": "Question and answer, demonstration, explanations, discussions",
+                                },
+                                {
+                                    "objective": "Prove that angles subtended by the same arc/chord are equal",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Proving that angles subtended by the same arc/chord are equal",
+                                    "teaching_method": "Question and answer, demonstration, explanations, discussions, written exercises",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Proving Theorems Involving Angle Properties",
+                            "description": "Discussing formal proofs of theorems: angle at the centre is twice the angle at the circumference, angle in a semicircle is a right angle, angles subtended by the same arc/chord are equal.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Give a formal proof that the angle at the centre is twice the angle at the circumference",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_activity": "Discussing formal proofs of theorems: angle at the centre is twice the angle at the circumference",
+                                    "teaching_method": "Discussion, demonstration, explanations, written exercises",
+                                },
+                                {
+                                    "objective": "Give a formal proof that the angle in a semicircle is a right angle",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_activity": "Discussing formal proofs of theorems: angle in a semicircle is a right angle",
+                                    "teaching_method": "Discussion, demonstration, explanations, written exercises",
+                                },
+                                {
+                                    "objective": "Give a formal proof that angles subtended by the same arc/chord are equal",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_activity": "Discussing formal proofs of theorems: angles subtended by the same arc/chord are equal",
+                                    "teaching_method": "Discussion, demonstration, explanations, written exercises",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Cyclic Quadrilaterals",
+                            "description": "Describing a cyclic quadrilateral, discussing its properties, proving opposite angles are supplementary, exterior angle equals interior opposite angle, showing points are concyclic and showing a quadrilateral is cyclic.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Describe a cyclic quadrilateral and discuss its properties",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Describing a cyclic quadrilateral, discussing properties of a cyclic quadrilateral",
+                                    "teaching_method": "Discussion, demonstration, explanation, question and answer",
+                                },
+                                {
+                                    "objective": "Prove that opposite angles of a cyclic quadrilateral are supplementary",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_activity": "Proving that opposite angles of a cyclic quadrilateral are supplementary",
+                                    "teaching_method": "Discussion, demonstration, written exercises, peer assessment",
+                                },
+                                {
+                                    "objective": "Prove that the exterior angle of a cyclic quadrilateral is equal to the interior opposite angle",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_activity": "Proving that the exterior angle of cyclic quadrilateral is equal to the interior opposite angle",
+                                    "teaching_method": "Discussion, demonstration, written exercises, peer assessment",
+                                },
+                                {
+                                    "objective": "Show that given points are concyclic",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Showing that points are concyclic",
+                                    "teaching_method": "Written exercises, problem solving, group assessment",
+                                },
+                                {
+                                    "objective": "Show that a given quadrilateral is cyclic",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Showing that a given quadrilateral is cyclic",
+                                    "teaching_method": "Written exercises, problem solving, practical work",
+                                },
+                            ],
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Charts", "type": "equipment"},
+                        {"text": "Mathematical sets", "type": "equipment"},
+                        {"text": "Geoboards", "type": "equipment"},
+                        {"text": "Models of circles", "type": "equipment"},
+                    ],
+                },
+                {
+                    "title": "Trigonometry",
+                    "year_level": 4,
+                    "description": "Outcome: Use trigonometric ratios of acute angles to calculate the unknown sides and angles in triangles.",
+                    "subtopics": [
+                        {
+                            "title": "Trigonometric Ratios of Right-Angled Triangles",
+                            "description": "Identifying the hypotenuse, adjacent and opposite sides, defining sine, cosine and tangent, finding the three ratios, using a calculator for trigonometry.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Identify the hypotenuse, adjacent and opposite side of a given angle in a right-angled triangle",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Identifying the hypotenuse of a triangle, identifying an adjacent and opposite side of a given angle",
+                                    "teaching_method": "Discussion, demonstration, explanation, question and answer",
+                                },
+                                {
+                                    "objective": "Define the sine, cosine and tangent of an angle",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Defining the sine, cosine and tangent of an angle",
+                                    "teaching_method": "Explanation, demonstration, question and answer",
+                                },
+                                {
+                                    "objective": "Find the three trigonometric ratios of given angles",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Finding the three ratios of given angles",
+                                    "teaching_method": "Written exercises, pair work",
+                                },
+                                {
+                                    "objective": "Use a calculator to work out problems involving trigonometry",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Discussing how to use a calculator to work out problems involving trigonometry",
+                                    "teaching_method": "Practical work, demonstration",
+                                },
+                                {
+                                    "objective": "Calculate angles and sides of right-angled triangles using trigonometric ratios",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Finding angles and sides of given triangle",
+                                    "teaching_method": "Written exercises, peer assessment, group assessment, practical work",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Fractional Trigonometric Ratios of Special Angles",
+                            "description": "Deriving the fractional trigonometric ratios of 30°, 45°, 60° and 90°, solving problems involving fractional trigonometric ratios without using a calculator.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Derive the fractional trigonometric ratios of 30°, 45°, 60° and 90°",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_activity": "Deriving the fractional trigonometric ratios of 30°, 45°, 60° and 90°",
+                                    "teaching_method": "Discussion, demonstration, explanation, written exercises",
+                                },
+                                {
+                                    "objective": "Solve problems involving fractional trigonometric ratios without using a calculator",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Solving problems involving fractional trigonometric ratios without using a calculator",
+                                    "teaching_method": "Written exercises, pair work, group assessment",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Practical Problems Involving Trigonometry",
+                            "description": "Finding the angle of elevation and depression, calculating the bearing of a point relative to a given point using trigonometric ratios.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Find the angle of elevation and depression in practical situations",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Finding the angle of elevation and depression",
+                                    "teaching_method": "Practical work, problem solving, demonstration",
+                                },
+                                {
+                                    "objective": "Calculate the bearing of a point relative to a given point using trigonometric ratios",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Calculating the bearing of a point relative to a given point using trigonometric ratios",
+                                    "teaching_method": "Written exercises, pair work, practical work",
+                                },
+                            ],
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Charts", "type": "equipment"},
+                        {"text": "Mathematical sets", "type": "equipment"},
+                        {"text": "Geoboards", "type": "equipment"},
+                        {"text": "Calculators", "type": "equipment"},
+                    ],
+                },
                 {
                     "title": "Tangents to Circles",
                     "year_level": 4,
@@ -1868,6 +2491,77 @@ MATH_SYLLABUS = {
                             "text": "3D models of pyramids, cones and spheres",
                             "type": "equipment",
                         },
+                    ],
+                },
+                {
+                    "title": "Similarity",
+                    "year_level": 4,
+                    "description": "Outcome: The students will be able to solve problems involving shape, size, spaces relationships between the sides and the angles of triangles, Pythagoras theorem and trigonometric functions.",
+                    "subtopics": [
+                        {
+                            "title": "Similarity — Areas of Similar Figures",
+                            "description": "Applying the ratio of areas to calculate areas and sides of similar figures.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Identify a scale factor between two similar figures",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion, demonstration, explanation, question and answer",
+                                },
+                                {
+                                    "objective": "Find the area factor from a given linear scale factor",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Demonstration, explanation, written exercises",
+                                },
+                                {
+                                    "objective": "Calculate ratios of areas of similar solids",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, peer assessment, group assessment",
+                                },
+                                {
+                                    "objective": "Calculate areas of similar shapes using the area ratio",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Practical work, written exercises",
+                                },
+                                {
+                                    "objective": "Find the lengths of sides of similar shapes using the area factor",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, problem solving, practical work",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Similarity — Volumes of Similar Solids",
+                            "description": "Applying the ratio of volumes to calculate volumes and sides of similar solids.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Find the volume scale factor from a given linear scale factor",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Demonstration, explanation, written exercises",
+                                },
+                                {
+                                    "objective": "Calculate ratios of volumes of similar solids",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, peer assessment, group assessment",
+                                },
+                                {
+                                    "objective": "Calculate volumes of similar solids using the volume ratio",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Practical work, written exercises",
+                                },
+                                {
+                                    "objective": "Find the lengths of sides of similar shapes using the volume factor",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, problem solving, practical work",
+                                },
+                            ],
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Charts", "type": "equipment"},
+                        {"text": "Mathematical sets", "type": "equipment"},
+                        {"text": "Strings", "type": "equipment"},
+                        {"text": "Pieces of paper", "type": "equipment"},
+                        {"text": "Models of similar shapes", "type": "equipment"},
                     ],
                 },
             ],
@@ -2212,6 +2906,71 @@ MATH_SYLLABUS = {
                     ],
                 },
                 {
+                    "title": "Mapping and Functions",
+                    "year_level": 4,
+                    "description": "Outcome: The students will be able to demonstrate an understanding of graphs, charts, relations and functions and use them effectively in different contexts.",
+                    "subtopics": [
+                        {
+                            "title": "Defining Mapping and Functions",
+                            "description": "Defining mapping and functions, identifying functions, writing functions in different forms (notation of functions), drawing arrow diagrams.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Define mapping and distinguish between a relation and a function",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_activity": "Defining mapping and functions",
+                                    "teaching_method": "Question and answer, demonstration, explanations, discussions",
+                                },
+                                {
+                                    "objective": "Identify functions from given mappings, tables, graphs and arrow diagrams",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Identifying functions",
+                                    "teaching_method": "Pair and group work, written exercises",
+                                },
+                                {
+                                    "objective": "Write functions in different forms of notation (e.g. f(x) notation, set notation, mapping notation)",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Writing functions in different forms (ie notation of functions)",
+                                    "teaching_method": "Demonstration, explanations, written exercises",
+                                },
+                                {
+                                    "objective": "Draw arrow diagrams to represent functions",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Drawing arrow diagrams",
+                                    "teaching_method": "Practical work, pair work",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Range and Domain of Functions",
+                            "description": "Finding the range given the domain, finding the domain given the range, and solving real-life problems involving functions (causal-effect problems).",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Find the range of a function given its domain",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Finding the range given the domain",
+                                    "teaching_method": "Written exercises, problem solving",
+                                },
+                                {
+                                    "objective": "Find the domain of a function given its range",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Finding the domain given the range",
+                                    "teaching_method": "Written exercises, problem solving",
+                                },
+                                {
+                                    "objective": "Solve real-life problems involving functions (causal-effect problems)",
+                                    "cognitive_level": "Application",
+                                    "teaching_activity": "Solving real life problems involving functions (causal-effect problems)",
+                                    "teaching_method": "Problem solving, discussion, pair and group work",
+                                },
+                            ],
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Chart paper", "type": "equipment"},
+                        {"text": "Input and output machine models", "type": "equipment"},
+                    ],
+                },
+                {
                     "title": "Cubic Graphs",
                     "year_level": 4,
                     "subtopics": [
@@ -2234,6 +2993,409 @@ MATH_SYLLABUS = {
                     ],
                     "resources": [
                         {"text": "Graph paper", "type": "equipment"},
+                    ],
+                },
+                {
+                    "title": "Coordinate Geometry",
+                    "year_level": 4,
+                    "description": "Outcome: The students will be able to demonstrate an understanding of graphs, charts, relations and functions and use them effectively in different contexts.",
+                    "subtopics": [
+                        {
+                            "title": "Distance Between Two Points",
+                            "description": "Calculating the distance between two points on a straight line using Pythagoras' theorem.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Calculate the distance between two points on a straight line using Pythagoras' theorem",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Discussion, demonstration, explanation, question and answer, written exercises, pair work",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Equation of a Straight Line",
+                            "description": "Writing the equation of a straight line in the form y = mx + c, relating the gradient to the tangent of an angle, using the relationship to find the gradient of a line, formulating the equation of a line with a given gradient through a given point.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Write the equation of a straight line in the form y = mx + c",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Demonstration, explanation, written exercises",
+                                },
+                                {
+                                    "objective": "Relate the gradient to the tangent of an angle of inclination",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion, demonstration, explanation",
+                                },
+                                {
+                                    "objective": "Find the gradient of a line given two points or its equation",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, peer assessment, group assessment",
+                                },
+                                {
+                                    "objective": "Formulate the equation of a line with a given gradient through a given point",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, pair work, practical work",
+                                },
+                                {
+                                    "objective": "Find the equation of a line passing through two given points",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, peer assessment, group assessment",
+                                },
+                                {
+                                    "objective": "Find the equation of a line from a graph",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Graphical activities, pair work",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Parallel Lines",
+                            "description": "Describing the condition for two lines to be parallel, finding equations of parallel lines.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Explain the relationship between gradients of parallel lines",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion, demonstration, explanation",
+                                },
+                                {
+                                    "objective": "Calculate gradients of parallel lines",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, pair work",
+                                },
+                                {
+                                    "objective": "Find the equation of a line through a given point and parallel to a given line",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, peer assessment, group assessment",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Mid-Point of a Line Segment",
+                            "description": "Deriving and applying the formula for the mid-point of a line segment.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Derive the formula for the mid-point of a line segment",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion, demonstration, explanation",
+                                },
+                                {
+                                    "objective": "Find the mid-point of a line segment",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, pair work",
+                                },
+                            ],
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Graph paper", "type": "equipment"},
+                        {"text": "Graph boards", "type": "equipment"},
+                    ],
+                },
+                {
+                    "title": "Variations",
+                    "year_level": 4,
+                    "description": "Outcome: Work out problems involving variations.",
+                    "subtopics": [
+                        {
+                            "title": "Direct Variation",
+                            "description": "Modelling direct variation, deriving general equations involving direct variation, finding constant of variation, developing a table of values, presenting direct variation graphically, solving direct variation problems.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Model direct variation situations and derive the general equation y = kx",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Problem solving, discussion, demonstration",
+                                },
+                                {
+                                    "objective": "Find the constant of variation in a direct variation relationship",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercise, group work, individual exercises",
+                                },
+                                {
+                                    "objective": "Develop a table of values for a direct variation relationship",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Practical work, oral questions",
+                                },
+                                {
+                                    "objective": "Present a direct variation relationship graphically",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Practical work, graphical activities",
+                                },
+                                {
+                                    "objective": "Solve direct variation problems in real-life contexts",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Problem solving, discussion, written exercises",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Inverse Variation",
+                            "description": "Modelling inverse variation, deriving general equations involving inverse variation, finding constant of variation, presenting inverse variation graphically, solving inverse variation problems.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Model inverse variation situations and derive the general equation y = k/x",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Demonstration, explanation, problem solving",
+                                },
+                                {
+                                    "objective": "Find the constant of variation in an inverse variation relationship",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, group work",
+                                },
+                                {
+                                    "objective": "Present an inverse variation relationship graphically",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Practical work, graphical activities",
+                                },
+                                {
+                                    "objective": "Solve inverse variation problems in real-life contexts",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Problem solving, written exercises, observation",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Joint Variation",
+                            "description": "Deriving general equations involving joint variation, finding constant of variation, solving joint variation problems.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Derive general equations involving joint variation",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Demonstration, explanation, question and answer",
+                                },
+                                {
+                                    "objective": "Find the constant of variation in a joint variation relationship",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, problem solving",
+                                },
+                                {
+                                    "objective": "Solve joint variation problems in real-life contexts",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Group work, written exercises, projects",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Partial Variation",
+                            "description": "Formulating general equations involving partial variation, finding constants of variation, presenting partial variation graphically, solving partial variation problems.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Formulate general equations involving partial variation",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Discussion, demonstration, question and answer, explanation",
+                                },
+                                {
+                                    "objective": "Find the constants of variation in a partial variation relationship",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Problem solving, group work, written exercises",
+                                },
+                                {
+                                    "objective": "Present a partial variation relationship graphically",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Practical work, oral exercises",
+                                },
+                                {
+                                    "objective": "Solve partial variation problems in real-life contexts",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Problem solving, tests, written exercises",
+                                },
+                            ],
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Calculators", "type": "equipment"},
+                        {"text": "Graph paper", "type": "equipment"},
+                        {"text": "Graph boards", "type": "equipment"},
+                        {"text": "Rulers", "type": "equipment"},
+                        {"text": "Mathematical instruments", "type": "equipment"},
+                        {"text": "Checklists", "type": "equipment"},
+                        {"text": "Charts", "type": "equipment"},
+                        {"text": "Computers", "type": "equipment"},
+                    ],
+                },
+                {
+                    "title": "Inequalities",
+                    "year_level": 4,
+                    "description": "Outcome: Sketch the graphs of the regions described by the inequalities on the xy-plane.",
+                    "subtopics": [
+                        {
+                            "title": "Graphical Representation of Inequalities",
+                            "description": "Sketching graphs to show regions represented by single linear inequalities on the xy-plane.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Sketch graphs to show the region represented by inequalities of the form x > b, x >= b, y < b, y <= b",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Demonstration, group work, written exercises",
+                                },
+                                {
+                                    "objective": "Sketch graphs to show the region represented by inequalities of the form x > b or x < b, x >= b or x <= b, y > b or y < b, y >= b or y <= b",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Discussion, pair work, individual work",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Simultaneous Linear Inequalities",
+                            "description": "Illustrating simultaneous linear inequalities graphically and finding the solution represented by them.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Sketch graphs to show the region represented by simultaneous inequalities of the form x > b and x < c, x >= b and x <= c, y > b and y < c, y >= b and y <= c",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Demonstration, group work, written exercises",
+                                },
+                                {
+                                    "objective": "Write down an inequality that describes a given shaded region",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Pair work, question and answer",
+                                },
+                                {
+                                    "objective": "Find inequalities in two variables that describe a region",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Discussion, written exercises, pair work",
+                                },
+                                {
+                                    "objective": "Sketch linear graphs in two variables to define regions",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Practical work, individual work",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Inequalities in Two Variables",
+                            "description": "Presenting inequalities in the form ax + by < c, ax + by <= c, ax + by > c, ax + by >= c and showing regions represented by simultaneous inequalities in two variables.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Show the region represented by inequalities of the form ax + by < c, ax + by <= c, ax + by > c, ax + by >= c",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Demonstration, group work, written exercises",
+                                },
+                                {
+                                    "objective": "Show a region represented by simultaneous inequalities in two variables",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Discussion, pair work, individual work",
+                                },
+                                {
+                                    "objective": "Write down two inequalities that describe a given region",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Question and answer, pair work",
+                                },
+                                {
+                                    "objective": "Find the solution represented by simultaneous linear inequalities",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_method": "Problem solving, written exercises",
+                                },
+                            ],
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Calculators", "type": "equipment"},
+                        {"text": "Rulers", "type": "equipment"},
+                        {"text": "Textbooks", "type": "equipment"},
+                        {"text": "Computers", "type": "equipment"},
+                        {"text": "Chart paper", "type": "equipment"},
+                        {"text": "Graph paper", "type": "equipment"},
+                        {"text": "Graph boards", "type": "equipment"},
+                        {"text": "Markers", "type": "equipment"},
+                    ],
+                },
+                {
+                    "title": "Graphs of Quadratic Functions",
+                    "year_level": 4,
+                    "description": "Outcome: Analyse graphs of quadratic functions.",
+                    "subtopics": [
+                        {
+                            "title": "Drawing Graphs of Quadratic Functions",
+                            "description": "Constructing tables of values and drawing graphs of quadratic functions.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Construct tables of values for quadratic functions",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Demonstration, written exercises, pair work",
+                                },
+                                {
+                                    "objective": "Draw graphs of quadratic functions from tables of values",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Practical work, graphical activities",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Interpreting Graphs of Quadratic Functions",
+                            "description": "Describing the effect of a, b and c on the nature of the graph of y = ax² + bx + c, finding maximum and minimum values, finding the equation of the line of symmetry.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Describe the effect of a, b and c on the nature of the graph of y = ax² + bx + c",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_method": "Discussion, explanation, demonstration",
+                                },
+                                {
+                                    "objective": "Find the maximum and minimum values of a quadratic function",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, pair work, group work",
+                                },
+                                {
+                                    "objective": "Find the equation of the line of symmetry of a quadratic graph",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Demonstration, written exercises, problem solving",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Solving Quadratic Equations Graphically",
+                            "description": "Finding points of intersection of a quadratic graph and a horizontal line, solving quadratic equations graphically.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Find points of intersection of a quadratic graph and any horizontal line",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Graphical activities, explanation, discussion",
+                                },
+                                {
+                                    "objective": "Solve quadratic equations graphically",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Problem solving, written exercises, tests",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Simultaneous Linear and Quadratic Equations Graphically",
+                            "description": "Drawing linear and quadratic graphs on the same axes and solving simultaneous equations graphically.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Draw linear and quadratic graphs on the same axes",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Practical work, demonstration",
+                                },
+                                {
+                                    "objective": "Solve simultaneous linear and quadratic equations graphically",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Problem solving, written exercises, projects",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Formulating Quadratic Equations from Graphs",
+                            "description": "Identifying x and y intercepts and formulating quadratic equations from graphs that cut the x-axis.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Identify x-intercepts and y-intercepts from a quadratic graph",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion, explanation, question and answer",
+                                },
+                                {
+                                    "objective": "Formulate quadratic equations from graphs that cut the x-axis",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Problem solving, written exercises, tests",
+                                },
+                            ],
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Charts", "type": "equipment"},
+                        {"text": "Graph paper", "type": "equipment"},
+                        {"text": "Mathematical instruments", "type": "equipment"},
+                        {"text": "Rulers", "type": "equipment"},
+                        {"text": "Graph boards", "type": "equipment"},
+                        {"text": "Observation checklists", "type": "equipment"},
+                        {"text": "Graphic calculators", "type": "equipment"},
+                        {"text": "Computers", "type": "equipment"},
                     ],
                 },
             ],
@@ -2508,7 +3670,9 @@ MATH_SYLLABUS = {
 async def seed_math_syllabus():
     """Seed the Malawi Mathematics syllabus. Idempotent — skips if already seeded."""
     async with async_session() as db:
-        existing = await db.execute(select(SyllabusSubject).where(SyllabusSubject.slug == "mathematics"))
+        existing = await db.execute(
+            select(SyllabusSubject).where(SyllabusSubject.slug == "mathematics")
+        )
         if existing.scalar_one_or_none():
             return
 
@@ -2522,8 +3686,7 @@ async def seed_math_syllabus():
             color=subject_data.get("color", "#8B5CF6"),
         )
         db.add(subject)
-        await db.commit()
-        await db.refresh(subject)
+        await db.flush()
 
         version_data = data["version"]
         version = SyllabusVersion(
@@ -2535,8 +3698,7 @@ async def seed_math_syllabus():
             is_current=True,
         )
         db.add(version)
-        await db.commit()
-        await db.refresh(version)
+        await db.flush()
 
         for idx, ce_data in enumerate(data.get("core_elements", [])):
             ce = SyllabusCoreElement(
@@ -2547,8 +3709,7 @@ async def seed_math_syllabus():
                 order_index=idx,
             )
             db.add(ce)
-            await db.commit()
-            await db.refresh(ce)
+            await db.flush()
 
             for t_idx, topic_data in enumerate(ce_data.get("topics", [])):
                 topic = SyllabusTopic(
@@ -2559,8 +3720,7 @@ async def seed_math_syllabus():
                     order_index=t_idx,
                 )
                 db.add(topic)
-                await db.commit()
-                await db.refresh(topic)
+                await db.flush()
 
                 for sub_data in topic_data.get("subtopics", []):
                     sub = SyllabusSubtopic(
@@ -2570,8 +3730,7 @@ async def seed_math_syllabus():
                         order_index=0,
                     )
                     db.add(sub)
-                    await db.commit()
-                    await db.refresh(sub)
+                    await db.flush()
 
                     for lo_data in sub_data.get("learning_objectives", []):
                         lo = SyllabusLearningObjective(
@@ -2592,4 +3751,4 @@ async def seed_math_syllabus():
                     )
                     db.add(res)
 
-                await db.commit()
+        await db.commit()

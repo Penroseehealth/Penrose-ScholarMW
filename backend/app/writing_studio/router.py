@@ -301,7 +301,7 @@ async def writing_assist(
             improved_text=(text if body.action in ("improve_grammar", "improve_tone", "paraphrase") else None),
             analysis=(text if body.action in ("suggest_structure", "identify_gaps") else None),
         )
-    except AIProviderError:
+    except (AIProviderError, RuntimeError, TimeoutError, OSError):
         logger.exception("AI call failed for writing assist")
 
     placeholder_map = {

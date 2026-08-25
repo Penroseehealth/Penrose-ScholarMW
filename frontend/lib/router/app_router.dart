@@ -21,6 +21,8 @@ import '../screens/biology/biology_practice_centre.dart';
 import '../screens/biology/biology_syllabus.dart';
 import '../screens/biology/biology_topics.dart';
 import '../screens/biology/biology_virtual_lab.dart';
+import '../screens/chemistry/chemistry_syllabus_screen.dart';
+import '../screens/stem/stem_syllabus_screen.dart';
 import '../screens/data_analysis/coding_playground_screen.dart';
 import '../screens/data_analysis/data_analysis_screen.dart';
 import '../screens/examinations/examination_hall.dart';
@@ -52,6 +54,7 @@ import '../screens/languages/languages_hub.dart';
 import '../screens/lecturer/assessment_studio.dart';
 import '../screens/lecturer/lecturer_centre.dart';
 import '../screens/lecturer/smart_marking.dart';
+import '../screens/mathematics/math_syllabus_screen.dart';
 import '../screens/notifications/smart_notifications_screen.dart';
 import '../screens/research/research_lab.dart';
 import '../screens/search/global_search_screen.dart';
@@ -306,6 +309,20 @@ class AppRouter {
           _route('/coding-playground', (_) => const CodingPlaygroundScreen()),
           _route('/admin', (_) => const AdminDashboardScreen()),
           _route('/admin/syllabus', (_) => const AdminSyllabusScreen()),
+          _route('/math-syllabus', (_) => const MathSyllabusScreen()),
+          _route('/chem-syllabus', (_) => const ChemistrySyllabusScreen()),
+          GoRoute(
+            path: '/stem-syllabus/:slug',
+            pageBuilder: (_, state) {
+              final slug = state.pathParameters['slug'] ?? '';
+              final title = state.uri.queryParameters['title'] ?? '';
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: StemSyllabusScreen(slug: slug, title: title),
+                transitionsBuilder: _slideTransition,
+              );
+            },
+          ),
           GoRoute(
             path: '/collab-chat/:id',
             pageBuilder: (_, state) {

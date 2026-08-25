@@ -264,7 +264,7 @@ async def rag_query(
             temperature=0.3,
             max_tokens=1024,
         )
-    except AIProviderError as exc:
+    except (AIProviderError, RuntimeError, TimeoutError, OSError) as exc:
         logger.error("AI call failed: %s", exc)
         answer = (
             "I found some potentially relevant sources but could not generate "
@@ -333,7 +333,7 @@ async def voice_transcribe(
             messages.append({"role": msg.role, "content": msg.content})
 
         assistant_text = await call_ai_text(messages, temperature=0.4, max_tokens=512)
-    except AIProviderError as exc:
+    except (AIProviderError, RuntimeError, TimeoutError, OSError) as exc:
         logger.error("AI call failed for voice transcribe: %s", exc)
         assistant_text = "I'm sorry, I encountered an error processing your voice message. Please try again."
 

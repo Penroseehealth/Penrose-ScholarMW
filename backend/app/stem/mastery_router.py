@@ -196,7 +196,7 @@ async def get_concept_mastery(
 ):
     concept_result = await db.execute(
         select(STEMConcept)
-        .options(joinedload(STEMConcept.subtopic).joinedload(STEMTopic.discipline))
+        .options(joinedload(STEMConcept.subtopic).joinedload(STEMSubtopic.topic).joinedload(STEMTopic.discipline))
         .where(STEMConcept.id == concept_id)
     )
     concept = concept_result.unique().scalar_one_or_none()
