@@ -262,7 +262,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
                       border: isUser ? null : Border.all(color: context.colors.border),
                     ),
                     child: isUser
-                        ? Text(msg['content'] as String? ?? '',
+                        ? StemText(msg['content'] as String? ?? '',
                             style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.5))
                         : _buildAssistantMessage(msg, isTypewriting),
                   ),
@@ -771,7 +771,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
                   color: context.colors.surfaceElevated,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Text(
+                child: StemText(
                   content.length > 200 ? '${content.substring(0, 200)}...' : content,
                   style: TextStyle(fontSize: 13, color: context.colors.textSecondary, height: 1.5),
                 ),

@@ -344,7 +344,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
           border: isUser ? null : Border.all(color: context.colors.border),
         ),
         child: isUser
-            ? Text(
+            ? StemText(
                 msg.text,
                 style: const TextStyle(
                   fontSize: 14,

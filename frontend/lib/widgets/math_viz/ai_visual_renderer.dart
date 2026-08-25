@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../stem_text.dart';
 import 'ai_visual_parser.dart';
 import 'editable_data_grid.dart';
 import 'function_plotter.dart';
@@ -264,9 +266,10 @@ class DirectVisualMessage extends StatelessWidget {
         if (description != null && description!.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: Text(
+            child: StemText(
               description!,
               style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
+              selectable: true,
             ),
           ),
         AIVisualRenderer(visual: visual),
@@ -290,7 +293,11 @@ class _TextBubble extends StatelessWidget {
         color: isUser ? const Color(0xFF3D5AFE) : const Color(0xFF2A2A3E),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.5)),
+      child: StemText(
+        text,
+        style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.5),
+        selectable: true,
+      ),
     );
   }
 }

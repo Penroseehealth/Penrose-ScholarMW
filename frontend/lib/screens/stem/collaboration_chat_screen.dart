@@ -11,6 +11,7 @@ import '../../core/constants/api_constants.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/stem_text.dart';
 
 class CollaborationChatScreen extends StatefulWidget {
   final int groupId;
@@ -378,7 +379,8 @@ class _CollaborationChatScreenState extends State<CollaborationChatScreen> {
                         style:
                             const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primaryLight)),
                   ),
-                Text(content, style: TextStyle(fontSize: 14, color: isMe ? Colors.white : context.colors.textPrimary)),
+                StemText(content,
+                    style: TextStyle(fontSize: 14, color: isMe ? Colors.white : context.colors.textPrimary)),
                 const SizedBox(height: 4),
                 Align(
                     alignment: Alignment.bottomRight,
