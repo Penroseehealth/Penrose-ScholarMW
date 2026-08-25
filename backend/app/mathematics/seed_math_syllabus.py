@@ -136,7 +136,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Simple Algebraic Fractions",
@@ -165,7 +168,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Approximations and Estimations",
@@ -261,7 +267,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Commercial Arithmetic",
@@ -342,7 +351,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Number Patterns",
@@ -365,7 +377,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 # ── FORM 2 ─────────────────────────────────────────────────
                 {
@@ -389,7 +404,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Algebraic Expressions",
@@ -423,7 +441,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Linear Simultaneous Equations",
@@ -463,7 +484,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Proportion",
@@ -492,7 +516,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Mixtures",
@@ -510,7 +537,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Indices",
@@ -533,7 +563,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Standard Form",
@@ -635,7 +668,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 # ── FORM 3 ─────────────────────────────────────────────────
                 # Outcome: Demonstrate understanding of number systems and their
@@ -853,7 +889,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Exponential and Logarithmic Equations",
@@ -887,7 +926,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 # ── FORM 4 ─────────────────────────────────────────────────
                 {
@@ -1848,7 +1890,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Geometric Constructions",
@@ -1915,7 +1960,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Congruent Triangles",
@@ -1969,7 +2017,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Similar Triangles",
@@ -1992,7 +2043,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Mensuration",
@@ -2176,7 +2230,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Trigonometry",
@@ -2256,7 +2313,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 # ── FORM 4 ─────────────────────────────────────────────────
                 {
@@ -2357,7 +2417,7 @@ MATH_SYLLABUS = {
                     ],
                 },
                 {
-                    "title": "Trigonometry",
+                    "title": "Trigonometric Ratios",
                     "year_level": 4,
                     "description": "Outcome: Use trigonometric ratios of acute angles to calculate the unknown sides and angles in triangles.",
                     "subtopics": [
@@ -2958,7 +3018,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Coordinate Geometry",
@@ -3017,7 +3080,10 @@ MATH_SYLLABUS = {
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Chalkboard", "type": "equipment"},
+                        {"text": "Exercise books", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Inequalities",
