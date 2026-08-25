@@ -8,6 +8,7 @@ import '../../widgets/ai_thinking_indicator.dart';
 import '../../widgets/attachment_picker.dart';
 import '../../widgets/attachment_preview_card.dart';
 import '../../widgets/data_table_chart.dart';
+import '../../widgets/math_viz/ai_visual_parser.dart';
 import '../../widgets/math_viz/ai_visual_renderer.dart';
 import '../../widgets/math_viz/math_tools_panel.dart';
 import '../../widgets/speech_to_text_view.dart';
@@ -279,6 +280,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
 
   Widget _buildAssistantMessage(Map<String, dynamic> msg, bool isTypewriting) {
     final content = (msg['content'] ?? '') as String;
+    final directVisual = msg['visual'] as ParsedVisual?;
 
     if (isTypewriting) {
       return TypewriterRenderer(
@@ -288,6 +290,10 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
           _scrollToBottom();
         },
       );
+    }
+
+    if (directVisual != null) {
+      return DirectVisualMessage(visual: directVisual, description: content);
     }
 
     return Column(
@@ -602,37 +608,71 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
       );
 
   void _onToolSelected(String type, Map<String, dynamic> params) {
-    String prompt;
+    final visual = _buildVisualFromTool(type, params);
+    final description = _buildToolDescription(type, params);
+    setState(() {
+      _messages.add({
+        'role': 'assistant',
+        'content': description,
+        'visual': visual,
+      });
+    });
+    _scrollToBottom();
+  }
+
+  ParsedVisual _buildVisualFromTool(String type, Map<String, dynamic> params) {
+    final values = (params['values'] as List?)?.map((e) => (e as num).toDouble()).toList();
+    final labels = (params['labels'] as List?)?.map((e) => e.toString()).toList();
+
     switch (type) {
       case 'graph':
-        prompt = 'Graph the function y = ${params['expression']}';
-        break;
-      case 'pie':
+        return ParsedVisual(
+          type: VisualType.graph,
+          expression: params['expression'] as String?,
+          title: params['title'] as String?,
+          xMin: (params['xMin'] as num?)?.toDouble() ?? -10,
+          xMax: (params['xMax'] as num?)?.toDouble() ?? 10,
+          yMin: (params['yMin'] as num?)?.toDouble() ?? -10,
+          yMax: (params['yMax'] as num?)?.toDouble() ?? 10,
+        );
       case 'bar':
-        final labels = (params['labels'] as List?)?.join(', ') ?? '';
-        final values = (params['values'] as List?)?.join(', ') ?? '';
-        final title = params['title'] ?? '';
-        prompt = 'Create a $type chart: $title. Labels: $labels. Values: $values';
-        break;
+        return ParsedVisual(
+            type: VisualType.barChart, title: params['title'] as String?, values: values, labels: labels);
+      case 'pie':
+        return ParsedVisual(
+            type: VisualType.pieChart, title: params['title'] as String?, values: values, labels: labels);
       case 'histogram':
-        final values = (params['values'] as List?)?.join(', ') ?? '';
-        prompt = 'Show a histogram with values: $values';
-        break;
+        return ParsedVisual(
+            type: VisualType.histogram, title: params['title'] as String?, values: values, labels: labels);
       case 'line':
-        final values = (params['values'] as List?)?.join(', ') ?? '';
-        prompt = 'Plot a line graph with values: $values';
-        break;
+        return ParsedVisual(
+            type: VisualType.lineChart, title: params['title'] as String?, values: values, labels: labels);
       case 'shape':
-        prompt = 'Draw a ${params['shape']} and explain its properties';
-        break;
+        return ParsedVisual(
+            type: VisualType.triangle, shapeType: params['shape'] as String?, title: params['shape'] as String?);
       case 'equation':
-        prompt = 'Show the equation: \$\$${params['latex']}\$\$';
-        break;
+        return ParsedVisual(type: VisualType.unknown, title: params['latex'] as String?);
       default:
-        prompt = 'Show a visual for $type';
+        return ParsedVisual(type: VisualType.unknown, title: type);
     }
-    _messageCtrl.text = prompt;
-    _sendMessage();
+  }
+
+  String _buildToolDescription(String type, Map<String, dynamic> params) {
+    switch (type) {
+      case 'graph':
+        return 'y = ${params['expression']}';
+      case 'bar':
+      case 'pie':
+      case 'histogram':
+      case 'line':
+        return params['title'] as String? ?? '$type chart';
+      case 'shape':
+        return '${params['shape']} geometry';
+      case 'equation':
+        return params['latex'] as String? ?? 'Equation';
+      default:
+        return type;
+    }
   }
 
   void _showAttachmentPicker() async {

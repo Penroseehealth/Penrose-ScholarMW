@@ -1,7 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'geometric_shapes.dart';
-import 'statistical_charts.dart';
 
 class ParsedVisual {
   final VisualType type;
@@ -33,7 +30,22 @@ class ParsedVisual {
   });
 }
 
-enum VisualType { graph, barChart, pieChart, histogram, lineChart, frequencyPolygon, cumulativeFrequency, triangle, circle, quadrilateral, polygon, angle, tangent, unknown }
+enum VisualType {
+  graph,
+  barChart,
+  pieChart,
+  histogram,
+  lineChart,
+  frequencyPolygon,
+  cumulativeFrequency,
+  triangle,
+  circle,
+  quadrilateral,
+  polygon,
+  angle,
+  tangent,
+  unknown
+}
 
 class AIVisualParser {
   static final RegExp _visualBlockExp = RegExp(r'<!--visual:(.*?)-->', dotAll: true);
@@ -74,9 +86,7 @@ class AIVisualParser {
         expression: map['expression'] as String?,
         values: (map['values'] as List?)?.map((e) => (e as num).toDouble()).toList(),
         labels: (map['labels'] as List?)?.map((e) => e.toString()).toList(),
-        points: (map['points'] as List?)
-            ?.map((p) => (p as List).map((e) => (e as num).toDouble()).toList())
-            .toList(),
+        points: (map['points'] as List?)?.map((p) => (p as List).map((e) => (e as num).toDouble()).toList()).toList(),
         shapeType: map['shape'] as String? ?? map['shapeType'] as String?,
         xMin: (map['xMin'] as num?)?.toDouble(),
         xMax: (map['xMax'] as num?)?.toDouble(),
