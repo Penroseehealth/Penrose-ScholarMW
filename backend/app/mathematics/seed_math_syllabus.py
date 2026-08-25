@@ -893,160 +893,199 @@ MATH_SYLLABUS = {
                 {
                     "title": "Matrices",
                     "year_level": 4,
+                    "description": "Outcome: Solve problems involving matrices.",
                     "subtopics": [
                         {
-                            "title": "Types and Order of Matrices",
-                            "description": "Identifying types, order and elements of matrices.",
+                            "title": "Describing Matrices",
+                            "description": "Defining a matrix, presenting information in matrix form, identifying the order of a matrix, identifying types of matrices (square, row, column, zero).",
                             "learning_objectives": [
                                 {
-                                    "objective": "Identify the order and elements of a matrix",
+                                    "objective": "Define a matrix and present information in matrix form",
                                     "cognitive_level": "Knowledge",
-                                    "teaching_method": "Discussion, examples",
+                                    "teaching_method": "Discussion, demonstration, explanation, question and answer",
                                 },
                                 {
-                                    "objective": "Classify matrices as row, column, square, null, identity, etc.",
+                                    "objective": "Identify the order of a matrix (rows and columns)",
                                     "cognitive_level": "Knowledge",
-                                    "teaching_method": "Discussion",
+                                    "teaching_method": "Demonstration, explanation, written exercises",
+                                },
+                                {
+                                    "objective": "Identify types of matrices: square matrix, row matrix, column matrix, zero matrix",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion, demonstration, peer assessment, group assessment",
                                 },
                             ],
                         },
                         {
-                            "title": "Matrix Operations",
-                            "description": "Addition, subtraction and multiplication of matrices.",
+                            "title": "Basic Operations Involving Matrices",
+                            "description": "Adding matrices, subtracting matrices, multiplying a matrix by a scalar, multiplying 2×2 matrices.",
                             "learning_objectives": [
                                 {
-                                    "objective": "Add and subtract matrices of the same order",
+                                    "objective": "Add matrices of the same order",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "teaching_method": "Written exercises, peer assessment, group assessment",
                                 },
                                 {
-                                    "objective": "Multiply matrices where compatible",
+                                    "objective": "Subtract matrices of the same order",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
-                                },
-                            ],
-                        },
-                        {
-                            "title": "Determinants",
-                            "description": "Finding the determinant of 2×2 and 3×3 matrices.",
-                            "learning_objectives": [
-                                {
-                                    "objective": "Calculate the determinant of a 2×2 matrix",
-                                    "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "teaching_method": "Written exercises, peer assessment, group assessment",
                                 },
                                 {
-                                    "objective": "Calculate the determinant of a 3×3 matrix",
+                                    "objective": "Multiply a matrix by a scalar",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
-                                },
-                            ],
-                        },
-                        {
-                            "title": "Inverse of a Matrix",
-                            "description": "Finding the inverse of a matrix and using it to solve simultaneous equations.",
-                            "learning_objectives": [
-                                {
-                                    "objective": "Find the inverse of a 2×2 matrix",
-                                    "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "teaching_method": "Written exercises, pair work",
                                 },
                                 {
-                                    "objective": "Solve simultaneous equations using the matrix inverse method",
+                                    "objective": "Multiply two compatible 2×2 matrices",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Problem solving",
+                                    "teaching_method": "Written exercises, peer assessment, group assessment",
                                 },
                             ],
                         },
                     ],
                     "resources": [
-                        {"text": "Calculators", "type": "equipment"},
+                        {"text": "Bottle tops", "type": "equipment"},
+                        {"text": "Seeds", "type": "equipment"},
+                        {"text": "Tables of frequencies", "type": "equipment"},
+                        {"text": "Arrays of prices and frequencies", "type": "equipment"},
+                        {"text": "Squared paper", "type": "equipment"},
                     ],
                 },
                 {
                     "title": "Simultaneous Linear and Quadratic Equations",
                     "year_level": 4,
+                    "description": "Outcome: Solve simultaneous linear and quadratic equations and practical problems involving them.",
                     "subtopics": [
                         {
-                            "title": "Solving Graphically",
-                            "description": "Solving simultaneous equations involving one linear and one quadratic equation graphically.",
+                            "title": "Solving Simultaneous Linear and Quadratic Equations",
+                            "description": "Discussing and solving simultaneous equations involving one linear and one quadratic equation.",
                             "learning_objectives": [
                                 {
-                                    "objective": "Solve simultaneous linear and quadratic equations graphically",
+                                    "objective": "Discuss simultaneous linear and quadratic equations and their solution methods",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion, question and answer",
+                                },
+                                {
+                                    "objective": "Solve simultaneous linear and quadratic equations algebraically and graphically",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Graphical activities",
+                                    "teaching_method": "Written exercises, pair work",
                                 },
                             ],
                         },
                         {
-                            "title": "Solving Algebraically",
-                            "description": "Solving simultaneous equations involving one linear and one quadratic equation algebraically.",
+                            "title": "Practical Problems Involving Simultaneous Equations",
+                            "description": "Formulating and solving simultaneous linear and quadratic equations from practical problems.",
                             "learning_objectives": [
                                 {
-                                    "objective": "Solve simultaneous linear and quadratic equations algebraically",
+                                    "objective": "Formulate simultaneous linear and quadratic equations from practical problems",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "teaching_method": "Problem solving, discussion",
                                 },
                                 {
-                                    "objective": "Interpret the solutions in context",
-                                    "cognitive_level": "Analysis",
-                                    "teaching_method": "Problem solving",
+                                    "objective": "Solve practical problems involving simultaneous linear and quadratic equations",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, pair work",
                                 },
                             ],
                         },
                     ],
                     "resources": [
-                        {"text": "Graph paper", "type": "equipment"},
+                        {"text": "Charts", "type": "equipment"},
                     ],
                 },
                 {
                     "title": "Progressions",
                     "year_level": 4,
+                    "description": "Outcome: Solve practical problems involving progressions.",
                     "subtopics": [
                         {
                             "title": "Arithmetic Progression (AP)",
-                            "description": "Finding terms, sum of terms, and applications of arithmetic progressions.",
+                            "description": "Recognising APs, finding common difference, finding terms, generating and using the nth term formula, sum of AP, applications.",
                             "learning_objectives": [
                                 {
-                                    "objective": "Find the nth term of an arithmetic progression",
-                                    "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "objective": "Recognise an arithmetic progression (AP)",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Problem solving, discussion, question and answer",
                                 },
                                 {
-                                    "objective": "Calculate the sum of the first n terms of an AP",
+                                    "objective": "Calculate the common difference of an AP",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "teaching_method": "Written exercises, pair work",
                                 },
                                 {
-                                    "objective": "Apply AP to real-life problems",
+                                    "objective": "Find terms of an arithmetic progression",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Problem solving",
+                                    "teaching_method": "Written exercises, demonstration",
+                                },
+                                {
+                                    "objective": "Generate the formula for the nth term of an AP",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_method": "Problem solving, discussion, demonstration",
+                                },
+                                {
+                                    "objective": "Use the formula for the nth term of an AP to calculate the common difference, the number of terms, and terms of the AP",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, pair work, oral exercises",
+                                },
+                                {
+                                    "objective": "Generate the formula for finding the sum of an AP",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_method": "Problem solving, discussion, demonstration",
+                                },
+                                {
+                                    "objective": "Calculate the sum of an AP",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, pair work",
+                                },
+                                {
+                                    "objective": "Discuss the application of APs in real-life situations and solve problems involving AP",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Problem solving, group work, discussion",
                                 },
                             ],
                         },
                         {
                             "title": "Geometric Progression (GP)",
-                            "description": "Finding terms, sum of terms, and applications of geometric progressions.",
+                            "description": "Recognising GPs, finding common ratio, finding terms, generating and using the nth term formula, sum of GP, applications.",
                             "learning_objectives": [
                                 {
-                                    "objective": "Find the nth term of a geometric progression",
-                                    "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "objective": "Recognise a geometric progression (GP)",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Problem solving, discussion, question and answer",
                                 },
                                 {
-                                    "objective": "Calculate the sum of the first n terms of a GP",
+                                    "objective": "Calculate the common ratio of a GP",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "teaching_method": "Written exercises, pair work",
                                 },
                                 {
-                                    "objective": "Calculate the sum to infinity of a convergent GP",
+                                    "objective": "Find terms of a geometric progression",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "teaching_method": "Written exercises, demonstration",
+                                },
+                                {
+                                    "objective": "Generate the formula for the nth term of a GP and use it to calculate the common ratio, the number of terms, and terms of the GP",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_method": "Problem solving, discussion, demonstration, pair work",
+                                },
+                                {
+                                    "objective": "Generate the formula for finding the sum of a GP and calculate the sum",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, pair work",
+                                },
+                                {
+                                    "objective": "Discuss the application of GPs in real-life situations and solve problems involving GP",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Problem solving, group work, discussion",
                                 },
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Bottle tops", "type": "equipment"},
+                        {"text": "Match sticks", "type": "equipment"},
+                        {"text": "Match boxes", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Polynomials",
@@ -2333,47 +2372,92 @@ MATH_SYLLABUS = {
                 {
                     "title": "Tangents to Circles",
                     "year_level": 4,
+                    "description": "Outcome: Solve problems involving tangents to circles.",
                     "subtopics": [
                         {
-                            "title": "Tangent-Radius Theorem",
-                            "description": "A tangent to a circle is perpendicular to the radius at the point of contact.",
+                            "title": "Properties of Tangents to Circles",
+                            "description": "Defining a tangent, establishing tangent-radius relationship, tangents from an external point, formal proofs.",
                             "learning_objectives": [
                                 {
-                                    "objective": "State and apply the tangent-radius theorem",
-                                    "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "objective": "Define a tangent to a circle",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion, demonstration, explanation, question and answer",
+                                },
+                                {
+                                    "objective": "Establish the relationship between a tangent and the radius of a circle at the point of contact",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion, demonstration, explanation, written exercises, pair work",
+                                },
+                                {
+                                    "objective": "Establish that tangents from an external point are equal in length",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion, demonstration, explanation, written exercises, peer assessment",
+                                },
+                                {
+                                    "objective": "Give a formal proof that tangents from an external point are equal in length",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_method": "Discussion, demonstration, explanation, written exercises, pair work",
+                                },
+                                {
+                                    "objective": "Establish that the line joining an external point to the centre of a circle bisects the angle between the tangents",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion, demonstration, explanation, written exercises, practical work",
+                                },
+                                {
+                                    "objective": "Give a formal proof that the line joining an external point to the centre of a circle bisects the angle between the tangents",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_method": "Discussion, demonstration, explanation, written exercises, pair work",
+                                },
+                                {
+                                    "objective": "Establish that the angle between a chord and a tangent is equal to the angle subtended by the chord in the alternate segment",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion, demonstration, explanation, written exercises, peer assessment, group assessment",
+                                },
+                                {
+                                    "objective": "Give a formal proof of the alternate segment theorem",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_method": "Discussion, demonstration, explanation, written exercises, practical work",
                                 },
                             ],
                         },
                         {
-                            "title": "Tangent-Chord Theorem",
-                            "description": "The angle between a tangent and a chord through the point of contact equals the angle in the alternate segment.",
+                            "title": "Applying Tangent Properties",
+                            "description": "Solving problems involving tangents to circles, using properties to prove sides or angles are equal.",
                             "learning_objectives": [
                                 {
-                                    "objective": "State and apply the alternate segment theorem",
+                                    "objective": "Solve problems involving tangents to circles",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "teaching_method": "Written exercises, peer assessment, group assessment, pair work",
                                 },
                                 {
-                                    "objective": "Solve problems using tangent-chord properties",
-                                    "cognitive_level": "Application",
-                                    "teaching_method": "Problem solving",
+                                    "objective": "Use properties of tangents to circles to prove that sides or angles are equal",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_method": "Discussion, demonstration, written exercises, practical work",
                                 },
                             ],
                         },
                         {
-                            "title": "Two Tangents from an External Point",
-                            "description": "Tangents from an external point to a circle are equal in length.",
+                            "title": "Construction of Tangents",
+                            "description": "Constructing a tangent to a circle and tangents from an external point to a circle.",
                             "learning_objectives": [
                                 {
-                                    "objective": "Apply the theorem: two tangents from an external point are equal in length",
+                                    "objective": "Construct a tangent to a circle at a given point",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "teaching_method": "Practical work, demonstration, pair work",
+                                },
+                                {
+                                    "objective": "Construct tangents from an external point to a circle",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Practical work, demonstration, written exercises",
                                 },
                             ],
                         },
                     ],
-                    "resources": [],
+                    "resources": [
+                        {"text": "Charts", "type": "equipment"},
+                        {"text": "Mathematical sets", "type": "equipment"},
+                        {"text": "Geoboards", "type": "equipment"},
+                    ],
                 },
                 {
                     "title": "Trigonometry",
@@ -3578,48 +3662,146 @@ MATH_SYLLABUS = {
                 {
                     "title": "Statistics",
                     "year_level": 4,
+                    "description": "Outcome: Demonstrate an understanding of basic concepts of data handling procedures and apply them in everyday life.",
                     "subtopics": [
                         {
-                            "title": "Correlation and Regression",
-                            "description": "Scatter diagrams, line of best fit and correlation.",
+                            "title": "Organising Data",
+                            "description": "Classifying grouped data, forming class intervals, determining class boundaries, finding mid-points, finding frequencies of grouped and non-grouped data.",
                             "learning_objectives": [
                                 {
-                                    "objective": "Draw scatter diagrams to investigate the relationship between two variables",
+                                    "objective": "Classify grouped data into appropriate categories",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Practical exercises",
+                                    "teaching_method": "Practical work, projects, group work, demonstration",
                                 },
                                 {
-                                    "objective": "Draw and interpret the line of best fit",
-                                    "cognitive_level": "Analysis",
-                                    "teaching_method": "Practical exercises",
+                                    "objective": "Form class intervals for a given data set",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, question and answer",
                                 },
                                 {
-                                    "objective": "Distinguish between positive, negative and no correlation",
-                                    "cognitive_level": "Knowledge",
-                                    "teaching_method": "Discussion",
+                                    "objective": "Determine class boundaries and find mid-points of class intervals",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Demonstration, written exercises, group assessment",
+                                },
+                                {
+                                    "objective": "Find frequencies of grouped and non-grouped data",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Practical work, written exercises, observation",
                                 },
                             ],
                         },
                         {
-                            "title": "Measures of Location from Grouped Data",
-                            "description": "Estimating the mean, median and mode from grouped frequency tables.",
+                            "title": "Presenting Data in Charts and Tables",
+                            "description": "Presenting data in the form of frequency tables, histograms, pie charts and frequency polygons.",
                             "learning_objectives": [
                                 {
-                                    "objective": "Estimate the mean from a grouped frequency table",
+                                    "objective": "Present data in the form of frequency tables",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "teaching_method": "Practical work, projects, group work, demonstration",
                                 },
                                 {
-                                    "objective": "Estimate the median from a grouped frequency table",
+                                    "objective": "Draw and interpret histograms from grouped data",
                                     "cognitive_level": "Application",
-                                    "teaching_method": "Guided practice",
+                                    "teaching_method": "Practical work, written exercises, question and answer",
+                                },
+                                {
+                                    "objective": "Construct and interpret pie charts",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, group assessment, observation",
+                                },
+                                {
+                                    "objective": "Draw and interpret frequency polygons",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Practical work, explanation, group assessment",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Measures of Central Tendency and Spread",
+                            "description": "Calculating the median of ungrouped data, mean of grouped data, mode of grouped data, and range of data.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Calculate the median of ungrouped data",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, question and answer",
+                                },
+                                {
+                                    "objective": "Calculate the mean of grouped data",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Practical work, written exercises, group assessment",
+                                },
+                                {
+                                    "objective": "Find the mode of grouped data",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Demonstration, written exercises, peer assessment",
+                                },
+                                {
+                                    "objective": "Calculate the range of a data set",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, pair work",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Interpreting Data",
+                            "description": "Interpreting data using measures of central tendency and spread.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Interpret data using measures of central tendency and spread",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_method": "Discussion, group work, projects",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Measures of Spread",
+                            "description": "Discussing variance, calculating variance, discussing standard deviation, calculating standard deviation of ungrouped data.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Discuss variance as a measure of spread",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion, demonstration, explanation",
+                                },
+                                {
+                                    "objective": "Calculate variance of ungrouped data",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, practical work, group assessment",
+                                },
+                                {
+                                    "objective": "Discuss standard deviation as a measure of spread",
+                                    "cognitive_level": "Knowledge",
+                                    "teaching_method": "Discussion, demonstration, question and answer",
+                                },
+                                {
+                                    "objective": "Calculate standard deviation of ungrouped data",
+                                    "cognitive_level": "Application",
+                                    "teaching_method": "Written exercises, practical work, peer assessment",
+                                },
+                            ],
+                        },
+                        {
+                            "title": "Interpreting Data Using Measures of Spread",
+                            "description": "Interpreting data using variance and standard deviation.",
+                            "learning_objectives": [
+                                {
+                                    "objective": "Interpret data using variance",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_method": "Discussion, group work, observation, explanation",
+                                },
+                                {
+                                    "objective": "Interpret data using standard deviation",
+                                    "cognitive_level": "Analysis",
+                                    "teaching_method": "Discussion, projects, written exercises, group assessment",
                                 },
                             ],
                         },
                     ],
                     "resources": [
-                        {"text": "Graph paper", "type": "equipment"},
+                        {"text": "Charts", "type": "equipment"},
                         {"text": "Rulers", "type": "equipment"},
+                        {"text": "Mathematical instruments", "type": "equipment"},
+                        {"text": "Calculators", "type": "equipment"},
+                        {"text": "Graph paper", "type": "equipment"},
                     ],
                 },
                 {
