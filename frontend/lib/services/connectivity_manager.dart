@@ -91,10 +91,14 @@ class ConnectivityManager extends ChangeNotifier {
   Future<void> _probe() async {
     if (_disposed) return;
 
-    // Simple connectivity check: hit the root /health endpoint (no auth required)
+    // Simple connectivity check: hit the API server directly.
+    // On web, the app is served from the same origin, so /health works.
     bool internetAvailable = false;
     try {
-      final response = await http.get(Uri.parse('/health')).timeout(const Duration(seconds: 5));
+      final uri = kIsWeb
+          ? Uri.parse('/health')
+          : Uri.parse('http://localhost:8000/health');
+      final response = await http.get(uri).timeout(const Duration(seconds: 5));
       internetAvailable = response.statusCode == 200;
     } catch (_) {
       internetAvailable = false;
@@ -154,11 +158,15 @@ class ConnectivityManager extends ChangeNotifier {
   void _handleOffline() {
     _consecutiveFailures++;
 
+    // Require multiple consecutive failures before going offline (avoids
+    // false positives on web where the first probe may fail during startup).
+    if (_consecutiveFailures < 2) return;
+
     if (_state == ConnectionState.online) {
       _lastOfflineTime = DateTime.now();
       _setState(ConnectionState.offline);
       _onTransitionOffline?.call();
-    } else if (_state == ConnectionState.offline && _consecutiveFailures > 3) {
+    } else if (_state == ConnectionState.offline && _consecutiveFailures > 5) {
       // Start trying to reconnect periodically
       _startReconnectTimer();
     }
