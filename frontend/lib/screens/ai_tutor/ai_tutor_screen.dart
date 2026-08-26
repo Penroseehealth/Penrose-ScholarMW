@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 import '../../services/services.dart';
+import '../../services/web_speech_service.dart';
 import '../../widgets/ai_governance_widgets.dart';
 import '../../widgets/ai_thinking_indicator.dart';
 import '../../widgets/attachment_picker.dart';
@@ -15,7 +16,6 @@ import '../../widgets/math_viz/math_tools_panel.dart';
 import '../../widgets/offline_banner.dart';
 import '../../widgets/offline_notices.dart';
 import '../../widgets/pending_request_queue.dart';
-import '../../widgets/speech_to_text_view.dart';
 import '../../widgets/stem_text.dart';
 import '../../widgets/typewriter_renderer.dart';
 import '../../widgets/voice_recorder.dart';
@@ -33,6 +33,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
   final ContextService _contextService = ContextService();
   final StreamingChatService _streamingService = StreamingChatService();
   final VoiceConversationService _voiceService = VoiceConversationService();
+  final WebSpeechService _speechService = WebSpeechService();
   final TextEditingController _messageCtrl = TextEditingController();
   final ScrollController _scrollCtrl = ScrollController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -45,6 +46,8 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
 
   final List<Map<String, dynamic>> _attachments = [];
   bool _showVoiceRecorder = false;
+  bool _isVoiceListening = false;
+  String _voiceTranscript = '';
   String _selectedVoiceId = 'en-us-academic-female-1';
   double _playbackSpeed = 1.0;
   bool _autoRead = false;
@@ -528,23 +531,155 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
         ),
       );
 
-  Widget _buildVoiceRecorder() => VoiceRecorder(
-        onRecordingComplete: (path) {
-          setState(() {
-            _showVoiceRecorder = false;
-            _isLoading = true;
-            _thinkingState = ThinkingState.transcribing;
-          });
-          Future.delayed(const Duration(seconds: 2), () {
-            if (mounted) {
-              setState(() => _isLoading = false);
-              _showSpeechToText(
-                'I need help understanding photosynthesis and its role in energy transfer in plants.',
-              );
-            }
-          });
-        },
-        onCancel: () => setState(() => _showVoiceRecorder = false),
+  Widget _buildVoiceRecorder() {
+    if (_isVoiceListening) {
+      return _buildVoiceListeningUI();
+    }
+    return VoiceRecorder(
+      onRecordingComplete: (path) {
+        setState(() {
+          _showVoiceRecorder = false;
+        });
+      },
+      onCancel: () => setState(() => _showVoiceRecorder = false),
+    );
+  }
+
+  void _startVoiceListening() {
+    if (!_speechService.isSupported) {
+      setState(() => _showVoiceRecorder = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Speech recognition is not supported in this browser.')),
+      );
+      return;
+    }
+    setState(() {
+      _isVoiceListening = true;
+      _voiceTranscript = '';
+      _showVoiceRecorder = true;
+    });
+    _speechService.startListening(
+      lang: 'en-US',
+      onResult: (text, isFinal) {
+        if (!mounted) return;
+        setState(() => _voiceTranscript = text);
+        if (isFinal) {
+          _finishVoiceListening();
+        }
+      },
+      onEnd: () {
+        if (mounted && _isVoiceListening) {
+          _finishVoiceListening();
+        }
+      },
+      onError: (error) {
+        if (!mounted) return;
+        setState(() {
+          _isVoiceListening = false;
+          _showVoiceRecorder = false;
+        });
+        if (error.isNotEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error)),
+          );
+        }
+      },
+    );
+  }
+
+  void _finishVoiceListening() {
+    if (!_isVoiceListening) return;
+    _speechService.stopListening();
+    final text = _voiceTranscript.trim();
+    setState(() {
+      _isVoiceListening = false;
+      _showVoiceRecorder = false;
+      _voiceTranscript = '';
+    });
+    if (text.isNotEmpty) {
+      _messageCtrl.text = text;
+      _sendMessage();
+    }
+  }
+
+  Widget _buildVoiceListeningUI() => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (_voiceTranscript.isNotEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: context.colors.surfaceElevated,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  _voiceTranscript,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: context.colors.textPrimary,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _voiceCircleBtn(Icons.close_rounded, context.colors.textSecondary, () {
+                  _speechService.stopListening();
+                  setState(() {
+                    _isVoiceListening = false;
+                    _showVoiceRecorder = false;
+                    _voiceTranscript = '';
+                  });
+                }),
+                const SizedBox(width: 24),
+                GestureDetector(
+                  onTap: _finishVoiceListening,
+                  child: Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: context.colors.error,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: context.colors.error.withValues(alpha: 0.4),
+                          blurRadius: 20,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(Icons.mic_rounded, color: Colors.white, size: 28),
+                  ),
+                ),
+                const SizedBox(width: 24),
+                const SizedBox(width: 40),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _voiceTranscript.isEmpty ? 'Listening... Tap mic to send' : 'Tap mic to send',
+              style: TextStyle(fontSize: 12, color: context.colors.textMuted),
+            ),
+          ],
+        ),
+      );
+
+  Widget _voiceCircleBtn(IconData icon, Color color, VoidCallback? onTap) => GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.15),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, size: 20, color: color),
+        ),
       );
 
   Widget _buildInputArea() => Container(
@@ -561,7 +696,20 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
               const SizedBox(width: 4),
               _inputBtn(
                 _showVoiceRecorder ? Icons.close_rounded : Icons.mic_rounded,
-                () => setState(() => _showVoiceRecorder = !_showVoiceRecorder),
+                () {
+                  if (_showVoiceRecorder) {
+                    if (_isVoiceListening) {
+                      _speechService.stopListening();
+                      setState(() {
+                        _isVoiceListening = false;
+                        _voiceTranscript = '';
+                      });
+                    }
+                    setState(() => _showVoiceRecorder = false);
+                  } else {
+                    _startVoiceListening();
+                  }
+                },
                 color: _showVoiceRecorder ? context.colors.error : null,
               ),
               const SizedBox(width: 8),
@@ -751,23 +899,6 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
     if (['xls', 'xlsx', 'csv'].contains(ext)) return 'spreadsheet';
     if (['mp3', 'wav', 'm4a', 'aac', 'ogg'].contains(ext)) return 'audio';
     return 'unknown';
-  }
-
-  void _showSpeechToText(String transcript) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (_) => SpeechToTextView(
-        initialTranscript: transcript,
-        onSend: (text) {
-          Navigator.pop(context);
-          _messageCtrl.text = text;
-          _sendMessage();
-        },
-        onCancel: () => Navigator.pop(context),
-      ),
-    );
   }
 
   void _showTTS(String content) {
@@ -1044,6 +1175,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
     _scrollCtrl.dispose();
     _streamingService.cancelCurrentStream();
     _voiceService.dispose();
+    _speechService.dispose();
     _contextService.dispose();
     super.dispose();
   }

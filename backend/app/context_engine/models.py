@@ -145,16 +145,16 @@ class ConversationContext(BaseModel):
             parts.append(f"Current Question Being Answered: {self.current_question}")
         if self.selected_text:
             parts.append(f'Student Has Selected Text: "{self.selected_text}"')
-        if self.active_visual.visual_id:
+        if self.current_visual.visual_id:
             parts.append(
-                f"Active Visual: {self.active_visual.visual_type} "
-                f"(id={self.active_visual.visual_id})"
+                f"Active Visual: {self.current_visual.visual_type} "
+                f"(id={self.current_visual.visual_id})"
             )
-            if self.active_visual.selected_element:
+            if self.current_visual.selected_element:
                 parts.append(
                     f"Student Tapped/Selected Element: "
-                    f'"{self.active_visual.selected_element}" '
-                    f"({self.active_visual.element_label})"
+                    f'"{self.current_visual.selected_element}" '
+                    f"({self.current_visual.element_label})"
                 )
         if self.active_command:
             parts.append(f'Student Command: "{self.active_command}"')

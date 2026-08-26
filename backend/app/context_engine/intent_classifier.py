@@ -17,7 +17,8 @@ class UserIntent:
     is_quiz_request: bool
     is_teaching_mode: bool
     is_interrupt: bool
-    confidence: float
+    is_combined: bool = False
+    confidence: float = 0.7
 
 
 class IntentClassifier:
@@ -196,6 +197,7 @@ class IntentClassifier:
             is_quiz_request=is_quiz_request,
             is_teaching_mode=is_teaching_mode,
             is_interrupt=is_interrupt,
+            is_combined=is_combined,
             confidence=confidence,
         )
 

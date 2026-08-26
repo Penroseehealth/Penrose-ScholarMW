@@ -136,6 +136,25 @@ async def chat(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    try:
+        return await _chat_impl(body, user, db)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        import logging
+
+        logging.getLogger(__name__).exception("Chat endpoint error")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Chat failed: {type(exc).__name__}: {exc}",
+        )
+
+
+async def _chat_impl(
+    body: ChatRequest,
+    user: User,
+    db: AsyncSession,
+) -> ChatMessageResponse:
     session_id = body.session_id
     if not session_id:
         session = ChatSession(
@@ -517,6 +536,29 @@ async def chat_stream(
     body: ChatRequest,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+):
+    """Stream AI response as Server-Sent Events (SSE).
+
+    Each event is a JSON object: {"type": "chunk"|"done"|"error", "content": "..."}
+    """
+    try:
+        return await _chat_stream_impl(body, user, db)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        import logging
+
+        logging.getLogger(__name__).exception("Stream chat endpoint error")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Stream chat failed: {type(exc).__name__}: {exc}",
+        )
+
+
+async def _chat_stream_impl(
+    body: ChatRequest,
+    user: User,
+    db: AsyncSession,
 ):
     """Stream AI response as Server-Sent Events (SSE).
 
