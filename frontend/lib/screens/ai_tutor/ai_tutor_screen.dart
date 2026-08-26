@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
@@ -11,6 +12,9 @@ import '../../widgets/data_table_chart.dart';
 import '../../widgets/math_viz/ai_visual_parser.dart';
 import '../../widgets/math_viz/ai_visual_renderer.dart';
 import '../../widgets/math_viz/math_tools_panel.dart';
+import '../../widgets/offline_banner.dart';
+import '../../widgets/offline_notices.dart';
+import '../../widgets/pending_request_queue.dart';
 import '../../widgets/speech_to_text_view.dart';
 import '../../widgets/stem_text.dart';
 import '../../widgets/typewriter_renderer.dart';
@@ -83,7 +87,11 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) {
+    final connectivity = context.watch<ConnectivityManager>();
+    return OfflineBanner(
+      connectivity: connectivity,
+      child: Scaffold(
         key: _scaffoldKey,
         backgroundColor: context.colors.background,
         endDrawer: VoiceTrainingCenter(
@@ -143,9 +151,15 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
             if (_showVoiceRecorder) _buildVoiceRecorder(),
             MathToolsPanel(onToolSelected: _onToolSelected),
             _buildInputArea(),
+            PendingRequestQueue(
+              connectivity: connectivity,
+              onRetry: _retryPendingQuestion,
+            ),
           ],
         ),
-      );
+      ),
+    );
+  }
 
   Widget _buildWelcomeScreen() => Expanded(
         child: SingleChildScrollView(
@@ -316,7 +330,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
 
   Widget _renderResponseContent(String content) {
     if (AIVisualRenderer.hasVisuals(content)) {
-      return InlineVisualMessage(text: content, isUser: false);
+      return InlineVisualMessage(text: content);
     }
     final parts = _splitContentParts(content);
     return Column(
@@ -615,6 +629,17 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
         ),
       );
 
+  void _retryPendingQuestion(Map<String, dynamic> question) {
+    final message = question['message'] as String? ?? '';
+    if (message.isNotEmpty) {
+      _messageCtrl.text = message;
+      _sendMessage();
+    }
+    context.read<ConnectivityManager>().removePendingQuestion(
+          context.read<ConnectivityManager>().pendingQuestions.indexOf(question),
+        );
+  }
+
   void _onToolSelected(String type, Map<String, dynamic> params) {
     final visual = _buildVisualFromTool(type, params);
     final description = _buildToolDescription(type, params);
@@ -837,6 +862,30 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
   Future<void> _sendMessage() async {
     final text = _messageCtrl.text.trim();
     if (text.isEmpty && _attachments.isEmpty) return;
+
+    final connectivity = context.read<ConnectivityManager>();
+
+    // Offline-first: queue the message if offline
+    if (connectivity.isOffline) {
+      connectivity.savePendingQuestion(
+        message: text,
+        agentType: _agentType,
+        sessionId: _sessionId,
+      );
+      setState(() {
+        _messages.add({
+          'role': 'user',
+          'content': text,
+        });
+        _messages.add({
+          'role': 'assistant',
+          'content': OfflineNotices.random(),
+        });
+      });
+      _messageCtrl.clear();
+      _scrollToBottom();
+      return;
+    }
 
     final currentAttachments = List<Map<String, dynamic>>.from(_attachments);
 

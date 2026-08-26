@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 import '../core/constants/api_constants.dart';
 import '../services/api_service.dart';
+import 'connectivity_manager.dart';
 import 'context_service.dart';
 
 /// A single chunk from the streaming AI response.
@@ -53,8 +54,18 @@ class StreamingChatService {
     WorkspaceState? workspace,
     List<String> fileIds = const [],
     String? preferredResponseMode,
+    ConnectivityManager? connectivity,
   }) async* {
     cancelCurrentStream();
+
+    // Offline guard
+    if (connectivity != null && connectivity.isOffline) {
+      yield const StreamChunk(
+        type: 'error',
+        content: 'offline',
+      );
+      return;
+    }
 
     final body = <String, dynamic>{
       'message': message,

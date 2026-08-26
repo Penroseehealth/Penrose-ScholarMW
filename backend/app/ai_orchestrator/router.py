@@ -15,23 +15,25 @@ router = APIRouter(prefix="/ai-orchestrator", tags=["AI Orchestration"])
 settings = get_settings()
 
 AVAILABLE_MODELS = {
-    "openai": {
-        "name": "OpenAI GPT",
-        "provider": "openai",
-        "model_id": settings.OPENAI_MODEL,
-        "available": bool(settings.OPENAI_API_KEY),
+    "huggingface": {
+        "name": "HuggingFace ScholarAI",
+        "provider": "huggingface",
+        "model_id": settings.HUGGINGFACE_MODEL,
+        "available": bool(settings.HUGGINGFACE_API_TOKEN),
     },
-    "local": {
-        "name": "Local Model",
-        "provider": "local",
-        "model_id": "local-model",
-        "available": False,
+    "groq": {
+        "name": "Groq",
+        "provider": "groq",
+        "model_id": settings.GROQ_MODEL,
+        "available": bool(settings.GROQ_API_KEY),
     },
-    "institutional": {
-        "name": "Institutional Model",
-        "provider": "institutional",
-        "model_id": "institutional-model",
-        "available": False,
+    "cloudflare": {
+        "name": "Cloudflare Workers AI",
+        "provider": "cloudflare",
+        "model_id": settings.CLOUDFLARE_AI_MODEL,
+        "available": bool(
+            settings.CLOUDFLARE_ACCOUNT_ID and settings.CLOUDFLARE_API_TOKEN
+        ),
     },
 }
 
@@ -126,21 +128,10 @@ async def chat(
         {"role": m.role, "content": m.content} for m in history_result.scalars().all()
     ]
 
-    model_used = "openai"
+    model_used = "huggingface"
     system_prompt = _get_system_prompt(body.agent_type)
 
-    if body.model_preference == "auto" and settings.OPENAI_API_KEY:
-        ai_response = await _call_openai(system_prompt, history)
-    elif body.model_preference == "cloud" and settings.OPENAI_API_KEY:
-        ai_response = await _call_openai(system_prompt, history)
-    elif body.model_preference == "local":
-        ai_response = "Local model is not yet configured. Please use 'auto' or 'cloud' preference."
-        model_used = "local_unavailable"
-    elif body.model_preference == "institutional":
-        ai_response = "Institutional model is not yet configured. Please use 'auto' or 'cloud' preference."
-        model_used = "institutional_unavailable"
-    else:
-        ai_response = await _call_openai(system_prompt, history)
+    ai_response = await _call_openai(system_prompt, history)
 
     ai_msg = ChatMessage(session_id=session.id, role="assistant", content=ai_response)
     db.add(ai_msg)
@@ -196,3 +187,11 @@ async def translate_context(
         "token_estimate": len(prompt.split()),
         "document_count": len(body.context_documents),
     }
+
+
+@router.get("/health")
+async def ai_health():
+    """Check AI provider connectivity. Returns online status and per-provider health."""
+    from app.config.ai_client import check_ai_connectivity
+
+    return await check_ai_connectivity()

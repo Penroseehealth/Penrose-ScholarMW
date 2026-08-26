@@ -37,6 +37,8 @@ class Settings(BaseSettings):
     CLOUDFLARE_AI_MODEL: str = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
     HUGGINGFACE_API_TOKEN: str = ""
     HUGGINGFACE_MODEL: str = "meta-llama/Llama-4-Scout-17B-16E-Instruct"
+    GROQ_API_KEY: str = ""
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"
 
 
 @lru_cache

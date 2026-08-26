@@ -12,6 +12,10 @@ if TYPE_CHECKING:
 
 log = logging.getLogger(__name__)
 
+# ---------------------------------------------------------------------------
+# Provider error
+# ---------------------------------------------------------------------------
+
 
 class AIProviderError(Exception):
     """Raised when all AI providers fail."""
@@ -22,23 +26,28 @@ class AIProviderError(Exception):
         super().__init__(f"All AI providers failed: {'; '.join(names)}")
 
 
+class OfflineError(Exception):
+    """Raised when the application detects it is offline."""
+
+
+# ---------------------------------------------------------------------------
+# Provider chain: HuggingFace (primary) → Groq (fallback)
+# Cloudflare is kept as an optional extra if already configured.
+# ---------------------------------------------------------------------------
+
+
 def _build_providers() -> list[tuple[str, AsyncOpenAI, str]]:
-    """Return ordered list of (name, client, model) for available providers."""
+    """Return ordered list of (name, client, model) for available providers.
+
+    Provider priority:
+    1. HuggingFace ScholarAI (primary)
+    2. Groq (fallback)
+    3. Cloudflare Workers AI (if configured, kept for backward compat)
+    """
     s = get_settings()
     providers: list[tuple[str, AsyncOpenAI, str]] = []
 
-    if s.CLOUDFLARE_ACCOUNT_ID and s.CLOUDFLARE_API_TOKEN:
-        base_url = f"https://api.cloudflare.com/client/v4/accounts/{s.CLOUDFLARE_ACCOUNT_ID}/ai/v1"
-        providers.append(
-            (
-                "cloudflare",
-                AsyncOpenAI(
-                    api_key=s.CLOUDFLARE_API_TOKEN, base_url=base_url, timeout=60.0
-                ),
-                s.CLOUDFLARE_AI_MODEL,
-            )
-        )
-
+    # 1. HuggingFace — PRIMARY
     if s.HUGGINGFACE_API_TOKEN:
         providers.append(
             (
@@ -52,12 +61,35 @@ def _build_providers() -> list[tuple[str, AsyncOpenAI, str]]:
             )
         )
 
-    if s.OPENAI_API_KEY and s.OPENAI_API_KEY != "sk-your-openai-key":
+    # 2. Groq — FALLBACK
+    if s.GROQ_API_KEY:
         providers.append(
             (
-                "openai",
-                AsyncOpenAI(api_key=s.OPENAI_API_KEY, timeout=60.0),
-                s.OPENAI_MODEL,
+                "groq",
+                AsyncOpenAI(
+                    api_key=s.GROQ_API_KEY,
+                    base_url="https://api.groq.com/openai/v1",
+                    timeout=60.0,
+                ),
+                s.GROQ_MODEL,
+            )
+        )
+
+    # 3. Cloudflare Workers AI — optional extra
+    if s.CLOUDFLARE_ACCOUNT_ID and s.CLOUDFLARE_API_TOKEN:
+        base_url = (
+            f"https://api.cloudflare.com/client/v4/accounts/"
+            f"{s.CLOUDFLARE_ACCOUNT_ID}/ai/v1"
+        )
+        providers.append(
+            (
+                "cloudflare",
+                AsyncOpenAI(
+                    api_key=s.CLOUDFLARE_API_TOKEN,
+                    base_url=base_url,
+                    timeout=60.0,
+                ),
+                s.CLOUDFLARE_AI_MODEL,
             )
         )
 
@@ -69,11 +101,17 @@ def get_ai_client() -> tuple[AsyncOpenAI, str]:
     providers = _build_providers()
     if not providers:
         raise RuntimeError(
-            "No AI provider configured. Set CLOUDFLARE_* or HUGGINGFACE_* in .env."
+            "No AI provider configured. Set HUGGINGFACE_API_TOKEN or "
+            "GROQ_API_KEY in .env."
         )
     name, client, model = providers[0]
     log.info("AI primary provider: %s (%s)", name, model)
     return client, model
+
+
+# ---------------------------------------------------------------------------
+# Non-streaming calls
+# ---------------------------------------------------------------------------
 
 
 async def call_ai_chat(
@@ -83,7 +121,7 @@ async def call_ai_chat(
     temperature: float = 0.7,
     **kwargs,
 ) -> tuple[ChatCompletion, str]:
-    """Try providers in order (Cloudflare → HuggingFace → OpenAI).
+    """Try providers in order (HuggingFace → Groq → Cloudflare).
     Returns (completion, provider_name).
     Raises AIProviderError if all fail."""
     providers = _build_providers()
@@ -118,12 +156,16 @@ async def call_ai_text(
     temperature: float = 0.7,
     **kwargs,
 ) -> str:
-    """Convenience wrapper: returns the assistant content string.
-    Raises AIProviderError on failure."""
+    """Convenience wrapper: returns the assistant content string."""
     completion, _provider = await call_ai_chat(
         messages, max_tokens=max_tokens, temperature=temperature, **kwargs
     )
     return completion.choices[0].message.content or "No response generated."
+
+
+# ---------------------------------------------------------------------------
+# Streaming calls
+# ---------------------------------------------------------------------------
 
 
 async def call_ai_stream(
@@ -132,10 +174,7 @@ async def call_ai_stream(
     max_tokens: int = 2048,
     temperature: float = 0.7,
 ) -> AsyncIterator[str]:
-    """Stream AI response chunks. Yields content strings as they arrive.
-
-    Falls back to non-streaming if the provider doesn't support streaming.
-    """
+    """Stream AI response chunks. Yields content strings as they arrive."""
     providers = _build_providers()
     if not providers:
         raise RuntimeError("No AI provider configured.")
@@ -184,6 +223,11 @@ async def call_ai_stream_with_fallback(
         yield text
 
 
+# ---------------------------------------------------------------------------
+# Health / connectivity
+# ---------------------------------------------------------------------------
+
+
 async def check_provider_health() -> list[dict]:
     """Probe each configured provider and return status list."""
     providers = _build_providers()
@@ -215,3 +259,24 @@ async def check_provider_health() -> list[dict]:
                 }
             )
     return results
+
+
+async def check_ai_connectivity() -> dict:
+    """Quick connectivity check — returns overall status + per-provider."""
+    providers = _build_providers()
+    if not providers:
+        return {
+            "online": False,
+            "message": "No AI providers configured",
+            "providers": [],
+        }
+
+    health = await check_provider_health()
+    any_healthy = any(p["status"] == "healthy" for p in health)
+    return {
+        "online": any_healthy,
+        "message": "AI services available"
+        if any_healthy
+        else "All AI providers unreachable",
+        "providers": health,
+    }

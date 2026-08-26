@@ -8,6 +8,7 @@ import 'providers/auth_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/theme_provider.dart';
 import 'router/app_router.dart';
+import 'services/connectivity_manager.dart';
 import 'services/data_saver_service.dart';
 import 'services/offline_cache_service.dart';
 import 'widgets/error_boundary.dart';
@@ -35,6 +36,7 @@ class _PenroseScholarAppState extends State<PenroseScholarApp> {
           ChangeNotifierProvider(create: (_) => AuthProvider()..init()),
           ChangeNotifierProvider(create: (_) => LocaleProvider()),
           ChangeNotifierProvider(create: (_) => ThemeProvider()..init()),
+          ChangeNotifierProvider(create: (_) => ConnectivityManager()..startMonitoring()),
         ],
         child: Consumer3<AuthProvider, LocaleProvider, ThemeProvider>(
           builder: (context, auth, localeProvider, themeProvider, _) {
