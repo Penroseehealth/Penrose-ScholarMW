@@ -1,13 +1,22 @@
 import json
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.config.settings import get_settings
-from app.config.stem_latex import STEM_LATEX_INSTRUCTION, VISUAL_GENERATION_POLICY
+from app.config.stem_latex import (
+    CONTEXT_AWARE_INSTRUCTION,
+    STEM_LATEX_INSTRUCTION,
+    VISUAL_GENERATION_POLICY,
+)
+from app.context_engine.context_manager import context_manager
+from app.context_engine.intent_classifier import IntentClassifier
+from app.context_engine.models import WorkspaceState
+from app.context_engine.response_mode_router import ResponseModeRouter
 from app.database.engine import get_db
 from app.dependencies.auth import get_current_user
 from app.models.models import ChatMessage, ChatSession, User
@@ -85,6 +94,7 @@ def _build_system_prompt(agent_type: str) -> str:
     base = prompts.get(agent_type, prompts["tutor"])
     return (
         base
+        + CONTEXT_AWARE_INSTRUCTION
         + STEM_LATEX_INSTRUCTION
         + VISUAL_GENERATION_POLICY
         + SOURCE_CITATION_INSTRUCTION
@@ -148,6 +158,50 @@ async def chat(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Session not found"
             )
 
+    # --- Live Context Engine: build/update context from workspace ----------
+    workspace = None
+    if body.workspace:
+        workspace = WorkspaceState(
+            screen=body.workspace.screen,
+            subject=body.workspace.subject,
+            syllabus=body.workspace.syllabus,
+            topic=body.workspace.topic,
+            subtopic=body.workspace.subtopic,
+            current_objective=body.workspace.current_objective,
+            active_lesson=body.workspace.active_lesson,
+            active_content=body.workspace.active_content,
+            selected_text=body.workspace.selected_text,
+            active_visual_id=body.workspace.active_visual_id,
+            active_visual_type=body.workspace.active_visual_type,
+            active_visual_element=body.workspace.active_visual_element,
+            active_question_id=str(body.workspace.active_question_id),
+            current_page=body.workspace.current_page,
+        )
+
+    ctx = await context_manager.build_context(
+        user_id=user.id,
+        session_id=session_id,
+        workspace=workspace,
+        db=db,
+        agent_type=body.agent_type,
+    )
+
+    # --- Intent Classification --------------------------------------------
+    intent = IntentClassifier.classify(body.message)
+
+    # If the frontend sent an explicit preferred mode, honour it
+    if body.preferred_response_mode:
+        from app.context_engine.models import ResponseMode as RM
+
+        try:
+            ctx.preferred_response_mode = RM(body.preferred_response_mode)
+            context_manager.upsert(ctx)
+        except ValueError:
+            pass
+
+    # --- Record the user's question in context ----------------------------
+    context_manager.record_question(user.id, session_id, body.message)
+
     user_msg = ChatMessage(session_id=session_id, role="user", content=body.message)
     db.add(user_msg)
     await db.commit()
@@ -162,6 +216,10 @@ async def chat(
     ]
 
     system_prompt = _build_system_prompt(body.agent_type)
+
+    # --- Inject live context + response mode into system prompt -----------
+    system_prompt += ctx.to_prompt_block()
+    system_prompt += ResponseModeRouter.get_system_prompt_addition(ctx, intent)
 
     if body.file_ids:
         from app.stem.multimodal_router import _file_store
@@ -197,6 +255,11 @@ async def chat(
     db.add(ai_msg)
     await db.commit()
     await db.refresh(ai_msg)
+
+    # --- Update context with what the AI just discussed -------------------
+    context_manager.record_ai_response(
+        user.id, session_id, ai_topic=ctx.topic, intent=intent.action
+    )
 
     return ChatMessageResponse.model_validate(ai_msg)
 
@@ -442,3 +505,154 @@ async def run_code(
             error=None,
             language=body.language,
         )
+
+
+# ---------------------------------------------------------------------------
+# Streaming chat endpoint (SSE)
+# ---------------------------------------------------------------------------
+
+
+@router.post("/chat/stream")
+async def chat_stream(
+    body: ChatRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Stream AI response as Server-Sent Events (SSE).
+
+    Each event is a JSON object: {"type": "chunk"|"done"|"error", "content": "..."}
+    """
+    session_id = body.session_id
+    if not session_id:
+        session = ChatSession(
+            user_id=user.id,
+            agent_type=body.agent_type,
+            context_course_id=body.context_course_id,
+            title=body.message[:80],
+        )
+        db.add(session)
+        await db.commit()
+        await db.refresh(session)
+        session_id = session.id
+    else:
+        result = await db.execute(
+            select(ChatSession).where(ChatSession.id == session_id)
+        )
+        session = result.scalar_one_or_none()
+        if not session or session.user_id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Session not found"
+            )
+
+    # Build context (same as non-streaming endpoint)
+    workspace = None
+    if body.workspace:
+        workspace = WorkspaceState(
+            screen=body.workspace.screen,
+            subject=body.workspace.subject,
+            syllabus=body.workspace.syllabus,
+            topic=body.workspace.topic,
+            subtopic=body.workspace.subtopic,
+            current_objective=body.workspace.current_objective,
+            active_lesson=body.workspace.active_lesson,
+            active_content=body.workspace.active_content,
+            selected_text=body.workspace.selected_text,
+            active_visual_id=body.workspace.active_visual_id,
+            active_visual_type=body.workspace.active_visual_type,
+            active_visual_element=body.workspace.active_visual_element,
+            active_question_id=str(body.workspace.active_question_id),
+            current_page=body.workspace.current_page,
+        )
+
+    ctx = await context_manager.build_context(
+        user_id=user.id,
+        session_id=session_id,
+        workspace=workspace,
+        db=db,
+        agent_type=body.agent_type,
+    )
+
+    intent = IntentClassifier.classify(body.message)
+    context_manager.record_question(user.id, session_id, body.message)
+
+    user_msg = ChatMessage(session_id=session_id, role="user", content=body.message)
+    db.add(user_msg)
+    await db.commit()
+
+    history_result = await db.execute(
+        select(ChatMessage)
+        .where(ChatMessage.session_id == session_id)
+        .order_by(ChatMessage.id)
+    )
+    history = [
+        {"role": m.role, "content": m.content} for m in history_result.scalars().all()
+    ]
+
+    system_prompt = _build_system_prompt(body.agent_type)
+    system_prompt += ctx.to_prompt_block()
+    system_prompt += ResponseModeRouter.get_system_prompt_addition(ctx, intent)
+
+    if body.file_ids:
+        from app.stem.multimodal_router import _file_store
+
+        file_context_parts = []
+        for fid in body.file_ids:
+            f = _file_store.get(fid)
+            if f and f.get("user_id") == user.id:
+                file_context_parts.append(
+                    f"[Uploaded File: {f['filename']} ({f['file_type']})]\n"
+                    f"{f.get('extracted_text', '(no text extracted)')}"
+                )
+        if file_context_parts:
+            file_context = "\n\n".join(file_context_parts)
+            system_prompt += (
+                "\n\nIMPORTANT — The student has uploaded the following file(s). "
+                "Use the content as the primary source for your answer.\n\n"
+                f"--- UPLOADED CONTENT ---\n{file_context}\n--- END UPLOADED CONTENT ---"
+            )
+
+    full_messages = [{"role": "system", "content": system_prompt}] + history
+
+    async def event_generator():
+        from app.config.ai_client import AIProviderError, call_ai_stream_with_fallback
+
+        collected = []
+        try:
+            async for chunk in call_ai_stream_with_fallback(
+                full_messages, max_tokens=2048, temperature=0.7
+            ):
+                collected.append(chunk)
+                yield f"data: {json.dumps({'type': 'chunk', 'content': chunk})}\n\n"
+        except (AIProviderError, RuntimeError, TimeoutError, OSError) as exc:
+            yield f"data: {json.dumps({'type': 'error', 'content': str(exc)[:500]})}\n\n"
+            return
+
+        # Save the complete response to DB
+        complete_response = "".join(collected)
+        content, sources = _extract_sources(complete_response)
+
+        ai_msg = ChatMessage(
+            session_id=session_id,
+            role="assistant",
+            content=content,
+            sources=sources,
+        )
+        db.add(ai_msg)
+        await db.commit()
+        await db.refresh(ai_msg)
+
+        context_manager.record_ai_response(
+            user.id, session_id, ai_topic=ctx.topic, intent=intent.action
+        )
+
+        yield f"data: {json.dumps({'type': 'done', 'message_id': ai_msg.id, 'sources': sources})}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )

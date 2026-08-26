@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/context_service.dart';
 import '../../services/stem_service.dart';
 import '../../widgets/error_state.dart';
 import '../../widgets/math_viz/ai_visual_parser.dart';
@@ -22,6 +23,7 @@ class StemTutorScreen extends StatefulWidget {
 
 class _StemTutorScreenState extends State<StemTutorScreen> {
   final StemService _stemService = StemService();
+  final ContextService _contextService = ContextService();
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   List<dynamic> _concepts = [];
@@ -122,6 +124,15 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
   Future<void> _sendMessage() async {
     final text = _messageController.text.trim();
     if (text.isEmpty || _selectedConceptId == 0) return;
+
+    // Classify intent
+    _contextService.classifyIntent(text);
+
+    // Update workspace with current STEM context
+    _contextService.updateWorkspacePartial(
+      screen: 'stem_tutor',
+      currentObjective: 'STEM Tutor - concept $_selectedConceptId',
+    );
 
     setState(() {
       _sending = true;

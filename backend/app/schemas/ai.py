@@ -3,12 +3,33 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 
+class WorkspaceSnapshot(BaseModel):
+    """Lightweight workspace state sent with every chat request."""
+
+    screen: str = ""
+    subject: str = ""
+    syllabus: str = ""
+    topic: str = ""
+    subtopic: str = ""
+    current_objective: str = ""
+    active_lesson: str = ""
+    active_content: str = ""
+    selected_text: str = ""
+    active_visual_id: str = ""
+    active_visual_type: str = ""
+    active_visual_element: str = ""
+    active_question_id: str | int = ""
+    current_page: str = ""
+
+
 class ChatRequest(BaseModel):
     message: str
     session_id: int | None = None
     agent_type: str = "tutor"
     context_course_id: int | None = None
     file_ids: list[str] = Field(default_factory=list)
+    workspace: WorkspaceSnapshot | None = None
+    preferred_response_mode: str | None = None
 
 
 class ChatMessageResponse(BaseModel):

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, AsyncIterator
 
 from openai import APIStatusError, AsyncOpenAI
 
@@ -32,7 +32,9 @@ def _build_providers() -> list[tuple[str, AsyncOpenAI, str]]:
         providers.append(
             (
                 "cloudflare",
-                AsyncOpenAI(api_key=s.CLOUDFLARE_API_TOKEN, base_url=base_url, timeout=60.0),
+                AsyncOpenAI(
+                    api_key=s.CLOUDFLARE_API_TOKEN, base_url=base_url, timeout=60.0
+                ),
                 s.CLOUDFLARE_AI_MODEL,
             )
         )
@@ -66,7 +68,9 @@ def get_ai_client() -> tuple[AsyncOpenAI, str]:
     """Return the primary (client, model). Preserved for backward compat."""
     providers = _build_providers()
     if not providers:
-        raise RuntimeError("No AI provider configured. Set CLOUDFLARE_* or HUGGINGFACE_* in .env.")
+        raise RuntimeError(
+            "No AI provider configured. Set CLOUDFLARE_* or HUGGINGFACE_* in .env."
+        )
     name, client, model = providers[0]
     log.info("AI primary provider: %s (%s)", name, model)
     return client, model
@@ -116,8 +120,68 @@ async def call_ai_text(
 ) -> str:
     """Convenience wrapper: returns the assistant content string.
     Raises AIProviderError on failure."""
-    completion, _provider = await call_ai_chat(messages, max_tokens=max_tokens, temperature=temperature, **kwargs)
+    completion, _provider = await call_ai_chat(
+        messages, max_tokens=max_tokens, temperature=temperature, **kwargs
+    )
     return completion.choices[0].message.content or "No response generated."
+
+
+async def call_ai_stream(
+    messages: list[dict[str, str]],
+    *,
+    max_tokens: int = 2048,
+    temperature: float = 0.7,
+) -> AsyncIterator[str]:
+    """Stream AI response chunks. Yields content strings as they arrive.
+
+    Falls back to non-streaming if the provider doesn't support streaming.
+    """
+    providers = _build_providers()
+    if not providers:
+        raise RuntimeError("No AI provider configured.")
+
+    errors: list[tuple[str, Exception]] = []
+    for name, client, model in providers:
+        try:
+            log.info("Trying AI stream provider: %s (%s)", name, model)
+            stream = await client.chat.completions.create(
+                model=model,
+                messages=messages,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                stream=True,
+            )
+            async for chunk in stream:
+                if chunk.choices and chunk.choices[0].delta.content:
+                    yield chunk.choices[0].delta.content
+            log.info("AI stream provider %s succeeded", name)
+            return
+        except (APIStatusError, Exception) as e:
+            log.warning("AI stream provider %s failed: %s", name, e)
+            errors.append((name, e))
+            continue
+
+    raise AIProviderError(errors)
+
+
+async def call_ai_stream_with_fallback(
+    messages: list[dict[str, str]],
+    *,
+    max_tokens: int = 2048,
+    temperature: float = 0.7,
+) -> AsyncIterator[str]:
+    """Stream with automatic fallback to non-streaming on failure."""
+    try:
+        async for chunk in call_ai_stream(
+            messages, max_tokens=max_tokens, temperature=temperature
+        ):
+            yield chunk
+    except AIProviderError:
+        log.info("Streaming failed, falling back to non-streaming")
+        text = await call_ai_text(
+            messages, max_tokens=max_tokens, temperature=temperature
+        )
+        yield text
 
 
 async def check_provider_health() -> list[dict]:

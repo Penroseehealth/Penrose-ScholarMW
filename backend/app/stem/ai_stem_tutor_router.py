@@ -5,7 +5,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.config.settings import get_settings
-from app.config.stem_latex import STEM_LATEX_INSTRUCTION, VISUAL_GENERATION_POLICY
+from app.config.stem_latex import (
+    CONTEXT_AWARE_INSTRUCTION,
+    STEM_LATEX_INSTRUCTION,
+    VISUAL_GENERATION_POLICY,
+)
+from app.context_engine.context_manager import context_manager
+from app.context_engine.intent_classifier import IntentClassifier
+from app.context_engine.models import WorkspaceState
+from app.context_engine.response_mode_router import ResponseModeRouter
 from app.core.subject_registry import get_subject_module
 from app.database.engine import get_db
 from app.dependencies.auth import get_current_user
@@ -30,11 +38,30 @@ class ChatMessage(BaseModel):
     content: str
 
 
+class WorkspaceSnapshot(BaseModel):
+    screen: str = ""
+    subject: str = ""
+    syllabus: str = ""
+    topic: str = ""
+    subtopic: str = ""
+    current_objective: str = ""
+    active_lesson: str = ""
+    active_content: str = ""
+    selected_text: str = ""
+    active_visual_id: str = ""
+    active_visual_type: str = ""
+    active_visual_element: str = ""
+    active_question_id: str | int = ""
+    current_page: str = ""
+
+
 class TutorChatRequest(BaseModel):
     concept_id: int
     message: str
     mode: str
     history: list[ChatMessage] | None = None
+    workspace: WorkspaceSnapshot | None = None
+    preferred_response_mode: str | None = None
 
 
 class TutorChatResponse(BaseModel):
@@ -207,6 +234,7 @@ def _build_system_prompt(context: dict, mode: str, user_message: str) -> str:
 
     parts.append(
         "\n\nRespond in a helpful, encouraging tone. Use markdown formatting where appropriate."
+        + CONTEXT_AWARE_INSTRUCTION
         + STEM_LATEX_INSTRUCTION
         + VISUAL_GENERATION_POLICY
     )
@@ -289,9 +317,66 @@ async def tutor_chat(
     mastery_record = mastery_result.scalar_one_or_none()
     context["mastery"] = mastery_record
 
+    # --- Live Context Engine: merge workspace into STEM context ------------
+    workspace = None
+    if body.workspace:
+        workspace = WorkspaceState(
+            screen=body.workspace.screen,
+            subject=body.workspace.subject
+            or (context["subject"].title if context.get("subject") else ""),
+            syllabus=body.workspace.syllabus,
+            topic=body.workspace.topic
+            or (context["topic"].title if context.get("topic") else ""),
+            subtopic=body.workspace.subtopic
+            or (context["subtopic"].title if context.get("subtopic") else ""),
+            current_objective=body.workspace.current_objective,
+            active_lesson=body.workspace.active_lesson,
+            active_content=body.workspace.active_content,
+            selected_text=body.workspace.selected_text,
+            active_visual_id=body.workspace.active_visual_id,
+            active_visual_type=body.workspace.active_visual_type,
+            active_visual_element=body.workspace.active_visual_element,
+            active_question_id=str(body.workspace.active_question_id),
+            current_page=body.workspace.current_page,
+        )
+
+    ctx = await context_manager.build_context(
+        user_id=user.id,
+        session_id=body.concept_id,  # use concept_id as session key for STEM
+        workspace=workspace,
+        db=db,
+        agent_type="stem_tutor",
+    )
+
+    # Classify intent
+    intent = IntentClassifier.classify(body.message)
+
+    if body.preferred_response_mode:
+        from app.context_engine.models import ResponseMode as RM
+
+        try:
+            ctx.preferred_response_mode = RM(body.preferred_response_mode)
+            context_manager.upsert(ctx)
+        except ValueError:
+            pass
+
+    context_manager.record_question(user.id, body.concept_id, body.message)
+
     system_prompt = _build_system_prompt(context, body.mode, body.message)
+
+    # Inject live context + response mode into system prompt
+    system_prompt += ctx.to_prompt_block()
+    system_prompt += ResponseModeRouter.get_system_prompt_addition(ctx, intent)
+
     history_dicts = [m.model_dump() for m in body.history] if body.history else None
     ai_response = await _call_llm(system_prompt, body.message, history_dicts)
+
+    context_manager.record_ai_response(
+        user.id,
+        body.concept_id,
+        ai_topic=context.get("topic", {}).title if context.get("topic") else "",
+        intent=intent.action,
+    )
 
     return TutorChatResponse(
         response=ai_response,

@@ -26,6 +26,9 @@ class AiTutorScreen extends StatefulWidget {
 
 class _AiTutorScreenState extends State<AiTutorScreen> {
   final MultimodalService _mmService = MultimodalService();
+  final ContextService _contextService = ContextService();
+  final StreamingChatService _streamingService = StreamingChatService();
+  final VoiceConversationService _voiceService = VoiceConversationService();
   final TextEditingController _messageCtrl = TextEditingController();
   final ScrollController _scrollCtrl = ScrollController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -42,6 +45,11 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
   double _playbackSpeed = 1.0;
   bool _autoRead = false;
   int? _typewriterMessageIndex;
+
+  // Streaming state
+  bool _isStreaming = false;
+  String _streamedContent = '';
+  int? _streamedMessageIndex;
 
   final Map<String, String> _agentLabels = {
     'tutor': 'Penrose Learning Assistant',
@@ -852,41 +860,142 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
       if (att['file_id'] != null) fileIds.add(att['file_id'] as String);
     }
 
-    final result = await _mmService.chatWithFiles(
-      message: text.isNotEmpty ? text : 'Analyze the uploaded file(s)',
-      sessionId: _sessionId,
-      agentType: _agentType,
-      fileIds: fileIds,
-    );
+    // Classify intent via context engine
+    if (text.isNotEmpty) {
+      _contextService.classifyIntent(text);
+    }
 
-    if (mounted) {
-      final msgIndex = _messages.length;
+    // Set active session in context service
+    if (_sessionId != null) {
+      _contextService.setActiveSession(_sessionId);
+    }
+
+    // Try streaming first; fall back to regular chat
+    final msgIndex = _messages.length;
+    bool usedStreaming = false;
+
+    try {
       setState(() {
-        _isLoading = false;
-        if (result['success'] == true) {
-          final data = result['data'];
-          _sessionId = (data['session_id'] ?? _sessionId) as int?;
-          _messages.add({
-            'role': 'assistant',
-            'content': data['content'] ?? 'No response',
-            'sources': data['sources'],
-          });
-          _typewriterMessageIndex = msgIndex;
-        } else {
-          _messages.add({
-            'role': 'assistant',
-            'content': result['error'] ?? 'Sorry, I encountered an error. Please try again.',
-          });
-        }
+        _isStreaming = true;
+        _streamedContent = '';
+        _streamedMessageIndex = msgIndex;
+        _messages.add({
+          'role': 'assistant',
+          'content': '',
+          'is_streaming': true,
+        });
       });
       _scrollToBottom();
+
+      await for (final chunk in _streamingService.streamChat(
+        message: text.isNotEmpty ? text : 'Analyze the uploaded file(s)',
+        sessionId: _sessionId,
+        agentType: _agentType,
+        workspace: _contextService.currentWorkspace,
+        fileIds: fileIds,
+      )) {
+        if (chunk.type == 'chunk') {
+          setState(() {
+            _streamedContent += chunk.content;
+            _messages[msgIndex] = {
+              'role': 'assistant',
+              'content': _streamedContent,
+              'is_streaming': true,
+            };
+          });
+          _scrollToBottom();
+          usedStreaming = true;
+        } else if (chunk.type == 'done') {
+          setState(() {
+            _messages[msgIndex] = {
+              'role': 'assistant',
+              'content': _streamedContent,
+              'sources': chunk.sources,
+            };
+            _typewriterMessageIndex = msgIndex;
+          });
+        } else if (chunk.type == 'error') {
+          setState(() {
+            _messages.removeAt(msgIndex);
+            _isStreaming = false;
+            _streamedContent = '';
+            _streamedMessageIndex = null;
+          });
+          usedStreaming = false;
+          break;
+        }
+      }
+    } catch (e) {
+      usedStreaming = false;
     }
+
+    // Fall back to regular chat if streaming failed
+    if (!usedStreaming) {
+      if (_isStreaming && _streamedMessageIndex != null) {
+        setState(() {
+          final idx = _streamedMessageIndex!;
+          if (idx < _messages.length && _messages[idx]['is_streaming'] == true) {
+            _messages.removeAt(idx);
+          }
+          _isStreaming = false;
+          _streamedContent = '';
+          _streamedMessageIndex = null;
+        });
+      }
+
+      final result = await _mmService.chatWithFiles(
+        message: text.isNotEmpty ? text : 'Analyze the uploaded file(s)',
+        sessionId: _sessionId,
+        agentType: _agentType,
+        fileIds: fileIds,
+      );
+
+      if (mounted) {
+        final fallbackIndex = _messages.length;
+        setState(() {
+          _isLoading = false;
+          if (result['success'] == true) {
+            final data = result['data'];
+            _sessionId = (data['session_id'] ?? _sessionId) as int?;
+            _messages.add({
+              'role': 'assistant',
+              'content': data['content'] ?? 'No response',
+              'sources': data['sources'],
+            });
+            _typewriterMessageIndex = fallbackIndex;
+            // Update context session
+            _contextService.setActiveSession(_sessionId);
+          } else {
+            _messages.add({
+              'role': 'assistant',
+              'content': result['error'] ?? 'Sorry, I encountered an error. Please try again.',
+            });
+          }
+        });
+        _scrollToBottom();
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isStreaming = false;
+          _streamedContent = '';
+          _streamedMessageIndex = null;
+        });
+      }
+    }
+
+    // Clear transient selections after message sent
+    _contextService.clearTransientSelections();
   }
 
   @override
   void dispose() {
     _messageCtrl.dispose();
     _scrollCtrl.dispose();
+    _streamingService.cancelCurrentStream();
+    _voiceService.dispose();
+    _contextService.dispose();
     super.dispose();
   }
 }

@@ -14,6 +14,7 @@ from app.assessments.router import router as assessments_router
 from app.auth.router import router as auth_router
 from app.chemistry.router import router as chem_syllabus_router
 from app.config.settings import get_settings
+from app.context_engine.router import router as context_engine_router
 from app.core.security import hash_password
 from app.courses.router import router as courses_router
 from app.database.engine import Base, async_session, engine
@@ -208,6 +209,7 @@ app.include_router(writing_studio_router, prefix="/api/v1")
 app.include_router(knowledge_retrieval_router, prefix="/api/v1")
 app.include_router(sync_engine_router, prefix="/api/v1")
 app.include_router(ai_orchestrator_router, prefix="/api/v1")
+app.include_router(context_engine_router, prefix="/api/v1")
 app.include_router(global_search_router, prefix="/api/v1")
 app.include_router(gamification_router, prefix="/api/v1")
 app.include_router(smart_notifications_router, prefix="/api/v1")
