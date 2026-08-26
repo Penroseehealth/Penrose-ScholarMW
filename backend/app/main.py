@@ -25,6 +25,7 @@ from app.institutions.router import router as institutions_router
 from app.knowledge_retrieval.router import router as knowledge_retrieval_router
 from app.knowledge_vault.router import router as vault_router
 from app.languages.router import router as languages_router
+from app.livekit.router import router as livekit_router
 from app.malawi_context.router import router as malawi_context_router
 from app.mathematics.router import router as math_syllabus_router
 from app.messaging.router import router as messaging_router
@@ -245,6 +246,7 @@ app.include_router(syllabus_router, prefix="/api/v1")
 app.include_router(math_syllabus_router, prefix="/api/v1")
 app.include_router(chem_syllabus_router, prefix="/api/v1")
 app.include_router(languages_router, prefix="/api/v1")
+app.include_router(livekit_router, prefix="/api/v1")
 
 
 @app.get("/health")

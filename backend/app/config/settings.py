@@ -40,6 +40,17 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str = ""
     GROQ_MODEL: str = "llama-3.3-70b-versatile"
 
+    # LiveKit (video/audio conferencing) — server-side only
+    LIVEKIT_URL: str = ""
+    LIVEKIT_API_KEY: str = ""
+    LIVEKIT_API_SECRET: str = ""
+
+    @property
+    def livekit_configured(self) -> bool:
+        return bool(
+            self.LIVEKIT_URL and self.LIVEKIT_API_KEY and self.LIVEKIT_API_SECRET
+        )
+
 
 @lru_cache
 def get_settings() -> Settings:

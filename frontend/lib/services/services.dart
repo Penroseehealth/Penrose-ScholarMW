@@ -7,6 +7,7 @@ export 'cache_service.dart';
 export 'connectivity_manager.dart';
 export 'context_service.dart';
 export 'data_saver_service.dart';
+export 'livekit_service.dart';
 export 'stem_service.dart';
 export 'streaming_chat_service.dart';
 export 'voice_conversation_service.dart';
