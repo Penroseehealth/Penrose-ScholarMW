@@ -1,7 +1,8 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 
 import '../services/api_service.dart';
 
@@ -47,15 +48,12 @@ class ConnectivityManager extends ChangeNotifier {
   ConnectionState get state => _state;
   bool get isOnline => _state == ConnectionState.online;
   bool get isOffline => _state == ConnectionState.offline;
-  bool get isConnecting =>
-      _state == ConnectionState.connecting ||
-      _state == ConnectionState.reconnecting;
+  bool get isConnecting => _state == ConnectionState.connecting || _state == ConnectionState.reconnecting;
   bool get aiAvailable => _aiAvailable;
   String get statusMessage => _statusMessage;
   DateTime? get lastOnlineTime => _lastOnlineTime;
   DateTime? get lastOfflineTime => _lastOfflineTime;
-  List<Map<String, dynamic>> get pendingQuestions =>
-      List.unmodifiable(_pendingQuestions);
+  List<Map<String, dynamic>> get pendingQuestions => List.unmodifiable(_pendingQuestions);
 
   ConnectivityManager({ApiService? api}) : _api = api ?? ApiService();
 
@@ -93,13 +91,11 @@ class ConnectivityManager extends ChangeNotifier {
   Future<void> _probe() async {
     if (_disposed) return;
 
-    // Simple internet check: try to reach the API
+    // Simple connectivity check: hit the root /health endpoint (no auth required)
     bool internetAvailable = false;
     try {
-      final result = await InternetAddress.lookup('google.com')
-          .timeout(const Duration(seconds: 5));
-      internetAvailable = result.isNotEmpty &&
-          result[0].rawAddress.isNotEmpty;
+      final response = await http.get(Uri.parse('/health')).timeout(const Duration(seconds: 5));
+      internetAvailable = response.statusCode == 200;
     } catch (_) {
       internetAvailable = false;
     }
@@ -121,9 +117,7 @@ class ConnectivityManager extends ChangeNotifier {
           _parseResponse(response.body) ?? {},
         );
         _aiAvailable = data['online'] == true;
-        _statusMessage = _aiAvailable
-            ? 'AI services available'
-            : 'AI providers temporarily unavailable';
+        _statusMessage = _aiAvailable ? 'AI services available' : 'AI providers temporarily unavailable';
         _handleOnline();
       } else {
         _aiAvailable = false;
@@ -140,10 +134,7 @@ class ConnectivityManager extends ChangeNotifier {
 
   Map<String, dynamic>? _parseResponse(String body) {
     try {
-      return Map<String, dynamic>.from(
-        // Simple JSON parse — the body should be JSON
-        (body as dynamic) != null ? {} : {},
-      );
+      return Map<String, dynamic>.from(jsonDecode(body));
     } catch (_) {
       return null;
     }
