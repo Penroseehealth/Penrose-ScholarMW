@@ -5,6 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 import '../../services/services.dart';
 import '../../services/web_speech_service.dart';
+import '../../voice/voice.dart';
 import '../../widgets/ai_governance_widgets.dart';
 import '../../widgets/ai_thinking_indicator.dart';
 import '../../widgets/attachment_picker.dart';
@@ -18,7 +19,7 @@ import '../../widgets/offline_notices.dart';
 import '../../widgets/pending_request_queue.dart';
 import '../../widgets/stem_text.dart';
 import '../../widgets/typewriter_renderer.dart';
-import '../../widgets/voice_recorder.dart';
+import '../../widgets/voice_conversation_panel.dart';
 import '../../widgets/voice_training_center.dart';
 
 class AiTutorScreen extends StatefulWidget {
@@ -45,13 +46,14 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
   ThinkingState _thinkingState = ThinkingState.analyzing;
 
   final List<Map<String, dynamic>> _attachments = [];
-  bool _showVoiceRecorder = false;
-  bool _isVoiceListening = false;
-  String _voiceTranscript = '';
   String _selectedVoiceId = 'en-us-academic-female-1';
   double _playbackSpeed = 1.0;
   bool _autoRead = false;
   int? _typewriterMessageIndex;
+
+  // PIVE Voice Engine
+  PenroseVoiceEngine? _voiceEngine;
+  bool _showVoicePanel = false;
 
   // Streaming state
   bool _isStreaming = false;
@@ -146,18 +148,41 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
             ),
           ],
         ),
-        body: Column(
+        body: Stack(
           children: [
-            if (_messages.isEmpty && _attachments.isEmpty) _buildWelcomeScreen(),
-            if (_messages.isNotEmpty || _attachments.isNotEmpty) Expanded(child: _buildChatArea()),
-            if (_attachments.isNotEmpty) _buildAttachmentBar(),
-            if (_showVoiceRecorder) _buildVoiceRecorder(),
-            MathToolsPanel(onToolSelected: _onToolSelected),
-            _buildInputArea(),
-            PendingRequestQueue(
-              connectivity: connectivity,
-              onRetry: _retryPendingQuestion,
+            Column(
+              children: [
+                if (_messages.isEmpty && _attachments.isEmpty) _buildWelcomeScreen(),
+                if (_messages.isNotEmpty || _attachments.isNotEmpty) Expanded(child: _buildChatArea()),
+                if (_attachments.isNotEmpty) _buildAttachmentBar(),
+                MathToolsPanel(onToolSelected: _onToolSelected),
+                _buildInputArea(),
+                PendingRequestQueue(
+                  connectivity: connectivity,
+                  onRetry: _retryPendingQuestion,
+                ),
+              ],
             ),
+            if (_showVoicePanel && _voiceEngine != null)
+              Positioned.fill(
+                child: GestureDetector(
+                  onTap: () {},
+                  child: Container(
+                    color: Colors.black54,
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: VoiceConversationPanel(
+                        engine: _voiceEngine!,
+                        onClose: () {
+                          _voiceEngine?.stopSpeaking();
+                          _voiceEngine?.stopListening();
+                          setState(() => _showVoicePanel = false);
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -222,7 +247,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
               if (text == 'Analyze an image' || text == 'Summarize a PDF') {
                 _showAttachmentPicker();
               } else if (text == 'Ask by voice') {
-                setState(() => _showVoiceRecorder = true);
+                _togglePiveVoice();
               } else {
                 _messageCtrl.text = text;
                 _sendMessage();
@@ -531,157 +556,6 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
         ),
       );
 
-  Widget _buildVoiceRecorder() {
-    if (_isVoiceListening) {
-      return _buildVoiceListeningUI();
-    }
-    return VoiceRecorder(
-      onRecordingComplete: (path) {
-        setState(() {
-          _showVoiceRecorder = false;
-        });
-      },
-      onCancel: () => setState(() => _showVoiceRecorder = false),
-    );
-  }
-
-  void _startVoiceListening() {
-    if (!_speechService.isSupported) {
-      setState(() => _showVoiceRecorder = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Speech recognition is not supported in this browser.')),
-      );
-      return;
-    }
-    setState(() {
-      _isVoiceListening = true;
-      _voiceTranscript = '';
-      _showVoiceRecorder = true;
-    });
-    _speechService.startListening(
-      lang: 'en-US',
-      onResult: (text, isFinal) {
-        if (!mounted) return;
-        setState(() => _voiceTranscript = text);
-        if (isFinal) {
-          _finishVoiceListening();
-        }
-      },
-      onEnd: () {
-        if (mounted && _isVoiceListening) {
-          _finishVoiceListening();
-        }
-      },
-      onError: (error) {
-        if (!mounted) return;
-        setState(() {
-          _isVoiceListening = false;
-          _showVoiceRecorder = false;
-        });
-        if (error.isNotEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(error)),
-          );
-        }
-      },
-    );
-  }
-
-  void _finishVoiceListening() {
-    if (!_isVoiceListening) return;
-    _speechService.stopListening();
-    final text = _voiceTranscript.trim();
-    setState(() {
-      _isVoiceListening = false;
-      _showVoiceRecorder = false;
-      _voiceTranscript = '';
-    });
-    if (text.isNotEmpty) {
-      _messageCtrl.text = text;
-      _sendMessage();
-    }
-  }
-
-  Widget _buildVoiceListeningUI() => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (_voiceTranscript.isNotEmpty)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: context.colors.surfaceElevated,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  _voiceTranscript,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: context.colors.textPrimary,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _voiceCircleBtn(Icons.close_rounded, context.colors.textSecondary, () {
-                  _speechService.stopListening();
-                  setState(() {
-                    _isVoiceListening = false;
-                    _showVoiceRecorder = false;
-                    _voiceTranscript = '';
-                  });
-                }),
-                const SizedBox(width: 24),
-                GestureDetector(
-                  onTap: _finishVoiceListening,
-                  child: Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: context.colors.error,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: context.colors.error.withValues(alpha: 0.4),
-                          blurRadius: 20,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(Icons.mic_rounded, color: Colors.white, size: 28),
-                  ),
-                ),
-                const SizedBox(width: 24),
-                const SizedBox(width: 40),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _voiceTranscript.isEmpty ? 'Listening... Tap mic to send' : 'Tap mic to send',
-              style: TextStyle(fontSize: 12, color: context.colors.textMuted),
-            ),
-          ],
-        ),
-      );
-
-  Widget _voiceCircleBtn(IconData icon, Color color, VoidCallback? onTap) => GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.15),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, size: 20, color: color),
-        ),
-      );
-
   Widget _buildInputArea() => Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -695,22 +569,17 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
               _inputBtn(Icons.attach_file_rounded, _showAttachmentPicker),
               const SizedBox(width: 4),
               _inputBtn(
-                _showVoiceRecorder ? Icons.close_rounded : Icons.mic_rounded,
+                _showVoicePanel ? Icons.close_rounded : Icons.mic_rounded,
                 () {
-                  if (_showVoiceRecorder) {
-                    if (_isVoiceListening) {
-                      _speechService.stopListening();
-                      setState(() {
-                        _isVoiceListening = false;
-                        _voiceTranscript = '';
-                      });
-                    }
-                    setState(() => _showVoiceRecorder = false);
+                  if (_showVoicePanel) {
+                    _voiceEngine?.stopSpeaking();
+                    _voiceEngine?.stopListening();
+                    setState(() => _showVoicePanel = false);
                   } else {
-                    _startVoiceListening();
+                    _togglePiveVoice();
                   }
                 },
-                color: _showVoiceRecorder ? context.colors.error : null,
+                color: _showVoicePanel ? context.colors.error : null,
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -1169,6 +1038,49 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
     _contextService.clearTransientSelections();
   }
 
+  // ──────────────────────────────────────────────────────────────
+  // PIVE Voice Engine
+  // ──────────────────────────────────────────────────────────────
+
+  Future<void> _togglePiveVoice() async {
+    if (_voiceEngine != null && _voiceEngine!.isSessionActive) {
+      _voiceEngine?.stopSpeaking();
+      _voiceEngine?.stopListening();
+      setState(() => _showVoicePanel = !_showVoicePanel);
+      return;
+    }
+
+    // Initialize PIVE engine
+    _voiceEngine = PenroseVoiceEngine();
+    await _voiceEngine!.initialize(
+      agentType: _agentType,
+      language: 'en-US',
+    );
+
+    _voiceEngine!.session.addListener(() {
+      if (mounted) setState(() {});
+    });
+
+    // When AI responds, add to chat messages
+    _voiceEngine!.conversation.configure(
+      onAiResponded: (aiText, {modality = 'combined'}) {
+        setState(() {
+          _messages.add({'role': 'assistant', 'content': aiText});
+        });
+        _scrollToBottom();
+      },
+      onUserSpoke: (transcript) {
+        setState(() {
+          _messages.add({'role': 'user', 'content': transcript});
+        });
+        _scrollToBottom();
+      },
+    );
+
+    setState(() => _showVoicePanel = true);
+    _voiceEngine!.startConversation();
+  }
+
   @override
   void dispose() {
     _messageCtrl.dispose();
@@ -1177,6 +1089,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
     _voiceService.dispose();
     _speechService.dispose();
     _contextService.dispose();
+    _voiceEngine?.dispose();
     super.dispose();
   }
 }

@@ -13,7 +13,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
 from app.config.settings import get_settings
-from app.core.security import get_current_user
+from app.dependencies.auth import get_current_user
 from app.models.models import User
 
 log = logging.getLogger(__name__)

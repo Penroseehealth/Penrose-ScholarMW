@@ -63,6 +63,7 @@ from app.stem.subject_dashboard_router import router as subject_dashboard_router
 from app.stem.syllabus_router import router as syllabus_router
 from app.sync_engine.router import router as sync_engine_router
 from app.users.router import router as users_router
+from app.voice.router import router as voice_router
 from app.writing_studio.router import router as writing_studio_router
 
 settings = get_settings()
@@ -247,6 +248,7 @@ app.include_router(math_syllabus_router, prefix="/api/v1")
 app.include_router(chem_syllabus_router, prefix="/api/v1")
 app.include_router(languages_router, prefix="/api/v1")
 app.include_router(livekit_router, prefix="/api/v1")
+app.include_router(voice_router, prefix="/api/v1")
 
 
 @app.get("/health")
