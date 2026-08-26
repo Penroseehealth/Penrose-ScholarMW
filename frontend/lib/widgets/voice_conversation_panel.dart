@@ -181,7 +181,7 @@ class _VoiceConversationPanelState extends State<VoiceConversationPanel> with Si
               ),
             if (!hasTranscript && !hasAiText)
               Text(
-                'Tap the mic and start speaking...',
+                'Start speaking — your voice will be sent automatically when you pause.',
                 style: TextStyle(
                   fontSize: 14,
                   color: context.colors.textMuted,

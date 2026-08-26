@@ -22,6 +22,7 @@ import '../screens/biology/biology_syllabus.dart';
 import '../screens/biology/biology_topics.dart';
 import '../screens/biology/biology_virtual_lab.dart';
 import '../screens/chemistry/chemistry_syllabus_screen.dart';
+import '../screens/physics/physics_syllabus_screen.dart';
 import '../screens/stem/stem_syllabus_screen.dart';
 import '../screens/data_analysis/coding_playground_screen.dart';
 import '../screens/data_analysis/data_analysis_screen.dart';
@@ -311,6 +312,7 @@ class AppRouter {
           _route('/admin/syllabus', (_) => const AdminSyllabusScreen()),
           _route('/math-syllabus', (_) => const MathSyllabusScreen()),
           _route('/chem-syllabus', (_) => const ChemistrySyllabusScreen()),
+          _route('/phys-syllabus', (_) => const PhysicsSyllabusScreen()),
           GoRoute(
             path: '/stem-syllabus/:slug',
             pageBuilder: (_, state) {

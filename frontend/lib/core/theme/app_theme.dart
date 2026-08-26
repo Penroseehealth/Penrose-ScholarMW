@@ -16,6 +16,7 @@ class AppTheme {
   static ThemeData dark() => ThemeData(
         useMaterial3: true,
         brightness: Brightness.dark,
+        fontFamily: 'Noto Sans',
         scaffoldBackgroundColor: AppColors.background,
         colorScheme: const ColorScheme.dark(
           primary: AppColors.primary,
@@ -175,6 +176,7 @@ class AppTheme {
   static ThemeData light() => ThemeData(
         useMaterial3: true,
         brightness: Brightness.light,
+        fontFamily: 'Noto Sans',
         scaffoldBackgroundColor: AppColorsLight.background,
         colorScheme: const ColorScheme.light(
           primary: AppColorsLight.primary,

@@ -32,8 +32,8 @@ class AudioCaptureService {
         if (_session.isListening || _session.state == VoiceEngineState.listening) {
           _session.onTranscriptReceived(text, isFinal: isFinal);
 
-          if (_session.mode == VoiceConversationMode.continuous && !isFinal) {
-            // Reset silence timer on each interim result
+          if (_session.mode == VoiceConversationMode.continuous || _session.mode == VoiceConversationMode.handsFree) {
+            // Reset silence timer on each interim result — auto-sends on pause
             _session.startSilenceTimer();
           }
         }

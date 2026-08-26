@@ -31,6 +31,7 @@ from app.mathematics.router import router as math_syllabus_router
 from app.messaging.router import router as messaging_router
 from app.middleware.security import RateLimitMiddleware
 from app.notifications.router import router as notifications_router
+from app.physics.router import router as phys_syllabus_router
 from app.research.router import router as research_router
 from app.smart_notifications.router import router as smart_notifications_router
 from app.stem.adaptive_learning_router import router as adaptive_router
@@ -98,6 +99,9 @@ async def lifespan(app: FastAPI):
     from app.chemistry.seed_chemistry import seed_chemistry_syllabus
 
     await seed_chemistry_syllabus()
+    from app.physics.seed_physics import seed_physics_syllabus
+
+    await seed_physics_syllabus()
     from app.languages.seed_english import seed_english
 
     await seed_english()
@@ -246,6 +250,7 @@ app.include_router(export_router, prefix="/api/v1")
 app.include_router(syllabus_router, prefix="/api/v1")
 app.include_router(math_syllabus_router, prefix="/api/v1")
 app.include_router(chem_syllabus_router, prefix="/api/v1")
+app.include_router(phys_syllabus_router, prefix="/api/v1")
 app.include_router(languages_router, prefix="/api/v1")
 app.include_router(livekit_router, prefix="/api/v1")
 app.include_router(voice_router, prefix="/api/v1")
