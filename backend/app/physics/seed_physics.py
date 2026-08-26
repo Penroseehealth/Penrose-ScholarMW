@@ -2,7 +2,7 @@
 
 Matches the official MoEST scope and sequence chart.
 CEs 1-3 are from the provided syllabus table; CEs 4-6 are from the
-standard MSCE Physics curriculum.
+official MoEST scope & sequence chart.
 """
 
 from sqlalchemy import select
@@ -41,9 +41,9 @@ PHYSICS_SYLLABUS = {
         "description": "Current MSCE Physics syllabus for Forms 1-4",
     },
     "core_elements": [
-        # ═══════════════════════════════════════════════════════════════
-        # CE 1 — Scientific Investigations and Skills
-        # ═══════════════════════════════════════════════════════════════
+        # ════════════════════════════════════════════════════════════════════
+        # CE 1 ΓÇö Scientific Investigations and Skills
+        # ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
         {
             "number": 1,
             "name": "Scientific Investigations and Skills",
@@ -53,7 +53,7 @@ PHYSICS_SYLLABUS = {
                 "graphical analysis, and the use of basic laboratory equipment."
             ),
             "topics": [
-                # ── Form 1 ──────────────────────────────────────────
+                # ΓöÇΓöÇ Form 1 ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
                 {
                     "title": "Introduction",
                     "description": "Physics as a science and its scope.",
@@ -133,7 +133,7 @@ PHYSICS_SYLLABUS = {
                         {"text": "Stop-watches", "type": "equipment"},
                     ],
                 },
-                # ── Form 2 ──────────────────────────────────────────
+                # ΓöÇΓöÇ Form 2 ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
                 {
                     "title": "Conducting a Scientific Investigation",
                     "description": "Basic scientific investigation processes.",
@@ -166,7 +166,7 @@ PHYSICS_SYLLABUS = {
                         {"text": "Basic laboratory equipment", "type": "equipment"},
                     ],
                 },
-                # ── Form 3 ──────────────────────────────────────────
+                # ΓöÇΓöÇ Form 3 ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
                 {
                     "title": "Measurements II",
                     "description": "Advanced measuring instruments, standard notation, and unit conversion.",
@@ -255,7 +255,7 @@ PHYSICS_SYLLABUS = {
                         {"text": "Various laboratory apparatus", "type": "equipment"},
                     ],
                 },
-                # ── Form 4 ──────────────────────────────────────────
+                # ΓöÇΓöÇ Form 4 ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
                 {
                     "title": "Graphical Analysis and Communication",
                     "description": "Graph plotting, analysis, error reduction, and reporting.",
@@ -361,9 +361,9 @@ PHYSICS_SYLLABUS = {
                 },
             ],
         },
-        # ═══════════════════════════════════════════════════════════════
-        # CE 2 — Properties of Matter
-        # ═══════════════════════════════════════════════════════════════
+        # ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+        # CE 2 ΓÇö Properties of Matter
+        # ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
         {
             "number": 2,
             "name": "Properties of Matter",
@@ -372,7 +372,7 @@ PHYSICS_SYLLABUS = {
                 "including density, pressure, thermal behaviour, and the kinetic theory."
             ),
             "topics": [
-                # ── Form 1 ──────────────────────────────────────────
+                # ΓöÇΓöÇ Form 1 ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
                 {
                     "title": "Particulate Nature of Matter",
                     "description": "States of matter and particle arrangement.",
@@ -483,7 +483,7 @@ PHYSICS_SYLLABUS = {
                         {"text": "Bunsen burners", "type": "equipment"},
                     ],
                 },
-                # ── Form 2 ──────────────────────────────────────────
+                # ΓöÇΓöÇ Form 2 ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
                 {
                     "title": "Thermal Expansion of Solids, Liquids and Gases",
                     "description": "Effect of heat on dimensions and volume.",
@@ -567,7 +567,7 @@ PHYSICS_SYLLABUS = {
                         {"text": "Hydrometer", "type": "equipment"},
                     ],
                 },
-                # ── Form 3 ──────────────────────────────────────────
+                # ΓöÇΓöÇ Form 3 ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
                 {
                     "title": "Kinetic Theory of Matter",
                     "description": "Particle model and gas pressure.",
@@ -787,7 +787,7 @@ PHYSICS_SYLLABUS = {
                         {"text": "Leslie's cube for radiation", "type": "equipment"},
                     ],
                 },
-                # ── Form 4 ──────────────────────────────────────────
+                # ΓöÇΓöÇ Form 4 ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
                 {
                     "title": "Thermometry",
                     "description": "Temperature scales, thermometer types, and measurement.",
@@ -1031,9 +1031,9 @@ PHYSICS_SYLLABUS = {
                 },
             ],
         },
-        # ═══════════════════════════════════════════════════════════════
-        # CE 3 — Mechanics
-        # ═══════════════════════════════════════════════════════════════
+        # ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+        # CE 3 ΓÇö Mechanics
+        # ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
         {
             "number": 3,
             "name": "Mechanics",
@@ -1042,7 +1042,7 @@ PHYSICS_SYLLABUS = {
                 "Forms the foundation for understanding how objects move and interact."
             ),
             "topics": [
-                # ── Form 1 ──────────────────────────────────────────
+                # ΓöÇΓöÇ Form 1 ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
                 {
                     "title": "Force",
                     "description": "Definition, effects, measurement, friction, mass and weight.",
@@ -1189,7 +1189,7 @@ PHYSICS_SYLLABUS = {
                         {"text": "Renewable energy models", "type": "digital"},
                     ],
                 },
-                # ── Form 2 ──────────────────────────────────────────
+                # ΓöÇΓöÇ Form 2 ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
                 {
                     "title": "Power",
                     "description": "Rate of doing work.",
@@ -1286,7 +1286,7 @@ PHYSICS_SYLLABUS = {
                         {"text": "Spring balances", "type": "equipment"},
                     ],
                 },
-                # ── Form 3 ──────────────────────────────────────────
+                # ΓöÇΓöÇ Form 3 ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
                 {
                     "title": "Scalar and Vector Quantities",
                     "description": "Defining, representing, and resolving vectors.",
@@ -1427,7 +1427,7 @@ PHYSICS_SYLLABUS = {
                         {"text": "Graph paper", "type": "reference"},
                     ],
                 },
-                # ── Form 4 ──────────────────────────────────────────
+                # ΓöÇΓöÇ Form 4 ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
                 {
                     "title": "Newton's Laws of Motion",
                     "description": "Three laws, applications, inertia, and momentum.",
@@ -1864,38 +1864,249 @@ PHYSICS_SYLLABUS = {
                 },
             ],
         },
-        # ═══════════════════════════════════════════════════════════════
-        # CE 4 — Electricity and Magnetism
-        # ═══════════════════════════════════════════════════════════════
+        # ════════════════════════════════════════════════════════════════════
+        # CE 4 -- Electricity and Magnetism (MoEST official scope & sequence)
+        # ════════════════════════════════════════════════════════════════════
         {
             "number": 4,
             "name": "Electricity and Magnetism",
-            "description": (
-                "Covers electric circuits, electrostatics, and magnetism. "
-                "Emphasises practical circuit analysis and real-world applications."
-            ),
+            "description": "Covers electric current, circuits, electrostatics, magnetism, electromagnetism, electromagnetic induction, resistance, digital electronics, and domestic electricity.",
             "topics": [
                 {
-                    "title": "Static Electricity",
-                    "description": "Electric charge and electrostatic forces.",
-                    "year_level": 2,
-                    "periods": 10,
+                    "title": "Electric Current",
+                    "description": "Fundamentals of electric current and simple circuits.",
+                    "year_level": 1,
+                    "periods": 11,
                     "subtopics": [
-                        {"title": "Electric charge and charging by friction"},
-                        {"title": "Conductors and insulators"},
-                        {"title": "Electric fields (introduction)"},
-                        {"title": "Lightning and electrostatic precipitators"},
+                        {"title": "Meaning of electric current and its units"},
+                        {"title": "Simple electric circuits"},
+                        {
+                            "title": "Components of electric circuits (cell, ammeter, voltmeter, resistor, connecting wires, bulb, switches)"
+                        },
+                        {"title": "Basic circuit symbols"},
+                        {"title": "Measuring electric current"},
                     ],
                     "learning_objectives": [
                         {
-                            "objective": "Describe charging by friction and identify materials that become positively or negatively charged",
+                            "objective": "Define electric current as the rate of flow of charge",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture, discussion",
+                        },
+                        {
+                            "objective": "State the SI unit of electric current (ampere)",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture",
+                        },
+                        {
+                            "objective": "Draw simple electric circuits using standard symbols",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Drawing exercise",
+                        },
+                        {
+                            "objective": "Identify components of electric circuits",
                             "cognitive_level": "Knowledge",
                             "teaching_method": "Demonstration",
                         },
                         {
-                            "objective": "Classify materials as conductors or insulators of electricity",
+                            "objective": "Measure electric current using an ammeter",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Practical",
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Cells and connecting wires", "type": "equipment"},
+                        {"text": "Ammeters", "type": "equipment"},
+                        {"text": "Circuit symbol chart", "type": "reference"},
+                    ],
+                },
+                {
+                    "title": "Voltage",
+                    "description": "Potential difference in series and parallel circuits.",
+                    "year_level": 1,
+                    "periods": 6,
+                    "subtopics": [
+                        {"title": "Measuring voltage"},
+                        {"title": "Voltage in series and parallel circuits"},
+                    ],
+                    "learning_objectives": [
+                        {
+                            "objective": "Define voltage/potential difference",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture",
+                        },
+                        {
+                            "objective": "Measure voltage using a voltmeter",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Practical",
+                        },
+                        {
+                            "objective": "Compare voltage in series and parallel circuits",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Experiment, discussion",
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Voltmeters", "type": "equipment"},
+                        {"text": "Cells, wires, bulbs", "type": "equipment"},
+                        {"text": "Circuit board kits", "type": "equipment"},
+                    ],
+                },
+                {
+                    "title": "Electrical Resistance",
+                    "description": "Definition and factors affecting resistance.",
+                    "year_level": 1,
+                    "periods": 7,
+                    "subtopics": [
+                        {"title": "Definition of electrical resistance"},
+                        {"title": "Factors affecting electrical resistance"},
+                    ],
+                    "learning_objectives": [
+                        {
+                            "objective": "Define electrical resistance and state its SI unit (ohm)",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture",
+                        },
+                        {
+                            "objective": "Describe factors affecting electrical resistance (length, cross-sectional area, material, temperature)",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Experiment, discussion",
+                        },
+                    ],
+                    "resources": [
+                        {
+                            "text": "Resistance wire samples of different lengths and gauges",
+                            "type": "equipment",
+                        },
+                        {"text": "Rheostats", "type": "equipment"},
+                        {"text": "Ammeters and voltmeters", "type": "equipment"},
+                    ],
+                },
+                {
+                    "title": "Effects of Electric Current",
+                    "description": "Heating, magnetic, and chemical effects; cells and batteries.",
+                    "year_level": 1,
+                    "periods": 9,
+                    "subtopics": [
+                        {"title": "Heating effect"},
+                        {"title": "Magnetic effect"},
+                        {"title": "Chemical effect"},
+                        {"title": "Cells and batteries (types, care and maintenance)"},
+                    ],
+                    "learning_objectives": [
+                        {
+                            "objective": "Describe the heating effect of electric current",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Demonstration",
+                        },
+                        {
+                            "objective": "Describe the magnetic effect of electric current",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Demonstration",
+                        },
+                        {
+                            "objective": "Describe the chemical effect of electric current",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Experiment",
+                        },
+                        {
+                            "objective": "Distinguish between wet and dry cells",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture, demonstration",
+                        },
+                        {
+                            "objective": "Describe care and maintenance of cells/batteries",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion",
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Wet and dry cells", "type": "equipment"},
+                        {"text": "Heating element and ammeter", "type": "equipment"},
+                        {"text": "Magnetic compass", "type": "equipment"},
+                    ],
+                },
+                {
+                    "title": "Magnets",
+                    "description": "Properties, laws, poles, and field patterns of magnets.",
+                    "year_level": 1,
+                    "periods": 6,
+                    "subtopics": [
+                        {"title": "Properties of magnets"},
+                        {"title": "Basic law of magnetism"},
+                        {"title": "Poles of magnets"},
+                        {"title": "Magnetic field patterns"},
+                        {"title": "Care and uses of magnets"},
+                    ],
+                    "learning_objectives": [
+                        {
+                            "objective": "State the properties of magnets",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture, demonstration",
+                        },
+                        {
+                            "objective": "State the basic law of magnetism (like poles repel, unlike poles attract)",
                             "cognitive_level": "Knowledge",
                             "teaching_method": "Experiment",
+                        },
+                        {
+                            "objective": "Identify poles of magnets",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Practical",
+                        },
+                        {
+                            "objective": "Draw magnetic field patterns around magnets",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Drawing exercise",
+                        },
+                        {
+                            "objective": "Describe proper care of magnets",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion",
+                        },
+                        {
+                            "objective": "Give everyday uses of magnets",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Discussion",
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Bar magnets", "type": "equipment"},
+                        {"text": "Iron filings", "type": "equipment"},
+                        {"text": "Magnetic field diagram sheets", "type": "reference"},
+                    ],
+                },
+                {
+                    "title": "Electrostatics",
+                    "description": "Principles of electrostatics, charging methods, and Coulomb's law.",
+                    "year_level": 2,
+                    "periods": 6,
+                    "subtopics": [
+                        {"title": "Structure of the atom (charged particles)"},
+                        {"title": "Description of electrostatics"},
+                        {"title": "Charging by friction"},
+                        {"title": "Electric field"},
+                        {"title": "Insulators and conductors"},
+                        {"title": "Earthing"},
+                        {"title": "Detection of charge using an electroscope"},
+                        {"title": "Charging by induction"},
+                        {"title": "Charging by contact"},
+                        {"title": "Coulomb's law (descriptive only)"},
+                    ],
+                    "learning_objectives": [
+                        {
+                            "objective": "Describe the structure of the atom in terms of charged particles",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture, diagram",
+                        },
+                        {
+                            "objective": "Explain electrostatics as the study of stationary electric charges",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Lecture, discussion",
+                        },
+                        {
+                            "objective": "Demonstrate charging by friction",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Practical",
                         },
                         {
                             "objective": "Draw electric field lines around charged objects",
@@ -1903,177 +2114,243 @@ PHYSICS_SYLLABUS = {
                             "teaching_method": "Drawing exercise",
                         },
                         {
-                            "objective": "Explain lightning and the working of an electrostatic precipitator",
+                            "objective": "Distinguish between insulators and conductors in terms of charging",
                             "cognitive_level": "Comprehension",
-                            "teaching_method": "Discussion, video",
+                            "teaching_method": "Experiment, discussion",
+                        },
+                        {
+                            "objective": "Explain earthing and its purpose",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion",
+                        },
+                        {
+                            "objective": "Detect electric charge using an electroscope",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Practical",
+                        },
+                        {
+                            "objective": "Demonstrate charging by induction",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Practical",
+                        },
+                        {
+                            "objective": "Demonstrate charging by contact",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Practical",
+                        },
+                        {
+                            "objective": "Describe Coulomb's law qualitatively (force between charges depends on magnitude and distance)",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Lecture, discussion",
                         },
                     ],
                     "resources": [
                         {"text": "Van de Graaff generator", "type": "equipment"},
-                        {"text": "Electroscope", "type": "equipment"},
-                        {"text": "Various charged materials", "type": "sample"},
+                        {"text": "Gold-leaf electroscope", "type": "equipment"},
+                        {"text": "Charged rods (glass, ebonite)", "type": "equipment"},
                     ],
                 },
                 {
-                    "title": "Electric Circuits: Basics",
-                    "description": "Current, voltage, resistance, and circuit diagrams.",
+                    "title": "Role of Electrostatics in Everyday Life",
+                    "description": "Dangers and applications of electrostatics.",
                     "year_level": 2,
-                    "periods": 16,
+                    "periods": 0,
                     "subtopics": [
-                        {"title": "Electric current and the ampere"},
-                        {"title": "Potential difference and the volt"},
-                        {"title": "Resistance and the ohm"},
-                        {"title": "Circuit symbols and diagrams"},
-                        {"title": "Series and parallel circuits"},
+                        {"title": "Dangers of electrostatics"},
+                        {
+                            "title": "Applications of electrostatics (precipitators, photocopiers, spray painting)"
+                        },
                     ],
                     "learning_objectives": [
                         {
-                            "objective": "Define electric current as the rate of flow of charge (I = Q/t)",
+                            "objective": "Describe dangers of electrostatics (sparks near flammable materials)",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion",
+                        },
+                        {
+                            "objective": "Give applications of electrostatics (electrostatic precipitators, photocopiers, spray painting)",
                             "cognitive_level": "Knowledge",
-                            "teaching_method": "Lecture",
-                        },
-                        {
-                            "objective": "Define potential difference as work done per unit charge (V = W/Q)",
-                            "cognitive_level": "Knowledge",
-                            "teaching_method": "Lecture",
-                        },
-                        {
-                            "objective": "Define resistance as R = V/I and state its unit (ohm)",
-                            "cognitive_level": "Knowledge",
-                            "teaching_method": "Lecture",
-                        },
-                        {
-                            "objective": "Draw and interpret circuit diagrams using standard symbols",
-                            "cognitive_level": "Application",
-                            "teaching_method": "Practice",
-                        },
-                        {
-                            "objective": "Distinguish between series and parallel connections and calculate total resistance",
-                            "cognitive_level": "Application",
-                            "teaching_method": "Calculation, practical",
+                            "teaching_method": "Discussion, video",
                         },
                     ],
                     "resources": [
                         {
-                            "text": "Batteries, wires, bulbs, switches",
+                            "text": "Electrostatics application diagrams",
+                            "type": "reference",
+                        },
+                        {
+                            "text": "Video: electrostatic precipitator",
+                            "type": "digital",
+                        },
+                        {
+                            "text": "Spray painting demonstration kit",
                             "type": "equipment",
                         },
-                        {"text": "Ammeters and voltmeters", "type": "equipment"},
-                        {"text": "Circuit board kits", "type": "equipment"},
                     ],
                 },
                 {
-                    "title": "Ohm's Law",
-                    "description": "The relationship V = IR and I-V characteristics.",
-                    "year_level": 2,
-                    "periods": 12,
+                    "title": "Current Electricity",
+                    "description": "Electric current, units, direction, and circuit diagrams.",
+                    "year_level": 3,
+                    "periods": 2,
                     "subtopics": [
-                        {"title": "Ohm's law: V = IR"},
-                        {"title": "Verifying Ohm's law experimentally"},
-                        {"title": "I-V characteristics of resistors"},
-                        {"title": "Non-ohmic conductors (filament lamp, diode)"},
+                        {"title": "Definition of electric current"},
+                        {"title": "Units of electric current"},
+                        {"title": "Direction of electric current"},
+                        {"title": "Using the equation I = Q/t"},
+                        {"title": "Circuit symbols and circuit diagrams"},
                     ],
                     "learning_objectives": [
                         {
-                            "objective": "State Ohm's law (V = IR) and use it to calculate current, voltage, or resistance",
+                            "objective": "Define electric current as the rate of flow of charge",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture",
+                        },
+                        {
+                            "objective": "State the units of electric current",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture",
+                        },
+                        {
+                            "objective": "Distinguish between conventional current and electron flow",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion, diagram",
+                        },
+                        {
+                            "objective": "Calculate current using I = Q/t",
                             "cognitive_level": "Application",
                             "teaching_method": "Calculation",
                         },
                         {
-                            "objective": "Verify Ohm's law experimentally by plotting an I-V graph for a resistor",
+                            "objective": "Draw circuit diagrams using standard symbols",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Drawing exercise",
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Circuit diagram worksheets", "type": "reference"},
+                        {"text": "Ammeters and cells", "type": "equipment"},
+                        {"text": "Circuit symbol chart", "type": "reference"},
+                    ],
+                },
+                {
+                    "title": "Electrical Potential Difference",
+                    "description": "Potential difference, EMF, and measurements.",
+                    "year_level": 3,
+                    "periods": 2,
+                    "subtopics": [
+                        {"title": "Definition of potential difference"},
+                        {"title": "SI units of potential difference"},
+                        {"title": "Definition of electromotive force"},
+                        {"title": "Potential difference measurements"},
+                    ],
+                    "learning_objectives": [
+                        {
+                            "objective": "Define potential difference",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture",
+                        },
+                        {
+                            "objective": "State SI units of potential difference (volt)",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture",
+                        },
+                        {
+                            "objective": "Define electromotive force (EMF)",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture, discussion",
+                        },
+                        {
+                            "objective": "Measure potential difference in circuits",
                             "cognitive_level": "Application",
                             "teaching_method": "Practical",
                         },
-                        {
-                            "objective": "Describe and explain the I-V characteristics of a filament lamp and diode",
-                            "cognitive_level": "Comprehension",
-                            "teaching_method": "Discussion, experiment",
-                        },
                     ],
                     "resources": [
-                        {"text": "Resistors of different values", "type": "equipment"},
-                        {"text": "Filament lamps and diodes", "type": "equipment"},
-                        {"text": "Ammeters and voltmeters", "type": "equipment"},
-                        {"text": "Rheostats", "type": "equipment"},
+                        {"text": "Voltmeters", "type": "equipment"},
+                        {"text": "Cells, wires, bulbs", "type": "equipment"},
+                        {"text": "Potential difference worksheet", "type": "reference"},
                     ],
                 },
                 {
-                    "title": "Electrical Energy and Power",
-                    "description": "Energy in circuits, power, and domestic wiring.",
+                    "title": "Magnetism",
+                    "description": "Magnetisation, demagnetisation, and domains.",
                     "year_level": 3,
-                    "periods": 14,
+                    "periods": 2,
                     "subtopics": [
-                        {"title": "Electrical energy: E = VIt"},
-                        {"title": "Electrical power: P = VI = I^2 R = V^2 / R"},
-                        {"title": "Energy cost calculations"},
-                        {"title": "Domestic wiring and safety"},
+                        {"title": "Magnetisation and demagnetisation"},
+                        {"title": "Domains"},
+                        {
+                            "title": "Experiments to illustrate magnetisation and demagnetisation"
+                        },
                     ],
                     "learning_objectives": [
                         {
-                            "objective": "Calculate electrical energy using E = VIt",
-                            "cognitive_level": "Application",
-                            "teaching_method": "Calculation",
-                        },
-                        {
-                            "objective": "Calculate electrical power using P = VI, P = I^2 R, and P = V^2 / R",
-                            "cognitive_level": "Application",
-                            "teaching_method": "Calculation",
-                        },
-                        {
-                            "objective": "Calculate the cost of electricity using energy meter readings and tariff rates",
-                            "cognitive_level": "Application",
-                            "teaching_method": "Real-life exercise",
-                        },
-                        {
-                            "objective": "Explain domestic circuit wiring (live, neutral, earth) and safety devices (fuses, circuit breakers)",
+                            "objective": "Explain magnetisation in terms of domain alignment",
                             "cognitive_level": "Comprehension",
-                            "teaching_method": "Discussion, diagrams",
+                            "teaching_method": "Lecture, diagram",
+                        },
+                        {
+                            "objective": "Explain demagnetisation methods",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Demonstration",
+                        },
+                        {
+                            "objective": "Conduct experiments to illustrate magnetisation and demagnetisation",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Practical",
                         },
                     ],
                     "resources": [
-                        {"text": "Electricity meters", "type": "equipment"},
-                        {"text": "Tariff information from ESCOM", "type": "reference"},
-                        {"text": "Domestic wiring diagrams", "type": "reference"},
+                        {"text": "Bar magnets and steel rods", "type": "equipment"},
+                        {"text": "Hammer", "type": "equipment"},
+                        {"text": "Domain model diagrams", "type": "reference"},
                     ],
                 },
                 {
                     "title": "Electromagnetism",
-                    "description": "Magnetic effects of electric current.",
+                    "description": "Electromagnets, field patterns, and Fleming's left-hand rule.",
                     "year_level": 3,
-                    "periods": 14,
+                    "periods": 12,
                     "subtopics": [
-                        {"title": "Magnetic fields around a straight wire"},
-                        {"title": "Right-hand grip rule"},
-                        {"title": "Electromagnets and factors affecting strength"},
+                        {"title": "Investigation of electromagnetism"},
+                        {"title": "Field patterns of electromagnets"},
+                        {"title": "Magnetic fields of current-carrying conductors"},
                         {
-                            "title": "Force on a current-carrying conductor in a magnetic field: F = BIL"
+                            "title": "Force on current-carrying conductor in a magnetic field (descriptive)"
                         },
+                        {"title": "Fleming's left-hand rule"},
                     ],
                     "learning_objectives": [
                         {
-                            "objective": "Describe the magnetic field pattern around a straight current-carrying wire",
-                            "cognitive_level": "Knowledge",
-                            "teaching_method": "Demonstration",
-                        },
-                        {
-                            "objective": "Use the right-hand grip rule to determine the direction of the magnetic field",
-                            "cognitive_level": "Application",
-                            "teaching_method": "Practice",
-                        },
-                        {
-                            "objective": "Describe how to make an electromagnet and explain factors affecting its strength",
+                            "objective": "Investigate electromagnetism experimentally",
                             "cognitive_level": "Application",
                             "teaching_method": "Practical",
                         },
                         {
-                            "objective": "Calculate the force on a conductor using F = BIL",
+                            "objective": "Draw field patterns of electromagnets",
                             "cognitive_level": "Application",
-                            "teaching_method": "Calculation",
+                            "teaching_method": "Drawing exercise",
+                        },
+                        {
+                            "objective": "Describe magnetic fields around current-carrying conductors",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Demonstration, diagram",
+                        },
+                        {
+                            "objective": "Describe the force on a current-carrying conductor in a magnetic field",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Demonstration",
+                        },
+                        {
+                            "objective": "Apply Fleming's left-hand rule to determine force direction",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Practice",
                         },
                     ],
                     "resources": [
-                        {"text": "Iron filings and bar magnets", "type": "equipment"},
                         {"text": "Solenoid and iron core", "type": "equipment"},
+                        {"text": "Bar magnets and iron filings", "type": "equipment"},
                         {
                             "text": "Battery, wire, and magnetic field apparatus",
                             "type": "equipment",
@@ -2081,386 +2358,802 @@ PHYSICS_SYLLABUS = {
                     ],
                 },
                 {
-                    "title": "Electromagnetic Induction",
-                    "description": "Generating electricity from magnetism.",
+                    "title": "Uses of Electromagnetism",
+                    "description": "Electromagnetic induction, Faraday's and Lenz's laws, generators and motors.",
                     "year_level": 3,
-                    "periods": 12,
+                    "periods": 0,
                     "subtopics": [
-                        {"title": "Faraday's law of electromagnetic induction"},
-                        {"title": "Lenz's law"},
-                        {"title": "Induced EMF: epsilon = -N x delta-Phi / delta-t"},
-                        {"title": "Factors affecting induced EMF"},
+                        {"title": "Electromagnetic induction (experiments)"},
+                        {
+                            "title": "Factors affecting magnitude and direction of induced EMF"
+                        },
+                        {"title": "Faraday's and Lenz's laws (descriptive)"},
+                        {"title": "AC and DC generators"},
+                        {"title": "DC motor"},
                     ],
                     "learning_objectives": [
                         {
-                            "objective": "State Faraday's law and explain how moving a magnet near a coil induces EMF",
-                            "cognitive_level": "Comprehension",
-                            "teaching_method": "Demonstration",
-                        },
-                        {
-                            "objective": "State Lenz's law and explain the direction of induced current",
-                            "cognitive_level": "Comprehension",
-                            "teaching_method": "Discussion",
-                        },
-                        {
-                            "objective": "Calculate induced EMF using epsilon = -N x delta-Phi / delta-t",
-                            "cognitive_level": "Application",
-                            "teaching_method": "Calculation",
-                        },
-                        {
-                            "objective": "Investigate factors affecting the magnitude of induced EMF",
+                            "objective": "Demonstrate electromagnetic induction experimentally",
                             "cognitive_level": "Application",
                             "teaching_method": "Practical",
                         },
+                        {
+                            "objective": "Describe factors affecting the magnitude and direction of induced EMF",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Experiment, discussion",
+                        },
+                        {
+                            "objective": "State Faraday's law of electromagnetic induction qualitatively",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture",
+                        },
+                        {
+                            "objective": "State Lenz's law qualitatively",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture, discussion",
+                        },
+                        {
+                            "objective": "Distinguish between AC and DC generators",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion, diagram",
+                        },
+                        {
+                            "objective": "Describe the working principle of a DC motor",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Demonstration",
+                        },
                     ],
                     "resources": [
-                        {"text": "Coils and magnets", "type": "equipment"},
+                        {
+                            "text": "Coils and magnets for induction",
+                            "type": "equipment",
+                        },
                         {"text": "Galvanometer", "type": "equipment"},
-                        {"text": "Iron core", "type": "equipment"},
+                        {"text": "DC motor and generator models", "type": "equipment"},
                     ],
                 },
                 {
-                    "title": "The Transformer",
-                    "description": "Changing voltage levels in AC circuits.",
+                    "title": "Resistance",
+                    "description": "Ohm's law, resistance measurements, colour codes, and internal resistance.",
                     "year_level": 4,
-                    "periods": 10,
+                    "periods": 8,
                     "subtopics": [
-                        {"title": "Construction of a transformer"},
-                        {"title": "Voltage ratio: Vp/Vs = Np/Ns"},
-                        {"title": "Step-up and step-down transformers"},
-                        {"title": "Power transmission and energy losses"},
+                        {
+                            "title": "Definition of electrical resistance and its SI units"
+                        },
+                        {"title": "Factors affecting electrical resistance"},
+                        {"title": "Ohm's law"},
+                        {"title": "Verification of Ohm's law"},
+                        {"title": "Electrical resistance measurements"},
+                        {"title": "Calculation of resistance using Ohm's law"},
+                        {"title": "Resistor colour codes and standard notation"},
+                        {"title": "Internal resistance of a cell"},
                     ],
                     "learning_objectives": [
                         {
-                            "objective": "Describe the construction of a simple transformer using soft iron core and coils",
+                            "objective": "Define resistance and state its SI unit (ohm)",
                             "cognitive_level": "Knowledge",
-                            "teaching_method": "Demonstration",
+                            "teaching_method": "Lecture",
                         },
                         {
-                            "objective": "Apply the transformer equation Vp/Vs = Np/Ns to solve problems",
+                            "objective": "Describe factors affecting resistance",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Experiment, discussion",
+                        },
+                        {
+                            "objective": "State Ohm's law (V = IR)",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture",
+                        },
+                        {
+                            "objective": "Verify Ohm's law experimentally",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Practical",
+                        },
+                        {
+                            "objective": "Measure resistance in circuits",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Practical",
+                        },
+                        {
+                            "objective": "Calculate resistance using Ohm's law",
                             "cognitive_level": "Application",
                             "teaching_method": "Calculation",
                         },
                         {
-                            "objective": "Distinguish between step-up and step-down transformers and their uses",
-                            "cognitive_level": "Comprehension",
-                            "teaching_method": "Discussion",
+                            "objective": "Read resistor colour codes",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Practice",
                         },
                         {
-                            "objective": "Explain energy losses in transformers and why high voltage is used for transmission",
+                            "objective": "Explain internal resistance of a cell",
                             "cognitive_level": "Comprehension",
-                            "teaching_method": "Discussion",
+                            "teaching_method": "Lecture, experiment",
                         },
                     ],
                     "resources": [
-                        {"text": "Demo transformers", "type": "equipment"},
-                        {"text": "Power transmission diagrams", "type": "reference"},
+                        {"text": "Resistors of different values", "type": "equipment"},
+                        {"text": "Resistor colour code chart", "type": "reference"},
+                        {
+                            "text": "Ammeters, voltmeters, and rheostats",
+                            "type": "equipment",
+                        },
+                        {
+                            "text": "Cells for internal resistance experiment",
+                            "type": "equipment",
+                        },
                     ],
                 },
                 {
-                    "title": "Electric Motors and Generators",
-                    "description": "Conversion between electrical and mechanical energy.",
+                    "title": "Electric Circuits, Power and Energy",
+                    "description": "Series/parallel circuits, power, energy, domestic electricity.",
                     "year_level": 4,
-                    "periods": 12,
+                    "periods": 8,
                     "subtopics": [
-                        {"title": "DC motor: construction and principle"},
-                        {"title": "AC generator: construction and principle"},
-                        {"title": "Back EMF in motors"},
-                        {"title": "Applications in Malawi"},
+                        {"title": "Circuit symbols and circuit diagrams"},
+                        {"title": "Resistors in series and parallel"},
+                        {"title": "Net effect of resistors in series and parallel"},
+                        {
+                            "title": "Electric currents and voltages in series and parallel"
+                        },
+                        {"title": "Electric power (power ratings, derived equations)"},
+                        {"title": "Electric energy (kWh, cost, ESCOM bills)"},
+                        {"title": "Experiment on heating effect"},
+                        {"title": "Electrical hazards and safety"},
+                        {"title": "Three-pin plugs"},
                     ],
                     "learning_objectives": [
                         {
-                            "objective": "Describe the construction and working principle of a DC motor",
-                            "cognitive_level": "Comprehension",
-                            "teaching_method": "Demonstration",
+                            "objective": "Draw circuit diagrams using standard symbols",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Drawing exercise",
                         },
                         {
-                            "objective": "Explain how an AC generator converts mechanical energy to electrical energy",
-                            "cognitive_level": "Comprehension",
-                            "teaching_method": "Demonstration",
+                            "objective": "Calculate net resistance in series circuits",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Calculation",
                         },
                         {
-                            "objective": "Explain back EMF and its effect on motor current",
+                            "objective": "Calculate net resistance in parallel circuits",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Calculation",
+                        },
+                        {
+                            "objective": "Calculate currents and voltages in series and parallel circuits",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Calculation, practical",
+                        },
+                        {
+                            "objective": "Calculate electrical power using P = VI, P = I^2R, P = V^2/R",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Calculation",
+                        },
+                        {
+                            "objective": "Calculate electric energy in kilowatt-hours",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Calculation",
+                        },
+                        {
+                            "objective": "Calculate cost of electric energy",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Real-life exercise",
+                        },
+                        {
+                            "objective": "Interpret ESCOM electric energy bills",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Real-life exercise",
+                        },
+                        {
+                            "objective": "Describe the heating effect of electric current experimentally",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Practical",
+                        },
+                        {
+                            "objective": "Identify electrical hazards and safety measures",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Discussion",
+                        },
+                        {
+                            "objective": "Describe the function of a three-pin plug",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Demonstration",
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Resistors, cells, wires, bulbs", "type": "equipment"},
+                        {"text": "Electricity meter", "type": "equipment"},
+                        {"text": "ESCOM tariff information", "type": "reference"},
+                        {
+                            "text": "Three-pin plug and wiring diagram",
+                            "type": "equipment",
+                        },
+                    ],
+                },
+                {
+                    "title": "Introduction to Digital Electronics",
+                    "description": "Semiconductors, diodes, transistors, and logic gates.",
+                    "year_level": 4,
+                    "periods": 15,
+                    "subtopics": [
+                        {"title": "Meaning of digital electronics"},
+                        {
+                            "title": "Differences between conductors/semiconductors/insulators (Band Theory)"
+                        },
+                        {"title": "Intrinsic vs extrinsic semiconductors"},
+                        {"title": "Doping (N-type and P-type)"},
+                        {"title": "Operation of P-N junction diode"},
+                        {"title": "I-V characteristics of forward biased diode"},
+                        {"title": "Half-wave and full-wave rectification"},
+                        {"title": "Bipolar transistor (N-P-N)"},
+                        {"title": "Light operated switch"},
+                        {"title": "Electronic components and their uses"},
+                        {"title": "Symbols for electronic devices"},
+                        {"title": "Difference between analogue and digital circuits"},
+                        {"title": "Characteristics of analogue and digital signals"},
+                        {
+                            "title": "Basic logic gates (operations, truth tables, symbols)"
+                        },
+                    ],
+                    "learning_objectives": [
+                        {
+                            "objective": "Define digital electronics",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture",
+                        },
+                        {
+                            "objective": "Explain differences between conductors, semiconductors and insulators using band theory",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Lecture, diagram",
+                        },
+                        {
+                            "objective": "Distinguish between intrinsic and extrinsic semiconductors",
                             "cognitive_level": "Comprehension",
                             "teaching_method": "Lecture",
                         },
                         {
-                            "objective": "Discuss applications of motors and generators in Malawi (water pumps, maize mills)",
+                            "objective": "Explain doping and distinguish N-type and P-type",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Lecture, discussion",
+                        },
+                        {
+                            "objective": "Describe the operation of a P-N junction diode",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Lecture, demonstration",
+                        },
+                        {
+                            "objective": "Sketch I-V characteristics of a forward biased diode",
                             "cognitive_level": "Application",
+                            "teaching_method": "Drawing exercise, practical",
+                        },
+                        {
+                            "objective": "Explain half-wave and full-wave rectification using diodes",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Lecture, demonstration",
+                        },
+                        {
+                            "objective": "Describe the basic structure and operation of a bipolar transistor",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Lecture, diagram",
+                        },
+                        {
+                            "objective": "Explain the working of a light operated switch",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Demonstration",
+                        },
+                        {
+                            "objective": "Identify common electronic components and their symbols",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture, diagram",
+                        },
+                        {
+                            "objective": "Distinguish between analogue and digital circuits",
+                            "cognitive_level": "Comprehension",
                             "teaching_method": "Discussion",
+                        },
+                        {
+                            "objective": "Describe characteristics of analogue and digital signals",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion, diagram",
+                        },
+                        {
+                            "objective": "State the operations of AND, OR, NOT, NAND, NOR gates",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture, practice",
+                        },
+                        {
+                            "objective": "Construct truth tables for basic logic gates",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Practice",
+                        },
+                        {
+                            "objective": "Draw symbols for basic logic gates",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Drawing exercise",
                         },
                     ],
                     "resources": [
-                        {"text": "DC motor kit", "type": "equipment"},
-                        {"text": "Hand-cranked generator", "type": "equipment"},
+                        {"text": "P-N junction diodes", "type": "equipment"},
+                        {"text": "Bipolar transistors", "type": "equipment"},
+                        {"text": "Logic gate ICs (74 series)", "type": "equipment"},
                         {
-                            "text": "Videos of motors and generators in use",
-                            "type": "digital",
+                            "text": "Breadboard and connecting wires",
+                            "type": "equipment",
                         },
+                        {"text": "Band theory diagram", "type": "reference"},
                     ],
                 },
             ],
         },
-        # ═══════════════════════════════════════════════════════════════
-        # CE 5 — Oscillation and Waves
-        # ═══════════════════════════════════════════════════════════════
         {
             "number": 5,
             "name": "Oscillation and Waves",
-            "description": (
-                "Covers wave phenomena including sound, light, and the electromagnetic "
-                "spectrum. Links wave theory to practical applications."
-            ),
+            "description": "Covers light, sound, oscillations, waves, the electromagnetic spectrum, and lenses. Links wave theory to practical applications including optical instruments and the human eye.",
             "topics": [
                 {
-                    "title": "Wave Properties",
-                    "description": "Transverse and longitudinal waves.",
+                    "title": "Light",
+                    "description": "Rectilinear propagation, reflection, and refraction of light.",
                     "year_level": 2,
-                    "periods": 12,
+                    "periods": 20,
                     "subtopics": [
-                        {"title": "Transverse waves: water, light, S-waves"},
-                        {"title": "Longitudinal waves: sound, P-waves"},
+                        {"title": "Rectilinear propagation of light"},
                         {
-                            "title": "Wave terminology: amplitude, wavelength, frequency, period"
+                            "title": "Formation of shadows and eclipses (umbra and penumbra)"
                         },
-                        {"title": "Wave equation: v = f x lambda"},
+                        {"title": "Pin-hole camera"},
+                        {"title": "Image formation and magnification"},
+                        {"title": "Reflection"},
+                        {
+                            "title": "Images formed by plane mirrors (ray diagrams, parallel and inclined mirrors)"
+                        },
+                        {"title": "Periscope"},
+                        {
+                            "title": "Problems on pin-hole camera and mirrors inclined at an angle"
+                        },
+                        {"title": "Refraction"},
+                        {
+                            "title": "Effects of refraction (apparent depth, dispersion, bending of immersed object)"
+                        },
                     ],
                     "learning_objectives": [
                         {
-                            "objective": "Distinguish between transverse and longitudinal waves with examples",
-                            "cognitive_level": "Knowledge",
-                            "teaching_method": "Discussion, demonstration",
+                            "objective": "Describe rectilinear propagation of light with examples",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Demonstration",
                         },
                         {
-                            "objective": "Define amplitude, wavelength, frequency, and period of a wave",
-                            "cognitive_level": "Knowledge",
-                            "teaching_method": "Lecture",
+                            "objective": "Explain the formation of shadows and eclipses including umbra and penumbra",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion, diagram",
                         },
                         {
-                            "objective": "Apply the wave equation v = f x lambda to solve problems",
+                            "objective": "Describe the principle of a pin-hole camera",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Demonstration",
+                        },
+                        {
+                            "objective": "Calculate magnification for pin-hole camera images",
                             "cognitive_level": "Application",
                             "teaching_method": "Calculation",
                         },
                         {
-                            "objective": "Determine the frequency and wavelength of waves using a ripple tank",
+                            "objective": "State the laws of reflection",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture",
+                        },
+                        {
+                            "objective": "Draw ray diagrams for images formed by plane mirrors",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Drawing exercise",
+                        },
+                        {
+                            "objective": "Explain image formation by plane mirrors",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion, diagram",
+                        },
+                        {
+                            "objective": "Describe a periscope and its working principle",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Demonstration",
+                        },
+                        {
+                            "objective": "Solve problems involving pin-hole cameras",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Calculation",
+                        },
+                        {
+                            "objective": "Describe refraction of light at boundaries",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Experiment, discussion",
+                        },
+                        {
+                            "objective": "Explain apparent depth due to refraction",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Experiment",
+                        },
+                        {
+                            "objective": "Describe dispersion of white light through a prism",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Experiment",
+                        },
+                        {
+                            "objective": "Explain the bending shape of an immersed object due to refraction",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Demonstration",
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Pin-hole camera kit", "type": "equipment"},
+                        {
+                            "text": "Plane mirrors (rectangular and inclined)",
+                            "type": "equipment",
+                        },
+                        {"text": "Glass prism", "type": "equipment"},
+                        {"text": "Light ray box", "type": "equipment"},
+                    ],
+                },
+                {
+                    "title": "Sound",
+                    "description": "Production, transmission, and properties of sound.",
+                    "year_level": 2,
+                    "periods": 7,
+                    "subtopics": [
+                        {"title": "Production of sound by vibrating objects"},
+                        {"title": "Loudness and pitch of sound"},
+                        {"title": "Free and forced vibrations and resonance"},
+                        {"title": "Transmission of sound (matter and vacuum)"},
+                        {
+                            "title": "Nature of sound waves (compressions and rarefactions)"
+                        },
+                        {"title": "Determination of speed of sound in air"},
+                        {"title": "Sound transmission in gases, liquids and solids"},
+                        {"title": "Factors affecting speed of sound"},
+                    ],
+                    "learning_objectives": [
+                        {
+                            "objective": "Explain how sound is produced by vibrating objects",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Demonstration",
+                        },
+                        {
+                            "objective": "Distinguish between loudness and pitch of sound",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Demonstration, discussion",
+                        },
+                        {
+                            "objective": "Explain free and forced vibrations, natural frequency and resonance",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Experiment, discussion",
+                        },
+                        {
+                            "objective": "Describe how sound requires a medium for transmission",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Experiment",
+                        },
+                        {
+                            "objective": "Describe sound waves in terms of compressions and rarefactions",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture, diagram",
+                        },
+                        {
+                            "objective": "Determine the speed of sound in air experimentally",
                             "cognitive_level": "Application",
                             "teaching_method": "Practical",
+                        },
+                        {
+                            "objective": "Compare sound transmission in gases, liquids and solids",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion",
+                        },
+                        {
+                            "objective": "Solve problems involving velocity of sound",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Calculation",
+                        },
+                        {
+                            "objective": "Describe factors affecting the speed of sound",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion",
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Tuning forks", "type": "equipment"},
+                        {
+                            "text": "Slinky springs (longitudinal wave model)",
+                            "type": "equipment",
+                        },
+                        {
+                            "text": "Stop-watches and measuring tape",
+                            "type": "equipment",
+                        },
+                        {"text": "Vacuum jar demonstration set", "type": "equipment"},
+                    ],
+                },
+                {
+                    "title": "Oscillations",
+                    "description": "Pendulum and spring oscillations, period, and frequency.",
+                    "year_level": 3,
+                    "periods": 4,
+                    "subtopics": [
+                        {"title": "Oscillations in a pendulum and loaded spring"},
+                        {"title": "Amplitude, displacement, period and frequency"},
+                        {
+                            "title": "Factors affecting frequency of an oscillating system"
+                        },
+                    ],
+                    "learning_objectives": [
+                        {
+                            "objective": "Describe oscillations in a simple pendulum and loaded spring",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Demonstration",
+                        },
+                        {
+                            "objective": "Define amplitude, displacement, period and frequency of oscillation",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture",
+                        },
+                        {
+                            "objective": "Describe factors affecting frequency of a pendulum (length, mass)",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Experiment",
+                        },
+                        {
+                            "objective": "Describe factors affecting frequency of a loaded spring (spring constant, load)",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Experiment",
+                        },
+                    ],
+                    "resources": [
+                        {
+                            "text": "Simple pendulum (string, bob, stand)",
+                            "type": "equipment",
+                        },
+                        {"text": "Springs and masses", "type": "equipment"},
+                        {"text": "Stop-watches", "type": "equipment"},
+                    ],
+                },
+                {
+                    "title": "Waves",
+                    "description": "Wave description, types, and wave properties.",
+                    "year_level": 3,
+                    "periods": 8,
+                    "subtopics": [
+                        {"title": "Description of a wave"},
+                        {"title": "Meaning of a wave"},
+                        {"title": "Characteristics of a wave"},
+                        {"title": "Transverse and longitudinal waves"},
+                        {
+                            "title": "Differences between transverse and longitudinal waves"
+                        },
+                        {
+                            "title": "Wave properties (reflection, refraction, diffraction, interference)"
+                        },
+                    ],
+                    "learning_objectives": [
+                        {
+                            "objective": "Define a wave as a disturbance that transfers energy",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture",
+                        },
+                        {
+                            "objective": "Describe the characteristics of a wave (amplitude, wavelength, frequency, period)",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture, diagram",
+                        },
+                        {
+                            "objective": "Distinguish between transverse and longitudinal waves with examples",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion, demonstration",
+                        },
+                        {
+                            "objective": "Give examples of transverse and longitudinal waves",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Discussion",
+                        },
+                        {
+                            "objective": "Describe reflection of waves",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Experiment",
+                        },
+                        {
+                            "objective": "Describe refraction of waves",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Experiment",
+                        },
+                        {
+                            "objective": "Describe diffraction of waves",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Experiment, demonstration",
+                        },
+                        {
+                            "objective": "Describe interference of waves",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Experiment",
                         },
                     ],
                     "resources": [
                         {"text": "Ripple tank", "type": "equipment"},
                         {"text": "Slinky springs", "type": "equipment"},
-                        {"text": "Tuning forks", "type": "equipment"},
+                        {"text": "Wave diagram charts", "type": "reference"},
                     ],
                 },
                 {
-                    "title": "Reflection and Refraction of Light",
-                    "description": "Behaviour of light at boundaries.",
+                    "title": "Electromagnetic Waves",
+                    "description": "EM spectrum, properties, sources, and applications.",
                     "year_level": 3,
-                    "periods": 14,
+                    "periods": 6,
                     "subtopics": [
-                        {"title": "Laws of reflection"},
-                        {"title": "Plane and curved mirrors"},
                         {
-                            "title": "Refraction and Snell's law: n1 x sin(theta1) = n2 x sin(theta2)"
+                            "title": "Electromagnetic spectrum (energy, frequency, wavelength, sources)"
                         },
-                        {"title": "Total internal reflection"},
-                        {"title": "Optical fibres"},
+                        {"title": "Properties of electromagnetic waves"},
+                        {"title": "Methods of detecting EM waves"},
+                        {"title": "Applications of EM waves"},
+                        {"title": "Problems using c = f x lambda"},
                     ],
                     "learning_objectives": [
                         {
-                            "objective": "State the laws of reflection and verify them experimentally",
-                            "cognitive_level": "Knowledge",
-                            "teaching_method": "Practical",
-                        },
-                        {
-                            "objective": "Locate images formed by plane and curved mirrors using ray diagrams",
-                            "cognitive_level": "Application",
-                            "teaching_method": "Drawing exercise",
-                        },
-                        {
-                            "objective": "Apply Snell's law to solve refraction problems",
-                            "cognitive_level": "Application",
-                            "teaching_method": "Calculation",
-                        },
-                        {
-                            "objective": "Explain total internal reflection and its application in optical fibres",
-                            "cognitive_level": "Comprehension",
-                            "teaching_method": "Discussion, demonstration",
-                        },
-                    ],
-                    "resources": [
-                        {"text": "Plane and curved mirrors", "type": "equipment"},
-                        {
-                            "text": "Glass blocks and semicircular blocks",
-                            "type": "equipment",
-                        },
-                        {"text": "Light ray boxes", "type": "equipment"},
-                        {
-                            "text": "Optical fibre demonstration kit",
-                            "type": "equipment",
-                        },
-                    ],
-                },
-                {
-                    "title": "Sound Waves",
-                    "description": "Properties and applications of sound.",
-                    "year_level": 3,
-                    "periods": 10,
-                    "subtopics": [
-                        {"title": "Production and propagation of sound"},
-                        {"title": "Speed of sound in different media"},
-                        {"title": "Echoes and reverberation"},
-                        {"title": "Applications: ultrasound, sonar"},
-                    ],
-                    "learning_objectives": [
-                        {
-                            "objective": "Explain how sound is produced by vibration and travels through media",
-                            "cognitive_level": "Comprehension",
-                            "teaching_method": "Demonstration",
-                        },
-                        {
-                            "objective": "Measure the speed of sound in air using an echo method",
-                            "cognitive_level": "Application",
-                            "teaching_method": "Practical",
-                        },
-                        {
-                            "objective": "Distinguish between echoes and reverberation",
-                            "cognitive_level": "Comprehension",
-                            "teaching_method": "Discussion",
-                        },
-                        {
-                            "objective": "Describe applications of ultrasound in medicine and sonar in navigation",
-                            "cognitive_level": "Application",
-                            "teaching_method": "Discussion, video",
-                        },
-                    ],
-                    "resources": [
-                        {"text": "Tuning forks", "type": "equipment"},
-                        {"text": "Stop-watches", "type": "equipment"},
-                        {"text": "Ultrasonic sensor kit", "type": "equipment"},
-                    ],
-                },
-                {
-                    "title": "Electromagnetic Spectrum",
-                    "description": "Types of electromagnetic radiation.",
-                    "year_level": 3,
-                    "periods": 12,
-                    "subtopics": [
-                        {
-                            "title": "The EM spectrum: radio, microwave, IR, visible, UV, X-ray, gamma"
-                        },
-                        {"title": "Properties and uses of each region"},
-                        {"title": "Dangers of UV, X-rays, and gamma rays"},
-                        {
-                            "title": "Malawi context: radio communication, medical X-rays"
-                        },
-                    ],
-                    "learning_objectives": [
-                        {
-                            "objective": "List the regions of the EM spectrum in order of increasing frequency",
+                            "objective": "List the regions of the EM spectrum",
                             "cognitive_level": "Knowledge",
                             "teaching_method": "Lecture",
                         },
                         {
-                            "objective": "State the properties and uses of each region of the EM spectrum",
-                            "cognitive_level": "Knowledge",
-                            "teaching_method": "Lecture, research",
+                            "objective": "Describe the relationship between energy, frequency and wavelength",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Lecture, diagram",
                         },
                         {
-                            "objective": "Explain the dangers of overexposure to UV, X-rays, and gamma rays",
+                            "objective": "Identify sources of electromagnetic waves",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture, discussion",
+                        },
+                        {
+                            "objective": "State properties of electromagnetic waves",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture",
+                        },
+                        {
+                            "objective": "Describe methods of detecting electromagnetic waves",
                             "cognitive_level": "Comprehension",
                             "teaching_method": "Discussion",
                         },
                         {
-                            "objective": "Discuss uses of EM waves in Malawi: radio broadcasting, mobile phones, medical imaging",
+                            "objective": "Give applications of electromagnetic waves",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Discussion, research",
+                        },
+                        {
+                            "objective": "Solve problems using c = f x lambda",
                             "cognitive_level": "Application",
-                            "teaching_method": "Discussion",
+                            "teaching_method": "Calculation",
                         },
                     ],
                     "resources": [
                         {"text": "EM spectrum chart", "type": "reference"},
-                        {"text": "UV lamp demonstration", "type": "equipment"},
-                        {"text": "X-ray images (medical)", "type": "reference"},
+                        {"text": "UV lamp", "type": "equipment"},
+                        {"text": "Radio receiver", "type": "equipment"},
                     ],
                 },
                 {
-                    "title": "Wave Phenomena",
-                    "description": "Diffraction, interference, and polarisation.",
+                    "title": "Light and Lenses",
+                    "description": "Converging and diverging lenses, optical devices, and the human eye.",
                     "year_level": 4,
-                    "periods": 14,
+                    "periods": 19,
                     "subtopics": [
-                        {"title": "Diffraction of waves"},
-                        {"title": "Superposition and interference"},
-                        {"title": "Young's double slit experiment"},
-                        {"title": "Diffraction gratings"},
-                        {"title": "Polarisation of light"},
+                        {
+                            "title": "Converging and diverging lenses (characteristics, ray diagrams)"
+                        },
+                        {
+                            "title": "Focal length of a converging lens (experimental determination, graphs)"
+                        },
+                        {
+                            "title": "Image formation by converging lenses (position, size, nature)"
+                        },
+                        {
+                            "title": "Image formation using ray diagrams (drawing, determination, magnification)"
+                        },
+                        {
+                            "title": "Lens and magnification formulae (derivation, problems)"
+                        },
+                        {
+                            "title": "Application of lenses in optical devices (camera, projector, telescope)"
+                        },
+                        {
+                            "title": "Image formation in the human eye (parts, ray diagrams, comparison with camera)"
+                        },
+                        {
+                            "title": "Visual defects (short sightedness and correction, long sightedness and correction)"
+                        },
                     ],
                     "learning_objectives": [
                         {
-                            "objective": "Explain diffraction and describe how wavelength affects diffraction",
-                            "cognitive_level": "Comprehension",
-                            "teaching_method": "Demonstration",
-                        },
-                        {
-                            "objective": "Explain the principle of superposition and constructive/destructive interference",
-                            "cognitive_level": "Comprehension",
-                            "teaching_method": "Discussion",
-                        },
-                        {
-                            "objective": "Apply Young's double slit formula lambda = ax/D to calculate wavelength",
-                            "cognitive_level": "Application",
-                            "teaching_method": "Calculation",
-                        },
-                        {
-                            "objective": "Explain how a diffraction grating works and use n x lambda = d x sin(theta)",
-                            "cognitive_level": "Application",
-                            "teaching_method": "Practical, calculation",
-                        },
-                        {
-                            "objective": "Demonstrate polarisation using two polarising filters",
-                            "cognitive_level": "Application",
-                            "teaching_method": "Practical",
-                        },
-                    ],
-                    "resources": [
-                        {"text": "Young's double slit apparatus", "type": "equipment"},
-                        {"text": "Diffraction gratings", "type": "equipment"},
-                        {"text": "Polarising filters", "type": "equipment"},
-                        {"text": "Laser pointer (low power)", "type": "equipment"},
-                    ],
-                },
-                {
-                    "title": "Optical Instruments",
-                    "description": "Lenses and optical devices.",
-                    "year_level": 4,
-                    "periods": 10,
-                    "subtopics": [
-                        {"title": "Converging and diverging lenses"},
-                        {"title": "Thin lens formula: 1/f = 1/v - 1/u"},
-                        {"title": "Magnifying glass and microscope"},
-                        {"title": "The eye and vision defects"},
-                    ],
-                    "learning_objectives": [
-                        {
-                            "objective": "Distinguish between converging (convex) and diverging (concave) lenses",
+                            "objective": "Distinguish between converging and diverging lenses",
                             "cognitive_level": "Knowledge",
                             "teaching_method": "Demonstration",
                         },
                         {
-                            "objective": "Apply the thin lens formula 1/f = 1/v - 1/u to locate images",
+                            "objective": "Draw ray diagrams for converging lenses",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Drawing exercise",
+                        },
+                        {
+                            "objective": "Define focal length of a converging lens",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture",
+                        },
+                        {
+                            "objective": "Determine focal length experimentally",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Practical",
+                        },
+                        {
+                            "objective": "Plot and interpret graphs to find focal length",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Practical, calculation",
+                        },
+                        {
+                            "objective": "Describe image formation by converging lenses (position, size, nature)",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Demonstration, diagram",
+                        },
+                        {
+                            "objective": "Draw ray diagrams to determine image position and size",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Drawing exercise",
+                        },
+                        {
+                            "objective": "Calculate magnification using the magnification formula",
                             "cognitive_level": "Application",
                             "teaching_method": "Calculation",
                         },
                         {
-                            "objective": "Explain the construction and magnification of a microscope",
-                            "cognitive_level": "Comprehension",
-                            "teaching_method": "Discussion, diagram",
+                            "objective": "Derive the lens formula 1/f = 1/v - 1/u",
+                            "cognitive_level": "Synthesis",
+                            "teaching_method": "Lecture, derivation",
                         },
                         {
-                            "objective": "Describe how the eye forms images and explain myopia and hypermetropia with corrections",
+                            "objective": "Solve problems involving lenses and magnification",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Calculation",
+                        },
+                        {
+                            "objective": "Describe parts of a simple camera and their functions",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Demonstration, diagram",
+                        },
+                        {
+                            "objective": "Describe parts of a slide/film projector and their functions",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Demonstration, diagram",
+                        },
+                        {
+                            "objective": "Draw ray diagrams for camera and projector",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Drawing exercise",
+                        },
+                        {
+                            "objective": "Describe parts of a telescope and their functions",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture, demonstration",
+                        },
+                        {
+                            "objective": "Describe the structure of the human eye and image formation",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture, diagram",
+                        },
+                        {
+                            "objective": "Compare a camera and the human eye",
                             "cognitive_level": "Comprehension",
                             "teaching_method": "Discussion",
+                        },
+                        {
+                            "objective": "Explain short sightedness and its correction using lenses",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Lecture, diagram",
+                        },
+                        {
+                            "objective": "Explain long sightedness and its correction using lenses",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Lecture, diagram",
                         },
                     ],
                     "resources": [
@@ -2468,196 +3161,243 @@ PHYSICS_SYLLABUS = {
                             "text": "Converging and diverging lenses",
                             "type": "equipment",
                         },
-                        {"text": "Optical bench", "type": "equipment"},
-                        {"text": "Eye model diagram", "type": "reference"},
+                        {
+                            "text": "Optical bench with lens holders",
+                            "type": "equipment",
+                        },
+                        {"text": "Light source and screen", "type": "equipment"},
+                        {"text": "Eye model diagrams", "type": "reference"},
                     ],
                 },
             ],
         },
-        # ═══════════════════════════════════════════════════════════════
-        # CE 6 — Nuclear Physics
-        # ═══════════════════════════════════════════════════════════════
         {
             "number": 6,
             "name": "Nuclear Physics",
-            "description": (
-                "Introduction to atomic structure, radioactivity, and nuclear "
-                "energy. Covers the structure of the atom and applications "
-                "of nuclear physics."
-            ),
+            "description": "Covers atomic structure, isotopes, radioactivity, nuclear reactions, half-life, and applications of nuclear physics. Emphasises safety and real-world applications.",
             "topics": [
                 {
-                    "title": "Atomic Structure",
-                    "description": "Models of the atom.",
-                    "year_level": 2,
-                    "periods": 10,
-                    "subtopics": [
-                        {"title": "Thomson's plum pudding model"},
-                        {"title": "Rutherford's alpha scattering experiment"},
-                        {"title": "Bohr model of the atom"},
-                        {"title": "Nucleus: protons, neutrons, and electrons"},
-                    ],
-                    "learning_objectives": [
-                        {
-                            "objective": "Describe Thomson's plum pudding model and its limitations",
-                            "cognitive_level": "Knowledge",
-                            "teaching_method": "Lecture",
-                        },
-                        {
-                            "objective": "Explain Rutherford's alpha scattering experiment and its conclusions",
-                            "cognitive_level": "Comprehension",
-                            "teaching_method": "Discussion, simulation",
-                        },
-                        {
-                            "objective": "Describe the Bohr model and its significance",
-                            "cognitive_level": "Comprehension",
-                            "teaching_method": "Lecture",
-                        },
-                        {
-                            "objective": "Identify protons, neutrons, and electrons and state their relative charges and masses",
-                            "cognitive_level": "Knowledge",
-                            "teaching_method": "Lecture",
-                        },
-                    ],
-                    "resources": [
-                        {"text": "Atomic model diagrams", "type": "reference"},
-                        {"text": "Alpha scattering simulation", "type": "digital"},
-                        {"text": "Ball models of atoms", "type": "equipment"},
-                    ],
-                },
-                {
-                    "title": "Radioactivity",
-                    "description": "Types of radioactive decay.",
+                    "title": "Introduction to Nuclear Physics",
+                    "description": "Atomic structure, isotopes, radiation types, and radiation safety.",
                     "year_level": 3,
-                    "periods": 12,
+                    "periods": 5,
                     "subtopics": [
-                        {"title": "Alpha, beta, and gamma radiation"},
-                        {"title": "Properties and penetrating power of each type"},
-                        {"title": "Detection using Geiger-Muller counter"},
-                        {"title": "Background radiation"},
+                        {"title": "Structure of an atom"},
+                        {"title": "Meaning of isotopes"},
+                        {"title": "Radioactive isotopes"},
+                        {"title": "Types of radiation (alpha, beta, gamma)"},
+                        {"title": "Properties of different types of radiations"},
+                        {"title": "Uses of radiation"},
+                        {"title": "Dangers of radiation"},
+                        {"title": "Safety measures against radiation exposure"},
                     ],
                     "learning_objectives": [
                         {
-                            "objective": "Describe the properties of alpha, beta, and gamma radiation",
+                            "objective": "Describe the structure of the atom (protons, neutrons, electrons)",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture, diagram",
+                        },
+                        {
+                            "objective": "Explain the meaning of isotopes",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Lecture, discussion",
+                        },
+                        {
+                            "objective": "Give examples of radioactive isotopes",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture",
+                        },
+                        {
+                            "objective": "Identify types of radiation (alpha, beta, gamma)",
                             "cognitive_level": "Knowledge",
                             "teaching_method": "Lecture, demonstration",
                         },
                         {
-                            "objective": "Compare the penetrating power of alpha, beta, and gamma rays",
+                            "objective": "Compare the properties of alpha, beta and gamma radiation",
                             "cognitive_level": "Comprehension",
-                            "teaching_method": "Experiment",
+                            "teaching_method": "Discussion, experiment",
                         },
                         {
-                            "objective": "Use a Geiger-Muller counter to detect radiation",
-                            "cognitive_level": "Application",
-                            "teaching_method": "Practical",
-                        },
-                        {
-                            "objective": "Describe sources of background radiation",
+                            "objective": "Give uses of radioactive isotopes",
                             "cognitive_level": "Knowledge",
                             "teaching_method": "Discussion",
+                        },
+                        {
+                            "objective": "Describe dangers of radiation",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion",
+                        },
+                        {
+                            "objective": "Describe safety measures against radiation exposure",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion",
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Atomic model diagrams", "type": "reference"},
+                        {
+                            "text": "Sealed radioactive sources (demonstration)",
+                            "type": "equipment",
+                        },
+                        {"text": "Geiger-Muller counter", "type": "equipment"},
+                    ],
+                },
+                {
+                    "title": "Isotopes",
+                    "description": "Nuclear structure, nuclide notation, and isotope examples.",
+                    "year_level": 3,
+                    "periods": 2,
+                    "subtopics": [
+                        {
+                            "title": "Nuclear structure of an atom (constituent particles, diagrams, nuclear notation)"
+                        },
+                        {
+                            "title": "Description of isotopes (definition, examples, nuclide notation)"
+                        },
+                    ],
+                    "learning_objectives": [
+                        {
+                            "objective": "Identify constituent particles of the nucleus",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture, diagram",
+                        },
+                        {
+                            "objective": "Draw diagrams of atomic nuclei",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Drawing exercise",
+                        },
+                        {
+                            "objective": "Express atoms using nuclear notation (nuclide notation)",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Practice",
+                        },
+                        {
+                            "objective": "Define isotopes",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture",
+                        },
+                        {
+                            "objective": "Give examples of isotopes",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture, discussion",
+                        },
+                        {
+                            "objective": "Explain how one element can have multiple isotopes using nuclide notation",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Lecture, practice",
+                        },
+                    ],
+                    "resources": [
+                        {"text": "Nuclear notation worksheets", "type": "reference"},
+                        {"text": "Isotope charts", "type": "reference"},
+                        {"text": "Ball models of nuclei", "type": "equipment"},
+                    ],
+                },
+                {
+                    "title": "Radioactivity",
+                    "description": "Radioactive decay, half-life, nuclear equations, and applications.",
+                    "year_level": 4,
+                    "periods": 10,
+                    "subtopics": [
+                        {"title": "Explanation and definition of radioactivity"},
+                        {"title": "Natural and induced radioactivity"},
+                        {"title": "Radioactive emissions"},
+                        {"title": "Half-life of isotopes"},
+                        {"title": "Detection of radioactive emissions"},
+                        {"title": "Nuclear fission and fusion (definitions)"},
+                        {"title": "Balanced nuclear equations (fission and fusion)"},
+                        {"title": "Half-life problems"},
+                        {"title": "Dangers of radioactive emissions"},
+                        {"title": "Safe handling and storage of radioactive materials"},
+                        {
+                            "title": "Applications of radioactivity (nuclear power, agricultural, industrial, medical, radiocarbon dating)"
+                        },
+                    ],
+                    "learning_objectives": [
+                        {
+                            "objective": "Define radioactivity as the spontaneous emission of radiation",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture",
+                        },
+                        {
+                            "objective": "Distinguish between natural and induced radioactivity",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Lecture, discussion",
+                        },
+                        {
+                            "objective": "Describe the emissions from radioactive decay",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture, demonstration",
+                        },
+                        {
+                            "objective": "Define half-life and explain its significance",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture",
+                        },
+                        {
+                            "objective": "Describe methods of detecting radioactive emissions",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Demonstration",
+                        },
+                        {
+                            "objective": "Define nuclear fission and nuclear fusion",
+                            "cognitive_level": "Knowledge",
+                            "teaching_method": "Lecture, discussion",
+                        },
+                        {
+                            "objective": "Write balanced nuclear equations for fission and fusion",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Calculation, practice",
+                        },
+                        {
+                            "objective": "Calculate remaining activity after a given number of half-lives",
+                            "cognitive_level": "Application",
+                            "teaching_method": "Calculation",
+                        },
+                        {
+                            "objective": "Describe dangers of radioactive emissions",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion",
+                        },
+                        {
+                            "objective": "Describe safe handling and storage of radioactive materials",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion",
+                        },
+                        {
+                            "objective": "Describe applications of radioactivity in nuclear power generation",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion, video",
+                        },
+                        {
+                            "objective": "Describe applications of radioactivity in agriculture",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion",
+                        },
+                        {
+                            "objective": "Describe applications of radioactivity in industry",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion",
+                        },
+                        {
+                            "objective": "Describe applications of radioactivity in medicine",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Discussion, video",
+                        },
+                        {
+                            "objective": "Explain radiocarbon dating",
+                            "cognitive_level": "Comprehension",
+                            "teaching_method": "Lecture, discussion",
                         },
                     ],
                     "resources": [
                         {"text": "Geiger-Muller counter", "type": "equipment"},
                         {"text": "Sealed radioactive sources", "type": "equipment"},
-                        {"text": "Aluminium foil, paper, lead sheet", "type": "sample"},
-                    ],
-                },
-                {
-                    "title": "Nuclear Reactions",
-                    "description": "Nuclear equations and reactions.",
-                    "year_level": 4,
-                    "periods": 14,
-                    "subtopics": [
-                        {"title": "Alpha decay equations"},
-                        {"title": "Beta decay equations"},
-                        {"title": "Gamma emission"},
-                        {"title": "Nuclear fission"},
-                        {"title": "Nuclear fusion"},
-                    ],
-                    "learning_objectives": [
-                        {
-                            "objective": "Write balanced nuclear equations for alpha decay",
-                            "cognitive_level": "Application",
-                            "teaching_method": "Calculation",
-                        },
-                        {
-                            "objective": "Write balanced nuclear equations for beta decay",
-                            "cognitive_level": "Application",
-                            "teaching_method": "Calculation",
-                        },
-                        {
-                            "objective": "Explain gamma emission and its use in medicine and industry",
-                            "cognitive_level": "Comprehension",
-                            "teaching_method": "Discussion",
-                        },
-                        {
-                            "objective": "Describe nuclear fission and its use in nuclear power stations",
-                            "cognitive_level": "Comprehension",
-                            "teaching_method": "Discussion, video",
-                        },
-                        {
-                            "objective": "Explain nuclear fusion and its occurrence in the Sun",
-                            "cognitive_level": "Comprehension",
-                            "teaching_method": "Discussion",
-                        },
-                    ],
-                    "resources": [
-                        {
-                            "text": "Nuclear decay equation worksheets",
-                            "type": "reference",
-                        },
-                        {"text": "Nuclear power station videos", "type": "digital"},
-                        {"text": "Fusion and fission diagrams", "type": "reference"},
-                    ],
-                },
-                {
-                    "title": "Radioactivity: Half-Life and Applications",
-                    "description": "Radioactive decay calculations and uses.",
-                    "year_level": 4,
-                    "periods": 12,
-                    "subtopics": [
-                        {"title": "Radioactive decay law and half-life"},
-                        {"title": "Calculating remaining activity"},
-                        {"title": "Carbon-14 dating"},
-                        {"title": "Medical applications: radiotherapy, tracers"},
-                        {"title": "Nuclear waste and safety"},
-                    ],
-                    "learning_objectives": [
-                        {
-                            "objective": "Define half-life and explain the exponential decay of radioactive substances",
-                            "cognitive_level": "Knowledge",
-                            "teaching_method": "Lecture",
-                        },
-                        {
-                            "objective": "Calculate the remaining activity of a radioactive source after a given number of half-lives",
-                            "cognitive_level": "Application",
-                            "teaching_method": "Calculation",
-                        },
-                        {
-                            "objective": "Explain how carbon-14 dating is used to determine the age of archaeological specimens",
-                            "cognitive_level": "Comprehension",
-                            "teaching_method": "Discussion",
-                        },
-                        {
-                            "objective": "Describe medical applications of radioactivity: radiotherapy for cancer, radioactive tracers in diagnosis",
-                            "cognitive_level": "Comprehension",
-                            "teaching_method": "Discussion, video",
-                        },
-                        {
-                            "objective": "Discuss the issues of nuclear waste disposal and radiation safety",
-                            "cognitive_level": "Evaluation",
-                            "teaching_method": "Discussion, debate",
-                        },
-                    ],
-                    "resources": [
+                        {"text": "Nuclear equation worksheets", "type": "reference"},
                         {
                             "text": "Half-life calculation worksheets",
                             "type": "reference",
                         },
-                        {"text": "Carbon dating information", "type": "reference"},
-                        {"text": "Medical imaging videos", "type": "digital"},
                     ],
                 },
             ],
