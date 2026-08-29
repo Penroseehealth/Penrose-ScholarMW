@@ -33,3 +33,6 @@ frontend/build/
 frontend/.flutter-plugins
 frontend/.flutter-plugins-dependencies
 frontend/pubspec.lock
+
+# Local LiveKit server binary (large; distributed via release/LFS instead)
+tools/livekit-server/livekit-server.exe
