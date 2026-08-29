@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, computed_field
 
 from app.models.models import UserRole
 
@@ -34,6 +34,11 @@ class UserResponse(BaseModel):
     student_id: str | None = None
     year_of_study: int | None = None
     created_at: datetime
+
+    @computed_field
+    @property
+    def display_name(self) -> str:
+        return self.full_name
 
     model_config = {"from_attributes": True}
 

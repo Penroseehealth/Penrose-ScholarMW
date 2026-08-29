@@ -5,7 +5,11 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
 import '../screens/admin/admin_syllabus_screen.dart';
+import '../screens/agriculture/agriculture_ai_tutor.dart';
+import '../screens/agriculture/agriculture_dashboard.dart';
+import '../screens/agriculture/agriculture_practical_hub.dart';
 import '../screens/ai_tutor/ai_tutor_screen.dart';
+import '../screens/ai_tutor/ai_tutor_shell.dart';
 import '../screens/analytics/analytics_dashboard.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
@@ -17,6 +21,7 @@ import '../screens/biology/biology_mock_exam.dart';
 import '../screens/biology/biology_notebook.dart';
 import '../screens/biology/biology_past_papers.dart';
 import '../screens/biology/biology_practical_hub.dart';
+import '../screens/biology/biology_practical_studio_screen.dart';
 import '../screens/biology/biology_practice_centre.dart';
 import '../screens/biology/biology_syllabus.dart';
 import '../screens/biology/biology_topics.dart';
@@ -169,7 +174,6 @@ class AppRouter {
           _route('/', (_) => const HomeRedirect()),
           _route('/student', (_) => const StudentDashboard()),
           _route('/dashboard', (_) => const StudentDashboard()),
-          _route('/ai-tutor', (_) => const AiTutorScreen()),
           _route('/research', (_) => const ResearchLab()),
           _route('/vault', (_) => const KnowledgeVaultScreen()),
           _route('/assessment-studio', (_) => const AssessmentStudio()),
@@ -190,8 +194,11 @@ class AppRouter {
             pageBuilder: (_, state) {
               final slug = state.pathParameters['slug'] ?? 'mathematics';
               final title = state.uri.queryParameters['title'] ?? '';
-              final widget =
-                  slug == 'biology' ? const BiologyDashboard() : SubjectDashboardScreen(slug: slug, title: title);
+              final widget = slug == 'biology'
+                  ? const BiologyDashboard()
+                  : slug == 'agriculture'
+                      ? const AgricultureDashboard()
+                      : SubjectDashboardScreen(slug: slug, title: title);
               return CustomTransitionPage<void>(
                 key: state.pageKey,
                 child: widget,
@@ -386,6 +393,7 @@ class AppRouter {
           _route('/bio-virtual-lab', (_) => const BiologyVirtualLabScreen()),
           _route('/bio-diagrams', (_) => const BiologyDiagramCentreScreen()),
           _route('/bio-practicals', (_) => const BiologyPracticalHubScreen()),
+          _route('/bio-practicals/studio', (_) => const BiologyPracticalStudioScreen()),
           _route('/bio-practice', (_) => const BiologyPracticeCentreScreen()),
           _route('/bio-past-papers', (_) => const BiologyPastPapersScreen()),
           _route('/bio-mock-exam', (_) => const BiologyMockExamScreen()),
@@ -393,6 +401,15 @@ class AppRouter {
           _route('/bio-ai-tutor', (_) => const BiologyAITutorScreen()),
           _route('/bio-notebook', (_) => const BiologyNotebookScreen()),
           _route('/bio-analytics', (_) => const BiologyAnalyticsScreen()),
+          _route('/agri-topics', (_) => const StemSyllabusScreen(slug: 'agriculture', title: 'Agriculture')),
+          _route('/agri-syllabus', (_) => const StemSyllabusScreen(slug: 'agriculture', title: 'Agriculture')),
+          _route('/agri-ai-tutor', (_) => const AgricultureAiTutorScreen()),
+          _route('/agri-practicals', (_) => const AgriculturePracticalHub()),
+          _route('/agri-visuals', (_) => const StemSyllabusScreen(slug: 'agriculture', title: 'Agriculture')),
+          _route('/agri-practice', (_) => const StemSyllabusScreen(slug: 'agriculture', title: 'Agriculture')),
+          _route('/agri-assessments', (_) => const StemSyllabusScreen(slug: 'agriculture', title: 'Agriculture')),
+          _route('/agri-revision', (_) => const StemSyllabusScreen(slug: 'agriculture', title: 'Agriculture')),
+          _route('/agri-notebook', (_) => const StemSyllabusScreen(slug: 'agriculture', title: 'Agriculture')),
           _route('/languages', (_) => const LanguagesHub()),
           GoRoute(
             path: '/language/:slug',
@@ -580,6 +597,12 @@ class AppRouter {
               transitionsBuilder: _slideTransition,
             ),
           ),
+        ],
+      ),
+      ShellRoute(
+        builder: (_, __, child) => AiTutorShell(child: child),
+        routes: [
+          _route('/ai-tutor', (_) => const AiTutorScreen()),
         ],
       ),
     ],

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../services/api_service.dart';
 import '../services/auth_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
+  final ApiService _api = ApiService();
 
   Map<String, dynamic>? _user;
   bool _isLoading = false;
@@ -14,11 +16,15 @@ class AuthProvider extends ChangeNotifier {
   bool get isAuthenticated => _user != null;
   String? get error => _error;
   String get userRole => (_user?['role'] ?? 'student') as String;
-  String get userName => (_user?['full_name'] ?? '') as String;
+  String get userName => (_user?['display_name'] ?? _user?['full_name'] ?? '') as String;
 
   Future<void> init() async {
     _isLoading = true;
     notifyListeners();
+
+    // Register force-logout callback
+    _api.onAuthExpired = _handleAuthExpired;
+
     try {
       final me = await _authService.getMe();
       if (me != null) {
@@ -35,6 +41,12 @@ class AuthProvider extends ChangeNotifier {
       // Auto-login failed — stay unauthenticated
     }
     _isLoading = false;
+    notifyListeners();
+  }
+
+  void _handleAuthExpired() {
+    _user = null;
+    _error = 'Session expired. Please log in again.';
     notifyListeners();
   }
 

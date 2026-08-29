@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import '../core/constants/api_constants.dart';
@@ -15,6 +17,13 @@ class ApiService {
 
   String? _accessToken;
   String? _refreshToken;
+
+  /// Mutex to prevent concurrent refresh token requests.
+  Completer<void>? _refreshMutex;
+
+  /// Called when refresh fails permanently (all tokens cleared).
+  /// AuthProvider should set this to force-redirect to login.
+  VoidCallback? onAuthExpired;
 
   Future<Map<String, String>> get headers async {
     if (_accessToken == null) {
@@ -117,19 +126,44 @@ class ApiService {
 
   Future<http.Response> put(String path, {Map<String, dynamic>? body}) async {
     final h = await headers;
-    return http.put(
+    var response = await http.put(
       Uri.parse('$apiBaseUrl$path'),
       headers: h,
       body: body != null ? jsonEncode(body) : null,
     );
+    if (response.statusCode == 401 && _refreshToken != null) {
+      final refreshed = await _tryRefresh();
+      if (refreshed) {
+        response = await http.put(
+          Uri.parse('$apiBaseUrl$path'),
+          headers: await headers,
+          body: body != null ? jsonEncode(body) : null,
+        );
+      }
+    }
+    return response;
   }
 
   Future<http.Response> delete(String path) async {
     final h = await headers;
-    return http.delete(Uri.parse('$apiBaseUrl$path'), headers: h);
+    var response = await http.delete(Uri.parse('$apiBaseUrl$path'), headers: h);
+    if (response.statusCode == 401 && _refreshToken != null) {
+      final refreshed = await _tryRefresh();
+      if (refreshed) {
+        response = await http.delete(Uri.parse('$apiBaseUrl$path'), headers: await headers);
+      }
+    }
+    return response;
   }
 
   Future<bool> _tryRefresh() async {
+    // If a refresh is already in progress, wait for it to complete.
+    if (_refreshMutex != null) {
+      await _refreshMutex!.future;
+      return _accessToken != null;
+    }
+
+    _refreshMutex = Completer<void>();
     try {
       final response = await http.post(
         Uri.parse('$apiBaseUrl/auth/refresh'),
@@ -142,10 +176,15 @@ class ApiService {
         return true;
       }
       await clearTokens();
+      onAuthExpired?.call();
       return false;
     } catch (_) {
       await clearTokens();
+      onAuthExpired?.call();
       return false;
+    } finally {
+      _refreshMutex!.complete();
+      _refreshMutex = null;
     }
   }
 
@@ -179,6 +218,16 @@ class ApiService {
     final request = http.Request('POST', Uri.parse('$apiBaseUrl$path'));
     request.headers.addAll(h);
     if (body != null) request.body = jsonEncode(body);
-    return await http.Client().send(request);
+    var response = await http.Client().send(request);
+    if (response.statusCode == 401 && _refreshToken != null) {
+      final refreshed = await _tryRefresh();
+      if (refreshed) {
+        final retryReq = http.Request('POST', Uri.parse('$apiBaseUrl$path'));
+        retryReq.headers.addAll(await headers);
+        if (body != null) retryReq.body = jsonEncode(body);
+        response = await http.Client().send(retryReq);
+      }
+    }
+    return response;
   }
 }

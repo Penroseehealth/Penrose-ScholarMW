@@ -164,9 +164,13 @@ async def livekit_health():
     """Quick health check — does not expose secrets."""
     settings = get_settings()
     configured = settings.livekit_configured
+    from app.livekit.agent_manager import worker_pid
+
     return {
         "configured": configured,
         "url_set": bool(settings.LIVEKIT_URL),
         "key_set": bool(settings.LIVEKIT_API_KEY),
         "secret_set": bool(settings.LIVEKIT_API_SECRET),
+        "voice_agent": worker_pid() is not None,
+        "voice_agent_pid": worker_pid(),
     }

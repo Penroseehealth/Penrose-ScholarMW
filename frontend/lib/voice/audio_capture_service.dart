@@ -52,7 +52,7 @@ class AudioCaptureService {
       },
       onError: (error) {
         debugPrint('AudioCapture error: $error');
-        _session.stopListening();
+        _session.onError(error);
       },
     );
   }

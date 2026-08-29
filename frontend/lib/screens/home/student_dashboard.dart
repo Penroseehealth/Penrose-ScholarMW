@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -19,11 +21,27 @@ class _StudentDashboardState extends State<StudentDashboard> {
   List<dynamic> _courses = [];
   List<dynamic> _notifications = [];
   bool _loading = true;
+  Timer? _clockTimer;
 
   @override
   void initState() {
     super.initState();
     _loadData();
+    _clockTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  static String _greetingFor(int hour) {
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  }
+
+  @override
+  void dispose() {
+    _clockTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -49,12 +67,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    final hour = DateTime.now().hour;
-    final greeting = hour < 12
-        ? 'Good morning'
-        : hour < 17
-            ? 'Good afternoon'
-            : 'Good evening';
+    final greeting = _greetingFor(DateTime.now().hour);
     final firstName = (auth.userName.isNotEmpty ? auth.userName : 'Scholar').split(' ').first;
 
     return Scaffold(
@@ -199,6 +212,14 @@ class _StudentDashboardState extends State<StudentDashboard> {
               label: 'Grades',
               gradient: [const Color(0xFF0EA5E9), const Color(0xFF0284C7)],
               onTap: () => context.go('/grades'),
+            ),
+            const SizedBox(width: 10),
+            _buildActionCard(
+              context,
+              icon: Icons.science_rounded,
+              label: 'STEM Hub',
+              gradient: [const Color(0xFF22C55E), const Color(0xFF16A34A)],
+              onTap: () => context.go('/stem'),
             ),
           ],
         ),

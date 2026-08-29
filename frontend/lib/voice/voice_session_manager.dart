@@ -155,12 +155,22 @@ class VoiceSessionManager extends ChangeNotifier {
     }
   }
 
+  /// Handle an error (e.g. Web Speech API failure).
+  void onError(String error) {
+    _silenceTimer?.cancel();
+    _currentAiText = error;
+    if (_state == VoiceEngineState.listening || _state == VoiceEngineState.transcribing) {
+      _transitionTo(VoiceEngineState.idle);
+    }
+    notifyListeners();
+  }
+
   /// Start silence timer for hands-free mode.
   void startSilenceTimer() {
     _silenceTimer?.cancel();
     _silenceTimer = Timer(_silenceTimeout, () {
       if (_state == VoiceEngineState.listening && _currentTranscript.trim().isNotEmpty) {
-        onTranscriptReceived(_currentTranscript, isFinal: true);
+        onTranscriptReceived(_currentTranscript);
       }
     });
   }
@@ -219,11 +229,10 @@ class VoiceSessionManager extends ChangeNotifier {
   void onSpeakingComplete() {
     _currentSpeakerText = '';
     if (_state == VoiceEngineState.speaking) {
-      if (_mode == VoiceConversationMode.continuous) {
-        // Auto-restart listening in continuous mode
+      if (_mode == VoiceConversationMode.continuous || _mode == VoiceConversationMode.handsFree) {
         _transitionTo(VoiceEngineState.idle);
         Timer(const Duration(milliseconds: 300), () {
-          if (_mode == VoiceConversationMode.continuous) {
+          if (_mode == VoiceConversationMode.continuous || _mode == VoiceConversationMode.handsFree) {
             startListening();
           }
         });

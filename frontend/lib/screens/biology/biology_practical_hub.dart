@@ -642,7 +642,7 @@ class _BiologyPracticalHubScreenState extends State<BiologyPracticalHubScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () => context.push('/bio-practicals/studio'),
                 icon: const Icon(Icons.play_arrow_rounded, size: 20),
                 label: const Text('Start Practical'),
                 style: ElevatedButton.styleFrom(

@@ -134,7 +134,16 @@ class PenroseVoiceEngine extends ChangeNotifier {
   // Internal flow handlers
   // ──────────────────────────────────────────────────────────────
 
+  VoiceEngineState _lastState = VoiceEngineState.idle;
+
   void _onSessionStateChanged() {
+    final newState = session.state;
+    if (newState == VoiceEngineState.listening && _lastState != VoiceEngineState.listening) {
+      audioCapture.startCapture(lang: session.language);
+    } else if (newState != VoiceEngineState.listening && _lastState == VoiceEngineState.listening) {
+      audioCapture.stopCapture();
+    }
+    _lastState = newState;
     notifyListeners();
   }
 

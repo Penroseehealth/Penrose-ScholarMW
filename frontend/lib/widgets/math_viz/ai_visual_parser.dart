@@ -5,10 +5,13 @@ class ParsedVisual {
   final String? rawSpec;
   final String? title;
   final String? expression;
+  final String? svgSource;
+  final String? codeSource;
   final List<double>? values;
   final List<String>? labels;
   final List<List<double>>? points;
   final String? shapeType;
+  final double? radius;
   final double? xMin;
   final double? xMax;
   final double? yMin;
@@ -24,10 +27,13 @@ class ParsedVisual {
     this.rawSpec,
     this.title,
     this.expression,
+    this.svgSource,
+    this.codeSource,
     this.values,
     this.labels,
     this.points,
     this.shapeType,
+    this.radius,
     this.xMin,
     this.xMax,
     this.yMin,
@@ -48,6 +54,8 @@ class ParsedVisual {
         'generationSource': generationSource,
         'generationDate': (generationDate ?? DateTime.now()).toIso8601String(),
         'rawSpec': rawSpec,
+        if (svgSource != null) 'svgSource': svgSource,
+        if (codeSource != null) 'codeSource': codeSource,
       };
 }
 
@@ -65,6 +73,10 @@ enum VisualType {
   polygon,
   angle,
   tangent,
+  svg,
+  mermaid,
+  html,
+  latexBlock,
   unknown
 }
 
@@ -91,9 +103,8 @@ class AIVisualParser {
     return visuals;
   }
 
-  static String removeVisualBlocks(String response) {
-    return response.replaceAll(_visualBlockExp, '').replaceAll(_xmlVisualExp, '').trim();
-  }
+  static String removeVisualBlocks(String response) =>
+      response.replaceAll(_visualBlockExp, '').replaceAll(_xmlVisualExp, '').trim();
 
   static ParsedVisual? _parseSpec(String spec) {
     try {
@@ -105,10 +116,13 @@ class AIVisualParser {
         rawSpec: spec,
         title: map['title'] as String?,
         expression: map['expression'] as String?,
+        svgSource: map['svg'] as String?,
+        codeSource: map['code'] as String?,
         values: (map['values'] as List?)?.map((e) => (e as num).toDouble()).toList(),
         labels: (map['labels'] as List?)?.map((e) => e.toString()).toList(),
         points: (map['points'] as List?)?.map((p) => (p as List).map((e) => (e as num).toDouble()).toList()).toList(),
         shapeType: map['shape'] as String? ?? map['shapeType'] as String?,
+        radius: (map['radius'] as num?)?.toDouble(),
         xMin: (map['xMin'] as num?)?.toDouble(),
         xMax: (map['xMax'] as num?)?.toDouble(),
         yMin: (map['yMin'] as num?)?.toDouble(),
@@ -191,6 +205,18 @@ class AIVisualParser {
         return VisualType.angle;
       case 'tangent':
         return VisualType.tangent;
+      case 'svg':
+        return VisualType.svg;
+      case 'mermaid':
+      case 'mmd':
+      case 'diagram':
+        return VisualType.mermaid;
+      case 'html':
+        return VisualType.html;
+      case 'latex':
+      case 'tex':
+      case 'math':
+        return VisualType.latexBlock;
       default:
         return VisualType.unknown;
     }

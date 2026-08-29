@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
@@ -73,7 +73,7 @@ class SubjectDashboardResponse(BaseModel):
 
 
 def _build_greeting(user_full_name: str) -> str:
-    hour = datetime.now(timezone.utc).hour
+    hour = datetime.now().hour
     if hour < 12:
         time_of_day = "morning"
     elif hour < 17:
@@ -95,7 +95,9 @@ async def subject_dashboard(
     from app.stem.slug_utils import resolve_slug
 
     slug = resolve_slug(slug)
-    subject_result = await db.execute(select(STEMSubject).where(STEMSubject.subject_slug == slug))
+    subject_result = await db.execute(
+        select(STEMSubject).where(STEMSubject.subject_slug == slug)
+    )
     subject = subject_result.scalar_one_or_none()
     if not subject:
         raise HTTPException(
@@ -175,22 +177,29 @@ async def subject_dashboard(
     records_by_concept = {r.concept_id: r for r in records}
 
     mastered_concepts = sum(
-        1 for cid in concept_ids if cid in records_by_concept and records_by_concept[cid].mastery_level >= 0.8
+        1
+        for cid in concept_ids
+        if cid in records_by_concept and records_by_concept[cid].mastery_level >= 0.8
     )
     in_progress_concepts = sum(
-        1 for cid in concept_ids if cid in records_by_concept and 0 < records_by_concept[cid].mastery_level < 0.8
+        1
+        for cid in concept_ids
+        if cid in records_by_concept and 0 < records_by_concept[cid].mastery_level < 0.8
     )
     total_attempts = sum(r.attempts for r in records)
 
     concepts_with_mastery = [cid for cid in concept_ids if cid in records_by_concept]
 
     overall_mastery = (
-        sum(records_by_concept[cid].mastery_level for cid in concepts_with_mastery) / len(concepts_with_mastery)
+        sum(records_by_concept[cid].mastery_level for cid in concepts_with_mastery)
+        / len(concepts_with_mastery)
         if concepts_with_mastery
         else 0.0
     )
 
-    course_completion = len(concepts_with_mastery) / total_concepts if total_concepts > 0 else 0.0
+    course_completion = (
+        len(concepts_with_mastery) / total_concepts if total_concepts > 0 else 0.0
+    )
 
     assessment_average = overall_mastery * 100
 
@@ -198,7 +207,10 @@ async def subject_dashboard(
     last_practiced_concept = None
     for r in records:
         if r.last_practiced is not None:
-            if last_practiced_record is None or r.last_practiced > last_practiced_record.last_practiced:
+            if (
+                last_practiced_record is None
+                or r.last_practiced > last_practiced_record.last_practiced
+            ):
                 last_practiced_record = r
                 last_practiced_concept = concepts_by_id.get(r.concept_id)
 
@@ -218,15 +230,26 @@ async def subject_dashboard(
     current_topic_mastery = 0.0
     if current_learning and current_learning.topic_title:
         topic_concept_ids = [
-            cid for cid in concept_ids if hierarchy_map.get(cid, {}).get("topic_title") == current_learning.topic_title
+            cid
+            for cid in concept_ids
+            if hierarchy_map.get(cid, {}).get("topic_title")
+            == current_learning.topic_title
         ]
-        topic_records = [records_by_concept[cid] for cid in topic_concept_ids if cid in records_by_concept]
+        topic_records = [
+            records_by_concept[cid]
+            for cid in topic_concept_ids
+            if cid in records_by_concept
+        ]
         if topic_records:
-            current_topic_mastery = sum(r.mastery_level for r in topic_records) / len(topic_records)
+            current_topic_mastery = sum(r.mastery_level for r in topic_records) / len(
+                topic_records
+            )
 
     recommendations: list[RecommendationItem] = []
     weak_concept_ids = [
-        cid for cid in concept_ids if cid in records_by_concept and records_by_concept[cid].mastery_level < 0.6
+        cid
+        for cid in concept_ids
+        if cid in records_by_concept and records_by_concept[cid].mastery_level < 0.6
     ]
     for cid in weak_concept_ids[:5]:
         c = concepts_by_id[cid]

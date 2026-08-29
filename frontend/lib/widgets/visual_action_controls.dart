@@ -11,6 +11,9 @@ class VisualActionControls extends StatelessWidget {
   final GlobalKey? visualKey;
   final VoidCallback? onRegenerate;
   final String? chatContext;
+  final bool isEditing;
+  final bool canEdit;
+  final VoidCallback? onEditToggle;
 
   const VisualActionControls({
     super.key,
@@ -18,6 +21,9 @@ class VisualActionControls extends StatelessWidget {
     this.visualKey,
     this.onRegenerate,
     this.chatContext,
+    this.isEditing = false,
+    this.canEdit = true,
+    this.onEditToggle,
   });
 
   @override
@@ -25,29 +31,36 @@ class VisualActionControls extends StatelessWidget {
     final colors = context.colors;
     return Padding(
       padding: const EdgeInsets.only(top: 8),
-      child: Row(
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 4,
         children: [
+          if (canEdit)
+            _ActionChip(
+              icon: isEditing ? Icons.check_rounded : Icons.edit_rounded,
+              label: isEditing ? 'Done' : 'Edit',
+              onTap: onEditToggle,
+              colors: colors,
+              isActive: isEditing,
+            ),
           _ActionChip(
             icon: Icons.refresh_rounded,
             label: 'Regenerate',
             onTap: onRegenerate,
             colors: colors,
           ),
-          const SizedBox(width: 8),
           _ActionChip(
             icon: Icons.copy_rounded,
             label: 'Copy',
             onTap: () => _copyVisual(context),
             colors: colors,
           ),
-          const SizedBox(width: 8),
           _ActionChip(
             icon: Icons.save_rounded,
             label: 'Save',
             onTap: () => _saveVisual(context),
             colors: colors,
           ),
-          const SizedBox(width: 8),
           _ActionChip(
             icon: Icons.download_rounded,
             label: 'Export',
@@ -97,12 +110,14 @@ class _ActionChip extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
   final dynamic colors;
+  final bool isActive;
 
   const _ActionChip({
     required this.icon,
     required this.label,
     this.onTap,
     required this.colors,
+    this.isActive = false,
   });
 
   @override
@@ -112,18 +127,28 @@ class _ActionChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: isActive ? AppColors.primary.withAlpha(30) : AppColors.surfaceElevated,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(
+            color: isActive ? AppColors.primary : AppColors.border,
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: AppColors.primaryLight),
+            Icon(
+              icon,
+              size: 14,
+              color: isActive ? AppColors.primaryLight : AppColors.primaryLight,
+            ),
             const SizedBox(width: 4),
             Text(
               label,
-              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+              style: TextStyle(
+                fontSize: 11,
+                color: isActive ? AppColors.primaryLight : AppColors.textSecondary,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+              ),
             ),
           ],
         ),

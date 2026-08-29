@@ -91,7 +91,7 @@ class _ShapePainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
     final center = Offset(w / 2, h / 2);
-    final scale = min(w, h) * 0.35;
+    final scale = min(w, h) * 0.42;
 
     for (final shape in shapes) {
       final paint = Paint()
@@ -110,7 +110,7 @@ class _ShapePainter extends CustomPainter {
 
       switch (shape.type) {
         case ShapeType.circle:
-          final r = (shape.radius ?? 1.0) * scale;
+          final r = (shape.radius ?? 1.5) * scale;
           final c = shape.points.isNotEmpty ? _map(shape.points[0], center, scale) : center;
           canvas.drawCircle(c, r, fillPaint);
           canvas.drawCircle(c, r, paint);
@@ -185,7 +185,7 @@ class _ShapePainter extends CustomPainter {
           for (final p in pts) _drawPoint(canvas, p, textPaint);
 
         case ShapeType.tangentCircle:
-          final r1 = (shape.radius ?? 0.8) * scale;
+          final r1 = (shape.radius ?? 1.2) * scale;
           final c = shape.points.isNotEmpty ? _map(shape.points[0], center, scale) : center;
           canvas.drawCircle(c, r1, fillPaint);
           canvas.drawCircle(c, r1, paint);

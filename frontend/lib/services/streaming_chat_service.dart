@@ -2,9 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 
-import '../core/constants/api_constants.dart';
 import '../services/api_service.dart';
 import 'connectivity_manager.dart';
 import 'context_service.dart';
@@ -80,28 +78,21 @@ class StreamingChatService {
       body['preferred_response_mode'] = preferredResponseMode;
     }
 
-    final headers = <String, String>{
-      'Content-Type': 'application/json',
-    };
-    // Get the auth token
     try {
-      final h = await _api.headers;
-      headers.addAll(h);
-    } catch (_) {}
+      final response = await _api.postStream('/ai/chat/stream', body: body);
 
-    final uri = Uri.parse('$apiBaseUrl/ai/chat/stream');
-
-    try {
-      final request = http.Request('POST', uri)
-        ..headers.addAll(headers)
-        ..body = jsonEncode(body);
-
-      final response = await http.Client().send(request);
+      if (response.statusCode == 401) {
+        yield const StreamChunk(
+          type: 'error',
+          content: 'auth',
+        );
+        return;
+      }
 
       if (response.statusCode != 200) {
         yield const StreamChunk(
           type: 'error',
-          content: 'Failed to connect to streaming endpoint',
+          content: 'Failed to connect to AI service',
         );
         return;
       }
@@ -118,8 +109,8 @@ class StreamingChatService {
 
             try {
               final json = jsonDecode(data) as Map<String, dynamic>;
-              final type = json['type'] as String? ?? 'chunk';
-              final content = json['content'] as String? ?? '';
+              final type = json['type']?.toString() ?? 'chunk';
+              final content = json['content']?.toString() ?? '';
 
               _chunkController.add(StreamChunk(
                 type: type,

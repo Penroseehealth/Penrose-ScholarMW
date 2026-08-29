@@ -59,6 +59,15 @@ class VoiceConversationManager extends ChangeNotifier {
     _onUserSpoke = onUserSpoke;
     _onAiResponded = onAiResponded;
     _onError = onError;
+
+    _session.configure(
+      onTranscriptReady: (transcript) {
+        processTranscript(transcript);
+      },
+      onAiResponse: (aiText) {
+        _session.startSpeaking(aiText);
+      },
+    );
   }
 
   /// Create a voice session on the backend.
@@ -92,9 +101,6 @@ class VoiceConversationManager extends ChangeNotifier {
     _currentTranscript = transcript;
     _onUserSpoke?.call(transcript);
 
-    // Notify session
-    _session.onTranscriptReceived(transcript, isFinal: true);
-
     // Start AI processing
     _isProcessing = true;
     _session.onAiThinking();
@@ -105,7 +111,7 @@ class VoiceConversationManager extends ChangeNotifier {
       _currentAiText = '';
       await for (final chunk in _streaming.streamChat(
         message: transcript,
-        sessionId: _sessionId is String ? null : null,
+        sessionId: null,
         agentType: _agentType,
       )) {
         if (chunk.type == 'chunk') {
@@ -115,6 +121,14 @@ class VoiceConversationManager extends ChangeNotifier {
         } else if (chunk.type == 'done') {
           _session.onAiComplete(_currentAiText);
         } else if (chunk.type == 'error') {
+          if (chunk.content == 'auth') {
+            _currentAiText = 'Session expired. Please log in again.';
+            _session.onAiComplete(_currentAiText);
+            _onError?.call('auth');
+            _isProcessing = false;
+            notifyListeners();
+            return;
+          }
           throw Exception(chunk.content);
         }
       }
@@ -126,7 +140,7 @@ class VoiceConversationManager extends ChangeNotifier {
       _onAiResponded?.call(_currentAiText);
     } catch (e) {
       debugPrint('Voice conversation error: $e');
-      final errorMsg = 'Sorry, I encountered an error. Please try again.';
+      const errorMsg = 'Sorry, I encountered an error. Please try again.';
       _currentAiText = errorMsg;
       _session.onAiComplete(errorMsg);
       _onError?.call(e.toString());

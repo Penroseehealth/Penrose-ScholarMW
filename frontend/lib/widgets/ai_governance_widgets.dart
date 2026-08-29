@@ -119,7 +119,7 @@ class AiGovernanceBar extends StatelessWidget {
   Widget build(BuildContext context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AiBadge(label: label),
+          if (label != null) AiBadge(label: label),
           if (sourcesJson != null && sourcesJson!.isNotEmpty) ...[
             const SizedBox(height: 6),
             AiSourceChips(sourcesJson: sourcesJson),

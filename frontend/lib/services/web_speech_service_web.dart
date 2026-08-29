@@ -2,9 +2,12 @@ import 'dart:async';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 
+import 'livekit_speech_service.dart';
 import 'web_speech_service.dart';
 
-WebSpeechService createWebSpeechService() => WebSpeechServiceImpl();
+WebSpeechService createWebSpeechService() => LiveKitSpeechService(
+      fallback: WebSpeechServiceImpl(),
+    );
 
 class WebSpeechServiceImpl implements WebSpeechService {
   JSObject? _recognition;
@@ -93,7 +96,7 @@ class WebSpeechServiceImpl implements WebSpeechService {
               message = 'No speech detected';
               break;
             case 'network':
-              message = 'Network error';
+              message = 'Speech service unreachable. Check your connection or type instead.';
               break;
             case 'aborted':
               message = '';

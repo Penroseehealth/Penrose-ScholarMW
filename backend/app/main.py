@@ -3,7 +3,6 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from sqlalchemy import select
 
 from app.admin.router import router as admin_router
@@ -32,6 +31,7 @@ from app.messaging.router import router as messaging_router
 from app.middleware.security import RateLimitMiddleware
 from app.notifications.router import router as notifications_router
 from app.physics.router import router as phys_syllabus_router
+from app.practical.router import router as practical_router
 from app.research.router import router as research_router
 from app.smart_notifications.router import router as smart_notifications_router
 from app.stem.adaptive_learning_router import router as adaptive_router
@@ -111,7 +111,21 @@ async def lifespan(app: FastAPI):
     from app.languages.seed_arabic import seed_arabic
 
     await seed_arabic()
-    yield
+    from app.agriculture.seed_agriculture import seed_agriculture
+
+    await seed_agriculture()
+    from app.agriculture.seed_agriculture_syllabus import seed_agriculture_syllabus
+
+    await seed_agriculture_syllabus()
+    from app.computer_science.seed_computer_studies_syllabus import (
+        seed_computer_studies_syllabus,
+    )
+
+    await seed_computer_studies_syllabus()
+    from app.livekit.agent_manager import voice_agent_host
+
+    async with voice_agent_host():
+        yield
 
 
 async def _seed_default_users():
@@ -135,7 +149,7 @@ async def _seed_default_users():
             User(
                 email="lecturer@scholar.mw",
                 hashed_password=hash_password("lecturer123"),
-                full_name="Dr. Grace Mphatso",
+                full_name="Mr. R. Asedi",
                 role=UserRole.LECTURER,
                 institution="University of Malawi",
                 department="Computer Science",
@@ -254,6 +268,7 @@ app.include_router(phys_syllabus_router, prefix="/api/v1")
 app.include_router(languages_router, prefix="/api/v1")
 app.include_router(livekit_router, prefix="/api/v1")
 app.include_router(voice_router, prefix="/api/v1")
+app.include_router(practical_router, prefix="/api/v1")
 
 
 @app.get("/health")
@@ -263,15 +278,9 @@ async def health():
 
 WEB_DIR = Path(__file__).resolve().parent.parent.parent / "frontend" / "build" / "web"
 if WEB_DIR.is_dir():
-    assets_dir = WEB_DIR / "assets"
-    if assets_dir.is_dir():
-        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
-    icons_dir = WEB_DIR / "icons"
-    if icons_dir.is_dir():
-        app.mount("/icons", StaticFiles(directory=str(icons_dir)), name="icons")
-
     import hashlib
     import os
+    import time
 
     from starlette.responses import FileResponse, HTMLResponse
 
@@ -279,15 +288,38 @@ if WEB_DIR.is_dir():
     _build_hash = hashlib.md5(
         str(os.path.getmtime(_main_js_path)).encode()
     ).hexdigest()[:12]
+    _startup_version = str(int(time.time()))
+    _no_cache_headers = {
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0",
+    }
+
     _index_html = (WEB_DIR / "index.html").read_text(encoding="utf-8")
     _index_html = _index_html.replace(
         "flutter_bootstrap.js", f"flutter_bootstrap.js?v={_build_hash}"
     )
     _index_html = _index_html.replace("main.dart.js", f"main.dart.js?v={_build_hash}")
+    _index_html = _index_html.replace(
+        "flutter_service_worker.js",
+        f"flutter_service_worker.js?v={_startup_version}",
+    )
     _bootstrap_js = (WEB_DIR / "flutter_bootstrap.js").read_text(encoding="utf-8")
     _bootstrap_js = _bootstrap_js.replace(
         "main.dart.js", f"main.dart.js?v={_build_hash}"
     )
+
+    _NO_CACHE_MIME = {
+        ".js": "application/javascript",
+        ".css": "text/css",
+        ".json": "application/json",
+        ".woff2": "font/woff2",
+        ".woff": "font/woff",
+        ".ttf": "font/ttf",
+        ".png": "image/png",
+        ".svg": "image/svg+xml",
+        ".ico": "image/x-icon",
+    }
 
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
@@ -295,16 +327,18 @@ if WEB_DIR.is_dir():
         if full_path == "" or full_path == "index.html":
             return HTMLResponse(
                 _index_html,
-                headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
+                headers=_no_cache_headers,
             )
         if full_path == "flutter_bootstrap.js":
             return HTMLResponse(
                 _bootstrap_js,
-                headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
+                headers=_no_cache_headers,
             )
         if full_path == "flutter_service_worker.js":
             sw_code = (
-                "self.addEventListener('install', function(e) { self.skipWaiting(); });\n"
+                "self.addEventListener('install', function(e) {\n"
+                "  self.skipWaiting();\n"
+                "});\n"
                 "self.addEventListener('activate', function(e) {\n"
                 "  e.waitUntil(\n"
                 "    caches.keys().then(function(names) {\n"
@@ -312,24 +346,17 @@ if WEB_DIR.is_dir():
                 "    }).then(function() { return self.registration.unregister(); })\n"
                 "  );\n"
                 "});\n"
+                "self.addEventListener('fetch', function(e) {\n"
+                "  e.respondWith(fetch(e.request, { cache: 'no-store' }));\n"
+                "});\n"
             )
             return HTMLResponse(
                 sw_code,
-                headers={
-                    "Cache-Control": "no-store",
-                    "Content-Type": "application/javascript",
-                },
+                headers=_no_cache_headers,
             )
         if file_path.is_file():
-            headers = {
-                "Cache-Control": "no-cache, no-store, must-revalidate",
-                "Pragma": "no-cache",
-                "Expires": "0",
-            }
-            return FileResponse(str(file_path), headers=headers)
-        headers = {
-            "Cache-Control": "no-cache, no-store, must-revalidate",
-            "Pragma": "no-cache",
-            "Expires": "0",
-        }
-        return HTMLResponse(_index_html, headers=headers)
+            return FileResponse(
+                str(file_path),
+                headers=_no_cache_headers,
+            )
+        return HTMLResponse(_index_html, headers=_no_cache_headers)

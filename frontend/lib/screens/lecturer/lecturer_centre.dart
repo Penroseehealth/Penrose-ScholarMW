@@ -85,13 +85,13 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
       'biology',
     ),
     _StemSubject(
-      'Engineering',
-      'ENG101',
-      Icons.engineering_rounded,
-      const Color(0xFF06B6D4),
-      0.52,
-      30,
-      'engineering',
+      'Agriculture',
+      'AGR101',
+      Icons.agriculture_rounded,
+      const Color(0xFF22C55E),
+      0.48,
+      28,
+      'agriculture',
     ),
   ];
 
@@ -520,7 +520,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Dr. Grace Mphatso',
+                  Text('Mr. R. Asedi',
                       style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textPrimary)),
                   Text('Lecturer', style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
                 ],
@@ -532,7 +532,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
       );
 
   Widget _buildSidebarProfileCompact() => Tooltip(
-        message: 'Dr. Grace Mphatso – Lecturer',
+        message: 'Mr. R. Asedi – Lecturer',
         waitDuration: const Duration(milliseconds: 500),
         child: Padding(
           padding: const EdgeInsets.all(12),

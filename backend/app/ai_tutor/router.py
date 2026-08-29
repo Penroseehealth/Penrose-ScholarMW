@@ -663,8 +663,9 @@ async def _chat_stream_impl(
             async for chunk in call_ai_stream_with_fallback(
                 full_messages, max_tokens=2048, temperature=0.7
             ):
-                collected.append(chunk)
-                yield f"data: {json.dumps({'type': 'chunk', 'content': chunk})}\n\n"
+                text = str(chunk)
+                collected.append(text)
+                yield f"data: {json.dumps({'type': 'chunk', 'content': text})}\n\n"
         except (AIProviderError, RuntimeError, TimeoutError, OSError) as exc:
             yield f"data: {json.dumps({'type': 'error', 'content': str(exc)[:500]})}\n\n"
             return

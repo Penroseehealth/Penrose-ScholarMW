@@ -40,6 +40,19 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str = ""
     GROQ_MODEL: str = "llama-3.3-70b-versatile"
 
+    # ElevenLabs (cloud TTS + STT, free renewable tier)
+    ELEVENLABS_API_KEY: str = ""
+    ELEVENLABS_VOICE_ID: str = "JBFqnCBsd6RMkjVDRZzb"
+    ELEVENLABS_MODEL: str = "eleven_multilingual_v2"
+    ELEVENLABS_STT_MODEL: str = "scribe_v1"
+
+    # Video generation providers (kept only on the backend)
+    RUNWAY_API_KEY: str = ""
+    RUNWAY_API_SECRET: str = ""
+    RUNWAY_MODEL: str = "gen3a_turbo"
+    LUMA_API_KEY: str = ""
+    LUMA_MODEL: str = "ray-2"
+
     # LiveKit (video/audio conferencing) — server-side only
     LIVEKIT_URL: str = ""
     LIVEKIT_API_KEY: str = ""

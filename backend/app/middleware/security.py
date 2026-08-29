@@ -23,6 +23,13 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self._hour_hits: dict[str, list[float]] = defaultdict(list)
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        # Only rate-limit API calls. Static/SPA asset requests (Flutter's
+        # flutter_bootstrap.js, main.dart.js, fonts, icons, ...) are served by a
+        # catch-all route on the same host/IP and easily exceed 60/min on page
+        # load; counting them would 429 the whole web app out of existence.
+        if not request.url.path.startswith("/api/"):
+            return await call_next(request)
+
         client_ip = request.client.host if request.client else "unknown"
         now = time.time()
 
