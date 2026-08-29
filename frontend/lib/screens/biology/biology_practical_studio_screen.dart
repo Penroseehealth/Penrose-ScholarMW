@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/theme_colors.dart';
 import '../../services/practical_simulation_service.dart';
+import 'practical_video_player_screen.dart';
 
 /// Cyan accent used alongside the purple theme in the practical studio.
 const Color _studioCyan = Color(0xFF22D3EE);
@@ -558,7 +559,14 @@ class _BiologyPracticalStudioScreenState extends State<BiologyPracticalStudioScr
           ),
           const SizedBox(height: 10),
           FilledButton.icon(
-            onPressed: () {},
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => PracticalVideoPlayerScreen(
+                  videoUrl: job.videoUrl!,
+                  title: _savedTitle ?? 'Practical Simulation',
+                ),
+              ),
+            ),
             icon: const Icon(Icons.play_arrow_rounded),
             label: const Text('Play video'),
             style: FilledButton.styleFrom(
