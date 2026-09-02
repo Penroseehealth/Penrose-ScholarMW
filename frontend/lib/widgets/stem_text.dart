@@ -85,7 +85,28 @@ class StemText extends StatelessWidget {
     s = s.replaceAll(RegExp(r'^-{3,}$', multiLine: true), '');
     s = s.replaceAll(RegExp(r'^\*\s+', multiLine: true), '• ');
     s = s.replaceAll(RegExp(r'\n{3,}'), '\n\n');
+    s = _normalizeLists(s);
     return s.trim();
+  }
+
+  /// Clean stray/duplicated numeric list markers (e.g. ':0:', '\\.1:',
+  /// '1. 1:') so ordered content renders as plain numbered lists.
+  static String _normalizeLists(String s) {
+    final lines = s.split('\n');
+    final out = <String>[];
+    for (var line in lines) {
+      // Drop standalone cloze-style markers like ':0:', ':1:' at start of line.
+      line = line.replaceFirst(RegExp(r'^[\\]*:\d+\:\s*'), '');
+      // Drop escaped numeric markers like '\.1:' at line start.
+      line = line.replaceFirst(RegExp(r'^\\\.\d+\:\s*'), '');
+      // Collapse a duplicated leading number, e.g. '1. 1: Item' -> '1. Item'.
+      line = line.replaceFirstMapped(
+        RegExp(r'^(\d+)\.[\s]*\1[\s]*[:\.]?\s*'),
+        (m) => '${m.group(1)}. ',
+      );
+      out.add(line);
+    }
+    return out.join('\n');
   }
 
   @override

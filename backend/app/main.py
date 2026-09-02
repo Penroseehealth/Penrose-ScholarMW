@@ -11,6 +11,7 @@ from app.ai_tutor.router import router as ai_router
 from app.analytics.router import router as analytics_router
 from app.assessments.router import router as assessments_router
 from app.auth.router import router as auth_router
+from app.biology_viz.router import router as biology_viz_router
 from app.chemistry.router import router as chem_syllabus_router
 from app.config.settings import get_settings
 from app.context_engine.router import router as context_engine_router
@@ -18,6 +19,7 @@ from app.core.security import hash_password
 from app.courses.router import router as courses_router
 from app.database.engine import Base, async_session, engine
 from app.examinations.router import router as examinations_router
+from app.examinations_builder.router import router as examinations_builder_router
 from app.gamification.router import router as gamification_router
 from app.global_search.router import router as global_search_router
 from app.institutions.router import router as institutions_router
@@ -30,8 +32,10 @@ from app.mathematics.router import router as math_syllabus_router
 from app.messaging.router import router as messaging_router
 from app.middleware.security import RateLimitMiddleware
 from app.notifications.router import router as notifications_router
+from app.ocr.router import router as ocr_router
 from app.physics.router import router as phys_syllabus_router
 from app.practical.router import router as practical_router
+from app.presentation.router import router as presentation_router
 from app.research.router import router as research_router
 from app.smart_notifications.router import router as smart_notifications_router
 from app.stem.adaptive_learning_router import router as adaptive_router
@@ -108,6 +112,9 @@ async def lifespan(app: FastAPI):
     from app.languages.seed_chinese import seed_chinese
 
     await seed_chinese()
+    from app.languages.expand_hsk1 import expand_hsk1
+
+    await expand_hsk1()
     from app.languages.seed_arabic import seed_arabic
 
     await seed_arabic()
@@ -268,7 +275,11 @@ app.include_router(phys_syllabus_router, prefix="/api/v1")
 app.include_router(languages_router, prefix="/api/v1")
 app.include_router(livekit_router, prefix="/api/v1")
 app.include_router(voice_router, prefix="/api/v1")
+app.include_router(ocr_router, prefix="/api/v1")
 app.include_router(practical_router, prefix="/api/v1")
+app.include_router(biology_viz_router, prefix="/api/v1")
+app.include_router(presentation_router, prefix="/api/v1")
+app.include_router(examinations_builder_router, prefix="/api/v1")
 
 
 @app.get("/health")

@@ -21,6 +21,15 @@ class ExportService {
     _downloadBytes(bytes, '$filename.html', 'text/html');
   }
 
+  static Future<void> exportSvgToFile(String svgContent, String filename) async {
+    final bytes = Uint8List.fromList(svgContent.codeUnits);
+    _downloadBytes(bytes, '$filename.svg', 'image/svg+xml');
+  }
+
+  static void exportBytesToFile(List<int> bytes, String filename, String mimeType) {
+    _downloadBytes(bytes, filename, mimeType);
+  }
+
   static Future<void> exportWidgetToImage(GlobalKey key, String filename) async {
     final boundary = key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
     if (boundary == null) return;

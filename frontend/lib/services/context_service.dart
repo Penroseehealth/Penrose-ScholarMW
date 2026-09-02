@@ -86,19 +86,13 @@ class WorkspaceState {
         if (selectedText.isNotEmpty) 'selected_text': selectedText,
         if (activeVisualId.isNotEmpty) 'active_visual_id': activeVisualId,
         if (activeVisualType.isNotEmpty) 'active_visual_type': activeVisualType,
-        if (activeVisualElement.isNotEmpty)
-          'active_visual_element': activeVisualElement,
-        if (activeQuestionId.isNotEmpty)
-          'active_question_id': activeQuestionId,
+        if (activeVisualElement.isNotEmpty) 'active_visual_element': activeVisualElement,
+        if (activeQuestionId.isNotEmpty) 'active_question_id': activeQuestionId,
         if (currentPage.isNotEmpty) 'current_page': currentPage,
       };
 
   bool get isEmpty =>
-      screen.isEmpty &&
-      subject.isEmpty &&
-      topic.isEmpty &&
-      selectedText.isEmpty &&
-      activeVisualId.isEmpty;
+      screen.isEmpty && subject.isEmpty && topic.isEmpty && selectedText.isEmpty && activeVisualId.isEmpty;
 }
 
 /// Intent classification result from the backend.
@@ -318,10 +312,11 @@ class ContextService extends ChangeNotifier {
         })
         .then((_) {})
         .catchError((e) {
-      debugPrint('Workspace sync failed: $e');
-    }).whenComplete(() {
-      _isSending = false;
-    });
+          debugPrint('Workspace sync failed: $e');
+        })
+        .whenComplete(() {
+          _isSending = false;
+        });
   }
 
   void _sendVisualSelection({
@@ -343,8 +338,8 @@ class ContextService extends ChangeNotifier {
         })
         .then((_) {})
         .catchError((e) {
-      debugPrint('Visual selection sync failed: $e');
-    });
+          debugPrint('Visual selection sync failed: $e');
+        });
   }
 
   /// Clear context for a session (e.g. when leaving the chat).

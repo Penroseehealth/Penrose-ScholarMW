@@ -196,7 +196,7 @@ async def seed_chinese():
                                         "r\u00e9n",
                                         "t\u0101 - he, n\u01d0 - you",
                                         "Appears in many characters.",
-                                        "characters",
+                                        "radicals",
                                     ),
                                     (
                                         "\u6c34",
@@ -205,7 +205,7 @@ async def seed_chinese():
                                         "shu\u01d0",
                                         "h\u00e9 - river, h\u01cei - sea",
                                         "Written as three dots.",
-                                        "characters",
+                                        "radicals",
                                     ),
                                     (
                                         "\u6728",
@@ -214,7 +214,7 @@ async def seed_chinese():
                                         "m\u00f9",
                                         "sh\u00f9 - tree, gu\u01d2 - fruit",
                                         "Appears in nature characters.",
-                                        "characters",
+                                        "radicals",
                                     ),
                                     (
                                         "\u53e3",
@@ -223,7 +223,7 @@ async def seed_chinese():
                                         "k\u01d2u",
                                         "ch\u012b - eat, h\u0113 - drink",
                                         "One of the most common.",
-                                        "characters",
+                                        "radicals",
                                     ),
                                     (
                                         "\u5973",
@@ -232,7 +232,7 @@ async def seed_chinese():
                                         "n\u01d4",
                                         "m\u0101 - mother, ji\u0113 - sister",
                                         "Appears in female-related characters.",
-                                        "characters",
+                                        "radicals",
                                     ),
                                 ],
                                 [],

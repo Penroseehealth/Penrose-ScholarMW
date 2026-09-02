@@ -107,7 +107,7 @@ async def _call_llm(system_prompt: str, messages: list[dict]) -> str:
     full_messages = [{"role": "system", "content": system_prompt}] + messages
     try:
         return await call_ai_text(full_messages, max_tokens=2000, temperature=0.7)
-    except (AIProviderError, RuntimeError, TimeoutError, OSError) as exc:
+    except (AIProviderError, RuntimeError, TimeoutError, OSError, Exception) as exc:
         import logging
 
         logging.getLogger(__name__).warning("AI call failed: %s", exc)

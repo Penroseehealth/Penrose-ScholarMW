@@ -13,6 +13,7 @@ ALLOWED_EXTENSIONS: dict[str, list[str]] = {
     "pdf": [".pdf"],
     "image": [".png", ".jpg", ".jpeg", ".webp"],
     "document": [".doc", ".docx"],
+    "text": [".txt"],
     "spreadsheet": [".xls", ".xlsx", ".csv"],
     "audio": [".mp3", ".wav", ".m4a", ".aac", ".ogg"],
 }
@@ -30,6 +31,7 @@ MIME_MAP = {
     ".webp": "image/webp",
     ".doc": "application/msword",
     ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ".txt": "text/plain",
     ".xls": "application/vnd.ms-excel",
     ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     ".csv": "text/csv",
@@ -61,7 +63,9 @@ def classify_file(filename: str) -> str:
 def validate_upload(filename: str, content: bytes) -> ValidatedFile | str:
     ext = Path(filename).suffix.lower()
     if ext not in ALL_ALLOWED:
-        return f"Unsupported file format: {ext}. Allowed: {', '.join(sorted(ALL_ALLOWED))}"
+        return (
+            f"Unsupported file format: {ext}. Allowed: {', '.join(sorted(ALL_ALLOWED))}"
+        )
     if len(content) > MAX_FILE_SIZE_BYTES:
         return f"File too large: {len(content) / (1024 * 1024):.1f}MB (max {MAX_FILE_SIZE_MB}MB)"
     if len(content) == 0:
@@ -106,7 +110,9 @@ async def extract_docx_text(content: bytes) -> str:
                 style = para.style.name if para.style else ""
                 if "Heading" in style:
                     level = style.replace("Heading ", "")
-                    paragraphs.append(f"{'#' * int(level) if level.isdigit() else '##'} {para.text}")
+                    paragraphs.append(
+                        f"{'#' * int(level) if level.isdigit() else '##'} {para.text}"
+                    )
                 else:
                     paragraphs.append(para.text)
 
@@ -143,15 +149,22 @@ async def extract_spreadsheet_text(content: bytes, filename: str) -> str:
             rows = list(ws.iter_rows(values_only=True))
             if not rows:
                 continue
-            headers = [str(c) if c is not None else f"Col_{i}" for i, c in enumerate(rows[0])]
+            headers = [
+                str(c) if c is not None else f"Col_{i}" for i, c in enumerate(rows[0])
+            ]
             data_rows = []
             for row in rows[1:51]:
-                data_rows.append(dict(zip(headers, [str(c) if c is not None else "" for c in row])))
+                data_rows.append(
+                    dict(zip(headers, [str(c) if c is not None else "" for c in row]))
+                )
             results.append(
                 f"**Sheet: {sheet_name}** ({len(rows) - 1} rows)\n"
                 f"Columns: {', '.join(headers)}\n"
                 f"Sample data (first {min(10, len(data_rows))} rows):\n"
-                + "\n".join(" | ".join(f"{k}: {v}" for k, v in row.items()) for row in data_rows[:10])
+                + "\n".join(
+                    " | ".join(f"{k}: {v}" for k, v in row.items())
+                    for row in data_rows[:10]
+                )
             )
         wb.close()
         return "\n\n".join(results) if results else "(No data found in spreadsheet)"
@@ -176,7 +189,9 @@ def _parse_csv(text: str) -> str:
         rows.append(dict(zip(headers, vals)))
     result = f"**CSV Data** ({len(lines) - 1} rows)\nColumns: {', '.join(headers)}\n"
     for i, row in enumerate(rows[:10]):
-        result += f"Row {i + 1}: " + " | ".join(f"{k}: {v}" for k, v in row.items()) + "\n"
+        result += (
+            f"Row {i + 1}: " + " | ".join(f"{k}: {v}" for k, v in row.items()) + "\n"
+        )
     return result.strip()
 
 

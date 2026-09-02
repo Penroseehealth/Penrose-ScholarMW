@@ -7,6 +7,15 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
 
+# Anchor file-backed storage to the backend root instead of the process working
+# directory, so databases/media are always found regardless of where the server
+# is launched from (this avoids "file not found" for uploaded documents).
+_BACKEND_DIR_POSIX = _BACKEND_DIR.as_posix()
+_DEFAULT_DB_URL_ASYNC = f"sqlite+aiosqlite:///{_BACKEND_DIR_POSIX}/penrose_scholar.db"
+_DEFAULT_DB_URL_SYNC = f"sqlite:///{_BACKEND_DIR_POSIX}/penrose_scholar.db"
+_DEFAULT_MEDIA_DIR = str(_BACKEND_DIR / "media")
+_DEFAULT_CHROMA_PERSIST_DIR = str(_BACKEND_DIR / "chroma_data")
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -15,16 +24,18 @@ class Settings(BaseSettings):
         case_sensitive=False,
     )
 
-    DATABASE_URL: str = "sqlite+aiosqlite:///./penrose_scholar.db"
-    DATABASE_URL_SYNC: str = "sqlite:///./penrose_scholar.db"
+    DATABASE_URL: str = _DEFAULT_DB_URL_ASYNC
+    DATABASE_URL_SYNC: str = _DEFAULT_DB_URL_SYNC
     SECRET_KEY: str = "change-me-in-production"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-4o"
-    CHROMA_PERSIST_DIR: str = "./chroma_data"
-    MEDIA_DIR: str = "./media"
+    CHROMA_PERSIST_DIR: str = _DEFAULT_CHROMA_PERSIST_DIR
+    MEDIA_DIR: str = _DEFAULT_MEDIA_DIR
+    # Max upload size (in MB) for the knowledge vault and OCR uploads.
+    VAULT_MAX_FILE_SIZE_MB: int = 200
     CORS_ORIGINS: list[str] = [
         "http://localhost:3000",
         "http://localhost:3001",

@@ -22,6 +22,278 @@ String _extractError(dynamic response, String fallback) {
   }
 }
 
+class OcrService {
+  final ApiService _api = ApiService();
+
+  /// Upload a scan (image/PDF) and extract text via OCR.
+  Future<Map<String, dynamic>> scanFile(List<int> bytes, String filename) async {
+    try {
+      final response = await _api.uploadFileBytes('/ocr/scan', bytes, filename);
+      if (response.statusCode == 200) {
+        return {'success': true, 'data': jsonDecode(response.body)};
+      }
+      return {'success': false, 'error': _extractError(response, 'Scan failed')};
+    } catch (e) {
+      return {'success': false, 'error': 'Scan failed: $e'};
+    }
+  }
+
+  /// Ask the AI to analyse already-extracted text.
+  Future<Map<String, dynamic>> analyzeText(
+    String text, {
+    String filename = 'document',
+    String? question,
+    String? language,
+  }) async {
+    try {
+      final response = await _api.post(
+        '/ocr/analyze',
+        body: {
+          'filename': filename,
+          'text': text,
+          if (question != null && question.trim().isNotEmpty) 'question': question.trim(),
+          if (language != null && language.trim().isNotEmpty) 'language': language.trim(),
+        },
+      );
+      if (response.statusCode == 200) {
+        return {'success': true, 'data': jsonDecode(response.body)};
+      }
+      return {'success': false, 'error': _extractError(response, 'Analysis failed')};
+    } catch (e) {
+      return {'success': false, 'error': 'Analysis failed: $e'};
+    }
+  }
+}
+
+class PresentationBuilderService {
+  final ApiService _api = ApiService();
+
+  /// Upload a source file and get its extracted text back with a source label.
+  Future<Map<String, dynamic>> uploadSource(
+    List<int> bytes,
+    String filename,
+    String label,
+  ) async {
+    try {
+      final response = await _api.uploadFileBytes(
+        '/presentations/upload',
+        bytes,
+        filename,
+        fields: {'label': label},
+      );
+      if (response.statusCode == 200) {
+        return {'success': true, 'data': jsonDecode(response.body)};
+      }
+      return {'success': false, 'error': _extractError(response, 'Upload failed')};
+    } catch (e) {
+      return {'success': false, 'error': 'Upload failed: $e'};
+    }
+  }
+
+  /// Build the presentation outline from the configuration + source text.
+  Future<Map<String, dynamic>> buildOutline(Map<String, dynamic> config) async {
+    try {
+      final response = await _api.post(
+        '/presentations/outline',
+        body: {'config': config},
+      );
+      if (response.statusCode == 200) {
+        return {'success': true, 'data': jsonDecode(response.body)};
+      }
+      return {'success': false, 'error': _extractError(response, 'Outline failed')};
+    } catch (e) {
+      return {'success': false, 'error': 'Outline failed: $e'};
+    }
+  }
+
+  /// Generate slide content + speaker notes from an approved outline.
+  Future<Map<String, dynamic>> generateSlides(
+    Map<String, dynamic> config,
+    List<dynamic> outline,
+  ) async {
+    try {
+      final response = await _api.post(
+        '/presentations/generate',
+        body: {'config': config, 'outline': outline},
+      );
+      if (response.statusCode == 200) {
+        return {'success': true, 'data': jsonDecode(response.body)};
+      }
+      return {'success': false, 'error': _extractError(response, 'Generation failed')};
+    } catch (e) {
+      return {'success': false, 'error': 'Generation failed: $e'};
+    }
+  }
+
+  /// Compute the academic quality report for the current deck.
+  Future<Map<String, dynamic>> computeQuality(
+    Map<String, dynamic> config,
+    List<dynamic> outline,
+    List<dynamic> slides,
+  ) async {
+    try {
+      final response = await _api.post(
+        '/presentations/quality',
+        body: {
+          'config': config,
+          'outline': outline,
+          'slides': slides,
+        },
+      );
+      if (response.statusCode == 200) {
+        return {'success': true, 'data': jsonDecode(response.body)};
+      }
+      return {'success': false, 'error': _extractError(response, 'Quality check failed')};
+    } catch (e) {
+      return {'success': false, 'error': 'Quality check failed: $e'};
+    }
+  }
+
+  /// Export an editable .pptx and trigger a browser download.
+  Future<Map<String, dynamic>> exportPptx(
+    Map<String, dynamic> config,
+    List<dynamic> slides,
+  ) async {
+    try {
+      final response = await _api.post(
+        '/presentations/pptx/from-data',
+        body: {'config': config, 'slides': slides},
+      );
+      if (response.statusCode == 200) {
+        return {
+          'success': true,
+          'data': response.bodyBytes,
+          'name': ((config['topic'] as String?) ?? 'presentation').replaceAll(' ', '_'),
+        };
+      }
+      return {'success': false, 'error': _extractError(response, 'Export failed')};
+    } catch (e) {
+      return {'success': false, 'error': 'Export failed: $e'};
+    }
+  }
+}
+
+class ExaminationBuilderService {
+  final ApiService _api = ApiService();
+
+  /// Generate exam questions from a syllabus-driven config map.
+  Future<Map<String, dynamic>> generateQuestions(Map<String, dynamic> config) async {
+    try {
+      final response = await _api.post(
+        '/examinations-builder/generate',
+        body: {'config': config},
+      );
+      if (response.statusCode == 200) {
+        return {'success': true, 'data': jsonDecode(response.body)};
+      }
+      return {'success': false, 'error': _extractError(response, 'Generation failed')};
+    } catch (e) {
+      return {'success': false, 'error': 'Generation failed: $e'};
+    }
+  }
+
+  /// Fetch a stored examination (for re-editing after generation).
+  Future<Map<String, dynamic>> fetchExam(String examId) async {
+    try {
+      final response = await _api.get('/examinations-builder/$examId');
+      if (response.statusCode == 200) {
+        return {'success': true, 'data': jsonDecode(response.body)};
+      }
+      return {'success': false, 'error': _extractError(response, 'Could not load examination')};
+    } catch (e) {
+      return {'success': false, 'error': 'Could not load examination: $e'};
+    }
+  }
+
+  /// Compute the academic quality report for the generated paper.
+  Future<Map<String, dynamic>> computeQuality(String examId) async {
+    try {
+      final response = await _api.post('/examinations-builder/$examId/quality');
+      if (response.statusCode == 200) {
+        return {'success': true, 'data': jsonDecode(response.body)};
+      }
+      return {'success': false, 'error': _extractError(response, 'Quality check failed')};
+    } catch (e) {
+      return {'success': false, 'error': 'Quality check failed: $e'};
+    }
+  }
+
+  /// Regenerate a single question with an optional focus hint.
+  Future<Map<String, dynamic>> regenerateQuestion(
+    String examId,
+    String questionId,
+    String focus,
+  ) async {
+    try {
+      final response = await _api.post(
+        '/examinations-builder/$examId/regenerate-question',
+        body: {'exam_id': examId, 'question_id': questionId, 'focus': focus},
+      );
+      if (response.statusCode == 200) {
+        return {'success': true, 'data': jsonDecode(response.body)};
+      }
+      return {'success': false, 'error': _extractError(response, 'Regeneration failed')};
+    } catch (e) {
+      return {'success': false, 'error': 'Regeneration failed: $e'};
+    }
+  }
+
+  /// Add a manually authored question to the paper.
+  Future<Map<String, dynamic>> addQuestion(String examId, Map<String, dynamic> question) async {
+    try {
+      final response = await _api.post(
+        '/examinations-builder/$examId/questions',
+        body: question,
+      );
+      if (response.statusCode == 201) {
+        return {'success': true, 'data': jsonDecode(response.body)};
+      }
+      return {'success': false, 'error': _extractError(response, 'Could not add question')};
+    } catch (e) {
+      return {'success': false, 'error': 'Could not add question: $e'};
+    }
+  }
+
+  /// Remove a question from the paper.
+  Future<Map<String, dynamic>> removeQuestion(String examId, String questionId) async {
+    try {
+      final response = await _api.delete('/examinations-builder/$examId/questions/$questionId');
+      if (response.statusCode == 200) {
+        return {'success': true, 'data': jsonDecode(response.body)};
+      }
+      return {'success': false, 'error': _extractError(response, 'Could not remove question')};
+    } catch (e) {
+      return {'success': false, 'error': 'Could not remove question: $e'};
+    }
+  }
+
+  /// Export the paper as an editable .docx (or .pdf) and trigger download.
+  Future<Map<String, dynamic>> exportExam(
+    String examId, {
+    required String format,
+    required bool includeAnswers,
+    String title = 'examination',
+  }) async {
+    try {
+      final response = await _api.post(
+        '/examinations-builder/$examId/export',
+        body: {'exam_id': examId, 'format': format, 'include_answers': includeAnswers},
+      );
+      if (response.statusCode == 200) {
+        final ext = format == 'pdf' ? 'pdf' : 'docx';
+        return {
+          'success': true,
+          'data': response.bodyBytes,
+          'name': '${title.replaceAll(' ', '_')}.$ext',
+        };
+      }
+      return {'success': false, 'error': _extractError(response, 'Export failed')};
+    } catch (e) {
+      return {'success': false, 'error': 'Export failed: $e'};
+    }
+  }
+}
+
 class CourseService {
   final ApiService _api = ApiService();
 
@@ -376,5 +648,50 @@ class MultimodalService {
       return {'success': true};
     }
     return {'success': false, 'error': _extractError(response, 'Delete failed')};
+  }
+}
+
+class SyllabusService {
+  final ApiService _api = ApiService();
+
+  Future<List<dynamic>> getSubjects() async {
+    final response = await _api.get('/syllabus/subjects');
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as List<dynamic>;
+    }
+    return [];
+  }
+
+  Future<Map<String, dynamic>> getForms(String slug) async {
+    final response = await _api.get('/syllabus/$slug/forms');
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    }
+    return {'forms': <dynamic>[]};
+  }
+
+  Future<List<dynamic>> getTopics(String slug, int form) async {
+    final response = await _api.get('/syllabus/$slug/forms/$form/topics');
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as List<dynamic>;
+    }
+    return [];
+  }
+
+  Future<List<dynamic>> getSubtopics(int topicId) async {
+    final response = await _api.get('/topics/$topicId/subtopics');
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as List<dynamic>;
+    }
+    return [];
+  }
+
+  Future<List<dynamic>> getObjectives(int subtopicId) async {
+    final response = await _api.get('/subtopics/$subtopicId/objectives');
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      return (data['objectives'] as List<dynamic>?) ?? [];
+    }
+    return [];
   }
 }

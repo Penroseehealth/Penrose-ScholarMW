@@ -120,8 +120,7 @@ class VoiceConversationService extends ChangeNotifier {
         }
       },
       onEnd: () {
-        if (_mode == VoiceConversationMode.continuous &&
-            _state == VoiceConversationState.listening) {
+        if (_mode == VoiceConversationMode.continuous && _state == VoiceConversationState.listening) {
           // Auto-restart in continuous mode
           _silenceTimer = Timer(const Duration(milliseconds: 500), () {
             if (_state == VoiceConversationState.listening) {

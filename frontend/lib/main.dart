@@ -6,6 +6,7 @@ import 'core/l10n/app_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
 import 'providers/locale_provider.dart';
+import 'providers/syllabus_selection_provider.dart';
 import 'providers/theme_provider.dart';
 import 'router/app_router.dart';
 import 'services/connectivity_manager.dart';
@@ -37,6 +38,7 @@ class _PenroseScholarAppState extends State<PenroseScholarApp> {
           ChangeNotifierProvider(create: (_) => LocaleProvider()),
           ChangeNotifierProvider(create: (_) => ThemeProvider()..init()),
           ChangeNotifierProvider(create: (_) => ConnectivityManager()..startMonitoring()),
+          ChangeNotifierProvider(create: (_) => SyllabusSelectionProvider()..init()),
         ],
         child: Consumer3<AuthProvider, LocaleProvider, ThemeProvider>(
           builder: (context, auth, localeProvider, themeProvider, _) {

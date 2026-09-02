@@ -122,6 +122,18 @@ MODE_INSTRUCTIONS = {
     "deepen": "Go beyond the basics. Cover underlying theory, proofs, connections to other areas, and advanced nuances.",
 }
 
+# Rendered as plain markdown by the client (StemText). Keep lists clean and
+# avoid duplicated or stray numeric markers.
+FORMATTING_INSTRUCTION = (
+    "\n\nFormatting rules (always follow these):\n"
+    "- Use clean numbered lists for ordered steps, written as '1. item', '2. item', etc. "
+    "Each item appears once with a single number followed by a period and a space — never repeat "
+    "or duplicate the number, e.g. never write '1. 1:' or '1 1:'.\n"
+    "- Use simple bullets ('- item') for unordered lists.\n"
+    "- Do not emit stray numeric markers like ':0:', '\\\\.1:', or lone colons before list content.\n"
+    "- Keep items concise; put the item text after the number on the same line."
+)
+
 
 def _build_mode_footer(mode: str) -> str:
     if mode in NO_ANSWER_DIRECTLY_MODES:
@@ -234,6 +246,7 @@ def _build_system_prompt(context: dict, mode: str, user_message: str) -> str:
 
     parts.append(
         "\n\nRespond in a helpful, encouraging tone. Use markdown formatting where appropriate."
+        + FORMATTING_INSTRUCTION
         + CONTEXT_AWARE_INSTRUCTION
         + STEM_LATEX_INSTRUCTION
         + VISUAL_GENERATION_POLICY

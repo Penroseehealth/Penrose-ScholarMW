@@ -103,6 +103,8 @@ class AIVisualParser {
     return visuals;
   }
 
+  static bool hasVisuals(String response) => _visualBlockExp.hasMatch(response) || _xmlVisualExp.hasMatch(response);
+
   static String removeVisualBlocks(String response) =>
       response.replaceAll(_visualBlockExp, '').replaceAll(_xmlVisualExp, '').trim();
 

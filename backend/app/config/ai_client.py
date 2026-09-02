@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import asyncio
+import json
 import logging
-from typing import TYPE_CHECKING, AsyncIterator
+import re
+from typing import TYPE_CHECKING, Any, AsyncIterator
 
 from openai import APIStatusError, AsyncOpenAI
 
@@ -119,6 +122,7 @@ async def call_ai_chat(
     *,
     max_tokens: int = 1024,
     temperature: float = 0.7,
+    timeout: float = 30.0,
     **kwargs,
 ) -> tuple[ChatCompletion, str]:
     """Try providers in order (HuggingFace → Groq → Cloudflare).
@@ -132,16 +136,19 @@ async def call_ai_chat(
     for name, client, model in providers:
         try:
             log.info("Trying AI provider: %s (%s)", name, model)
-            completion = await client.chat.completions.create(
-                model=model,
-                messages=messages,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                **kwargs,
+            completion = await asyncio.wait_for(
+                client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    max_tokens=max_tokens,
+                    temperature=temperature,
+                    **kwargs,
+                ),
+                timeout=timeout,
             )
             log.info("AI provider %s succeeded", name)
             return completion, name
-        except (APIStatusError, Exception) as e:
+        except (APIStatusError, Exception, asyncio.TimeoutError) as e:
             log.warning("AI provider %s failed: %s", name, e)
             errors.append((name, e))
             continue
@@ -154,13 +161,83 @@ async def call_ai_text(
     *,
     max_tokens: int = 1024,
     temperature: float = 0.7,
+    timeout: float = 30.0,
     **kwargs,
 ) -> str:
     """Convenience wrapper: returns the assistant content string."""
-    completion, _provider = await call_ai_chat(
-        messages, max_tokens=max_tokens, temperature=temperature, **kwargs
+    completion, _provider = await asyncio.wait_for(
+        call_ai_chat(
+            messages, max_tokens=max_tokens, temperature=temperature, **kwargs
+        ),
+        timeout=timeout,
     )
     return completion.choices[0].message.content or "No response generated."
+
+
+def _extract_json(text: str) -> Any:
+    """Robustly parse a JSON object/array out of an LLM response.
+
+    Handles: plain JSON, ```json ... ```fences, leading prose, and trailing
+    text. Raises ValueError if no valid JSON payload can be extracted.
+    """
+    if not text:
+        raise ValueError("empty model response")
+    text = text.strip()
+    fenced = re.search(r"```(?:json)?\s*(\{.*\}|\[.*\])\s*```", text, re.DOTALL)
+    if fenced:
+        return json.loads(fenced.group(1))
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+    for openc, closec in (("{", "}"), ("[", "]")):
+        start = text.find(openc)
+        end = text.rfind(closec)
+        if start != -1 and end > start:
+            try:
+                return json.loads(text[start : end + 1])
+            except json.JSONDecodeError:
+                continue
+    raise ValueError("no JSON payload found in model response")
+
+
+async def call_ai_json(
+    messages: list[dict[str, str]],
+    *,
+    max_tokens: int = 2048,
+    temperature: float = 0.3,
+    timeout: float = 30.0,
+    **kwargs,
+) -> Any:
+    """Ask the model for a JSON object/array and return the parsed structure.
+
+    Requests JSON output in the system prompt (robust across providers that do
+    not honour OpenAI's ``response_format``) and extracts the payload from the
+    reply. Raises ValueError if parsing fails.
+    """
+    json_instruction = (
+        "\n\nRespond with ONLY valid JSON. Do not wrap it in markdown fences, "
+        "do not add prose before or after the JSON. The JSON must match the "
+        "exact schema requested."
+    )
+    if messages and messages[0]["role"] == "system":
+        styled_messages = [
+            {"role": "system", "content": messages[0]["content"] + json_instruction},
+            *messages[1:],
+        ]
+    else:
+        styled_messages = [
+            {"role": "system", "content": json_instruction},
+            *messages,
+        ]
+    raw = await call_ai_text(
+        styled_messages,
+        max_tokens=max_tokens,
+        temperature=temperature,
+        timeout=timeout,
+        **kwargs,
+    )
+    return _extract_json(raw)
 
 
 # ---------------------------------------------------------------------------
@@ -208,6 +285,7 @@ async def call_ai_stream_with_fallback(
     *,
     max_tokens: int = 2048,
     temperature: float = 0.7,
+    timeout: float = 30.0,
 ) -> AsyncIterator[str]:
     """Stream with automatic fallback to non-streaming on failure."""
     try:
@@ -218,7 +296,7 @@ async def call_ai_stream_with_fallback(
     except AIProviderError:
         log.info("Streaming failed, falling back to non-streaming")
         text = await call_ai_text(
-            messages, max_tokens=max_tokens, temperature=temperature
+            messages, max_tokens=max_tokens, temperature=temperature, timeout=timeout
         )
         yield text
 

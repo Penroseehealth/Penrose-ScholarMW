@@ -1,0 +1,723 @@
+"""In-memory engine and generators for the AI Examination Builder."""
+
+from __future__ import annotations
+
+import io
+import logging
+import re
+import uuid
+from collections import Counter
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.config.ai_client import AIProviderError, call_ai_json
+from app.config.stem_latex import STEM_LATEX_INSTRUCTION, VISUAL_GENERATION_POLICY
+from app.models.stem import SyllabusLearningObjective, SyllabusSubtopic, SyllabusTopic
+
+log = logging.getLogger(__name__)
+
+QUESTION_TYPES = ("multiple_choice", "true_false", "short_answer", "essay")
+DIFFICULTIES = ("easy", "medium", "hard")
+BLOOM_LEVELS = (
+    "Remembering",
+    "Understanding",
+    "Applying",
+    "Analysing",
+    "Evaluating",
+    "Creating",
+)
+MARKS_BY_DIFFICULTY = {"easy": 2, "medium": 5, "hard": 10}
+
+
+class EngineStore:
+    """Stateless in-memory store for generated examinations (mirrors presentation)."""
+
+    def __init__(self) -> None:
+        self._records: dict[str, dict] = {}
+
+    def put(self, exam_id: str, data: dict) -> None:
+        self._records[exam_id] = data
+
+    def get(self, exam_id: str) -> dict | None:
+        return self._records.get(exam_id)
+
+
+_engine = EngineStore()
+
+
+# ── Syllabus context ─────────────────────────────────────────────────────────
+
+
+async def _load_subtopic_objectives(db: AsyncSession, subtopic_id: int) -> dict:
+    sub = (
+        await db.execute(
+            select(SyllabusSubtopic).where(SyllabusSubtopic.id == subtopic_id)
+        )
+    ).scalar_one_or_none()
+    if not sub:
+        return {"subtopic": "", "topic": "", "form": "", "objectives": []}
+
+    topic_title = ""
+    form_label = ""
+    if sub.topic_id:
+        topic = (
+            await db.execute(
+                select(SyllabusTopic).where(SyllabusTopic.id == sub.topic_id)
+            )
+        ).scalar_one_or_none()
+        if topic:
+            topic_title = topic.title or ""
+            if topic.year_level:
+                form_label = f"Form {topic.year_level}"
+
+    rows = (
+        (
+            await db.execute(
+                select(SyllabusLearningObjective)
+                .where(SyllabusLearningObjective.subtopic_id == subtopic_id)
+                .order_by(SyllabusLearningObjective.id)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    objectives = [
+        {"objective": o.objective, "cognitive_level": o.cognitive_level}
+        for o in rows
+        if o.objective
+    ]
+    return {
+        "subtopic": sub.title or "",
+        "topic": topic_title,
+        "form": form_label,
+        "objectives": objectives,
+    }
+
+
+async def load_syllabus_context(db: AsyncSession, config) -> dict:
+    """Best-effort syllabus context (topic/subtopic/objectives) for the config."""
+    context = {
+        "subject": config.subject or "",
+        "form": config.form_label or (f"Form {config.form}" if config.form else ""),
+        "topic": config.topic or "",
+        "subtopic": config.subtopic or "",
+        "learning_objectives": [o for o in config.learning_objectives if o.strip()],
+        "all_objectives": [o for o in config.learning_objectives if o.strip()],
+    }
+    if config.subtopic_id and config.subtopic_id > 0:
+        try:
+            extra = await _load_subtopic_objectives(db, config.subtopic_id)
+        except Exception:
+            log.exception(
+                "Failed to load syllabus context for subtopic_id=%s", config.subtopic_id
+            )
+            extra = {}
+        if extra.get("subtopic"):
+            context["subtopic"] = extra["subtopic"]
+        if extra.get("topic"):
+            context["topic"] = extra["topic"]
+        if extra.get("form"):
+            context["form"] = extra["form"]
+        for lo in extra.get("objectives", []):
+            text = lo["objective"]
+            if text not in context["learning_objectives"]:
+                context["learning_objectives"].append(text)
+                context["all_objectives"].append(text)
+    return context
+
+
+# ── Question generation ──────────────────────────────────────────────────────
+
+
+def _new_id() -> str:
+    return uuid.uuid4().hex[:8]
+
+
+def _safe_int(value, default: int) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _coerce_type(q_type: str) -> str:
+    return q_type if q_type in QUESTION_TYPES else "short_answer"
+
+
+def _coerce_difficulty(value: str) -> str:
+    return value if value in DIFFICULTIES else "medium"
+
+
+def _coerce_bloom(value: str) -> str:
+    return value if value in BLOOM_LEVELS else "Understanding"
+
+
+def _bloom_by_cognitive_level(cognitive_level: str) -> str:
+    for level in BLOOM_LEVELS:
+        if level.lower() in (cognitive_level or "").lower():
+            return level
+    return "Understanding"
+
+
+def _normalise_ai_question(raw: dict) -> dict:
+    q_type = _coerce_type(str(raw.get("question_type", "short_answer")).lower().strip())
+    options = raw.get("options") or []
+    if isinstance(options, str):
+        options = [o.strip() for o in options.split("\n") if o.strip()]
+    options = [str(o) for o in options if str(o).strip()]
+    correct = str(raw.get("correct_answer") or "").strip()
+    if q_type == "true_false" and not correct:
+        correct = "True"
+    if q_type == "multiple_choice" and correct and options:
+        match = next(
+            (o for o in options if str(o).strip().lower() == correct.lower()), None
+        )
+        correct = match or correct
+    marks = _safe_int(
+        raw.get("marks"),
+        MARKS_BY_DIFFICULTY.get(str(raw.get("difficulty", "medium")), 5),
+    )
+    return {
+        "id": _new_id(),
+        "question_type": q_type,
+        "question_text": str(raw.get("question_text") or "").strip(),
+        "options": options,
+        "correct_answer": correct,
+        "marks": max(1, marks),
+        "difficulty": _coerce_difficulty(
+            str(raw.get("difficulty", "medium")).lower()[:6]
+        ),
+        "bloom_level": _coerce_bloom(str(raw.get("bloom_level") or "")),
+        "learning_outcome": str(raw.get("learning_outcome") or "").strip(),
+        "rubric": str(raw.get("rubric") or "").strip(),
+        "reference": str(raw.get("reference") or "").strip(),
+    }
+
+
+def _fallback_mc(stem: str, lo: str, i: int) -> dict:
+    options = [
+        f"{stem.capitalize()}.",
+        f"The opposite of {stem}.",
+        "An unrelated process.",
+        "None of the above.",
+    ]
+    return {
+        "id": _new_id(),
+        "question_type": "multiple_choice",
+        "question_text": f'Which of the following statements best describes "{stem}"?',
+        "options": options,
+        "correct_answer": options[0],
+        "marks": 2,
+        "difficulty": "easy",
+        "bloom_level": "Remembering",
+        "learning_outcome": lo,
+        "rubric": "",
+        "reference": "",
+    }
+
+
+def _fallback_tf(stem: str, lo: str, i: int) -> dict:
+    statement = stem if stem.endswith(".") else f"{stem}."
+    return {
+        "id": _new_id(),
+        "question_type": "true_false",
+        "question_text": f"True or False: {statement}",
+        "options": ["True", "False"],
+        "correct_answer": "True",
+        "marks": 1,
+        "difficulty": "easy",
+        "bloom_level": "Understanding",
+        "learning_outcome": lo,
+        "rubric": "",
+        "reference": "",
+    }
+
+
+def _fallback_short(stem: str, lo: str, i: int) -> dict:
+    return {
+        "id": _new_id(),
+        "question_type": "short_answer",
+        "question_text": f"In a few sentences, explain: {stem}",
+        "options": [],
+        "correct_answer": "",
+        "marks": 3,
+        "difficulty": "medium",
+        "bloom_level": "Understanding",
+        "learning_outcome": lo,
+        "rubric": "Award full marks for a clear, accurate explanation of the key idea.",
+        "reference": "",
+    }
+
+
+def _fallback_essay(stem: str, lo: str, i: int) -> dict:
+    return {
+        "id": _new_id(),
+        "question_type": "essay",
+        "question_text": (
+            f"Discuss {stem}. Include the main concepts, provide examples, "
+            "and explain how they connect to the syllabus topic."
+        ),
+        "options": [],
+        "correct_answer": "",
+        "marks": 8,
+        "difficulty": "hard",
+        "bloom_level": "Analysing",
+        "learning_outcome": lo,
+        "rubric": (
+            "Award marks for correct use of terminology, structured argument, "
+            "relevant examples, and a clear conclusion."
+        ),
+        "reference": "",
+    }
+
+
+_FALLBACK_FACTORIES = {
+    "multiple_choice": _fallback_mc,
+    "true_false": _fallback_tf,
+    "short_answer": _fallback_short,
+    "essay": _fallback_essay,
+}
+
+
+def _fallback_questions(config, context: dict, count: int) -> list[dict]:
+    objectives = context.get("learning_objectives") or []
+    stems = (
+        [o["objective"] for o in objectives]
+        if objectives and isinstance(objectives[0], dict)
+        else list(objectives)
+    )
+    if count <= 0:
+        count = 5
+    while len(stems) < count:
+        stems.append(f"{config.topic or 'the given topic'} (point {len(stems) + 1})")
+    types = [
+        t
+        for t in (config.question_types or ["short_answer"])
+        if t in _FALLBACK_FACTORIES
+    ]
+    if not types:
+        types = ["short_answer"]
+    questions: list[dict] = []
+    for i in range(count):
+        stem = stems[i % len(stems)]
+        lo = stem
+        q_type = types[i % len(types)]
+        factory = _FALLBACK_FACTORIES[q_type]
+        question = factory(stem, lo, i)
+        if question["learning_outcome"] == "":
+            question["learning_outcome"] = lo
+        questions.append(question)
+    return questions
+
+
+async def generate_questions(config, db: AsyncSession) -> list[dict]:
+    """Generate exam questions from the syllabus context (AI, then fallback)."""
+    context = await load_syllabus_context(db, config)
+    count = _safe_int(config.num_questions, 10)
+    objectives = context.get("learning_objectives") or []
+    objective_lines = (
+        "\n".join(f"- {o}" for o in objectives) or "- (no objectives provided)"
+    )
+    type_instruction = ", ".join(config.question_types or ["short_answer"])
+    try:
+        prompt = (
+            f"Create a {config.exam_type} examination paper for the Malawi secondary-school syllabus.\n"
+            f"Subject: {context['subject'] or '-'}\nClass: {context['form'] or '-'}\n"
+            f"Topic: {context['topic'] or '-'}\nSubtopic: {context['subtopic'] or '-'}\n"
+            f"Paper title: {config.title or 'Untitled Examination'}\n"
+            f"Total marks: {config.total_marks}\nDuration: {config.duration_minutes} minutes\n"
+            f"Difficulty: {config.difficulty} (use 'mixed' to vary).\n"
+            f"Bloom's taxonomy focus: {config.bloom_focus}.\n"
+            f"Question types allowed: {type_instruction}.\n"
+            f"Generate {count} questions in total, with marks summing towards {config.total_marks}.\n\n"
+            f"Learning objectives to assess:\n{objective_lines}\n\n"
+            "Return ONLY a JSON object in this exact shape:\n"
+            '{"questions": [{"question_type": "multiple_choice|true_false|short_answer|essay", '
+            '"question_text": "...", "options": ["...", ...], "correct_answer": "...", '
+            '"marks": <int>, "difficulty": "easy|medium|hard", "bloom_level": '
+            '"Remembering|Understanding|Applying|Analysing|Evaluating|Creating", '
+            '"learning_outcome": "<objective this question tests>", "rubric": "..."}]}'
+            "\nFor multiple_choice provide 4 plausible options; for true_false use ['True','False']."
+        )
+        raw = await call_ai_json(
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are an expert examination designer aligned to the Malawi "
+                        "Secondary School curriculum."
+                        + STEM_LATEX_INSTRUCTION
+                        + VISUAL_GENERATION_POLICY
+                    ),
+                },
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.7,
+            max_tokens=4096,
+            timeout=45.0,
+        )
+        raw_questions = raw.get("questions") if isinstance(raw, dict) else raw
+        questions = [
+            _normalise_ai_question(q) for q in raw_questions if isinstance(q, dict)
+        ]
+        questions = [q for q in questions if q["question_text"]]
+        if questions:
+            return questions
+        log.warning("AI returned no usable questions; using fallback templates")
+    except (AIProviderError, ValueError) as e:
+        log.warning("AI question generation failed (%s); using fallback templates", e)
+    return _fallback_questions(config, context, count)
+
+
+async def regenerate_question(
+    config, question_id: str, focus: str, questions: list[dict], db
+) -> dict:
+    """Regenerate a single question (AI first, then template fallback)."""
+    existing = next((q for q in questions if q["id"] == question_id), None)
+    stem = focus if focus else (existing or {}).get("question_text", "")
+    aim = existing.get("learning_outcome", "") if existing else ""
+    if stem and aim:
+        try:
+            raw = await call_ai_json(
+                messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "You are an expert examination designer for the Malawi Secondary "
+                            "School curriculum. Return only valid JSON matching the schema requested."
+                            + STEM_LATEX_INSTRUCTION
+                            + VISUAL_GENERATION_POLICY
+                        ),
+                    },
+                    {
+                        "role": "user",
+                        "content": (
+                            f"Recreate the question below with a different phrasing at "
+                            f"{config.difficulty} difficulty, targeting Bloom level "
+                            f"{config.bloom_focus}. Keep the same question type and learning "
+                            "outcome. Return a JSON object with keys question_type, "
+                            "question_text, options (array), correct_answer, marks, difficulty, "
+                            f"bloom_level, learning_outcome, rubric.\n\nOriginal: {stem}\n"
+                            f"Learning outcome: {aim}"
+                        ),
+                    },
+                ],
+                temperature=0.8,
+                max_tokens=1536,
+                timeout=40.0,
+            )
+            rebuilt = _normalise_ai_question(raw)
+            rebuilt["id"] = question_id
+            if rebuilt["question_text"]:
+                return rebuilt
+        except (AIProviderError, ValueError) as e:
+            log.warning("Question regeneration failed (%s); using fallback", e)
+    if existing is None:
+        factory = _FALLBACK_FACTORIES.get("short_answer")
+        return factory(stem or "the given concept", aim or "Understand the concept", 0)
+    factory = _FALLBACK_FACTORIES.get(existing.get("question_type"), _fallback_short)
+    rebuilt = factory(stem or existing.get("question_text", ""), aim, 0)
+    rebuilt["id"] = question_id
+    return rebuilt
+
+
+# ── Quality report ───────────────────────────────────────────────────────────
+
+
+def compute_quality_report(config, questions: list[dict]) -> dict:
+    total_marks = sum(_safe_int(q.get("marks"), 1) for q in questions)
+    type_distribution = dict(
+        Counter(q.get("question_type", "short_answer") for q in questions)
+    )
+    difficulty_coverage = dict(
+        Counter(q.get("difficulty", "medium") for q in questions)
+    )
+    bloom_coverage = dict(
+        Counter(q.get("bloom_level", "Understanding") for q in questions)
+    )
+
+    aligned = [q for q in questions if q.get("learning_outcome")]
+    syllabus_coverage_pct = (
+        round(100 * len(aligned) / len(questions)) if questions else 0
+    )
+
+    complete = []
+    for q in questions:
+        q_type = q.get("question_type")
+        if q_type in ("multiple_choice", "true_false"):
+            complete.append(bool(q.get("correct_answer") and q.get("options")))
+        elif q_type == "essay":
+            complete.append(bool(q.get("rubric")))
+        else:
+            complete.append(bool(q.get("question_text")))
+    answer_completeness_pct = (
+        round(100 * sum(complete) / len(complete)) if complete else 0
+    )
+
+    checks = [
+        {
+            "label": "Syllabus alignment (objectives per question)",
+            "passed": syllabus_coverage_pct >= 80,
+        },
+        {
+            "label": "Answer completeness (keyed/rubric answers)",
+            "passed": answer_completeness_pct >= 80,
+        },
+        {"label": "Bloom coverage (>= 3 levels)", "passed": len(bloom_coverage) >= 3},
+        {
+            "label": "Difficulty balance",
+            "passed": len(difficulty_coverage) >= 2 or config.difficulty != "mixed",
+        },
+    ]
+    warnings = [c["label"] for c in checks if not c["passed"]]
+    if total_marks != _safe_int(config.total_marks, 100):
+        warnings.append("Reported total marks differ from the configured paper total.")
+
+    return {
+        "question_count": len(questions),
+        "total_marks": total_marks,
+        "type_distribution": type_distribution,
+        "difficulty_coverage": difficulty_coverage,
+        "bloom_coverage": bloom_coverage,
+        "syllabus_coverage_pct": syllabus_coverage_pct,
+        "answer_completeness_pct": answer_completeness_pct,
+        "checks": checks,
+        "warnings": warnings,
+    }
+
+
+# ── DOCX export ──────────────────────────────────────────────────────────────
+
+
+def _paper_header(config) -> dict:
+    return {
+        "title": config.title or f"{config.subject or 'Subject'} Examination",
+        "subject": config.subject or "Subject",
+        "class": config.form_label or (f"Form {config.form}" if config.form else ""),
+        "topic": config.topic or "",
+        "subtopic": config.subtopic or "",
+        "duration": config.duration_minutes,
+        "total_marks": config.total_marks,
+        "exam_type": config.exam_type,
+        "institution": config.institution or "",
+        "lecturer": config.lecturer or "",
+        "semester": config.semester or "",
+        "academic_year": config.academic_year or "",
+    }
+
+
+def build_docx(
+    config, questions: list[dict], include_answers: bool = False
+) -> io.BytesIO:
+    from docx import Document
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.shared import Pt, RGBColor
+
+    header = _paper_header(config)
+    doc = Document()
+    style = doc.styles["Normal"]
+    style.font.name = "Calibri"
+    style.font.size = Pt(11)
+
+    title = doc.add_heading(header["title"], level=0)
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    sub = doc.add_paragraph()
+    sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = sub.add_run(
+        f"{header['subject']} — {header['class']} | "
+        f"{header['topic']}{' — ' + header['subtopic'] if header['subtopic'] else ''}"
+    )
+    run.font.size = Pt(11)
+    run.font.color.rgb = RGBColor(0x1F, 0x4E, 0x79)
+
+    meta = doc.add_paragraph(
+        f"Total marks: {header['total_marks']}   |   Duration: {header['duration']} minutes   |   "
+        f"Paper type: {header['exam_type'].replace('_', ' ').title()}"
+    )
+    meta.runs[0].italic = True
+
+    section_headers = {
+        "multiple_choice": "SECTION A — OBJECTIVE QUESTIONS",
+        "true_false": "SECTION A — OBJECTIVE QUESTIONS",
+        "short_answer": "SECTION B — SHORT ANSWER QUESTIONS",
+        "essay": "SECTION C — STRUCTURED/ESSAY QUESTIONS",
+    }
+    section_order = list(
+        dict.fromkeys(q.get("question_type", "short_answer") for q in questions)
+    )
+
+    number = 1
+    for q_type in section_order:
+        group = [q for q in questions if q.get("question_type") == q_type]
+        if not group:
+            continue
+        doc.add_paragraph()
+        doc.add_heading(section_headers.get(q_type, "QUESTIONS"), level=1)
+        for q in group:
+            p = doc.add_paragraph()
+            p.paragraph_format.space_before = Pt(6)
+            p.paragraph_format.space_after = Pt(2)
+            p.add_run(f"{number}. ").bold = True
+            p.add_run(str(q.get("question_text", "")))
+            p.add_run(f"  ({q.get('marks', 1)} marks)").bold = True
+            options = q.get("options") or []
+            if options:
+                labels = "abcdefghijklmnopqrstuvwxyz"
+                opt_par = doc.add_paragraph()
+                opt_par.paragraph_format.left_indent = Pt(24)
+                opt_par.paragraph_format.space_after = Pt(6)
+                joined = "    ".join(
+                    f"({labels[i]}) {o}" for i, o in enumerate(options)
+                )
+                opt_par.add_run(joined)
+            number += 1
+
+    if include_answers:
+        doc.add_page_break()
+        doc.add_heading("MARKING SCHEME / ANSWER KEY", level=1)
+        number = 1
+        for q in questions:
+            p = doc.add_paragraph()
+            p.paragraph_format.space_before = Pt(4)
+            p.add_run(f"{number}. ").bold = True
+            p.add_run(str(q.get("question_text", "")))
+            corr = q.get("correct_answer") or ""
+            if q.get("question_type") == "multiple_choice" and corr:
+                options = q.get("options") or []
+                idx = next(
+                    (
+                        i
+                        for i, o in enumerate(options)
+                        if str(o).strip().lower() == corr.lower()
+                    ),
+                    None,
+                )
+                answer_text = (
+                    f"{chr(97 + idx).upper()}) {corr}" if idx is not None else corr
+                )
+            elif q.get("question_type") == "true_false":
+                answer_text = corr
+            else:
+                answer_text = q.get("rubric") or corr
+            ans = doc.add_paragraph(style="List Bullet")
+            ans.add_run("Answer: ").bold = True
+            ans.add_run(answer_text)
+            number += 1
+
+    buffer = io.BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+    return buffer
+
+
+# ── PDF export ───────────────────────────────────────────────────────────────
+
+
+def _safe_text(text: str) -> str:
+    return re.sub(r"[^\u0020-\u007e\u00a0-\u00ff]", "?", text or "")
+
+
+def build_pdf(
+    config, questions: list[dict], include_answers: bool = False
+) -> io.BytesIO:
+    import fitz
+
+    header = _paper_header(config)
+    doc = fitz.open()
+    page = doc.new_page()
+    margin = 54
+    width = page.rect.width
+    content_rect = fitz.Rect(margin, margin, width - margin, page.rect.height - margin)
+
+    def add_block(
+        text: str, size: float, *, bold: bool = False, color=(0.0, 0.0, 0.0)
+    ) -> None:
+        nonlocal page, content_rect
+        font = "helv" if not bold else "hebo"
+        text = _safe_text(text)
+        while True:
+            rect = fitz.Rect(
+                content_rect.x0, content_rect.y0, content_rect.x1, content_rect.y1
+            )
+            leftover = page.insert_textbox(
+                rect, text, fontsize=size, fontname=font, color=color
+            )
+            if leftover >= 0:
+                content_rect = fitz.Rect(
+                    content_rect.x0,
+                    content_rect.y1 - leftover + 14,
+                    content_rect.x1,
+                    content_rect.y1,
+                )
+                return
+            page = doc.new_page()
+            content_rect = fitz.Rect(
+                margin, margin, width - margin, page.rect.height - margin
+            )
+
+    add_block(header["title"], 20, bold=True, color=(0.0, 0.0, 0.0))
+    add_block(f"{header['subject']} — {header['class']}", 12)
+    topic_line = header["topic"] or "-"
+    if header["subtopic"]:
+        topic_line = f"{topic_line} — {header['subtopic']}"
+    add_block(f"Topic: {topic_line}", 11)
+    add_block(
+        f"Total marks: {header['total_marks']}   |   Duration: {header['duration']} minutes   |   "
+        f"Paper type: {header['exam_type'].replace('_', ' ').title()}",
+        10,
+        color=(0.3, 0.3, 0.3),
+    )
+    add_block("Answer all questions.", 10)
+
+    number = 1
+    for q in questions:
+        add_block(
+            f"{number}. ({q.get('marks', 1)} marks) {q.get('question_text', '')}",
+            11,
+            bold=True,
+        )
+        options = q.get("options") or []
+        if options:
+            labels = "abcdefghijklmnopqrstuvwxyz"
+            add_block(
+                "    "
+                + "\n    ".join(f"({labels[i]}) {o}" for i, o in enumerate(options)),
+                10,
+            )
+        number += 1
+
+    if include_answers:
+        page = doc.new_page()
+        content_rect = fitz.Rect(
+            margin, margin, width - margin, page.rect.height - margin
+        )
+        add_block("MARKING SCHEME / ANSWER KEY", 15, bold=True)
+        number = 1
+        for q in questions:
+            corr = q.get("correct_answer") or ""
+            if q.get("question_type") == "multiple_choice" and corr:
+                options = q.get("options") or []
+                idx = next(
+                    (
+                        i
+                        for i, o in enumerate(options)
+                        if str(o).strip().lower() == corr.lower()
+                    ),
+                    None,
+                )
+                answer_text = (
+                    f"{chr(97 + idx).upper()}) {corr}" if idx is not None else corr
+                )
+            elif q.get("question_type") == "true_false":
+                answer_text = corr or "True"
+            else:
+                answer_text = q.get("rubric") or corr or "-"
+            add_block(f"{number}. {q.get('question_text', '')}", 10, bold=True)
+            add_block(f"    Answer: {answer_text}", 10, color=(0.2, 0.35, 0.6))
+            number += 1
+
+    buffer = io.BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+    return buffer

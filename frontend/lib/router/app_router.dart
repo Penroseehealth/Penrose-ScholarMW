@@ -16,7 +16,6 @@ import '../screens/auth/register_screen.dart';
 import '../screens/biology/biology_ai_tutor.dart';
 import '../screens/biology/biology_analytics.dart';
 import '../screens/biology/biology_dashboard.dart';
-import '../screens/biology/biology_diagram_centre.dart';
 import '../screens/biology/biology_mock_exam.dart';
 import '../screens/biology/biology_notebook.dart';
 import '../screens/biology/biology_past_papers.dart';
@@ -26,6 +25,7 @@ import '../screens/biology/biology_practice_centre.dart';
 import '../screens/biology/biology_syllabus.dart';
 import '../screens/biology/biology_topics.dart';
 import '../screens/biology/biology_virtual_lab.dart';
+import '../screens/biology/biology_visualization_screen.dart';
 import '../screens/chemistry/chemistry_syllabus_screen.dart';
 import '../screens/physics/physics_syllabus_screen.dart';
 import '../screens/stem/stem_syllabus_screen.dart';
@@ -35,6 +35,14 @@ import '../screens/examinations/examination_hall.dart';
 import '../screens/gamification/gamification_screen.dart';
 import '../screens/home/home_shell.dart';
 import '../screens/home/student_dashboard.dart';
+import '../screens/languages/chinese_character_lab.dart';
+import '../screens/languages/chinese_hub_dashboard.dart';
+import '../screens/languages/chinese_pinyin_lab.dart';
+import '../screens/languages/chinese_placement_test.dart';
+import '../screens/languages/chinese_radical_lab.dart';
+import '../screens/languages/chinese_sentence_builder.dart';
+import '../screens/languages/chinese_srs_review.dart';
+import '../screens/languages/chinese_tone_lab.dart';
 import '../screens/languages/language_ai_tutor.dart';
 import '../screens/languages/language_assessment.dart';
 import '../screens/languages/language_conversation.dart';
@@ -58,6 +66,8 @@ import '../screens/languages/language_vocabulary.dart';
 import '../screens/languages/language_writing.dart';
 import '../screens/languages/languages_hub.dart';
 import '../screens/lecturer/assessment_studio.dart';
+import '../screens/lecturer/examination_builder_screen.dart';
+import '../screens/lecturer/lecture_presentation_builder_screen.dart';
 import '../screens/lecturer/lecturer_centre.dart';
 import '../screens/lecturer/smart_marking.dart';
 import '../screens/mathematics/math_syllabus_screen.dart';
@@ -94,6 +104,7 @@ import '../screens/student/chat_detail_screen.dart';
 import '../screens/student/knowledge_retrieval_screen.dart';
 import '../screens/student/knowledge_vault.dart';
 import '../screens/student/learning_coach.dart';
+import '../screens/student/ocr_scan_screen.dart';
 import '../screens/student/malawi_context_screen.dart';
 import '../screens/student/messaging_screen.dart';
 import '../screens/student/notification_settings_screen.dart';
@@ -168,6 +179,8 @@ class AppRouter {
         ),
       ),
       _route('/lecturer', (_) => const LecturerCentre()),
+      _route('/lecturer/presentation-builder', (_) => const LecturePresentationBuilderScreen()),
+      _route('/lecturer/examination-builder', (_) => const ExaminationBuilderScreen()),
       ShellRoute(
         builder: (_, __, child) => HomeShell(child: child),
         routes: [
@@ -176,6 +189,7 @@ class AppRouter {
           _route('/dashboard', (_) => const StudentDashboard()),
           _route('/research', (_) => const ResearchLab()),
           _route('/vault', (_) => const KnowledgeVaultScreen()),
+          _route('/ocr-scan', (_) => const OcrScanScreen()),
           _route('/assessment-studio', (_) => const AssessmentStudio()),
           _route('/profile', (_) => const ProfileScreen()),
           _route('/analytics', (_) => const AnalyticsDashboard()),
@@ -217,6 +231,62 @@ class AppRouter {
                 transitionsBuilder: _slideTransition,
               );
             },
+          ),
+          GoRoute(
+            path: '/language/:slug/pinyin-lab',
+            pageBuilder: (conf, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const ChinesePinyinLab(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/tone-lab',
+            pageBuilder: (conf, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const ChineseToneLab(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/character-lab',
+            pageBuilder: (conf, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const ChineseCharacterLab(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/radical-lab',
+            pageBuilder: (conf, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const ChineseRadicalLab(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/sentence-builder',
+            pageBuilder: (conf, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const ChineseSentenceBuilder(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/placement-test',
+            pageBuilder: (conf, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const ChinesePlacementTest(),
+              transitionsBuilder: _slideTransition,
+            ),
+          ),
+          GoRoute(
+            path: '/language/:slug/srs-review',
+            pageBuilder: (conf, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const ChineseSrsReview(),
+              transitionsBuilder: _slideTransition,
+            ),
           ),
           GoRoute(
             path: '/stem/:slug',
@@ -391,7 +461,7 @@ class AppRouter {
           ),
           _route('/bio-topics', (_) => const BiologyTopicsScreen()),
           _route('/bio-virtual-lab', (_) => const BiologyVirtualLabScreen()),
-          _route('/bio-diagrams', (_) => const BiologyDiagramCentreScreen()),
+          _route('/bio-diagrams', (_) => const BiologyVisualizationScreen()),
           _route('/bio-practicals', (_) => const BiologyPracticalHubScreen()),
           _route('/bio-practicals/studio', (_) => const BiologyPracticalStudioScreen()),
           _route('/bio-practice', (_) => const BiologyPracticeCentreScreen()),
@@ -415,9 +485,10 @@ class AppRouter {
             path: '/language/:slug',
             pageBuilder: (_, state) {
               final slug = state.pathParameters['slug'] ?? 'english';
+              final Widget widget = slug == 'chinese' ? ChineseHubDashboard(slug: slug) : LanguageDashboard(slug: slug);
               return CustomTransitionPage<void>(
                 key: state.pageKey,
-                child: LanguageDashboard(slug: slug),
+                child: widget,
                 transitionsBuilder: _slideTransition,
               );
             },

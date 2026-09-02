@@ -95,9 +95,7 @@ class ConnectivityManager extends ChangeNotifier {
     // On web, the app is served from the same origin, so /health works.
     bool internetAvailable = false;
     try {
-      final uri = kIsWeb
-          ? Uri.parse('/health')
-          : Uri.parse('http://localhost:8000/health');
+      final uri = kIsWeb ? Uri.parse('/health') : Uri.parse('http://localhost:8000/health');
       final response = await http.get(uri).timeout(const Duration(seconds: 5));
       internetAvailable = response.statusCode == 200;
     } catch (_) {

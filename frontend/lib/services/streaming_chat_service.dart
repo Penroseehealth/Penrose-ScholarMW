@@ -26,6 +26,7 @@ class StreamChunk {
 class StreamingChatService {
   final ApiService _api;
   StreamSubscription<String>? _activeSubscription;
+  StreamController<StreamChunk>? _controller;
 
   StreamingChatService({ApiService? api}) : _api = api ?? ApiService();
 
@@ -35,6 +36,10 @@ class StreamingChatService {
   void cancelCurrentStream() {
     _activeSubscription?.cancel();
     _activeSubscription = null;
+    if (_controller != null && !_controller!.isClosed) {
+      _controller!.close();
+    }
+    _controller = null;
   }
 
   /// Stream a chat message and yield chunks as they arrive.
@@ -97,22 +102,17 @@ class StreamingChatService {
         return;
       }
 
-      final completer = Completer<void>();
-      _activeSubscription = response.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .listen(
+      _controller = StreamController<StreamChunk>();
+      _activeSubscription = response.stream.transform(utf8.decoder).transform(const LineSplitter()).listen(
         (line) {
           if (line.startsWith('data: ')) {
             final data = line.substring(6).trim();
             if (data.isEmpty) return;
-
             try {
               final json = jsonDecode(data) as Map<String, dynamic>;
               final type = json['type']?.toString() ?? 'chunk';
               final content = json['content']?.toString() ?? '';
-
-              _chunkController.add(StreamChunk(
+              _controller!.add(StreamChunk(
                 type: type,
                 content: content,
                 messageId: json['message_id'] as int?,
@@ -125,30 +125,27 @@ class StreamingChatService {
         },
         onDone: () {
           _activeSubscription = null;
-          _chunkController.close();
-          if (!completer.isCompleted) completer.complete();
+          if (!_controller!.isClosed) _controller!.close();
         },
         onError: (e) {
           _activeSubscription = null;
-          _chunkController.add(const StreamChunk(
-            type: 'error',
-            content: 'Stream error',
-          ));
-          _chunkController.close();
-          if (!completer.isCompleted) completer.complete();
+          if (_controller != null && !_controller!.isClosed) {
+            _controller!.add(const StreamChunk(
+              type: 'error',
+              content: 'Stream error',
+            ));
+            _controller!.close();
+          }
         },
       );
-
-      // Wait for the stream to complete
-      await completer.future;
+      await for (final chunk in _controller!.stream) {
+        yield chunk;
+      }
     } catch (e) {
       debugPrint('Streaming chat failed: $e');
       yield StreamChunk(type: 'error', content: 'Connection failed: $e');
+    } finally {
+      _controller = null;
     }
   }
-
-  final _chunkController = StreamController<StreamChunk>.broadcast();
-
-  /// Alternative: returns a broadcast stream of chunks for UI listening.
-  Stream<StreamChunk> get chunkStream => _chunkController.stream;
 }

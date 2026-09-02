@@ -1,13 +1,16 @@
 import 'dart:convert';
 import 'dart:js_interop';
-import 'dart:js_interop_unsafe';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:web/web.dart' as web;
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 import '../../services/services.dart';
+import 'vault_video_player_screen.dart';
 
 class KnowledgeVaultScreen extends StatefulWidget {
   const KnowledgeVaultScreen({super.key});
@@ -46,12 +49,114 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
     setState(() => _loading = false);
   }
 
-  Future<void> _downloadFile(dynamic doc) async {
+  static String _fileName(dynamic doc) => (doc['file_name'] as String?) ?? (doc['title'] as String?) ?? 'document';
+
+  static String _mimeType(dynamic doc) => (doc['mime_type'] as String?) ?? 'application/octet-stream';
+
+  /// Opens a protected file by fetching its bytes with the bearer token.
+  ///
+  /// Videos play inline through a dedicated player (a bare Blob URL opened in a
+  /// new tab would just show a blank/download). Everything else streams through
+  /// a Blob URL in a new tab so the browser can render PDFs, images, docs, etc.
+  /// without leaking the token in the URL.
+  Future<void> _openDocument(dynamic doc) async {
     final fileId = doc['id'];
     if (fileId == null) return;
-    final url = '/api/v1/vault/$fileId/download';
-    final uri = Uri.base.resolve(url);
-    globalContext.callMethodVarArgs('open'.toJS, [uri.toString().toJS, '_blank'.toJS]);
+    final bytes = await _api.downloadBytes('/vault/$fileId/download');
+    if (bytes == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open file')),
+        );
+      }
+      return;
+    }
+    if (!kIsWeb) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Open is available on the web build')),
+        );
+      }
+      return;
+    }
+    final mime = _mimeType(doc);
+    if (_isVideo(mime, _fileName(doc))) {
+      _openVideoPlayer(bytes, mime, doc);
+      return;
+    }
+    _openBlobInNewTab(bytes, mime);
+  }
+
+  static bool _isVideo(String mime, String filename) {
+    if (mime.startsWith('video/')) return true;
+    final name = filename.toLowerCase();
+    return const ['mp4', 'webm', 'mov', 'mkv', 'avi'].any(name.endsWith);
+  }
+
+  /// Creates a Blob URL for the video bytes and opens an inline player.
+  void _openVideoPlayer(Uint8List bytes, String mime, dynamic doc) {
+    final jsArray = bytes.toJS;
+    final blob = web.Blob([jsArray].toJS, web.BlobPropertyBag(type: mime));
+    final url = web.URL.createObjectURL(blob);
+    if (!mounted) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => VaultVideoPlayerScreen(
+          videoUrl: url,
+          title: (doc['title'] ?? 'Video') as String,
+        ),
+      ),
+    );
+    // Best-effort cleanup so the blob URL does not linger indefinitely.
+    Future.delayed(const Duration(minutes: 10), () {
+      web.URL.revokeObjectURL(url);
+    });
+  }
+
+  /// Opens auth-fetched bytes via a Blob URL in a new tab. Browsers render
+  /// PDFs, images and common documents directly from the Blob URL.
+  void _openBlobInNewTab(Uint8List bytes, String mime) {
+    final jsArray = bytes.toJS;
+    final blob = web.Blob([jsArray].toJS, web.BlobPropertyBag(type: mime));
+    final url = web.URL.createObjectURL(blob);
+    web.window.open(url, '_blank');
+    Future.delayed(const Duration(seconds: 30), () {
+      web.URL.revokeObjectURL(url);
+    });
+  }
+
+  Future<void> _deleteDocument(dynamic doc) async {
+    final fileId = doc['id'];
+    if (fileId == null) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete document'),
+        content: Text('Delete "${doc['title']}" from your vault?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final response = await _api.delete('/vault/$fileId');
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            response.statusCode == 204 ? 'Deleted' : 'Delete failed (${response.statusCode})',
+          ),
+        ),
+      );
+      _loadDocuments();
+    }
   }
 
   String _formatFileSize(int bytes) {
@@ -88,6 +193,11 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: Icon(Icons.document_scanner_rounded, color: context.colors.textSecondary),
+            tooltip: 'Scan & analyse a document',
+            onPressed: () => context.go('/ocr-scan'),
+          ),
           IconButton(
             icon: Icon(Icons.upload_file_rounded, color: context.colors.textSecondary),
             onPressed: _uploadDocument,
@@ -175,55 +285,71 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
     };
     final icon = typeIcons[doc['doc_type']] ?? Icons.insert_drive_file_outlined;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
+    return Material(
+      color: context.colors.surface,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: context.colors.borderLight),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: context.colors.primaryGlow,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: AppColors.primary, size: 22),
+        onTap: () => _openDocument(doc),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: context.colors.borderLight),
           ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  (doc['title'] ?? '') as String,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: context.colors.textPrimary,
-                  ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: context.colors.primaryGlow,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  '${doc['file_name'] ?? doc['title'] ?? 'Unknown'} ${doc['file_size'] != null ? '\u00B7 ${_formatFileSize(doc['file_size'] as int)}' : ''} ${doc['is_indexed'] == true ? '\u00B7 Indexed' : ''}',
-                  style: TextStyle(fontSize: 12, color: context.colors.textMuted),
+                child: Icon(icon, color: AppColors.primary, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      (doc['title'] ?? '') as String,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: context.colors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${_fileName(doc)} ${doc['file_size'] != null ? '\u00B7 ${_formatFileSize(doc['file_size'] as int)}' : ''} ${doc['is_indexed'] == true ? '\u00B7 Indexed' : ''}',
+                      style: TextStyle(fontSize: 12, color: context.colors.textMuted),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 8),
+              if (doc['is_indexed'] == true) Icon(Icons.check_circle_rounded, color: context.colors.success, size: 18),
+              const SizedBox(width: 4),
+              IconButton(
+                tooltip: 'Open',
+                icon: const Icon(Icons.open_in_new_rounded, color: AppColors.primary, size: 20),
+                onPressed: () => _openDocument(doc),
+              ),
+              PopupMenuButton<String>(
+                color: context.colors.surfaceHighest,
+                onSelected: (v) {
+                  if (v == 'delete') _deleteDocument(doc);
+                },
+                itemBuilder: (ctx) => const [
+                  PopupMenuItem(value: 'delete', child: Text('Delete')),
+                ],
+              ),
+            ],
           ),
-          const SizedBox(width: 8),
-          if (doc['is_indexed'] == true) Icon(Icons.check_circle_rounded, color: context.colors.success, size: 18),
-          const SizedBox(width: 4),
-          IconButton(
-            icon: const Icon(Icons.download_rounded, color: AppColors.primary, size: 20),
-            onPressed: () => _downloadFile(doc),
-          ),
-          Icon(Icons.chevron_right_rounded, color: context.colors.textMuted, size: 20),
-        ],
+        ),
       ),
     );
   }
@@ -256,11 +382,27 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
   Future<void> _uploadDocument() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['pdf', 'docx', 'txt', 'pptx', 'xlsx'],
+      allowedExtensions: [
+        'pdf',
+        'docx',
+        'txt',
+        'pptx',
+        'xlsx',
+        'csv',
+        'jpg',
+        'png',
+        'mp4',
+        'webm',
+        'mov',
+        'mkv',
+        'avi'
+      ],
+      withData: true,
     );
     if (result == null || result.files.isEmpty) return;
 
-    final titleCtrl = TextEditingController(text: result.files.first.name);
+    final picked = result.files.first;
+    final titleCtrl = TextEditingController(text: picked.name);
     String docType = 'lecture_notes';
 
     if (!mounted) return;
@@ -302,17 +444,26 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
             ElevatedButton(
               onPressed: () async {
                 Navigator.pop(ctx);
-                final fileBytes = result.files.first.bytes;
-                if (fileBytes == null) return;
+                List<int> fileBytes;
+                try {
+                  fileBytes = picked.bytes ?? await picked.xFile.readAsBytes();
+                } catch (_) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Could not read the selected file.')),
+                    );
+                  }
+                  return;
+                }
                 final response = await _api.uploadFileBytes(
                   '/vault/upload',
                   fileBytes,
-                  result.files.first.name,
+                  picked.name,
                   fields: {
                     'title': titleCtrl.text,
                     'doc_type': docType,
-                    'file_name': result.files.first.name,
-                    'file_size': result.files.first.size.toString(),
+                    'file_name': picked.name,
+                    'file_size': picked.size.toString(),
                   },
                 );
                 if (mounted) {

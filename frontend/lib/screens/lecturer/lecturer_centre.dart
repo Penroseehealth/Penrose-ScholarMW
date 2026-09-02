@@ -401,6 +401,8 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
   static final _navItems = [
     _NavItem(Icons.dashboard_rounded, 'Dashboard', '/lecturer'),
     _NavItem(Icons.menu_book_rounded, 'My Courses', '/vault'),
+    _NavItem(Icons.slideshow_rounded, 'AI Presentation Builder', '/lecturer/presentation-builder'),
+    _NavItem(Icons.fact_check_rounded, 'AI Examination Builder', '/lecturer/examination-builder'),
     _NavItem(Icons.auto_awesome_rounded, 'AI Assistant', '/ai-tutor'),
     _NavItem(Icons.school_rounded, 'My Learning', '/stem'),
     _NavItem(Icons.assignment_rounded, 'Assignments', '/assignments'),

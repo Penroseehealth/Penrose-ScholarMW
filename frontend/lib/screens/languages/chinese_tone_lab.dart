@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../voice/tone_tts_service.dart';
 
 class ChineseToneLab extends StatefulWidget {
   const ChineseToneLab({super.key});
@@ -21,6 +22,7 @@ class _ChineseToneLabState extends State<ChineseToneLab> with SingleTickerProvid
   static const Color _cn = Color(0xFF94A3B8);
 
   final Random _rand = Random();
+  final ToneTtsService _tts = ToneTtsService();
   final Set<int> _expandedGroups = {};
 
   int _quizScore = 0;
@@ -290,6 +292,7 @@ class _ChineseToneLabState extends State<ChineseToneLab> with SingleTickerProvid
   @override
   void dispose() {
     _tabCtrl.dispose();
+    _tts.dispose();
     super.dispose();
   }
 
@@ -364,6 +367,40 @@ class _ChineseToneLabState extends State<ChineseToneLab> with SingleTickerProvid
       default:
         return _cn;
     }
+  }
+
+  void _speakChar(String char) {
+    _tts.speakChar(char);
+  }
+
+  /// Resolve a pinyin syllable (e.g. "shī") to a real Chinese character so the
+  /// server TTS pronounces it with the correct tone.
+  String _charForPinyin(String pinyin) {
+    for (final w in _allWords) {
+      if (w['pinyin'] == pinyin) return w['char'] as String;
+    }
+    for (final group in _pairGroups) {
+      for (final item in group['items'] as List<Map<String, dynamic>>) {
+        if (item['pinyin'] == pinyin) return item['char'] as String;
+      }
+    }
+    return pinyin;
+  }
+
+  Widget _playButton(String char, {Color? color, double size = 20}) {
+    final c = color ?? _accent;
+    return GestureDetector(
+      onTap: () => _tts.speakChar(char),
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: c.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(Icons.volume_up_rounded, size: size, color: c),
+      ),
+    );
   }
 
   String get _combinedScore => '${_quizScore + _listenScore}/${_quizTotal + _listenTotal}';
@@ -505,6 +542,8 @@ class _ChineseToneLabState extends State<ChineseToneLab> with SingleTickerProvid
                         ),
                       ),
                     ),
+                    const SizedBox(width: 8),
+                    _playButton(t['char']!, color: c, size: 18),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -658,6 +697,8 @@ class _ChineseToneLabState extends State<ChineseToneLab> with SingleTickerProvid
             char,
             style: TextStyle(fontSize: 64, fontWeight: FontWeight.w400, color: context.colors.textPrimary),
           ),
+          const SizedBox(height: 8),
+          _playButton(char, color: _accent, size: 22),
           const SizedBox(height: 8),
           Text(
             pinyin,
@@ -895,7 +936,9 @@ class _ChineseToneLabState extends State<ChineseToneLab> with SingleTickerProvid
                       ),
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  const SizedBox(width: 8),
+                  _playButton(group['sound'] as String, color: _accent, size: 16),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -954,6 +997,8 @@ class _ChineseToneLabState extends State<ChineseToneLab> with SingleTickerProvid
                           style:
                               TextStyle(fontSize: 26, fontWeight: FontWeight.w500, color: context.colors.textPrimary),
                         ),
+                        const SizedBox(width: 6),
+                        _playButton(item['char'] as String, color: c, size: 16),
                         const SizedBox(width: 14),
                         Expanded(
                           child: Column(
@@ -1172,9 +1217,23 @@ class _ChineseToneLabState extends State<ChineseToneLab> with SingleTickerProvid
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: border, width: answered && (isAnswer || isPick) ? 1.5 : 1),
         ),
-        child: Text(
-          label,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () => _speakChar(_charForPinyin(label)),
+              child: Icon(
+                Icons.volume_up_rounded,
+                size: 16,
+                color: textColor.withValues(alpha: 0.9),
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
+            ),
+          ],
         ),
       ),
     );

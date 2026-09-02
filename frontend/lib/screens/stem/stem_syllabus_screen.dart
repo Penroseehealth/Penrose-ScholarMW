@@ -94,9 +94,12 @@ class _StemSyllabusScreenState extends State<StemSyllabusScreen> with SingleTick
             final formEntry = formsMap[yearLevel]!;
             final themes = formEntry['themes'] as List<Map<String, dynamic>>;
 
-            var themeEntry = themes.cast<Map<String, dynamic>>().where(
-              (t) => t['name'] == ceData['name'],
-            ).firstOrNull;
+            var themeEntry = themes
+                .cast<Map<String, dynamic>>()
+                .where(
+                  (t) => t['name'] == ceData['name'],
+                )
+                .firstOrNull;
 
             if (themeEntry == null) {
               themeEntry = {
@@ -135,8 +138,7 @@ class _StemSyllabusScreenState extends State<StemSyllabusScreen> with SingleTick
           }
         }
 
-        final sortedForms = formsMap.entries.toList()
-          ..sort((a, b) => a.key.compareTo(b.key));
+        final sortedForms = formsMap.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
 
         setState(() {
           _forms = sortedForms.map((e) => e.value).toList();
@@ -145,7 +147,11 @@ class _StemSyllabusScreenState extends State<StemSyllabusScreen> with SingleTick
         return;
       }
     } catch (_) {}
-    if (mounted) setState(() { _loading = false; _error = 'Failed to load syllabus'; });
+    if (mounted)
+      setState(() {
+        _loading = false;
+        _error = 'Failed to load syllabus';
+      });
   }
 
   List<Map<String, dynamic>> get _filteredThemes {
@@ -183,7 +189,11 @@ class _StemSyllabusScreenState extends State<StemSyllabusScreen> with SingleTick
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  _subjectName.isNotEmpty ? '$_subjectName Syllabus' : widget.title.isNotEmpty ? '${widget.title} Syllabus' : 'Syllabus',
+                  _subjectName.isNotEmpty
+                      ? '$_subjectName Syllabus'
+                      : widget.title.isNotEmpty
+                          ? '${widget.title} Syllabus'
+                          : 'Syllabus',
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                 ),
               ),
@@ -256,7 +266,10 @@ class _StemSyllabusScreenState extends State<StemSyllabusScreen> with SingleTick
             const SizedBox(height: 12),
             TextButton.icon(
               onPressed: () {
-                setState(() { _loading = true; _error = null; });
+                setState(() {
+                  _loading = true;
+                  _error = null;
+                });
                 _loadSyllabus();
               },
               icon: const Icon(Icons.refresh_rounded),
@@ -542,7 +555,9 @@ class _TopicTileState extends State<_TopicTile> {
             ),
           ),
         ),
-        if (_expanded) ...subtopics.map<Widget>((s) => _SubtopicTile(subtopic: s as Map<String, dynamic>, accentColor: widget.accentColor)),
+        if (_expanded)
+          ...subtopics
+              .map<Widget>((s) => _SubtopicTile(subtopic: s as Map<String, dynamic>, accentColor: widget.accentColor)),
       ],
     );
   }

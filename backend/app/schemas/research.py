@@ -75,9 +75,9 @@ class VaultDocumentResponse(BaseModel):
     id: int
     title: str
     doc_type: str
-    file_path: str
     file_name: str | None = None
     file_size: int | None = None
+    mime_type: str | None = None
     course_id: int | None = None
     uploaded_by: int
     is_indexed: bool

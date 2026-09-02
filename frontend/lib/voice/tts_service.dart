@@ -3,15 +3,18 @@ import 'dart:convert';
 
 import '../services/api_service.dart';
 import '../services/web_speech_service.dart';
+import 'tts_audio_player.dart';
 import 'voice_session_manager.dart';
 
 /// Text-to-Speech service with sentence-level streaming support.
 ///
-/// Falls back to browser WebSpeechSynthesis when server TTS is unavailable.
+/// Uses the backend TTS engine (ElevenLabs / OpenAI) when available, falling
+/// back to browser WebSpeechSynthesis when server TTS is unavailable.
 class PenroseTtsService {
   final VoiceSessionManager _session;
   final WebSpeechService _speech;
   final ApiService _api;
+  final TtsAudioPlayer _audioPlayer;
 
   bool _serverTtsAvailable = false;
   bool _isSpeaking = false;
@@ -22,12 +25,14 @@ class PenroseTtsService {
     required VoiceSessionManager session,
     WebSpeechService? speech,
     ApiService? api,
+    TtsAudioPlayer? audioPlayer,
   })  : _session = session,
         _speech = speech ?? WebSpeechService(),
-        _api = api ?? ApiService();
+        _api = api ?? ApiService(),
+        _audioPlayer = audioPlayer ?? TtsAudioPlayer();
 
   bool get isSpeaking => _isSpeaking;
-  bool get isAvailable => _speech.isSupported;
+  bool get isAvailable => _speech.isSupported || _audioPlayer.isSupported;
 
   /// Initialize and check server TTS availability.
   Future<void> initialize() async {
@@ -59,6 +64,28 @@ class PenroseTtsService {
     await _speakSegments(lang: lang, speed: speed);
   }
 
+  /// Synthesize a single segment using the server TTS engine and play it.
+  ///
+  /// Returns `true` when the server produced playable audio, `false` when it
+  /// was unavailable so the caller can fall back to browser speech.
+  Future<bool> _speakServerSegment(String text, {required double speed}) async {
+    if (!_serverTtsAvailable || !_audioPlayer.isSupported) return false;
+    try {
+      final response = await _api.post(
+        '/voice/tts',
+        body: {'text': text, 'speed': speed},
+      );
+      if (response.statusCode != 200) return false;
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      final audioBase64 = data['audio_base64'] as String?;
+      if (audioBase64 == null || audioBase64.isEmpty) return false;
+      await _audioPlayer.playBase64(audioBase64);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Speak a streaming chunk (called as AI generates text).
   Future<void> speakChunk(String chunk, {String lang = 'en-US'}) async {
     if (chunk.isEmpty) return;
@@ -70,6 +97,7 @@ class PenroseTtsService {
   /// Stop speaking.
   void stop() {
     _speech.cancelSpeech();
+    _audioPlayer.stop();
     _isSpeaking = false;
     _segments = [];
     _currentSegmentIndex = 0;
@@ -81,9 +109,7 @@ class PenroseTtsService {
   }
 
   /// Check if the session wants us to stop (user interrupted).
-  bool _shouldStop() {
-    return _session.state == VoiceEngineState.interrupted || _session.state == VoiceEngineState.listening;
-  }
+  bool _shouldStop() => _session.state == VoiceEngineState.interrupted || _session.state == VoiceEngineState.listening;
 
   /// Segment text into sentences for streaming TTS.
   List<String> _segmentText(String text) {
@@ -118,7 +144,10 @@ class PenroseTtsService {
       _currentSegmentIndex = i;
       _session.updateSpeakingText(_segments[i]);
 
-      await _speech.speak(_segments[i], lang: lang);
+      final playedViaServer = await _speakServerSegment(_segments[i], speed: speed);
+      if (!playedViaServer) {
+        await _speech.speak(_segments[i], lang: lang);
+      }
 
       // Brief pause between sentences for natural rhythm
       if (i < _segments.length - 1 && !_shouldStop()) {
@@ -134,5 +163,6 @@ class PenroseTtsService {
 
   void dispose() {
     stop();
+    _audioPlayer.dispose();
   }
 }

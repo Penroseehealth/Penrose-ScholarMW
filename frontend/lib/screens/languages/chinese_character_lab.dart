@@ -46,12 +46,14 @@ class _ChineseCharacterLabState extends State<ChineseCharacterLab> with SingleTi
   Future<void> _load() async {
     setState(() => _loading = true);
     try {
-      final data = await _service.getVocabulary(_slug, theme: 'characters');
-      final radicals = await _service.getVocabulary(_slug, theme: 'radicals');
-      final combined = [...data, ...radicals];
+      final items = await _service.getVocabulary(_slug, limit: 500);
+      final chars = items.where((c) {
+        final word = (c['word'] ?? '').toString();
+        return word.trim().length == 1;
+      }).toList();
       if (!mounted) return;
       setState(() {
-        _characters = combined;
+        _characters = chars;
         _loading = false;
       });
     } catch (e) {

@@ -156,6 +156,26 @@ class ApiService {
     return response;
   }
 
+  /// Downloads a protected file as raw bytes (with auth + 401 refresh).
+  /// On the web this lets the caller build a Blob URL so the file can be
+  /// opened in a new tab without exposing the bearer token in the URL.
+  Future<Uint8List?> downloadBytes(String path) async {
+    var h = await headers;
+    final uri = Uri.parse('$apiBaseUrl$path');
+    var response = await http.get(uri, headers: h);
+    if (response.statusCode == 401 && _refreshToken != null) {
+      final refreshed = await _tryRefresh();
+      if (refreshed) {
+        h = await headers;
+        response = await http.get(uri, headers: h);
+      }
+    }
+    if (response.statusCode == 200) {
+      return response.bodyBytes;
+    }
+    return null;
+  }
+
   Future<bool> _tryRefresh() async {
     // If a refresh is already in progress, wait for it to complete.
     if (_refreshMutex != null) {
