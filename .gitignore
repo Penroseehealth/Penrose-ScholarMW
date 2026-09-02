@@ -34,5 +34,9 @@ frontend/.flutter-plugins
 frontend/.flutter-plugins-dependencies
 frontend/pubspec.lock
 
+# Local web build served by the dev proxy
+tools/build/
+*.log
+
 # Local LiveKit server binary (large; distributed via release/LFS instead)
 tools/livekit-server/livekit-server.exe

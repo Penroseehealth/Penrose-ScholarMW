@@ -1,0 +1,42 @@
+repos:
+  # -------- Python (Ruff) --------
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.1
+    hooks:
+      - id: ruff
+        args: [--fix]
+        files: ^backend/|^tools/|^scripts/
+      - id: ruff-format
+        files: ^backend/|^tools/|^scripts/
+
+  # -------- Dart format --------
+  - repo: local
+    hooks:
+      - id: dart-format
+        name: Dart format (120 chars)
+        entry: python tools/dart_format.py --check
+        language: system
+        files: \.dart$
+        pass_filenames: true
+        stages: [pre-commit]
+
+  # -------- Flutter analyze --------
+  - repo: local
+    hooks:
+      - id: flutter-analyze
+        name: Flutter analyze (zero issues)
+        entry: python tools/flutter_analyze.py
+        language: system
+        files: \.dart$
+        pass_filenames: false
+        stages: [pre-commit]
+
+  # -------- HTML/JS structure validator --------
+  - repo: local
+    hooks:
+      - id: validate-html-js
+        name: Validate frontend HTML/JS structure
+        entry: python tools/validate_html_js.py
+        language: system
+        files: frontend/index.html
+        pass_filenames: false
