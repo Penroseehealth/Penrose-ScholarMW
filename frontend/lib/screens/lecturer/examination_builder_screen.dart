@@ -27,7 +27,6 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
   final TextEditingController _lecturerCtrl = TextEditingController();
   final TextEditingController _semesterCtrl = TextEditingController();
   final TextEditingController _yearCtrl = TextEditingController();
-  final TextEditingController _objectiveCtrl = TextEditingController();
   final TextEditingController _newQTextCtrl = TextEditingController();
   final TextEditingController _newAnsCtrl = TextEditingController();
 
@@ -75,7 +74,6 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
       _lecturerCtrl,
       _semesterCtrl,
       _yearCtrl,
-      _objectiveCtrl,
       _newQTextCtrl,
       _newAnsCtrl,
       _paperNumberCtrl,
@@ -107,13 +105,8 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
 
   int get _totalQuestionMarks => _questions.fold(0, (sum, q) => sum + ((q['marks'] as int?) ?? 0));
 
-  List<String> _splitObjectives() =>
-      _objectiveCtrl.text.split('\n').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
-
   List<String> _combinedObjectives(Map<String, dynamic> ctx) {
-    final lo = (ctx['learning_objectives'] as List<dynamic>? ?? const []).whereType<String>().toList();
-    lo.addAll(_splitObjectives());
-    return lo;
+    return (ctx['learning_objectives'] as List<dynamic>? ?? const []).whereType<String>().toList();
   }
 
   Map<String, dynamic> get _paperOptionsPayload => {
@@ -601,6 +594,14 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
     );
   }
 
+  /// Automatically advances to [targetStep] once a cascade field is filled,
+  /// so users don't need to press Next on the syllabus steps.
+  void _autoAdvance(int targetStep) {
+    Future.delayed(const Duration(milliseconds: 220), () {
+      if (mounted && _step == targetStep - 1) setState(() => _step = targetStep);
+    });
+  }
+
   Widget _syllabusSummary(SyllabusSelectionProvider s) {
     return _sectionCard(
       child: Column(
@@ -687,7 +688,10 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
                     ),
                 ],
                 onChanged: (v) {
-                  if (v != null && v.isNotEmpty) s.selectSubject(v);
+                  if (v != null && v.isNotEmpty) {
+                    s.selectSubject(v);
+                    _autoAdvance(1);
+                  }
                 },
                 enabled: !s.busy,
               ),
@@ -746,7 +750,10 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
                     ),
                 ],
                 onChanged: (v) {
-                  if (v != null) s.selectForm(v);
+                  if (v != null) {
+                    s.selectForm(v);
+                    _autoAdvance(2);
+                  }
                 },
                 enabled: !s.busy && s.hasSelection && s.forms.isNotEmpty,
               ),
@@ -798,7 +805,10 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
                     ),
                 ],
                 onChanged: (v) {
-                  if (v != null) s.selectTopic(v);
+                  if (v != null) {
+                    s.selectTopic(v);
+                    _autoAdvance(3);
+                  }
                 },
                 enabled: !s.busy && s.hasForm && s.topics.isNotEmpty,
               ),
@@ -851,7 +861,10 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
                     ),
                 ],
                 onChanged: (v) {
-                  if (v != null) s.selectSubtopic(v);
+                  if (v != null) {
+                    s.selectSubtopic(v);
+                    _autoAdvance(4);
+                  }
                 },
                 enabled: !s.busy && s.hasTopic && s.subtopics.isNotEmpty,
               ),

@@ -491,6 +491,14 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
     );
   }
 
+  /// Automatically advances to [targetStep] once a cascade field is filled,
+  /// so users don't need to press Next on the syllabus steps.
+  void _autoAdvance(int targetStep) {
+    Future.delayed(const Duration(milliseconds: 220), () {
+      if (mounted && _step == targetStep - 1) setState(() => _step = targetStep);
+    });
+  }
+
   Widget _subjectStep() {
     final s = context.watch<SyllabusSelectionProvider>();
     return ListView(
@@ -518,7 +526,10 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                     ),
                 ],
                 onChanged: (v) {
-                  if (v != null && v.isNotEmpty) s.selectSubject(v);
+                  if (v != null && v.isNotEmpty) {
+                    s.selectSubject(v);
+                    _autoAdvance(1);
+                  }
                 },
                 enabled: !s.busy,
               ),
@@ -580,7 +591,10 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                     ),
                 ],
                 onChanged: (v) {
-                  if (v != null) s.selectForm(v);
+                  if (v != null) {
+                    s.selectForm(v);
+                    _autoAdvance(2);
+                  }
                 },
                 enabled: !s.busy && s.hasSelection && s.forms.isNotEmpty,
               ),
@@ -625,7 +639,10 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                     DropdownMenuItem<int>(value: t['id'] as int? ?? 0, child: Text(t['title'] as String? ?? 'Unknown')),
                 ],
                 onChanged: (v) {
-                  if (v != null) s.selectTopic(v);
+                  if (v != null) {
+                    s.selectTopic(v);
+                    _autoAdvance(3);
+                  }
                 },
                 enabled: !s.busy && s.hasForm && s.topics.isNotEmpty,
               ),
@@ -672,7 +689,10 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                         value: st['id'] as int? ?? 0, child: Text(st['title'] as String? ?? 'Unknown')),
                 ],
                 onChanged: (v) {
-                  if (v != null) s.selectSubtopic(v);
+                  if (v != null) {
+                    s.selectSubtopic(v);
+                    _autoAdvance(4);
+                  }
                 },
                 enabled: !s.busy && s.hasTopic && s.subtopics.isNotEmpty,
               ),
