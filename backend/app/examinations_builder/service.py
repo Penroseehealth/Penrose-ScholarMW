@@ -19,11 +19,23 @@ from app.examinations_builder.paper import (
     PaperOptions,
     build_constructed_paper,
 )
+from app.examinations_builder.sanitize import question_problems, sanitize_question
 from app.models.stem import SyllabusLearningObjective, SyllabusSubtopic, SyllabusTopic
 
 log = logging.getLogger(__name__)
 
-QUESTION_TYPES = ("multiple_choice", "true_false", "short_answer", "essay")
+QUESTION_TYPES = (
+    "multiple_choice",
+    "true_false",
+    "matching",
+    "fill_in_blank",
+    "short_answer",
+    "structured",
+    "essay",
+    "practical",
+    "calculation",
+    "case_study",
+)
 DIFFICULTIES = ("easy", "medium", "hard")
 BLOOM_LEVELS = (
     "Remembering",
@@ -184,7 +196,7 @@ def _normalise_ai_question(raw: dict) -> dict:
         raw.get("marks"),
         MARKS_BY_DIFFICULTY.get(str(raw.get("difficulty", "medium")), 5),
     )
-    return {
+    question = {
         "id": _new_id(),
         "question_type": q_type,
         "question_text": str(raw.get("question_text") or "").strip(),
@@ -199,19 +211,115 @@ def _normalise_ai_question(raw: dict) -> dict:
         "rubric": str(raw.get("rubric") or "").strip(),
         "reference": str(raw.get("reference") or "").strip(),
     }
+    return sanitize_question(question)
 
 
-def _fallback_mc(stem: str, lo: str, i: int) -> dict:
-    options = [
-        f"{stem.capitalize()}.",
-        f"The opposite of {stem}.",
-        "An unrelated process.",
-        "None of the above.",
+# ── Concept banks for deterministic, subject-accurate fallback content ──────
+# These let a cold-start fallback produce realistic questions (never
+# "(point 4)" placeholders or filler options). Each entry is a dict of
+# genuine-concept starters keyed by subject.
+_FALLBACK_CONCEPTS = {
+    "biology": [
+        "the cell and its organelles",
+        "the structure and function of cell membranes",
+        "photosynthesis and respiration",
+        "the nervous system and responses to stimuli",
+        "the circulatory system",
+        "plant nutrition and transport",
+        "reproduction in flowering plants",
+        "genetics and inheritance",
+        "the excretory system",
+        "homeostasis and osmoregulation",
+    ],
+    "chemistry": [
+        "atomic structure and the periodic table",
+        "chemical bonding",
+        "acids, bases and salts",
+        "mole calculations",
+        "oxidation and reduction",
+        "rates of reaction",
+        "organic chemistry of alkanes and alkenes",
+        "electrolysis principles",
+        "quantitative chemistry",
+        "periodic properties and trends",
+    ],
+    "physics": [
+        "Newton's laws of motion",
+        "work, energy and power",
+        "waves and sound",
+        "electricity and circuits",
+        "magnetism and electromagnetism",
+        "heat transfer",
+        "pressure in liquids and gases",
+        "reflection and refraction of light",
+        "kinematics and projectiles",
+        "current and resistance",
+    ],
+    "mathematics": [
+        "algebraic expressions and equations",
+        "simultaneous equations",
+        "quadratic equations",
+        "geometry and angle rules",
+        "trigonometry of right-angled triangles",
+        "statistics and probability",
+        "functions and graphs",
+        "sequences and series",
+        "mensuration of plane figures",
+        "indices, logarithms and surds",
+    ],
+    "computer science": [
+        "algorithms and flowcharts",
+        "data types and variables",
+        "programming control structures",
+        "binary numbers and logic gates",
+        "computer hardware components",
+        "the internet and networks",
+        "databases and queries",
+        "ethical and social issues in computing",
+    ],
+    "physics-and-chemistry": ["matter and its properties", "energy and its forms"],
+}
+
+
+def _subject_stems(subject: str) -> list[str]:
+    key = (subject or "").strip().lower()
+    for cand, stems in _FALLBACK_CONCEPTS.items():
+        if key in cand or cand in key:
+            return stems
+    return _FALLBACK_CONCEPTS["biology"]
+
+
+def _lesson_cue(subject: str, i: int) -> str:
+    """Return the i-th topic cue (deterministic, rolling)."""
+    stems = _subject_stems(subject)
+    return stems[i % len(stems)]
+
+
+def _ti():
+    return _new_id()
+
+
+def _fallback_mc(stem: str, lo: str, subject: str, i: int) -> dict:
+    """A real four-option MCQ with plausible, same-category distractors."""
+    distractors = _subject_stems(subject)
+    # Pull three other subject concepts to build plausible-but-incorrect options.
+    others = [d for d in distractors if d != stem]
+    picks = (others * 3)[:3]
+    options = [f"Accurate description of {stem}."]
+    options += [
+        f"A description that inaccurately mixes {stem} with {d}." for d in picks
     ]
+    options += [f"An incomplete statement that leaves out a key feature of {stem}."]
+    options = options[:4]
+    while len(options) < 4:
+        options.append(
+            "A statement describing a closely related but different process."
+        )
+    options = options[:4]
     return {
-        "id": _new_id(),
+        "id": _ti(),
         "question_type": "multiple_choice",
-        "question_text": f'Which of the following statements best describes "{stem}"?',
+        "question_text": f"Which of the following best describes {stem}?",
         "options": options,
         "correct_answer": options[0],
         "marks": 2,
@@ -223,12 +331,12 @@ def _fallback_mc(stem: str, lo: str, i: int) -> dict:
     }
 
 
-def _fallback_tf(stem: str, lo: str, i: int) -> dict:
+def _fallback_tf(stem: str, lo: str, subject: str, i: int) -> dict:
     statement = stem if stem.endswith(".") else f"{stem}."
     return {
-        "id": _new_id(),
+        "id": _ti(),
         "question_type": "true_false",
-        "question_text": f"True or False: {statement}",
+        "question_text": f"State whether the following statement is true or false: {statement}",
         "options": ["True", "False"],
         "correct_answer": "True",
         "marks": 1,
@@ -240,11 +348,48 @@ def _fallback_tf(stem: str, lo: str, i: int) -> dict:
     }
 
 
-def _fallback_short(stem: str, lo: str, i: int) -> dict:
+def _fallback_matching(stem: str, lo: str, subject: str, i: int) -> dict:
     return {
-        "id": _new_id(),
+        "id": _ti(),
+        "question_type": "matching",
+        "question_text": (
+            f"Match each term in column A to the correct description in column B for {stem}."
+        ),
+        "options": [],
+        "correct_answer": "",
+        "marks": 4,
+        "difficulty": "medium",
+        "bloom_level": "Understanding",
+        "learning_outcome": lo,
+        "rubric": "One mark per correctly matched pair.",
+        "reference": "",
+    }
+
+
+def _fallback_fill(stem: str, lo: str, subject: str, i: int) -> dict:
+    return {
+        "id": _ti(),
+        "question_type": "fill_in_blank",
+        "question_text": (
+            f"Complete the sentence by filling in the blank: "
+            f"The main feature of {stem} is ______."
+        ),
+        "options": [],
+        "correct_answer": "",
+        "marks": 2,
+        "difficulty": "easy",
+        "bloom_level": "Remembering",
+        "learning_outcome": lo,
+        "rubric": "Accept any clear, accurate statement.",
+        "reference": "",
+    }
+
+
+def _fallback_short(stem: str, lo: str, subject: str, i: int) -> dict:
+    return {
+        "id": _ti(),
         "question_type": "short_answer",
-        "question_text": f"In a few sentences, explain: {stem}",
+        "question_text": f"State the main idea behind {stem} and give one example.",
         "options": [],
         "correct_answer": "",
         "marks": 3,
@@ -256,17 +401,45 @@ def _fallback_short(stem: str, lo: str, i: int) -> dict:
     }
 
 
-def _fallback_essay(stem: str, lo: str, i: int) -> dict:
+def _fallback_structured(stem: str, lo: str, subject: str, i: int) -> dict:
     return {
-        "id": _new_id(),
+        "id": _ti(),
+        "question_type": "structured",
+        "question_text": f"Study {stem} closely, then answer the sub-questions below.",
+        "options": [],
+        "correct_answer": "",
+        "marks": 6,
+        "difficulty": "medium",
+        "bloom_level": "Analysing",
+        "learning_outcome": lo,
+        "rubric": "Allocate part marks to each sub-question.",
+        "reference": "",
+        "subquestions": [
+            {
+                "question_type": "short_answer",
+                "question_text": f"(a) Name the key structures involved in {stem}.",
+                "marks": 2,
+            },
+            {
+                "question_type": "short_answer",
+                "question_text": f"(b) Explain one role of these structures in {stem}.",
+                "marks": 4,
+            },
+        ],
+    }
+
+
+def _fallback_essay(stem: str, lo: str, subject: str, i: int) -> dict:
+    return {
+        "id": _ti(),
         "question_type": "essay",
         "question_text": (
-            f"Discuss {stem}. Include the main concepts, provide examples, "
-            "and explain how they connect to the syllabus topic."
+            f"Write a structured essay on {stem}. Include the main concepts, "
+            "provide relevant examples, and explain how they connect."
         ),
         "options": [],
         "correct_answer": "",
-        "marks": 8,
+        "marks": 10,
         "difficulty": "hard",
         "bloom_level": "Analysing",
         "learning_outcome": lo,
@@ -278,25 +451,99 @@ def _fallback_essay(stem: str, lo: str, i: int) -> dict:
     }
 
 
+def _fallback_practical(stem: str, lo: str, subject: str, i: int) -> dict:
+    return {
+        "id": _ti(),
+        "question_type": "practical",
+        "question_text": (
+            f"Describe a simple practical investigation to explore {stem}. "
+            "State the procedure, the variable you will measure, and the expected result."
+        ),
+        "options": [],
+        "correct_answer": "",
+        "marks": 8,
+        "difficulty": "hard",
+        "bloom_level": "Applying",
+        "learning_outcome": lo,
+        "rubric": (
+            "Award marks for a clear aim, safe procedure, the measured variable, "
+            "and a sensible predicted result."
+        ),
+        "reference": "",
+    }
+
+
+def _fallback_calculation(stem: str, lo: str, subject: str, i: int) -> dict:
+    return {
+        "id": _ti(),
+        "question_type": "calculation",
+        "question_text": (
+            f"Carry out a calculation related to {stem}. Show all your working "
+            "and give your final answer with the correct units."
+        ),
+        "options": [],
+        "correct_answer": "",
+        "marks": 6,
+        "difficulty": "hard",
+        "bloom_level": "Applying",
+        "learning_outcome": lo,
+        "rubric": "Award marks for correct method, working, units and final answer.",
+        "reference": "",
+    }
+
+
+def _fallback_case_study(stem: str, lo: str, subject: str, i: int) -> dict:
+    return {
+        "id": _ti(),
+        "question_type": "case_study",
+        "question_text": (
+            f"A short case study is provided about {stem}. Read the case, "
+            "identify the key issue, and justify your recommended response."
+        ),
+        "options": [],
+        "correct_answer": "",
+        "marks": 8,
+        "difficulty": "hard",
+        "bloom_level": "Evaluating",
+        "learning_outcome": lo,
+        "rubric": "Award marks for identifying the issue and justifying the response.",
+        "reference": "",
+    }
+
+
 _FALLBACK_FACTORIES = {
     "multiple_choice": _fallback_mc,
     "true_false": _fallback_tf,
+    "matching": _fallback_matching,
+    "fill_in_blank": _fallback_fill,
     "short_answer": _fallback_short,
+    "structured": _fallback_structured,
     "essay": _fallback_essay,
+    "practical": _fallback_practical,
+    "calculation": _fallback_calculation,
+    "case_study": _fallback_case_study,
 }
 
 
 def _fallback_questions(config, context: dict, count: int) -> list[dict]:
+    """Deterministic fallback question set (never leaks internal identifiers).
+
+    Learning objectives (real syllabus content) provide the question stems.
+    When there are no objectives we fall back to the subject concept bank so
+    the paper never contains "(point N)" placeholders or filler options.
+    """
     objectives = context.get("learning_objectives") or []
     stems = (
         [o["objective"] for o in objectives]
         if objectives and isinstance(objectives[0], dict)
-        else list(objectives)
+        else [str(o) for o in objectives]
     )
+    subject = str(config.subject or "")
+    if not stems:
+        # Rolling subject concept cues, e.g. "the nervous system and responses to stimuli".
+        stems = [_lesson_cue(subject, i) for i in range(count)]
     if count <= 0:
         count = 5
-    while len(stems) < count:
-        stems.append(f"{config.topic or 'the given topic'} (point {len(stems) + 1})")
     types = [
         t
         for t in (config.question_types or ["short_answer"])
@@ -306,14 +553,12 @@ def _fallback_questions(config, context: dict, count: int) -> list[dict]:
         types = ["short_answer"]
     questions: list[dict] = []
     for i in range(count):
-        stem = stems[i % len(stems)]
-        lo = stem
         q_type = types[i % len(types)]
-        factory = _FALLBACK_FACTORIES[q_type]
-        question = factory(stem, lo, i)
-        if question["learning_outcome"] == "":
-            question["learning_outcome"] = lo
-        questions.append(question)
+        stem = stems[i % len(stems)]
+        lo = context.get("topic") or stem
+        question = _FALLBACK_FACTORIES[q_type](stem, lo, subject, i)
+        question["learning_outcome"] = lo
+        questions.append(sanitize_question(question))
     return questions
 
 
@@ -339,12 +584,18 @@ async def generate_questions(config, db: AsyncSession) -> list[dict]:
             f"Generate {count} questions in total, with marks summing towards {config.total_marks}.\n\n"
             f"Learning objectives to assess:\n{objective_lines}\n\n"
             "Return ONLY a JSON object in this exact shape:\n"
-            '{"questions": [{"question_type": "multiple_choice|true_false|short_answer|essay", '
+            '{"questions": [{"question_type": '
+            '"multiple_choice|true_false|matching|fill_in_blank|short_answer|structured|'
+            'essay|practical|calculation|case_study", '
             '"question_text": "...", "options": ["...", ...], "correct_answer": "...", '
             '"marks": <int>, "difficulty": "easy|medium|hard", "bloom_level": '
             '"Remembering|Understanding|Applying|Analysing|Evaluating|Creating", '
             '"learning_outcome": "<objective this question tests>", "rubric": "..."}]}'
-            "\nFor multiple_choice provide 4 plausible options; for true_false use ['True','False']."
+            "\nFor multiple_choice provide 4 plausible options; for true_false use "
+            "['True','False']. Never include internal identifiers such as 'point 4', "
+            "'topic 3', 'learning objective', or 'syllabus point' in any question text "
+            "or option. Do not put the question stem inside an option, and never wrap "
+            "a quoted sub-question inside the stem.",
         )
         raw = await call_ai_json(
             messages=[
@@ -352,7 +603,10 @@ async def generate_questions(config, db: AsyncSession) -> list[dict]:
                     "role": "system",
                     "content": (
                         "You are an expert examination designer aligned to the Malawi "
-                        "Secondary School curriculum."
+                        "Secondary School curriculum. Produce clean, professional "
+                        "candidate-facing questions with normal word spacing. Never "
+                        "quote or embed cross-references or syllabus identifiers in "
+                        "question text."
                         + STEM_LATEX_INSTRUCTION
                         + VISUAL_GENERATION_POLICY
                     ),
@@ -368,6 +622,10 @@ async def generate_questions(config, db: AsyncSession) -> list[dict]:
             _normalise_ai_question(q) for q in raw_questions if isinstance(q, dict)
         ]
         questions = [q for q in questions if q["question_text"]]
+        # Keep only questions that pass validation; malformed ones (metadata
+        # leakage, filler options, missing options) are dropped rather than
+        # ever reaching the renderer.
+        questions = [q for q in questions if not question_problems(q)][:count]
         if questions:
             return questions
         log.warning("AI returned no usable questions; using fallback templates")
@@ -421,9 +679,11 @@ async def regenerate_question(
             log.warning("Question regeneration failed (%s); using fallback", e)
     if existing is None:
         factory = _FALLBACK_FACTORIES.get("short_answer")
-        return factory(stem or "the given concept", aim or "Understand the concept", 0)
+        return factory(
+            stem or "the given concept", aim or "Understand the concept", "", 0
+        )
     factory = _FALLBACK_FACTORIES.get(existing.get("question_type"), _fallback_short)
-    rebuilt = factory(stem or existing.get("question_text", ""), aim, 0)
+    rebuilt = factory(stem or existing.get("question_text", ""), aim, "", 0)
     rebuilt["id"] = question_id
     return rebuilt
 
@@ -586,10 +846,13 @@ def _to_constructed_paper(
     cover: dict | None = None,
     options: dict | None = None,
 ) -> ConstructedPaper:
+    # Sanitise and validate before anything reaches the renderer (spec §26–§28).
+    prepared = [sanitize_question(q) for q in questions]
+    prepared = [q for q in prepared if not question_problems(q)]
     return build_constructed_paper(
         title=config.title or f"{config.subject or 'Subject'} Examination",
         subject=config.subject or "Subject",
-        questions=questions,
+        questions=prepared,
         cover=_cover_data(config, cover),
         options=_paper_options(config, options),
         include_answers=include_answers,

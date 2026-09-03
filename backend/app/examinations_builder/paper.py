@@ -205,9 +205,21 @@ def number_subquestion(qnum: int, s_num: int, style: str) -> str:
 
 
 def lines_for_question(q: PaperQuestion, options: PaperOptions) -> int:
-    """Number of answer lines for a question (spec §11, §12)."""
+    """Number of answer lines for a question (spec §11, §12, §20).
+
+    Selection-based types (multiple_choice, true_false, matching) take NO answer
+    lines — a candidate ticks/selects instead of writing. Written-response types
+    scale their lines with the marks and chosen spacing:
+    - ``essay`` always gets a large area (>= 8 lines).
+    - ``structured`` uses fewer lines (sub-questions provide their own space).
+    - ``calculation`` provides working area.
+    - ``short_answer`` / ``fill_in_blank`` / ``practical`` / ``case_study``
+      scale roughly one line per mark.
+    """
     if q.answer_lines_override is not None:
-        return max(1, int(q.answer_lines_override))
+        return max(0, int(q.answer_lines_override))
+    if q.question_type in ("multiple_choice", "true_false", "matching"):
+        return 0
     if options.answer_space == "custom":
         return max(1, int(options.custom_lines_per_question))
     scale = LINE_SCALE.get(options.answer_space, 1.0)
@@ -215,6 +227,8 @@ def lines_for_question(q: PaperQuestion, options: PaperOptions) -> int:
         return max(8, round(6 * scale))
     if q.question_type == "structured":
         return max(4, round(2 * max(1, q.marks) * scale))
+    if q.question_type == "calculation":
+        return max(4, round(3 * max(1, q.marks) * scale))
     return max(1, round(scale * max(1, q.marks)))
 
 
@@ -266,11 +280,16 @@ def _question_from_dict(q: dict) -> PaperQuestion:
 
 def _default_sections(questions: list[PaperQuestion]) -> list[SectionData]:
     headers = {
-        "multiple_choice": "SECTION A — OBJECTIVE / MULTIPLE CHOICE QUESTIONS",
-        "true_false": "SECTION A — OBJECTIVE QUESTIONS",
+        "multiple_choice": "SECTION A — MULTIPLE CHOICE QUESTIONS",
+        "true_false": "SECTION A — TRUE / FALSE QUESTIONS",
+        "matching": "SECTION A — MATCHING QUESTIONS",
+        "fill_in_blank": "SECTION B — FILL IN THE BLANK QUESTIONS",
         "short_answer": "SECTION B — SHORT ANSWER QUESTIONS",
         "structured": "SECTION C — STRUCTURED QUESTIONS",
         "essay": "SECTION D — ESSAY QUESTIONS",
+        "practical": "SECTION D — PRACTICAL QUESTIONS",
+        "calculation": "SECTION D — CALCULATION QUESTIONS",
+        "case_study": "SECTION D — CASE STUDY QUESTIONS",
     }
     grouped: dict[str, list[PaperQuestion]] = {}
     for q in questions:
@@ -279,9 +298,14 @@ def _default_sections(questions: list[PaperQuestion]) -> list[SectionData]:
     for q_type in (
         "multiple_choice",
         "true_false",
+        "matching",
+        "fill_in_blank",
         "short_answer",
         "structured",
         "essay",
+        "practical",
+        "calculation",
+        "case_study",
     ):
         group = grouped.pop(q_type, None)
         if not group:
@@ -435,7 +459,9 @@ def _answer_line_flow():
 
 
 def _answer_lines(count: int):
-    return [_answer_line_flow() for _ in range(max(1, count))]
+    if count <= 0:
+        return []
+    return [_answer_line_flow() for _ in range(count)]
 
 
 def _section_heading(section: SectionData, opts: PaperOptions):

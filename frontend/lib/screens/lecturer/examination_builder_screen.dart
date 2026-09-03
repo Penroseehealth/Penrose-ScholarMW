@@ -92,8 +92,14 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
   String _typeLabel(String type) => switch (type) {
         'multiple_choice' => 'Multiple Choice',
         'true_false' => 'True / False',
+        'matching' => 'Matching',
+        'fill_in_blank' => 'Fill in the Blank',
         'short_answer' => 'Short Answer',
+        'structured' => 'Structured',
         'essay' => 'Essay',
+        'practical' => 'Practical',
+        'calculation' => 'Calculation',
+        'case_study' => 'Case Study',
         _ => type,
       };
 
@@ -187,7 +193,7 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
         _qualityChecks = const [];
         _qualityWarnings = const [];
         _exportStatus = null;
-        _step = 6;
+        _step = 5;
       } else {
         _error = res['error'] as String?;
       }
@@ -385,8 +391,7 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
                   1 => _formStep(),
                   2 => _topicStep(),
                   3 => _subtopicStep(),
-                  4 => _objectivesStep(),
-                  5 => _configureStep(),
+                  4 => _configureStep(),
                   _ => _questionsStep(),
                 },
               ),
@@ -400,11 +405,11 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
   // ── Shared widgets ──────────────────────────────────────────────────────────
 
   Widget _stepIndicator() {
-    const labels = ['Subject', 'Class', 'Topic', 'Subtopic', 'Objectives', 'Configure', 'Generate'];
+    const labels = ['Subject', 'Class', 'Topic', 'Subtopic', 'Configure', 'Generate'];
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
       child: Row(
-        children: List.generate(7, (i) {
+        children: List.generate(6, (i) {
           return Expanded(
             child: Row(
               children: [
@@ -861,7 +866,7 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
         ),
         const SizedBox(height: 18),
         _stepNav(
-          nextLabel: 'NEXT: OBJECTIVES',
+          nextLabel: 'NEXT: CONFIGURE',
           nextEnabled: s.hasSubtopic || canContinueWithout,
           onNext: () => setState(() => _step = 4),
         ),
@@ -869,87 +874,7 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
     );
   }
 
-  Widget _objectivesStep() {
-    final s = context.watch<SyllabusSelectionProvider>();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!s.busy && s.hasSubtopic && s.objectives.isEmpty && !s.objectivesTried) s.loadObjectives();
-    });
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        _sectionCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Step 5 · Learning objectives',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
-              const SizedBox(height: 4),
-              Text('These will guide the AI-generated questions.',
-                  style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
-              const SizedBox(height: 12),
-              if (s.busy)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Center(child: CircularProgressIndicator(strokeWidth: 3)),
-                )
-              else if (s.objectives.isEmpty)
-                Text(
-                    s.hasSubtopic
-                        ? 'No objectives listed for this sub-topic.'
-                        : 'Select a sub-topic to load objectives.',
-                    style: TextStyle(fontSize: 12, color: context.colors.textMuted))
-              else
-                ...s.objectives.asMap().entries.map((entry) {
-                  final lo = entry.value;
-                  final level = (lo['cognitive_level'] as String?) ?? '';
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CircleAvatar(
-                          radius: 10,
-                          backgroundColor: context.colors.primaryMuted,
-                          child:
-                              Text('${entry.key + 1}', style: TextStyle(fontSize: 10, color: context.colors.primary)),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('${lo['objective']}',
-                                  style: TextStyle(fontSize: 13, color: context.colors.textPrimary)),
-                              if (level.isNotEmpty)
-                                Text(level,
-                                    style: TextStyle(
-                                        fontSize: 11, fontWeight: FontWeight.w600, color: context.colors.textMuted)),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              const SizedBox(height: 12),
-              Text('Extra objectives (optional)',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
-              const SizedBox(height: 6),
-              _txtField(_objectiveCtrl, 'Add your own objectives — one per line', lines: 3),
-            ],
-          ),
-        ),
-        const SizedBox(height: 18),
-        _stepNav(
-          nextLabel: 'NEXT: CONFIGURE',
-          nextEnabled: true,
-          onNext: () => setState(() => _step = 5),
-        ),
-      ],
-    );
-  }
-
-  // ── Step 5: configure ───────────────────────────────────────────────────────
+  // ── Step 4: configure ───────────────────────────────────────────────────────
 
   Widget _configureStep() {
     final s = context.watch<SyllabusSelectionProvider>();
@@ -1066,8 +991,14 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
                   for (final t in const [
                     'multiple_choice',
                     'true_false',
+                    'matching',
+                    'fill_in_blank',
                     'short_answer',
+                    'structured',
                     'essay',
+                    'practical',
+                    'calculation',
+                    'case_study',
                   ])
                     ChoiceChip(
                       label: Text(_typeLabel(t)),
@@ -1127,7 +1058,7 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
           children: [
             Expanded(
               child: OutlinedButton(
-                onPressed: () => setState(() => _step = 4),
+                onPressed: () => setState(() => _step = 3),
                 child: const Text('Back'),
               ),
             ),
@@ -1285,7 +1216,7 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
     );
   }
 
-  // ── Step 6: review questions, quality, export ───────────────────────────────
+  // ── Step 5: review questions, quality, export ───────────────────────────────
 
   Widget _questionsStep() {
     return ListView(
@@ -1443,7 +1374,7 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
         ),
         const SizedBox(height: 18),
         OutlinedButton(
-          onPressed: _busy ? null : () => setState(() => _step = 5),
+          onPressed: _busy ? null : () => setState(() => _step = 4),
           child: const Text('Back to configure'),
         ),
       ],
@@ -1481,7 +1412,18 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
             label: 'Type',
             value: type,
             items: [
-              for (final t in const ['multiple_choice', 'true_false', 'short_answer', 'essay'])
+              for (final t in const [
+                'multiple_choice',
+                'true_false',
+                'matching',
+                'fill_in_blank',
+                'short_answer',
+                'structured',
+                'essay',
+                'practical',
+                'calculation',
+                'case_study',
+              ])
                 DropdownMenuItem<String>(value: t, child: Text(_typeLabel(t))),
             ],
             onChanged: (v) {
@@ -1590,7 +1532,18 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
             label: 'Type',
             value: _newQType,
             items: [
-              for (final t in const ['multiple_choice', 'true_false', 'short_answer', 'essay'])
+              for (final t in const [
+                'multiple_choice',
+                'true_false',
+                'matching',
+                'fill_in_blank',
+                'short_answer',
+                'structured',
+                'essay',
+                'practical',
+                'calculation',
+                'case_study',
+              ])
                 DropdownMenuItem<String>(value: t, child: Text(_typeLabel(t))),
             ],
             onChanged: (v) {

@@ -101,7 +101,8 @@ class Run:
 
 _TOKEN_RE = re.compile(
     r"""
-    \\[a-zA-Z]+
+    [ \t]+
+    | \\[a-zA-Z]+
     | frac\(
     | sqrt\(
     | \{
@@ -112,7 +113,7 @@ _TOKEN_RE = re.compile(
     | \)
     | [0-9]+(?:\.[0-9]+)?
     | -
-    | \S
+    | [^\s\\{}(\)_^]+
     """,
     re.VERBOSE,
 )
@@ -141,7 +142,13 @@ def _closed_brace(tokens: list[str], start: int) -> tuple[str | None, int]:
 
 
 def typeset(text: str) -> list[Run]:
-    """Parse compact math/scientific notation into styled runs."""
+    """Parse compact math/scientific notation into styled runs.
+
+    Word spaces are preserved so that prose ("Which of the following ...") never
+    collapses into a single run. Math/scientific tokens (``x^2``, ``H_2O``,
+    ``10^-3``, ``sqrt(...)``, ``frac(a)(b)``) are turned into styled runs while
+    ordinary words, numbers and punctuation keep their natural spacing.
+    """
     source = (text or "").replace("->", "\\rightarrow").replace("=>", "\\Rightarrow")
     tokens = _TOKEN_RE.findall(source)
     if not tokens:
@@ -163,7 +170,6 @@ def typeset(text: str) -> list[Run]:
                 chunks.append(Run(den, "frac"))
                 i = len(tokens)
             else:
-                chunks.append(Run("", "txt"))
                 i += 1
         elif tok == "sqrt(":
             # find the matching closing paren
@@ -223,6 +229,7 @@ def typeset(text: str) -> list[Run]:
             chunks.append(Run(tok, "txt"))
             i += 1
         else:
+            # A plain word or a run of whitespace from the catch-all/space token.
             chunks.append(Run(tok, "txt"))
             i += 1
 

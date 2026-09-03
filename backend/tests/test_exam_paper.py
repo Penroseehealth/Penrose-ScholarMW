@@ -16,6 +16,11 @@ from app.examinations_builder.paper import (
     number_question,
     validate_paper,
 )
+from app.examinations_builder.sanitize import (
+    sanitize_question,
+    sanitize_text,
+    validate_questions,
+)
 from app.examinations_builder.schemas import ExamBuilderConfig
 from app.examinations_builder.typeset import runs_to_reportlab, to_readable, typeset
 
@@ -97,11 +102,19 @@ def test_lines_for_question_scaling():
         for q in s.questions
         if q.question_type == "multiple_choice"
     )
+    sa = next(
+        q
+        for s in paper.sections
+        for q in s.questions
+        if q.question_type == "short_answer"
+    )
     # Essay questions always get at least 8 lines; standard spacing scales up.
     assert lines_for_question(essay, PaperOptions(answer_space="standard")) == 9
     assert lines_for_question(essay, PaperOptions(answer_space="minimal")) == 8
-    # Close-ended (multiple_choice) gets minimal lines even at generous spacing.
-    assert lines_for_question(mc, PaperOptions(answer_space="generous")) > 0
+    # Selection-based types (multiple_choice) take NO answer lines.
+    assert lines_for_question(mc, PaperOptions(answer_space="generous")) == 0
+    # Written-response types get at least one line.
+    assert lines_for_question(sa, PaperOptions(answer_space="minimal")) >= 1
 
 
 def test_validate_paper_totals():
@@ -230,3 +243,129 @@ def test_service_professional_wiring():
 )
 def test_mark_text_parametrized(value, expected):
     assert mark_text(int(value), "[2 marks]") == expected
+
+
+# ── Sanitisation / leak prevention (spec §4, §25, §38) ──────────────────────
+
+
+def test_sanitize_text_removes_point_identifiers():
+    assert "point" not in sanitize_text("A syllabus point 7 topic overview")
+    assert sanitize_text("Nervous System (point 4)") == "Nervous System"
+    assert (
+        sanitize_text("Define a stimulus (learning objective 3)") == "Define a stimulus"
+    )
+    # Legitimate prose must be preserved.
+    assert "stimulus and response" in sanitize_text(
+        "Which of the following best describes a stimulus and response?"
+    )
+
+
+def test_sanitize_question_strips_filler_options():
+    q = sanitize_question(
+        {
+            "question_type": "multiple_choice",
+            "question_text": "Which best describes a stimulus?",
+            "options": [
+                "The opposite of a stimulus",
+                "An unrelated process",
+                "A change detected by a receptor",
+                "None of the above",
+            ],
+        }
+    )
+    assert q["options"] == ["A change detected by a receptor"]
+
+
+def test_validate_questions_detects_duplicate_options_and_missing_stem():
+    report = validate_questions(
+        [
+            {
+                "id": "a",
+                "question_type": "multiple_choice",
+                "question_text": "",
+                "options": ["point 4", "x", "x"],
+                "marks": 2,
+            }
+        ]
+    )
+    assert report["clean"] is False
+    joined = " ".join(report["problems"]["a"])
+    assert "internal" in joined
+    assert "duplicate" in joined
+    assert "no question stem" in joined
+
+
+def test_validate_questions_passes_wellformed_set():
+    report = validate_questions(
+        [
+            {
+                "id": "a",
+                "question_type": "multiple_choice",
+                "question_text": "Which best describes a receptor?",
+                "options": ["A", "B", "C", "D"],
+                "marks": 2,
+            },
+            {
+                "id": "b",
+                "question_type": "essay",
+                "question_text": "Discuss a mechanism.",
+                "marks": 10,
+            },
+        ]
+    )
+    assert report["clean"] is True
+
+
+# ── Word-spacing fix in typeset (spec §13, §14) ─────────────────────────────
+
+
+def test_typeset_preserves_prose_spacing():
+    assert to_readable("Which of the following best describes a stimulus") == (
+        "Which of the following best describes a stimulus"
+    )
+
+
+def test_typeset_keeps_chemistry_and_math_intact():
+    assert to_readable("Write H_2O and 10^-3.") == "Write H₂O and 10⁻³."
+    assert to_readable("Ca^{2+} ion") == "Ca²⁺ ion"
+
+
+def test_fallback_questions_have_no_point_placeholders():
+    cfg = ExamBuilderConfig(
+        subject="Biology",
+        topic="Nervous System",
+        num_questions=8,
+        question_types=["multiple_choice", "multiple_choice", "short_answer", "essay"],
+    )
+    ctx = {
+        "subject": "Biology",
+        "topic": "Nervous System",
+        "form": "Form 1",
+        "learning_objectives": [],
+    }
+    questions = service._fallback_questions(cfg, ctx, 8)
+    assert questions, "Expected fallback questions"
+    assert all("point " not in (q["question_text"] or "").lower() for q in questions)
+    assert all(
+        not q["options"] or len([o for o in q["options"] if o]) >= 2 for q in questions
+    )
+    assert validate_questions(questions)["clean"] is True
+
+
+def test_mcq_section_header_no_objective():
+    paper = build_constructed_paper(
+        "T",
+        "S",
+        [
+            {
+                "id": "a",
+                "question_type": "multiple_choice",
+                "question_text": "Which best describes a receptor?",
+                "options": ["A", "B", "C", "D"],
+                "marks": 2,
+            }
+        ],
+        include_answers=False,
+    )
+    header = paper.sections[0].name
+    assert "OBJECTIVE" not in header.upper()
