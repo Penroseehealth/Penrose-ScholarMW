@@ -83,6 +83,23 @@ class VaultDocumentResponse(BaseModel):
     is_indexed: bool
     tags: str | None = None
     content: str | None = None
+    processing_status: str = "uploaded"
+    processing_method: str | None = None
+    processing_error: str | None = None
+    page_count: int | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class VaultStatusResponse(BaseModel):
+    id: int
+    processing_status: str
+    processing_method: str | None = None
+    processing_error: str | None = None
+    page_count: int | None = None
+    is_indexed: bool
+
+
+class VaultProcessRequest(BaseModel):
+    force_ocr: bool = False

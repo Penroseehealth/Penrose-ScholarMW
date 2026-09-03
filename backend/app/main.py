@@ -78,6 +78,9 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        from app.database.meta_migrations import run_meta_migrations
+
+        await run_meta_migrations(conn)
     await _seed_default_users()
     from app.stem.seed import seed_stem
 

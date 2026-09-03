@@ -208,29 +208,75 @@ class ApiService {
     }
   }
 
-  Future<http.Response> uploadFile(String path, String filePath, String filename, {Map<String, String>? fields}) async {
-    final h = await headers;
-    final uri = Uri.parse('$apiBaseUrl$path');
-    final request = http.MultipartRequest('POST', uri);
-    request.headers.addAll(h);
-    request.headers.remove('Content-Type');
-    if (fields != null) request.fields.addAll(fields);
+  Future<http.Response> uploadFile(String path, String filePath, String filename,
+      {Map<String, String>? fields, void Function(int, int)? onProgress}) async {
+    final request = await _buildMultipart(path, fields);
     request.files.add(await http.MultipartFile.fromPath('file', filePath, filename: filename));
-    final streamed = await request.send();
-    return http.Response.fromStream(streamed);
+    return _sendMultipart(request, path, onProgress);
   }
 
   Future<http.Response> uploadFileBytes(String path, List<int> bytes, String filename,
-      {Map<String, String>? fields}) async {
+      {Map<String, String>? fields, void Function(int, int)? onProgress}) async {
+    final request = await _buildMultipart(path, fields);
+    request.files.add(http.MultipartFile.fromBytes('file', bytes, filename: filename));
+    return _sendMultipart(request, path, onProgress);
+  }
+
+  Future<http.MultipartRequest> _buildMultipart(
+      String path, Map<String, String>? fields) async {
     final h = await headers;
-    final uri = Uri.parse('$apiBaseUrl$path');
-    final request = http.MultipartRequest('POST', uri);
+    final request = http.MultipartRequest('POST', Uri.parse('$apiBaseUrl$path'));
     request.headers.addAll(h);
     request.headers.remove('Content-Type');
     if (fields != null) request.fields.addAll(fields);
-    request.files.add(http.MultipartFile.fromBytes('file', bytes, filename: filename));
-    final streamed = await request.send();
-    return http.Response.fromStream(streamed);
+    return request;
+  }
+
+  /// Sends a multipart request with optional upload progress and 401
+  /// refresh-token retry (mirroring the JSON helpers).
+  Future<http.Response> _sendMultipart(http.MultipartRequest request, String path,
+      void Function(int, int)? onProgress) async {
+    final response = onProgress == null
+        ? await request.send()
+        : await _sendWithProgress(request, onProgress);
+    var parsed = await http.Response.fromStream(response);
+    if (parsed.statusCode == 401 && _refreshToken != null) {
+      final refreshed = await _tryRefresh();
+      if (refreshed) {
+        final retry = http.MultipartRequest('POST', Uri.parse('$apiBaseUrl$path'))
+          ..fields.addAll(request.fields)
+          ..files.addAll(request.files)
+          ..headers.addAll(await headers)
+          ..headers.remove('Content-Type');
+        final retried = onProgress == null
+            ? await retry.send()
+            : await _sendWithProgress(retry, onProgress);
+        parsed = await http.Response.fromStream(retried);
+      }
+    }
+    return parsed;
+  }
+
+  /// Sends a multipart request and reports upload progress by intercepting the
+  /// finalized byte stream. The server receives the exact multipart body; an
+  /// extra header is added so the server knows how many bytes to read.
+  Future<http.StreamedResponse> _sendWithProgress(
+      http.MultipartRequest request, void Function(int, int) onProgress) async {
+    final total = request.contentLength;
+    final byteStream = http.ByteStream(request.finalize());
+    var sent = 0;
+    final progressStream = http.ByteStream(byteStream.map((chunk) {
+      sent += chunk.length;
+      onProgress(sent, total);
+      return chunk;
+    }));
+    final streamed = http.StreamedRequest('POST', request.url)
+      ..contentLength = total
+      ..headers.addAll(request.headers);
+    progressStream.pipe(streamed.sink);
+    final resp = await http.Client().send(streamed);
+    if (total > 0) onProgress(total, total);
+    return resp;
   }
 
   Future<http.StreamedResponse> postStream(String path, {Map<String, dynamic>? body}) async {

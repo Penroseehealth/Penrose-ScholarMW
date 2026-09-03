@@ -65,6 +65,90 @@ class OcrService {
   }
 }
 
+class VaultService {
+  final ApiService _api = ApiService();
+
+  /// Upload a file to the knowledge vault and return the created document.
+  Future<Map<String, dynamic>> upload({
+    required List<int> bytes,
+    required String filename,
+    required String title,
+    required String docType,
+    void Function(int sent, int total)? onProgress,
+  }) async {
+    try {
+      final response = await _api.uploadFileBytes(
+        '/vault/upload',
+        bytes,
+        filename,
+        fields: {
+          'title': title,
+          'doc_type': docType,
+          'file_name': filename,
+          'file_size': bytes.length.toString(),
+        },
+        onProgress: onProgress,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return {'success': true, 'data': jsonDecode(response.body)};
+      }
+      return {'success': false, 'status': response.statusCode, 'error': _extractError(response, 'Upload failed')};
+    } catch (e) {
+      return {'success': false, 'error': 'Upload failed: $e'};
+    }
+  }
+
+  /// Run the extraction pipeline (native text or OCR for scanned PDFs).
+  Future<Map<String, dynamic>> process(int docId, {bool forceOcr = false}) async {
+    try {
+      final response = await _api.post(
+        '/vault/$docId/${forceOcr ? 'ocr' : 'process'}',
+        body: forceOcr ? null : {'force_ocr': false},
+      );
+      if (response.statusCode == 200) {
+        return {'success': true, 'data': jsonDecode(response.body)};
+      }
+      return {'success': false, 'status': response.statusCode, 'error': _extractError(response, 'Processing failed')};
+    } catch (e) {
+      return {'success': false, 'error': 'Processing failed: $e'};
+    }
+  }
+
+  /// Fetch the current processing status for a document.
+  Future<Map<String, dynamic>> status(int docId) async {
+    try {
+      final response = await _api.get('/vault/$docId/status');
+      if (response.statusCode == 200) {
+        return {'success': true, 'data': jsonDecode(response.body)};
+      }
+      return {'success': false, 'error': _extractError(response, 'Status unavailable')};
+    } catch (e) {
+      return {'success': false, 'error': 'Status unavailable: $e'};
+    }
+  }
+
+  static String friendlyStatus(String status) {
+    switch (status) {
+      case 'uploaded':
+        return 'Uploaded';
+      case 'validating':
+        return 'Validating';
+      case 'extracting':
+        return 'Extracting';
+      case 'ocr_processing':
+        return 'OCR in progress';
+      case 'indexing':
+        return 'Indexing';
+      case 'ready':
+        return 'Ready for ScholarAI';
+      case 'failed':
+        return 'Processing failed';
+      default:
+        return 'Pending';
+    }
+  }
+}
+
 class PresentationBuilderService {
   final ApiService _api = ApiService();
 
