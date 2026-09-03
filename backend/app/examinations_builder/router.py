@@ -170,15 +170,39 @@ async def export_exam(
     )
     try:
         if body.format == "pdf":
-            buf = engine.build_pdf(
-                rec["config"], rec["questions"], body.include_answers
-            )
+            cover = body.cover or getattr(rec["config"], "cover", {}) or None
+            options = body.paper_options or getattr(rec["config"], "paper_options", {})
+            try:
+                buf = engine.build_professional_pdf(
+                    rec["config"],
+                    rec["questions"],
+                    body.include_answers,
+                    cover=cover,
+                    options=options,
+                )
+            except Exception:
+                log.exception("Professional PDF render failed; using legacy renderer")
+                buf = engine.build_pdf(
+                    rec["config"], rec["questions"], body.include_answers
+                )
             filename = f"{base_name}.pdf"
             media_type = PDF_MEDIATYPE
         else:
-            buf = engine.build_docx(
-                rec["config"], rec["questions"], body.include_answers
-            )
+            cover = body.cover or getattr(rec["config"], "cover", {}) or None
+            options = body.paper_options or getattr(rec["config"], "paper_options", {})
+            try:
+                buf = engine.build_professional_docx(
+                    rec["config"],
+                    rec["questions"],
+                    body.include_answers,
+                    cover=cover,
+                    options=options,
+                )
+            except Exception:
+                log.exception("Professional DOCX render failed; using legacy renderer")
+                buf = engine.build_docx(
+                    rec["config"], rec["questions"], body.include_answers
+                )
             filename = f"{base_name}.docx"
             media_type = DOCX_MEDIATYPE
     except Exception as e:

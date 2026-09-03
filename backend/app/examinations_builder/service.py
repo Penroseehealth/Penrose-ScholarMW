@@ -13,6 +13,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.ai_client import AIProviderError, call_ai_json
 from app.config.stem_latex import STEM_LATEX_INSTRUCTION, VISUAL_GENERATION_POLICY
+from app.examinations_builder.paper import (
+    ConstructedPaper,
+    CoverData,
+    PaperOptions,
+    build_constructed_paper,
+)
 from app.models.stem import SyllabusLearningObjective, SyllabusSubtopic, SyllabusTopic
 
 log = logging.getLogger(__name__)
@@ -505,6 +511,116 @@ def _paper_header(config) -> dict:
         "semester": config.semester or "",
         "academic_year": config.academic_year or "",
     }
+
+
+# ── Professional-paper (construct + render) ─────────────────────────────────
+
+
+def _cover_data(config, override: dict | None = None) -> CoverData | None:
+    """Build an optional cover page, honoring config + export-time overrides."""
+    raw = override or getattr(config, "cover", None) or {}
+    if not raw:
+        return None
+    fields = {
+        "institution": config.institution or raw.get("institution", ""),
+        "faculty": raw.get("faculty", ""),
+        "subject": config.subject or raw.get("subject", ""),
+        "paper_number": raw.get("paper_number", ""),
+        "exam_name": config.title or raw.get("exam_name", "Examination"),
+        "form": config.form_label or raw.get("form", ""),
+        "academic_year": config.academic_year or raw.get("academic_year", ""),
+        "term": raw.get("term", ""),
+        "exam_date": raw.get("exam_date", ""),
+        "duration": f"{config.duration_minutes} minutes" or raw.get("duration", ""),
+        "total_marks": str(config.total_marks) or raw.get("total_marks", ""),
+        "exam_code": raw.get("exam_code", ""),
+        "version": raw.get("version", ""),
+        "instructions": raw.get("instructions", []),
+        "declaration": raw.get("declaration", ""),
+        "logo_path": raw.get("logo_path", ""),
+    }
+    simple = {
+        k: v
+        for k, v in raw.items()
+        if k
+        not in {
+            "institution",
+            "faculty",
+            "subject",
+            "paper_number",
+            "exam_name",
+            "form",
+            "academic_year",
+            "term",
+            "exam_date",
+            "duration",
+            "total_marks",
+            "exam_code",
+            "version",
+            "instructions",
+            "declaration",
+            "logo_path",
+        }
+    }
+    try:
+        return CoverData(**{**fields, **simple})
+    except TypeError:
+        return CoverData(
+            **{k: v for k, v in fields.items() if v or k == "instructions"}
+        )
+
+
+def _paper_options(config, override: dict | None = None) -> PaperOptions:
+    raw = override or getattr(config, "paper_options", None) or {}
+    allowed = PaperOptions.__dataclass_fields__.keys()
+    kwargs = {k: v for k, v in raw.items() if k in allowed}
+    base = PaperOptions()
+    kwargs.setdefault("paper_size", base.paper_size)
+    return PaperOptions(**kwargs)
+
+
+def _to_constructed_paper(
+    config,
+    questions: list[dict],
+    include_answers: bool,
+    cover: dict | None = None,
+    options: dict | None = None,
+) -> ConstructedPaper:
+    return build_constructed_paper(
+        title=config.title or f"{config.subject or 'Subject'} Examination",
+        subject=config.subject or "Subject",
+        questions=questions,
+        cover=_cover_data(config, cover),
+        options=_paper_options(config, options),
+        include_answers=include_answers,
+        teacher_version=include_answers,
+    )
+
+
+def build_professional_docx(
+    config,
+    questions: list[dict],
+    include_answers: bool = False,
+    cover=None,
+    options=None,
+) -> io.BytesIO:
+    from app.examinations_builder.paper import build_professional_docx as _render_docx
+
+    paper = _to_constructed_paper(config, questions, include_answers, cover, options)
+    return _render_docx(paper)
+
+
+def build_professional_pdf(
+    config,
+    questions: list[dict],
+    include_answers: bool = False,
+    cover=None,
+    options=None,
+) -> io.BytesIO:
+    from app.examinations_builder.paper import build_professional_pdf as _render_pdf
+
+    paper = _to_constructed_paper(config, questions, include_answers, cover, options)
+    return _render_pdf(paper)
 
 
 def build_docx(

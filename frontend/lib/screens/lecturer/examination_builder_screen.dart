@@ -40,6 +40,20 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
   List<String> _questionTypes = const ['multiple_choice', 'short_answer'];
   bool _includeAnswers = false;
 
+  // Professional-paper formatting (optional; drives cover/paper_options payload).
+  bool _includeCover = false;
+  String _paperSize = 'A4';
+  String _numberingStyle = 'decimal';
+  String _markStyle = '[2 marks]';
+  String _answerSpace = 'standard';
+  bool _showPageNumbers = true;
+  bool _showTurnOver = true;
+  final TextEditingController _paperNumberCtrl = TextEditingController();
+  final TextEditingController _examCodeCtrl = TextEditingController();
+  final TextEditingController _termCtrl = TextEditingController();
+  final TextEditingController _dateCtrl = TextEditingController();
+  final TextEditingController _versionCtrl = TextEditingController();
+
   String? _examId;
   String _title = '';
   List<Map<String, dynamic>> _questions = const [];
@@ -64,6 +78,11 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
       _objectiveCtrl,
       _newQTextCtrl,
       _newAnsCtrl,
+      _paperNumberCtrl,
+      _examCodeCtrl,
+      _termCtrl,
+      _dateCtrl,
+      _versionCtrl,
     ]) {
       c.dispose();
     }
@@ -90,6 +109,24 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
     lo.addAll(_splitObjectives());
     return lo;
   }
+
+  Map<String, dynamic> get _paperOptionsPayload => {
+        'paper_size': _paperSize,
+        'numbering_style': _numberingStyle,
+        'mark_style': _markStyle,
+        'answer_space': _answerSpace,
+        'show_page_numbers': _showPageNumbers,
+        'show_turn_over': _showTurnOver,
+      };
+
+  Map<String, dynamic> get _coverPayload => {
+        'paper_number': _paperNumberCtrl.text.trim(),
+        'exam_code': _examCodeCtrl.text.trim(),
+        'term': _termCtrl.text.trim(),
+        'exam_date': _dateCtrl.text.trim(),
+        'version': _versionCtrl.text.trim(),
+        'institution': _institutionCtrl.text.trim(),
+      };
 
   Map<String, dynamic> get _config {
     final s = Provider.of<SyllabusSelectionProvider>(context, listen: false);
@@ -119,6 +156,8 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
       'question_types': _questionTypes,
       'include_answers': _includeAnswers,
       'learning_objectives': _combinedObjectives(ctx),
+      'cover': _includeCover ? _coverPayload : const {},
+      'paper_options': _paperOptionsPayload,
     };
   }
 
@@ -297,6 +336,8 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
       format: format,
       includeAnswers: _includeAnswers,
       title: _paperTitle,
+      cover: _includeCover ? _coverPayload : const {},
+      paperOptions: _paperOptionsPayload,
     );
     if (!mounted) return;
     setState(() {
@@ -1079,6 +1120,8 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
             ],
           ),
         ),
+        const SizedBox(height: 14),
+        _paperFormattingCard(),
         const SizedBox(height: 18),
         Row(
           children: [
@@ -1102,6 +1145,143 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _paperFormattingCard() {
+    const paperSizes = <String, String>{'A4': 'A4', 'letter': 'Letter'};
+    const numberingStyles = <String, String>{
+      'decimal': 'Decimal (1, 2, 3…)',
+      'alphabetic': 'Alphabetic (A, B, C…)',
+      'subsection': 'Subsection (1.1, 1.2…)',
+      'alpha_letter': 'Letter (A, B, C)',
+    };
+    const markStyles = <String, String>{
+      '[2 marks]': '[2 marks]',
+      '[2]': '[2]',
+      '(2 marks)': '(2 marks)',
+      '(2)': '(2)',
+    };
+    const answerSpaces = <String, String>{
+      'auto': 'Auto',
+      'minimal': 'Minimal',
+      'standard': 'Standard',
+      'generous': 'Generous',
+      'custom': 'Custom',
+    };
+    return _sectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Paper formatting',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+          const SizedBox(height: 4),
+          Text('Control how the exported paper is typeset (cover page, numbering, spacing).',
+              style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+          const SizedBox(height: 12),
+          CheckboxListTile(
+            value: _includeCover,
+            onChanged: (v) => setState(() => _includeCover = v ?? false),
+            activeColor: context.colors.primary,
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            dense: true,
+            title: Text('Include an institution cover page',
+                style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
+          ),
+          if (_includeCover) ...[
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Expanded(child: _txtField(_paperNumberCtrl, 'Paper number (e.g. Paper 1)')),
+                const SizedBox(width: 12),
+                Expanded(child: _txtField(_examCodeCtrl, 'Exam code')),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(child: _txtField(_termCtrl, 'Term')),
+                const SizedBox(width: 12),
+                Expanded(child: _txtField(_dateCtrl, 'Date')),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _txtField(_versionCtrl, 'Version (e.g. V1.0)'),
+          ],
+          const SizedBox(height: 12),
+          _formatDropdown<String>(
+            label: 'Paper size',
+            value: _paperSize,
+            entries: paperSizes,
+            onChanged: (v) => setState(() => _paperSize = v ?? _paperSize),
+          ),
+          const SizedBox(height: 12),
+          _formatDropdown<String>(
+            label: 'Numbering style',
+            value: _numberingStyle,
+            entries: numberingStyles,
+            onChanged: (v) => setState(() => _numberingStyle = v ?? _numberingStyle),
+          ),
+          const SizedBox(height: 12),
+          _formatDropdown<String>(
+            label: 'Mark style',
+            value: _markStyle,
+            entries: markStyles,
+            onChanged: (v) => setState(() => _markStyle = v ?? _markStyle),
+          ),
+          const SizedBox(height: 12),
+          _formatDropdown<String>(
+            label: 'Answer space',
+            value: _answerSpace,
+            entries: answerSpaces,
+            onChanged: (v) => setState(() => _answerSpace = v ?? _answerSpace),
+          ),
+          const SizedBox(height: 6),
+          CheckboxListTile(
+            value: _showPageNumbers,
+            onChanged: (v) => setState(() => _showPageNumbers = v ?? true),
+            activeColor: context.colors.primary,
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            dense: true,
+            title: Text('Show "Page X of Y" on content pages',
+                style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
+          ),
+          CheckboxListTile(
+            value: _showTurnOver,
+            onChanged: (v) => setState(() => _showTurnOver = v ?? true),
+            activeColor: context.colors.primary,
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            dense: true,
+            title:
+                Text('Show "TURN OVER" guidance', style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _formatDropdown<T>({
+    required String label,
+    required T value,
+    required Map<String, String> entries,
+    required ValueChanged<T?> onChanged,
+  }) {
+    return DropdownButtonFormField<T>(
+      initialValue: value,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: context.colors.textMuted),
+        filled: true,
+        fillColor: context.colors.background,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      items: [
+        for (final entry in entries.entries) DropdownMenuItem<T>(value: entry.key as T, child: Text(entry.value)),
+      ],
+      onChanged: onChanged,
     );
   }
 

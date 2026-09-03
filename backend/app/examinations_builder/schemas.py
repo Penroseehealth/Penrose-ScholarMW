@@ -41,6 +41,18 @@ class ExamBuilderConfig(BaseModel):
     # Learning objectives pulled from the syllabus + lecturer extras
     learning_objectives: list[str] = Field(default_factory=list)
 
+    # Optional professional-paper configuration (spec §22–§26, §52–§54).
+    # Provide ``cover`` to include an institution cover page and
+    # ``paper_options`` to control typography/pagination/marking styles.
+    cover: dict = Field(
+        default_factory=dict,
+        description="Institution cover-page data (keys match paper.CoverData).",
+    )
+    paper_options: dict = Field(
+        default_factory=dict,
+        description="Typographic/page settings (keys match paper.PaperOptions).",
+    )
+
 
 class QuestionItem(BaseModel):
     """A single exam question (internal representation)."""
@@ -105,3 +117,5 @@ class ExportRequest(BaseModel):
     exam_id: str
     format: str = "docx"  # docx | pdf
     include_answers: bool = False
+    cover: dict = Field(default_factory=dict)
+    paper_options: dict = Field(default_factory=dict)

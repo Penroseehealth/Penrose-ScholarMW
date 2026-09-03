@@ -357,11 +357,19 @@ class ExaminationBuilderService {
     required String format,
     required bool includeAnswers,
     String title = 'examination',
+    Map<String, dynamic> cover = const {},
+    Map<String, dynamic> paperOptions = const {},
   }) async {
     try {
       final response = await _api.post(
         '/examinations-builder/$examId/export',
-        body: {'exam_id': examId, 'format': format, 'include_answers': includeAnswers},
+        body: {
+          'exam_id': examId,
+          'format': format,
+          'include_answers': includeAnswers,
+          'cover': cover,
+          'paper_options': paperOptions,
+        },
       );
       if (response.statusCode == 200) {
         final ext = format == 'pdf' ? 'pdf' : 'docx';
