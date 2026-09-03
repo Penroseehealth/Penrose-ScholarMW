@@ -663,7 +663,7 @@ class SyllabusService {
   }
 
   Future<Map<String, dynamic>> getForms(String slug) async {
-    final response = await _api.get('/syllabus/$slug/forms');
+    final response = await _api.get('/syllabus/subjects/$slug/forms');
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as Map<String, dynamic>;
     }
@@ -671,7 +671,7 @@ class SyllabusService {
   }
 
   Future<List<dynamic>> getTopics(String slug, int form) async {
-    final response = await _api.get('/syllabus/$slug/forms/$form/topics');
+    final response = await _api.get('/syllabus/subjects/$slug/forms/$form/topics');
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as List<dynamic>;
     }
@@ -679,7 +679,7 @@ class SyllabusService {
   }
 
   Future<List<dynamic>> getSubtopics(int topicId) async {
-    final response = await _api.get('/topics/$topicId/subtopics');
+    final response = await _api.get('/syllabus/topics/$topicId/subtopics');
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as List<dynamic>;
     }
@@ -687,7 +687,7 @@ class SyllabusService {
   }
 
   Future<List<dynamic>> getObjectives(int subtopicId) async {
-    final response = await _api.get('/subtopics/$subtopicId/objectives');
+    final response = await _api.get('/syllabus/subtopics/$subtopicId/objectives');
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       return (data['objectives'] as List<dynamic>?) ?? [];
