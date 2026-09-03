@@ -51,8 +51,77 @@ _FILLER = re.compile(
     r"(?i)^\s*(?:the\s+)?opposite\s+of\b.*\.?\s*$"
     r"|^\s*(?:an?\s+)?unrelated\s+process\b.*\.?\s*$"
     r"|^\s*none\s+of\s+the\s+above\b.*\.?\s*$"
-    r"|^\s*all\s+of\s+the\s+above\b.*\.?\s*$",
+    r"|^\s*all\s+of\s+the\s+above\b.*\.?\s*$"
+    r"|^\s*[a-z-]+\s+description\s+of\b.*$"  # "Accurate/Inaccurate/Correct description of ..."
+    r"|^a\s+description\s+that\s+.*(inaccurately\s+mixes|mixes\b).*$"
+    r"|^\s*an?\s+(?:attempt|description|statement)\b.*(?:mixes|leaves?\s+out|omits|inaccurately)\b.*$"
+    r"|^\s*an?\s+incomplete\s+(?:statement|description)\b.*$"
+    r"|^\s*(?:a\s+)?statement\s+describing\s+a\s+closely\s+related\b.*$"
+    r"|^\s*closely\s+related\s+but\s+different\b.*$",
 )
+
+# Instructional / curriculum verbs that signal a syllabus objective rather than
+# authentic question wording (spec §15). Used to reject "best describes
+# Calculate density ..." type stems.
+_OBJECTIVE_VERBS = (
+    r"calculate|define|describe|explain|identify|state|list|compare|contrast"
+    r"|anal(yse|yze)|evaluate|investigate|determine|demonstrate|construct"
+    r"|draw|measure|classif(y|ies)|outline|name|distinguish|relate|apply"
+    r"|solve|analyse"
+)
+
+# Leading verb phrase that is a curriculum expectation, never question wording.
+_OBJECTIVE_STEM_RE = re.compile(
+    r"(?ix)^\s*(?:to\s+)?(?:how\s+to\s+)?"
+    r"(?:calculate|define|describe|explain|identify|state|list|compare|contrast"
+    r"|anal(yse|yze)|evaluate|investigate|determine|demonstrate|construct|draw"
+    r"|measure|classif(y|ies)|outline|name|distinguish|relate|apply|solve)\b"
+    r"(?:\s+(?:the|a|an)\s+(?:concept|idea|process|method|technique|principle)\s+of\s+)?"
+    r"(?:\s+(?:how\s+to|using|about|for)\s+)?"
+)
+
+# Malformed MCQ stems produced when syllabus objectives are mechanically
+# slotted into a generic "which ... describes ..." template.
+_MALFORMED_STEM = re.compile(
+    r"(?ix)"
+    r"(^|\b)"
+    r"which\s+((of\s+the\s+following)|(one|statement|item)s?)\s*"
+    r"(best|most|correctly|accurately|truly)?\s*"
+    r"(describ(es|e)?|is\s+an?\s+accurate\s+description\s+of|is\s+a\s+correct\s+description\s+of)"
+    r"(\s+(a|an|the|this|our|that)\s*|\s+)"
+    rf"({_OBJECTIVE_VERBS})\b"
+)
+
+# A stem that phrases a question as "Which ... best describes <raw objective>" is
+# invalid regardless of what follows; this catches it independent of the verb probe.
+
+
+def objective_concept(objective: str) -> str:
+    """Extract a clean content noun-phrase from a syllabus objective.
+
+    A learning objective such as "Calculate density of solids, liquids, and
+    gases from experimental data" reduces to "density of solids, liquids and
+    gases from experimental data". The leading instructional verb (a curriculum
+    expectation, not question wording — spec §15) is removed so generators never
+    echo "Calculate ..." verbatim into a question stem or option.
+    """
+    if not objective:
+        return ""
+    text = str(objective).strip()
+    match = _OBJECTIVE_STEM_RE.match(text)
+    if match:
+        text = text[match.end() :]
+    # Trim any leftover connective filler left behind by the verb.
+    text = re.sub(
+        r"^\s*(?:(?:to|that|which)\s+)?(?:by|using|of|for|about|on|in|with)\s+",
+        "",
+        text,
+        count=1,
+    )
+    text = text.strip(" .:")
+    if not text:
+        return ""
+    return text[0].upper() + text[1:]
 
 
 def sanitize_text(text: str) -> str:
@@ -114,6 +183,12 @@ def question_problems(question: dict) -> list[str]:
     # Word-spacing guard: no accidental concatenation.
     if _has_collapsed_words(text) or any(_has_collapsed_words(o) for o in options):
         problems.append("Words appear to be concatenated.")
+    # A syllabus objective must never be mechanically slotted into a
+    # "Which ... best describes <objective>" template (spec §1-2, §14-15).
+    if _MALFORMED_STEM.search(text):
+        problems.append(
+            "Opening 'describes' a raw syllabus objective (template verbatim)."
+        )
     # MCQ must have a stem + 2-6 distinct plausible options.
     if q_type == "multiple_choice":
         if not text:

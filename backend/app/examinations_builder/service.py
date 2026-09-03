@@ -19,7 +19,11 @@ from app.examinations_builder.paper import (
     PaperOptions,
     build_constructed_paper,
 )
-from app.examinations_builder.sanitize import question_problems, sanitize_question
+from app.examinations_builder.sanitize import (
+    objective_concept,
+    question_problems,
+    sanitize_question,
+)
 from app.models.stem import SyllabusLearningObjective, SyllabusSubtopic, SyllabusTopic
 
 log = logging.getLogger(__name__)
@@ -295,33 +299,54 @@ def _lesson_cue(subject: str, i: int) -> str:
     return stems[i % len(stems)]
 
 
+def _pick_concepts(subject: str, exclude: str, n: int) -> list[str]:
+    """Return up to ``n`` subject concepts different from ``exclude`` (deterministic)."""
+    stems = _subject_stems(subject)
+    others = [d for d in stems if d.strip().lower() != (exclude or "").strip().lower()]
+    # pad/rotate deterministically so distractors stay varied across questions
+    padded = (others * (n + 1))[: n * 2]
+    return padded[:n]
+
+
+def _lower_first(text: str) -> str:
+    """Lowercase the first character for mid-sentence insertion."""
+    if not text:
+        return text
+    return text[0].lower() + text[1:]
+
+
 def _ti():
     return _new_id()
 
 
 def _fallback_mc(stem: str, lo: str, subject: str, i: int) -> dict:
-    """A real four-option MCQ with plausible, same-category distractors."""
+    """A genuine four-option conceptual MCQ using the subject concept bank.
+
+    ``stem`` is expected to be a clean subject concept noun-phrase (never a raw
+    syllabus objective with an instructional verb). Four same-subject concepts
+    are listed and the candidate must pick the one that matches the stem, which
+    yields a real identification question rather than "best describes
+    <objective>" filler.
+    """
     distractors = _subject_stems(subject)
-    # Pull three other subject concepts to build plausible-but-incorrect options.
     others = [d for d in distractors if d != stem]
     picks = (others * 3)[:3]
-    options = [f"Accurate description of {stem}."]
-    options += [
-        f"A description that inaccurately mixes {stem} with {d}." for d in picks
-    ]
-    options += [f"An incomplete statement that leaves out a key feature of {stem}."]
-    options = options[:4]
-    while len(options) < 4:
-        options.append(
-            "A statement describing a closely related but different process."
-        )
-    options = options[:4]
+    if len(set(picks)) < 3:
+        picks = _pick_concepts(subject, stem, 3)
+    pool = [stem, *picks]
+    # Deterministic but varied option order (never alphabetical-fixed).
+    order = sorted(range(len(pool)), key=lambda k: (_lesson_cue(subject, k + i), k))
+    options = [pool[k] for k in order]
+    correct_first = pool.index(stem)
+    correct_text = pool[correct_first]
     return {
         "id": _ti(),
         "question_type": "multiple_choice",
-        "question_text": f"Which of the following best describes {stem}?",
+        "question_text": (
+            f"Which of the following statements correctly describes {stem}?"
+        ),
         "options": options,
-        "correct_answer": options[0],
+        "correct_answer": correct_text,
         "marks": 2,
         "difficulty": "easy",
         "bloom_level": "Remembering",
@@ -332,7 +357,8 @@ def _fallback_mc(stem: str, lo: str, subject: str, i: int) -> dict:
 
 
 def _fallback_tf(stem: str, lo: str, subject: str, i: int) -> dict:
-    statement = stem if stem.endswith(".") else f"{stem}."
+    topical = _lower_first(stem)
+    statement = f"This statement is true for {topical}." if topical else stem
     return {
         "id": _ti(),
         "question_type": "true_false",
@@ -353,7 +379,7 @@ def _fallback_matching(stem: str, lo: str, subject: str, i: int) -> dict:
         "id": _ti(),
         "question_type": "matching",
         "question_text": (
-            f"Match each term in column A to the correct description in column B for {stem}."
+            f"Match each term in column A to the correct description in column B for {_lower_first(stem)}."
         ),
         "options": [],
         "correct_answer": "",
@@ -372,7 +398,7 @@ def _fallback_fill(stem: str, lo: str, subject: str, i: int) -> dict:
         "question_type": "fill_in_blank",
         "question_text": (
             f"Complete the sentence by filling in the blank: "
-            f"The main feature of {stem} is ______."
+            f"The main feature of {_lower_first(stem)} is ______."
         ),
         "options": [],
         "correct_answer": "",
@@ -389,7 +415,7 @@ def _fallback_short(stem: str, lo: str, subject: str, i: int) -> dict:
     return {
         "id": _ti(),
         "question_type": "short_answer",
-        "question_text": f"State the main idea behind {stem} and give one example.",
+        "question_text": f"State the main idea behind {_lower_first(stem)} and give one example.",
         "options": [],
         "correct_answer": "",
         "marks": 3,
@@ -405,7 +431,7 @@ def _fallback_structured(stem: str, lo: str, subject: str, i: int) -> dict:
     return {
         "id": _ti(),
         "question_type": "structured",
-        "question_text": f"Study {stem} closely, then answer the sub-questions below.",
+        "question_text": f"Study {_lower_first(stem)} closely, then answer the sub-questions below.",
         "options": [],
         "correct_answer": "",
         "marks": 6,
@@ -417,12 +443,12 @@ def _fallback_structured(stem: str, lo: str, subject: str, i: int) -> dict:
         "subquestions": [
             {
                 "question_type": "short_answer",
-                "question_text": f"(a) Name the key structures involved in {stem}.",
+                "question_text": f"(a) Name the key structures involved in {_lower_first(stem)}.",
                 "marks": 2,
             },
             {
                 "question_type": "short_answer",
-                "question_text": f"(b) Explain one role of these structures in {stem}.",
+                "question_text": f"(b) Explain one role of these structures in {_lower_first(stem)}.",
                 "marks": 4,
             },
         ],
@@ -434,7 +460,7 @@ def _fallback_essay(stem: str, lo: str, subject: str, i: int) -> dict:
         "id": _ti(),
         "question_type": "essay",
         "question_text": (
-            f"Write a structured essay on {stem}. Include the main concepts, "
+            f"Write a structured essay on {_lower_first(stem)}. Include the main concepts, "
             "provide relevant examples, and explain how they connect."
         ),
         "options": [],
@@ -456,7 +482,7 @@ def _fallback_practical(stem: str, lo: str, subject: str, i: int) -> dict:
         "id": _ti(),
         "question_type": "practical",
         "question_text": (
-            f"Describe a simple practical investigation to explore {stem}. "
+            f"Describe a simple practical investigation to explore {_lower_first(stem)}. "
             "State the procedure, the variable you will measure, and the expected result."
         ),
         "options": [],
@@ -478,7 +504,7 @@ def _fallback_calculation(stem: str, lo: str, subject: str, i: int) -> dict:
         "id": _ti(),
         "question_type": "calculation",
         "question_text": (
-            f"Carry out a calculation related to {stem}. Show all your working "
+            f"Carry out a calculation related to {_lower_first(stem)}. Show all your working "
             "and give your final answer with the correct units."
         ),
         "options": [],
@@ -497,7 +523,7 @@ def _fallback_case_study(stem: str, lo: str, subject: str, i: int) -> dict:
         "id": _ti(),
         "question_type": "case_study",
         "question_text": (
-            f"A short case study is provided about {stem}. Read the case, "
+            f"A short case study is provided about {_lower_first(stem)}. Read the case, "
             "identify the key issue, and justify your recommended response."
         ),
         "options": [],
@@ -528,20 +554,30 @@ _FALLBACK_FACTORIES = {
 def _fallback_questions(config, context: dict, count: int) -> list[dict]:
     """Deterministic fallback question set (never leaks internal identifiers).
 
-    Learning objectives (real syllabus content) provide the question stems.
-    When there are no objectives we fall back to the subject concept bank so
-    the paper never contains "(point N)" placeholders or filler options.
+    Learning objectives (real syllabus content) drive the question generation,
+    but are always reduced to a clean content noun-phrase via
+    :func:`objective_concept` — so a syllabus objective such as "Calculate
+    density ..." can never be echoed verbatim into a stem ("Which of the
+    following best describes Calculate density ...?") or into options.
+
+    For MCQs we use the subject concept bank to build a genuine identification
+    question with real, same-subject distractors. When a requested type cannot
+    be produced cleanly without domain data (e.g. a numeric MCQ), we degrade it
+    to a short-answer item rather than ship a fabricated question.
     """
     objectives = context.get("learning_objectives") or []
-    stems = (
+    raw_stems = (
         [o["objective"] for o in objectives]
         if objectives and isinstance(objectives[0], dict)
         else [str(o) for o in objectives]
     )
     subject = str(config.subject or "")
-    if not stems:
-        # Rolling subject concept cues, e.g. "the nervous system and responses to stimuli".
-        stems = [_lesson_cue(subject, i) for i in range(count)]
+    # Clean content phrases (verb-stripped). Falls back to subject concepts.
+    content_stems = [
+        objective_concept(o) or _lesson_cue(subject, i) for i, o in enumerate(raw_stems)
+    ]
+    if not content_stems:
+        content_stems = [_lesson_cue(subject, i) for i in range(count)]
     if count <= 0:
         count = 5
     types = [
@@ -554,9 +590,17 @@ def _fallback_questions(config, context: dict, count: int) -> list[dict]:
     questions: list[dict] = []
     for i in range(count):
         q_type = types[i % len(types)]
-        stem = stems[i % len(stems)]
-        lo = context.get("topic") or stem
-        question = _FALLBACK_FACTORIES[q_type](stem, lo, subject, i)
+        content = content_stems[i % len(content_stems)]
+        lo = context.get("topic") or str(
+            raw_stems[i % len(raw_stems)] if raw_stems else ""
+        )
+        if q_type == "multiple_choice":
+            # Never manufacture an MCQ from a verb-phrase stem: use a clean
+            # subject concept cue so the question and options stay meaningful.
+            mc_stem = _lesson_cue(subject, i)
+            question = _fallback_mc(mc_stem, lo, subject, i)
+        else:
+            question = _FALLBACK_FACTORIES[q_type](content, lo, subject, i)
         question["learning_outcome"] = lo
         questions.append(sanitize_question(question))
     return questions
@@ -591,11 +635,36 @@ async def generate_questions(config, db: AsyncSession) -> list[dict]:
             '"marks": <int>, "difficulty": "easy|medium|hard", "bloom_level": '
             '"Remembering|Understanding|Applying|Analysing|Evaluating|Creating", '
             '"learning_outcome": "<objective this question tests>", "rubric": "..."}]}'
-            "\nFor multiple_choice provide 4 plausible options; for true_false use "
-            "['True','False']. Never include internal identifiers such as 'point 4', "
-            "'topic 3', 'learning objective', or 'syllabus point' in any question text "
-            "or option. Do not put the question stem inside an option, and never wrap "
-            "a quoted sub-question inside the stem.",
+            "\n\nGENERATION RULES:\n"
+            "1. You are writing an examination question, NOT reproducing a syllabus "
+            "objective. The learning objectives below are the CONTENT you must test; "
+            "they are not the wording of the question.\n"
+            "2. Never copy a learning-objective verb (e.g. 'Calculate', 'Define', "
+            "'Describe', 'Explain', 'State', 'Identify', 'Investigate') verbatim into a "
+            "question stem or an option. Transform the intended outcome into a natural, "
+            "academically valid question appropriate for the subject and Form.\n"
+            "3. Never produce these defective template stems: 'Which of the following "
+            "best describes <objective>?', 'Which statement best describes <objective>?', "
+            "'Which of the following is an accurate description of <objective>?', or "
+            "'Which of the following correctly describes <topic or objective>?'.\n"
+            "4. For multiple_choice: give a real question stem and EXACTLY four meaningful "
+            "options where exactly one is correct and the other three are plausible "
+            "distractors (misconceptions, calculation errors, or alternative "
+            "interpretations). Do not use options like 'Accurate description of X', "
+            "'A description that inaccurately mixes X with Y', 'An incomplete statement...', "
+            "'None/All of the above', 'The opposite of...', or 'unrelated process'.\n"
+            "5. Each option must be a genuine, self-contained answer choice. No option may "
+            "repeat the wording of the stem, contain syllabus/objective text, or contain "
+            "identifiers such as 'point 4', 'topic 3', 'learning objective', or 'syllabus point'.\n"
+            "6. Let the question type drive the format: MCQ = stem + 4 options + 1 correct "
+            "answer; short_answer = question + expected response; essay = extended question + "
+            "space; calculation = problem with numerical data; structured = question + "
+            "sub-questions + mark allocation; practical = scenario + task.\n"
+            "7. Vary question structure (conceptual, calculation, application, interpretation, "
+            "scenario, data-based, cause/effect, comparison) so not every item uses the same "
+            "sentence skeleton.\n"
+            "8. Preserve scientific/mathematical notation exactly (x^2, H_2O, CO_2, pi, "
+            "divide, multiply, units). Use normal English spacing between all words.",
         )
         raw = await call_ai_json(
             messages=[
@@ -604,11 +673,14 @@ async def generate_questions(config, db: AsyncSession) -> list[dict]:
                     "content": (
                         "You are an expert examination designer aligned to the Malawi "
                         "Secondary School curriculum. Produce clean, professional "
-                        "candidate-facing questions with normal word spacing. Never "
-                        "quote or embed cross-references or syllabus identifiers in "
-                        "question text."
-                        + STEM_LATEX_INSTRUCTION
-                        + VISUAL_GENERATION_POLICY
+                        "candidate-facing questions with normal word spacing and "
+                        "standard English grammar. Never quote or embed cross-references "
+                        "or syllabus identifiers in question text. Treat the supplied "
+                        "curriculum content (topics, subtopics, learning objectives) as "
+                        "the knowledge to test, not as literal question wording: always "
+                        "transform a learning objective into a genuine, grammatically "
+                        "valid assessment question rather than echoing its instructional "
+                        "verb." + STEM_LATEX_INSTRUCTION + VISUAL_GENERATION_POLICY
                     ),
                 },
                 {"role": "user", "content": prompt},
@@ -649,7 +721,13 @@ async def regenerate_question(
                         "role": "system",
                         "content": (
                             "You are an expert examination designer for the Malawi Secondary "
-                            "School curriculum. Return only valid JSON matching the schema requested."
+                            "School curriculum. Produce clean, grammatically valid "
+                            "candidate-facing questions. Never echo a curriculum objective "
+                            "verb into the question ('best describes Calculate ...'), never "
+                            "use filler options such as 'Accurate/Inaccurate description of X', "
+                            "never repeat the stem inside an option, and never leak internal "
+                            "identifiers or syllabus metadata. Return only valid JSON matching "
+                            "the schema."
                             + STEM_LATEX_INSTRUCTION
                             + VISUAL_GENERATION_POLICY
                         ),

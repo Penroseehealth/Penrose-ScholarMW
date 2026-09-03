@@ -17,6 +17,7 @@ from app.examinations_builder.paper import (
     validate_paper,
 )
 from app.examinations_builder.sanitize import (
+    question_problems,
     sanitize_question,
     sanitize_text,
     validate_questions,
@@ -369,3 +370,160 @@ def test_mcq_section_header_no_objective():
     )
     header = paper.sections[0].name
     assert "OBJECTIVE" not in header.upper()
+
+
+# ── Root-cause fix: objective text must never be echoed into MCQ stems/options (
+# spec §1-2, §10-15, §34). Regression for:
+#   "Calculate density of solids, liquids, and gases from experimental data"
+# ---> "Which of the following best describes Calculate density ...?"  (BAD)
+# ---------------------------------------------------------------------------
+
+
+def test_malformed_stem_validator_rejects_objective_echo():
+    bads = [
+        "Which of the following best describes Calculate density of solids, liquids, and gases from experimental data?",
+        "Which of the following is an accurate description of Calculate density of solids, liquids and gases?",
+        "Which statement best describes Define density?",
+        "Which of the following correctly describes Describe the role of the nervous system in coordinating responses?",
+    ]
+    goods = [
+        "Which of the following statements correctly describes Newton's laws of motion?",
+        "A metal block has a mass of 540 g and a volume of 200 cm3. Calculate its density.",
+        "Which expression is used to calculate the density of a substance?",
+        "Which organelle produces ATP?",
+    ]
+    for b in bads:
+        problems = question_problems(
+            {
+                "question_type": "multiple_choice",
+                "question_text": b,
+                "options": ["A", "B", "C", "D"],
+                "marks": 2,
+            }
+        )
+        assert problems, f"expected rejection for: {b}"
+    for g in goods:
+        problems = question_problems(
+            {
+                "question_type": "multiple_choice",
+                "question_text": g,
+                "options": ["A", "B", "C", "D"],
+                "marks": 2,
+            }
+        )
+        assert not problems, f"expected clean: {g}"
+
+
+def test_filler_options_rejected():
+    bad_opts = [
+        "Accurate description of density.",
+        "A description that inaccurately mixes density with waves.",
+        "An incomplete statement that leaves out a key feature of density.",
+        "A statement describing a closely related but different process.",
+    ]
+    good = "mass \u00f7 volume"
+    for o in bad_opts:
+        kept = sanitize_question(
+            {
+                "question_type": "multiple_choice",
+                "question_text": "Stem?",
+                "options": [o],
+            }
+        )["options"]
+        assert o not in kept, f"filler option should be dropped: {o}"
+    kept = sanitize_question(
+        {
+            "question_type": "multiple_choice",
+            "question_text": "Stem?",
+            "options": [good],
+        }
+    )["options"]
+    assert good in kept
+
+
+def test_objective_concept_strips_verb_phrase():
+    from app.examinations_builder.sanitize import objective_concept
+
+    assert (
+        objective_concept(
+            "Calculate density of solids, liquids, and gases from experimental data"
+        )
+        == "Density of solids, liquids, and gases from experimental data"
+    )
+    assert objective_concept("Define density") == "Density"
+    assert (
+        objective_concept(
+            "Describe the role of the nervous system in coordinating responses"
+        )
+        == "The role of the nervous system in coordinating responses"
+    )
+    assert objective_concept("Explain the concept of osmosis") == "Osmosis"
+
+
+def test_fallback_never_leaks_objective_verb_into_mcq():
+    cfg = ExamBuilderConfig(
+        subject="Physics",
+        form=3,
+        topic="Measurement",
+        subtopic="Density",
+        num_questions=5,
+        question_types=["multiple_choice", "multiple_choice", "short_answer", "essay"],
+        difficulty="mixed",
+    )
+    ctx = {
+        "subject": "Physics",
+        "form": "Form 3",
+        "topic": "Measurement",
+        "subtopic": "Density",
+        "learning_objectives": [
+            {
+                "objective": "Calculate density of solids, liquids, and gases from experimental data",
+                "cognitive_level": "Applying",
+            }
+        ],
+    }
+    questions = service._fallback_questions(cfg, ctx, 5)
+    for q in questions:
+        blob = (
+            (q.get("question_text") or "") + " " + " ".join(q.get("options") or [])
+        ).lower()
+        assert "best describes calculate" not in blob, q
+        assert "accurate description of" not in blob, q
+        assert "inaccurately mixes" not in blob, q
+        assert "point " not in blob, q
+    assert validate_questions(questions)["clean"] is True
+
+
+def test_all_subjects_fallback_clean():
+    subjects = ["Biology", "Chemistry", "Physics", "Mathematics"]
+    objective_templates = [
+        "Calculate density of solids, liquids, and gases from experimental data",
+        "Describe the role of the nervous system in coordinating responses",
+        "Investigate factors affecting the rate of reaction",
+        "Calculate the area of circles",
+    ]
+    for subject, obj in zip(subjects, objective_templates):
+        cfg = ExamBuilderConfig(
+            subject=subject,
+            form=4,
+            topic="Exam",
+            num_questions=3,
+            question_types=["multiple_choice", "short_answer", "essay"],
+        )
+        ctx = {
+            "subject": subject,
+            "form": "Form 4",
+            "topic": "Exam",
+            "learning_objectives": [
+                {"objective": obj, "cognitive_level": "Understanding"}
+            ],
+        }
+        questions = service._fallback_questions(cfg, ctx, 3)
+        assert questions
+        assert validate_questions(questions)["clean"] is True
+        for q in questions:
+            blob = (
+                (q.get("question_text") or "") + " " + " ".join(q.get("options") or [])
+            ).lower()
+            assert "describes calculate" not in blob, q
+            assert "describes describe" not in blob, q
