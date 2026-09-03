@@ -153,7 +153,7 @@ class ProfileScreen extends StatelessWidget {
               title: 'About',
               onTap: () => showAboutDialog(
                 context: context,
-                applicationName: 'Penrose ScholarMW',
+                applicationName: 'Penrose ScholarMw',
                 applicationVersion: '1.0.0',
                 applicationIcon: const Icon(Icons.school_rounded, size: 48, color: AppColors.primary),
                 children: [

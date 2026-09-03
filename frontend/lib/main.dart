@@ -45,7 +45,7 @@ class _PenroseScholarAppState extends State<PenroseScholarApp> {
             _appRouter ??= AppRouter(auth);
             return ErrorBoundary(
               child: MaterialApp.router(
-                title: 'Penrose ScholarMW',
+                title: 'Penrose ScholarMw',
                 debugShowCheckedModeBanner: false,
                 theme: AppTheme.light(),
                 darkTheme: AppTheme.dark(),

@@ -12,7 +12,7 @@ class AppLocalizations {
   static const Map<String, Map<String, String>> _translations = {
     'en': {
       // Navigation
-      'appTitle': 'Penrose ScholarMW',
+      'appTitle': 'Penrose ScholarMw',
       'dashboard': 'Dashboard',
       'scholarAI': 'ScholarAI',
       'myLearning': 'My Learning',
@@ -129,7 +129,7 @@ class AppLocalizations {
     },
     'ny': {
       // Navigation
-      'appTitle': 'Penrose ScholarMW',
+      'appTitle': 'Penrose ScholarMw',
       'dashboard': 'Khondo',
       'scholarAI': 'ScholarAI',
       'myLearning': 'Kuphunzira Kwanga',

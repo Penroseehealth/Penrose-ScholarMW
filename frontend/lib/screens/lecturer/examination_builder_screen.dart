@@ -613,7 +613,6 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
           _summaryRow(Icons.school_outlined, 'Class', s.form != null ? 'Form ${s.form}' : ''),
           _summaryRow(Icons.article_outlined, 'Topic', s.topic?['title'] as String? ?? ''),
           _summaryRow(Icons.account_tree_outlined, 'Subtopic', s.subtopic?['title'] as String? ?? ''),
-          _summaryRow(Icons.checklist_rounded, 'Objectives', '${s.objectives.length} syllabus objectives'),
         ],
       ),
     );
@@ -1484,14 +1483,6 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
               onChanged: (v) => _editQuestion(index, 'rubric', v),
             ),
           ],
-          const SizedBox(height: 4),
-          TextFormField(
-            initialValue: (q['learning_outcome'] as String?) ?? '',
-            maxLines: 2,
-            style: TextStyle(fontSize: 12, color: context.colors.textPrimary),
-            decoration: const InputDecoration(isDense: true, labelText: 'Learning outcome'),
-            onChanged: (v) => _editQuestion(index, 'learning_outcome', v),
-          ),
           const SizedBox(height: 6),
           Row(
             children: [

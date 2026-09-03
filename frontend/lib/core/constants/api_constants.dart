@@ -4,5 +4,5 @@ String get apiBaseUrl {
   return '/api/v1';
 }
 
-const String appName = 'Penrose ScholarMW';
+const String appName = 'Penrose ScholarMw';
 const String appTagline = 'Learn. Teach. Research. Advance.';

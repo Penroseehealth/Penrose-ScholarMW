@@ -60,7 +60,7 @@ class ExportService {
     buffer.writeln('.formula-text{font-size:18px;font-family:monospace;color:#4a148c;margin:8px 0;text-align:center}');
     buffer.writeln('.formula-desc{font-size:12px;color:#666}');
     buffer.writeln('</style></head><body>');
-    buffer.writeln('<h1>Penrose ScholarMW — Formula Sheet</h1>');
+    buffer.writeln('<h1>Penrose ScholarMw — Formula Sheet</h1>');
 
     for (final f in formulas) {
       buffer.writeln('<div class="formula-card">');
@@ -83,7 +83,7 @@ h1{color:#1a237e}
 </style></head><body>
 <h1>$title</h1>
 <div class="note-content">$content</div>
-<p style="margin-top:40px;font-size:11px;color:#999">Exported from Penrose ScholarMW</p>
+<p style="margin-top:40px;font-size:11px;color:#999">Exported from Penrose ScholarMw</p>
 </body></html>''';
 
   static String buildVisualHtml({
@@ -101,7 +101,7 @@ h1{color:#1a237e;border-bottom:2px solid #1a237e;padding-bottom:8px}
   font-family:monospace;white-space:pre-wrap;font-size:13px}
 </style></head><body>
 <h1>$title</h1>
-<div class="meta">Type: $type | Format: HTML | Exported from Penrose ScholarMW</div>
+<div class="meta">Type: $type | Format: HTML | Exported from Penrose ScholarMw</div>
 <div class="spec">$spec</div>
 </body></html>''';
 }

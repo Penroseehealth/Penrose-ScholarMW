@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/brand/penrose_logo.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -37,35 +38,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppColors.primary, AppColors.primaryDark],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.4),
-                            blurRadius: 30,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(Icons.school_rounded, size: 56, color: Colors.white),
-                    ),
-                    const SizedBox(height: 28),
-                    Text(
-                      'Penrose ScholarMW',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w800,
-                        color: context.colors.textPrimary,
-                      ),
-                    ),
+                    const PenroseTriangle(size: 96),
+                    const SizedBox(height: 20),
+                    const SilverGoldTitle('Penrose ScholarMw', fontSize: 30),
                     const SizedBox(height: 8),
                     Text(
                       'Learn. Teach. Research. Advance.',

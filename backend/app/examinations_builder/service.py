@@ -917,10 +917,16 @@ def build_docx(
     meta.runs[0].italic = True
 
     section_headers = {
-        "multiple_choice": "SECTION A — OBJECTIVE QUESTIONS",
-        "true_false": "SECTION A — OBJECTIVE QUESTIONS",
+        "multiple_choice": "SECTION A — MULTIPLE CHOICE QUESTIONS",
+        "true_false": "SECTION A — TRUE / FALSE QUESTIONS",
+        "matching": "SECTION A — MATCHING QUESTIONS",
+        "fill_in_blank": "SECTION B — FILL IN THE BLANK QUESTIONS",
         "short_answer": "SECTION B — SHORT ANSWER QUESTIONS",
-        "essay": "SECTION C — STRUCTURED/ESSAY QUESTIONS",
+        "structured": "SECTION C — STRUCTURED QUESTIONS",
+        "essay": "SECTION C — ESSAY QUESTIONS",
+        "practical": "SECTION D — PRACTICAL QUESTIONS",
+        "calculation": "SECTION D — CALCULATION QUESTIONS",
+        "case_study": "SECTION D — CASE STUDY QUESTIONS",
     }
     section_order = list(
         dict.fromkeys(q.get("question_type", "short_answer") for q in questions)

@@ -7,6 +7,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/theme/theme_colors.dart';
 import '../../providers/theme_provider.dart';
 import '../../services/services.dart';
+import '../../widgets/brand/penrose_logo.dart';
 import '../home/app_drawer.dart';
 
 class LecturerCentre extends StatefulWidget {
@@ -315,36 +316,16 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
 
   Widget _buildSidebarLogoFull() => Container(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
-        child: Row(
+        child: const Row(
           children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppColors.primary, AppColors.primaryDark],
-                ),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 20),
-            ),
-            const SizedBox(width: 12),
+            PenroseTriangle(size: 44),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Penrose',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: context.colors.textPrimary,
-                          letterSpacing: -0.3)),
-                  Text('ScholarMW',
-                      style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                          color: context.colors.textMuted,
-                          letterSpacing: 0.5)),
+                  SilverGoldTitle('Penrose ScholarMw', fontSize: 16),
+                  SizedBox(height: 2),
                 ],
               ),
             ),
@@ -354,18 +335,8 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
 
   Widget _buildSidebarLogoCompact() => Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Center(
-          child: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.primary, AppColors.primaryDark],
-              ),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 20),
-          ),
+        child: const Center(
+          child: PenroseTriangle(size: 44),
         ),
       );
 
