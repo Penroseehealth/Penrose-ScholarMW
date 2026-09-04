@@ -664,7 +664,7 @@ async def generate_questions(config, db: AsyncSession) -> list[dict]:
             "scenario, data-based, cause/effect, comparison) so not every item uses the same "
             "sentence skeleton.\n"
             "8. Preserve scientific/mathematical notation exactly (x^2, H_2O, CO_2, pi, "
-            "divide, multiply, units). Use normal English spacing between all words.",
+            "divide, multiply, units). Use normal English spacing between all words."
         )
         raw = await call_ai_json(
             messages=[

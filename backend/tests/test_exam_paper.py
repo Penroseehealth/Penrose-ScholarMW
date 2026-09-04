@@ -527,3 +527,38 @@ def test_all_subjects_fallback_clean():
             ).lower()
             assert "describes calculate" not in blob, q
             assert "describes describe" not in blob, q
+
+
+def test_ai_prompt_is_a_plain_string_not_tuple():
+    import asyncio
+
+    from app.config.ai_client import AIProviderError
+
+    captured = {}
+
+    async def _patching_call_ai_json(messages, **kwargs):
+        content = messages[1]["content"]
+        captured["type"] = type(content).__name__
+        captured["index"] = [type(m.get("content")).__name__ for m in messages]
+        raise AIProviderError([])  # force graceful fallback
+
+    real = service.call_ai_json
+    service.call_ai_json = _patching_call_ai_json
+    try:
+        cfg = ExamBuilderConfig(
+            title="Aug 2026 Endterm",
+            subject="Physics",
+            form=4,
+            topic="Density",
+            num_questions=3,
+            question_types=["multiple_choice", "short_answer"],
+            learning_objectives=["Calculate density of solids, liquids, and gases"],
+        )
+        questions = asyncio.run(service.generate_questions(cfg, None))
+        assert captured["type"] == "str", captured
+        assert captured["index"][0] == "str", captured
+        assert captured["index"][1] == "str", captured
+        assert questions, "should fall back to template questions"
+        assert validate_questions(questions)["clean"] is True
+    finally:
+        service.call_ai_json = real

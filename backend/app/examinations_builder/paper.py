@@ -596,98 +596,106 @@ def build_professional_pdf(paper: ConstructedPaper) -> io.BytesIO:
             )
         canvas.restoreState()
 
-    # Build the story (cover + content). A shallow copy feeds the counting
-    # probe so the real pass renders the same flowables.
-    story: list = []
+    # reportlab mutates flowables while building, so the counting probe and the
+    # final render each construct their own fresh story (spec §23).
+    def build_story() -> list:
+        story: list = []
 
-    # ── Cover page ────────────────────────────────────────────────────────
-    if paper.cover:
-        c = paper.cover
-        if c.logo_path and c.show_logo and os.path.exists(c.logo_path):
-            story.append(Image(c.logo_path, width=80, height=60))
-        story.append(Paragraph(_esc(c.institution), cover_head))
-        if c.faculty:
-            story.append(Paragraph(_esc(c.faculty), cover_mid))
-        story.append(Spacer(1, 14))
-        story.append(Paragraph(_esc(c.exam_name), cover_mid))
-        story.append(Paragraph(_esc(c.subject), cover_head))
-        story.append(Paragraph(_esc(c.paper_number), cover_mid))
-        story.append(Paragraph(_esc(c.form), cover_mid))
-        story.append(Spacer(1, 12))
-        meta = [
-            ("Academic Year", c.academic_year),
-            ("Term", c.term),
-            ("Date", c.exam_date),
-            ("Duration", c.duration),
-            ("Total Marks", c.total_marks),
-            ("Examination Code", c.exam_code),
-        ]
-        for label, value in meta:
-            if value:
-                story.append(Paragraph(_label_value(label, value), body_c))
-        if c.show_version and c.version:
-            story.append(Paragraph(_esc(f"Version: {c.version}"), cover_small))
-        story.append(Spacer(1, 14))
-        candidate_rows = []
-        if c.candidate_name:
-            candidate_rows.append(Paragraph(f"Candidate Name: {_underline(22)}", body))
-        if c.candidate_number:
-            candidate_rows.append(
-                Paragraph(f"Candidate Number: {_underline(22)}", body)
-            )
-        if c.candidate_class:
-            candidate_rows.append(Paragraph(f"Class: {_underline(22)}", body))
-        if c.candidate_school:
-            candidate_rows.append(Paragraph(f"School: {_underline(22)}", body))
-        if c.center_number:
-            candidate_rows.append(
-                Paragraph(f"Centre / School Code: {_underline(18)}", body)
-            )
-        if c.show_signature:
-            candidate_rows.append(Paragraph(f"Signature: {_underline(22)}", body))
-        for row in candidate_rows:
-            story.append(row)
-
-        if c.show_instructions and c.instructions:
+        # ── Cover page ────────────────────────────────────────────────────────
+        if paper.cover:
+            c = paper.cover
+            if c.logo_path and c.show_logo and os.path.exists(c.logo_path):
+                story.append(Image(c.logo_path, width=80, height=60))
+            story.append(Paragraph(_esc(c.institution), cover_head))
+            if c.faculty:
+                story.append(Paragraph(_esc(c.faculty), cover_mid))
             story.append(Spacer(1, 14))
-            story.append(Paragraph("INSTRUCTIONS TO CANDIDATES", _cover_instr_style()))
-            for n, ins in enumerate(c.instructions, 1):
-                story.append(Paragraph(_markup(f"{n}. {ins}"), small))
-        if c.show_declaration and c.declaration:
-            story.append(Spacer(1, 10))
-            story.append(Paragraph("DECLARATION", _cover_instr_style()))
-            story.append(Paragraph(_esc(c.declaration), small))
+            story.append(Paragraph(_esc(c.exam_name), cover_mid))
+            story.append(Paragraph(_esc(c.subject), cover_head))
+            story.append(Paragraph(_esc(c.paper_number), cover_mid))
+            story.append(Paragraph(_esc(c.form), cover_mid))
+            story.append(Spacer(1, 12))
+            meta = [
+                ("Academic Year", c.academic_year),
+                ("Term", c.term),
+                ("Date", c.exam_date),
+                ("Duration", c.duration),
+                ("Total Marks", c.total_marks),
+                ("Examination Code", c.exam_code),
+            ]
+            for label, value in meta:
+                if value:
+                    story.append(Paragraph(_label_value(label, value), body_c))
+            if c.show_version and c.version:
+                story.append(Paragraph(_esc(f"Version: {c.version}"), cover_small))
+            story.append(Spacer(1, 14))
+            candidate_rows = []
+            if c.candidate_name:
+                candidate_rows.append(
+                    Paragraph(f"Candidate Name: {_underline(22)}", body)
+                )
+            if c.candidate_number:
+                candidate_rows.append(
+                    Paragraph(f"Candidate Number: {_underline(22)}", body)
+                )
+            if c.candidate_class:
+                candidate_rows.append(Paragraph(f"Class: {_underline(22)}", body))
+            if c.candidate_school:
+                candidate_rows.append(Paragraph(f"School: {_underline(22)}", body))
+            if c.center_number:
+                candidate_rows.append(
+                    Paragraph(f"Centre / School Code: {_underline(18)}", body)
+                )
+            if c.show_signature:
+                candidate_rows.append(Paragraph(f"Signature: {_underline(22)}", body))
+            for row in candidate_rows:
+                story.append(row)
 
-        # Switch to the content frame/page-numbering for all pages after the cover.
-        story.append(NextPageTemplate("content"))
-        story.append(PageBreak())
+            if c.show_instructions and c.instructions:
+                story.append(Spacer(1, 14))
+                story.append(
+                    Paragraph("INSTRUCTIONS TO CANDIDATES", _cover_instr_style())
+                )
+                for n, ins in enumerate(c.instructions, 1):
+                    story.append(Paragraph(_markup(f"{n}. {ins}"), small))
+            if c.show_declaration and c.declaration:
+                story.append(Spacer(1, 10))
+                story.append(Paragraph("DECLARATION", _cover_instr_style()))
+                story.append(Paragraph(_esc(c.declaration), small))
 
-    # ── Content pages ────────────────────────────────────────────────────
-    if opts.show_header and opts.header_lines:
-        story.append(
-            Paragraph(_esc("   &nbsp;  ".join(opts.header_lines)), _header_style(opts))
-        )
+            # Switch to the content frame/page-numbering for all pages after the cover.
+            story.append(NextPageTemplate("content"))
+            story.append(PageBreak())
 
-    qnum = 0
-    for section in paper.sections:
-        heading = _section_heading(section, opts)
-        section_intro = Paragraph(
-            _esc(section.instructions or "Answer all questions."), small
-        )
-        story.append(KeepTogether([heading, section_intro]))
-        for q in section.questions:
-            qnum += 1
-            story.extend(_render_question_pdf(q, qnum, opts))
-        story.append(Spacer(1, 6))
+        # ── Content pages ────────────────────────────────────────────────────
+        if opts.show_header and opts.header_lines:
+            story.append(
+                Paragraph(
+                    _esc("   &nbsp;  ".join(opts.header_lines)), _header_style(opts)
+                )
+            )
 
-    if paper.include_answers:
-        story.append(PageBreak())
-        story.append(Paragraph("MARKING SCHEME / ANSWER KEY", _header_style(opts)))
-        a_num = 0
+        qnum = 0
         for section in paper.sections:
+            heading = _section_heading(section, opts)
+            section_intro = Paragraph(
+                _esc(section.instructions or "Answer all questions."), small
+            )
+            story.append(KeepTogether([heading, section_intro]))
             for q in section.questions:
-                a_num += 1
-                story.extend(_render_answer_pdf(q, a_num, opts))
+                qnum += 1
+                story.extend(_render_question_pdf(q, qnum, opts))
+            story.append(Spacer(1, 6))
+
+        if paper.include_answers:
+            story.append(PageBreak())
+            story.append(Paragraph("MARKING SCHEME / ANSWER KEY", _header_style(opts)))
+            a_num = 0
+            for section in paper.sections:
+                for q in section.questions:
+                    a_num += 1
+                    story.extend(_render_answer_pdf(q, a_num, opts))
+        return story
 
     # Page templates + two-pass build
     cover_frame = Frame(
@@ -737,7 +745,7 @@ def build_professional_pdf(paper: ConstructedPaper) -> io.BytesIO:
                 PageTemplate(id=t.id, frames=t.frames, onPage=lambda _c, _d: None)
             )
     probe.addPageTemplates(probe_templates)
-    probe.build(list(story))
+    probe.build(build_story())
     total_content = counter["pages"]
 
     # Pass 2 — real render with footer stamping using the known total.
@@ -766,7 +774,7 @@ def build_professional_pdf(paper: ConstructedPaper) -> io.BytesIO:
                 PageTemplate(id=t.id, frames=t.frames, onPage=_content_on_page)
             )
     doc.addPageTemplates(doc_templates)
-    doc.build(story)
+    doc.build(build_story())
     buf.seek(0)
     return buf
 
@@ -800,7 +808,14 @@ def _header_style(opts: PaperOptions):
 
 
 def _render_question_pdf(q: PaperQuestion, qnum: int, opts: PaperOptions):
-    """PDF flowables for one question (stem + options/diagram/table/lines kept together)."""
+    """PDF flowables for one question.
+
+    The non-splittable content (stem + options/diagram/table + sub-question
+    stems) is kept together so it is never torn across a page boundary. Answer
+    lines are appended as individual, freely-flowing tables so a question that
+    starts near the bottom of a page can carry its writing space onto the next
+    page instead of raising reportlab's "too large on page" LayoutError.
+    """
     from reportlab.platypus import KeepTogether
 
     num = number_question(qnum, opts.numbering_style)
@@ -817,7 +832,6 @@ def _render_question_pdf(q: PaperQuestion, qnum: int, opts: PaperOptions):
             s_mark = mark_text(sub.marks, opts.mark_style)
             s_stem = _markup(sub.question_text)
             block.append(_question_paragraph(s_num, s_stem, s_mark))
-            block.extend(_answer_lines(lines_for_question(sub, opts)))
     if q.table:
         t = _table_flow(q.table)
         if t is not None:
@@ -826,9 +840,13 @@ def _render_question_pdf(q: PaperQuestion, qnum: int, opts: PaperOptions):
         d = _diagram_flow(q.diagram)
         if d is not None:
             block.append(d)
-    lines = 0 if q.subquestions else lines_for_question(q, opts)
-    block.extend(_answer_lines(lines))
-    return [KeepTogether(block)]
+    flowables = [KeepTogether(block)]
+    if q.subquestions:
+        for sub in q.subquestions:
+            flowables.extend(_answer_lines(lines_for_question(sub, opts)))
+    else:
+        flowables.extend(_answer_lines(lines_for_question(q, opts)))
+    return flowables
 
 
 def _render_answer_pdf(q: PaperQuestion, a_num: int, opts: PaperOptions):
