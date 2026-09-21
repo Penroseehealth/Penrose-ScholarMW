@@ -26,6 +26,7 @@ import '../screens/biology/biology_syllabus.dart';
 import '../screens/biology/biology_topics.dart';
 import '../screens/biology/biology_virtual_lab.dart';
 import '../screens/biology/biology_visualization_screen.dart';
+import '../screens/biology/neuron/neuron_communication_screen.dart';
 import '../screens/chemistry/chemistry_syllabus_screen.dart';
 import '../screens/physics/physics_syllabus_screen.dart';
 import '../screens/stem/stem_syllabus_screen.dart';
@@ -462,6 +463,7 @@ class AppRouter {
           _route('/bio-topics', (_) => const BiologyTopicsScreen()),
           _route('/bio-virtual-lab', (_) => const BiologyVirtualLabScreen()),
           _route('/bio-diagrams', (_) => const BiologyVisualizationScreen()),
+          _route('/bio-neuron', (_) => const NeuronCommunicationScreen()),
           _route('/bio-practicals', (_) => const BiologyPracticalHubScreen()),
           _route('/bio-practicals/studio', (_) => const BiologyPracticalStudioScreen()),
           _route('/bio-practice', (_) => const BiologyPracticeCentreScreen()),

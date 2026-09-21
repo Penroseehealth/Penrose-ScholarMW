@@ -333,6 +333,7 @@ class _BiologyDashboardState extends State<BiologyDashboard> with SingleTickerPr
     const _BioModule(Icons.science_rounded, 'Virtual Biology Lab', 'Interactive experiments', '/bio-virtual-lab'),
     const _BioModule(Icons.science_outlined, 'Practical Skills', 'Lab techniques & procedures', '/bio-practicals'),
     const _BioModule(Icons.image_rounded, 'Diagram Centre', 'Interactive biology diagrams', '/bio-diagrams'),
+    const _BioModule(Icons.bolt_rounded, 'Neuron Communication', 'Animated two-neuron signalling', '/bio-neuron'),
     const _BioModule(Icons.quiz_rounded, 'Practice Centre', 'MCQ, short answer & more', '/bio-practice'),
     const _BioModule(Icons.description_rounded, 'Past Papers', 'MSCE past exam papers', '/bio-past-papers'),
     const _BioModule(Icons.assignment_rounded, 'Mock Exams', 'MSCE-style mock examinations', '/bio-mock-exam'),

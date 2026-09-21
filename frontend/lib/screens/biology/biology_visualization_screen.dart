@@ -3,6 +3,7 @@ import 'dart:html' as html;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/theme/theme_colors.dart';
 import '../../models/biology_visualization.dart';
@@ -55,6 +56,7 @@ class _BiologyVisualizationScreenState extends State<BiologyVisualizationScreen>
     'animal_cell': 'Animal Cell',
     'bacterial_cell': 'Bacterial Cell',
     'fungal_cell': 'Fungal Cell',
+    'neuron': 'Neuron',
   };
   static const List<String> _backgrounds = ['white', 'transparent', 'black'];
 
@@ -444,7 +446,7 @@ class _BiologyVisualizationScreenState extends State<BiologyVisualizationScreen>
                   .toList(),
             ),
             const SizedBox(height: 14),
-            _label(colors, 'Cell type'),
+            _label(colors, 'Cell / structure type'),
             Wrap(
               spacing: 8,
               children: _apps.entries
@@ -615,6 +617,11 @@ class _BiologyVisualizationScreenState extends State<BiologyVisualizationScreen>
             const SizedBox(height: 12),
             Row(
               children: [
+                if (_detail!.spec.kind == 'neuron') ...[
+                  _action(colors, Icons.play_circle_outline_rounded, 'Animate Communication',
+                      () => context.push('/bio-neuron')),
+                  const SizedBox(width: 8),
+                ],
                 _action(colors, Icons.label_outline_rounded, _detail!.spec.labelsShown ? 'Hide Labels' : 'Show Labels',
                     _toggleLabels),
                 const SizedBox(width: 8),

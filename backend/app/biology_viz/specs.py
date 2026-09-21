@@ -19,6 +19,7 @@ CELL_APPS: dict[str, str] = {
     "animal_cell": "Animal Cell",
     "bacterial_cell": "Bacterial Cell",
     "fungal_cell": "Fungal Cell",
+    "neuron": "Neuron (Nerve Cell)",
 }
 
 _APP_ALIAS_MAP: dict[str, str] = {
@@ -331,6 +332,81 @@ def build_cell_spec(
         quality_level=quality_level,
         structures=structures,
         labels=labels,
+        dimensions={"view": "2d", "orientation": "landscape"},
+        syllabus_reference=syllabus_reference,
+    )
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Neuron / nerve-signalling knowledge base
+# ─────────────────────────────────────────────────────────────────────────
+# Ordered structurally (dendrites -> soma -> axon -> synapse -> postsynaptic
+# side) so a renderer can lay the two-neuron scene out left-to-right. The
+# animation layer (a distinct frontend concern) consumes the same `kind`,
+# `app` and structure ids, so structure-level edits in the Diagram Centre stay
+# in sync with the animated communication view.
+
+_NEURON_STRUCTURES: list[tuple[str, str, str]] = [
+    ("dendrites", "Dendrites", "appendage"),
+    ("soma", "Cell body (soma)", "region"),
+    ("nucleus", "Nucleus", "organelle"),
+    ("axon", "Axon", "appendage"),
+    ("myelin_sheath", "Myelin sheath", "wall"),
+    ("nodes_of_ranvier", "Nodes of Ranvier", "region"),
+    ("axon_terminal", "Axon terminal (synaptic bouton)", "organelle"),
+    ("synaptic_cleft", "Synaptic cleft", "region"),
+    ("postsynaptic_membrane", "Postsynaptic membrane", "membrane"),
+    ("synaptic_vesicles", "Synaptic vesicles", "organelle"),
+    ("receptors", "Receptor proteins", "component"),
+    ("neurotransmitter", "Neurotransmitter molecules", "component"),
+]
+
+_NEURON_LABELS: list[str] = [name for _sid, name, _kind in _NEURON_STRUCTURES]
+
+
+def build_neuron_spec(
+    *,
+    title: str | None = None,
+    form: int = 1,
+    topic: str = "",
+    subtopic: str = "",
+    background: str = "white",
+    labels_shown: bool = True,
+    quality_level: str = "standard",
+    syllabus_reference: str | None = None,
+    exclude: set[str] | None = None,
+) -> BiologySpec:
+    """Deterministically build a Neuron (nerve cell) spec.
+
+    Contains both presynaptic structures (dendrites, soma, axon, myelin,
+    terminal) and the synapse (cleft, postsynaptic membrane, receptors), so the
+    same spec powers the labelled anatomical view and the animated
+    neuron-to-neuron communication view.
+    """
+    drop: set[str] = {_slug(e) for e in (exclude or set())}
+    structures = [
+        StructureSpec(
+            id=sid,
+            name=name_clean(name),
+            kind=kind,
+            present=sid not in drop,
+        )
+        for sid, name, kind in _NEURON_STRUCTURES
+    ]
+    return BiologySpec(
+        category="cell",
+        app="neuron",
+        kind="neuron",
+        layout="neuron",
+        title=title or "Neuron (Nerve Cell)",
+        form=form,
+        topic=topic or "Neuron communication",
+        subtopic=subtopic,
+        background=background,
+        labels_shown=labels_shown,
+        quality_level=quality_level,
+        structures=structures,
+        labels=_NEURON_LABELS,
         dimensions={"view": "2d", "orientation": "landscape"},
         syllabus_reference=syllabus_reference,
     )

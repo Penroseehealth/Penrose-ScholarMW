@@ -23,6 +23,7 @@ from app.biology_viz.specs import (
     BiologySpec,
     app_from_alias,
     build_cell_spec,
+    build_neuron_spec,
     build_process_spec,
     process_from_prompt,
 )
@@ -52,6 +53,23 @@ _APP_ALIASES: list[tuple[str, tuple[str, ...]]] = [
         ),
     ),
     ("fungal_cell", ("fungus", "fungi", "fungal", "yeast")),
+    (
+        "neuron",
+        (
+            "neuron",
+            "neurone",
+            "nerve cell",
+            "motor neuron",
+            "sensory neuron",
+            "dendrite",
+            "axon",
+            "synapse",
+            "synaptic",
+            "neurotransmitter",
+            "action potential",
+            "nerve impulse",
+        ),
+    ),
 ]
 
 _FORM_ALIASES: list[tuple[int, tuple[str, ...]]] = [
@@ -164,6 +182,17 @@ def _looks_like_organelle(phrase: str) -> bool:
             "plasmid",
             "pili",
             "flagell",
+            "myelin",
+            "axon",
+            "dendrite",
+            "soma",
+            "synap",
+            "synaptic",
+            "vesicle",
+            "bouton",
+            "receptor",
+            "neurotransmitter",
+            "ranvier",
         )
     )
 
@@ -204,6 +233,28 @@ def _organelle_candidates(phrase: str) -> list[str]:
         return ["pili"]
     if "flagell" in phrase:
         return ["flagellum"]
+    if "myelin" in phrase or "sheath" in phrase:
+        return ["myelin_sheath"]
+    if "ranvier" in phrase or "node" in phrase:
+        return ["nodes_of_ranvier"]
+    if "axon terminal" in phrase or "bouton" in phrase or "terminal" in phrase:
+        return ["axon_terminal"]
+    if "axon" in phrase:
+        return ["axon"]
+    if "dendrite" in phrase:
+        return ["dendrites"]
+    if "soma" in phrase or "cell body" in phrase:
+        return ["soma"]
+    if "cleft" in phrase:
+        return ["synaptic_cleft"]
+    if "vesicle" in phrase:
+        return ["synaptic_vesicles"]
+    if "receptor" in phrase:
+        return ["receptors"]
+    if "neurotransmitter" in phrase or "transmitter" in phrase:
+        return ["neurotransmitter"]
+    if "postsynaptic" in phrase:
+        return ["postsynaptic_membrane"]
     return []
 
 
@@ -362,6 +413,22 @@ async def build_spec(
     if exclude:
         org_exclude |= {e.lower().replace(" ", "_") for e in exclude}
 
+    # Neuron / nerve-signalling prompts ("two neurons communicate", "synaptic
+    # transmission", ...) build a Neuron spec: the anatomical knowledge base
+    # plus the synapse, which drives the animated communication view client-side.
+    if det_app == "neuron":
+        spec = build_neuron_spec(
+            form=detected.form,
+            topic=topic or res_topic or "",
+            subtopic=subtopic or res_sub,
+            background=background,
+            labels_shown=labels_shown,
+            quality_level=quality_level,
+            syllabus_reference=ref,
+            exclude=org_exclude,
+        )
+        return spec, detected
+
     spec = build_cell_spec(
         det_app,
         title=CELL_APPS[det_app],
@@ -383,6 +450,7 @@ def _guess_topic(app: str) -> str:
         "animal_cell": "Cell structure and organisation",
         "bacterial_cell": "Microorganisms",
         "fungal_cell": "Cell structure and organisation",
+        "neuron": "Neuron communication",
     }.get(app, "Cell structure and organisation")
 
 
