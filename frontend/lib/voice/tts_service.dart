@@ -34,6 +34,9 @@ class PenroseTtsService {
   bool get isSpeaking => _isSpeaking;
   bool get isAvailable => _speech.isSupported || _audioPlayer.isSupported;
 
+  /// Catalog voice id (accent + gender) requested from the server engine.
+  String? voiceId;
+
   /// Initialize and check server TTS availability.
   Future<void> initialize() async {
     try {
@@ -52,7 +55,7 @@ class PenroseTtsService {
   /// Segments the text into sentences and speaks each one individually
   /// to minimize latency. Supports interruption via VoiceSessionManager.
   Future<void> speak(String text, {String lang = 'en-US', double speed = 1.0}) async {
-    if (text.isEmpty || !_speech.isSupported) return;
+    if (text.isEmpty || !isAvailable) return;
 
     stop();
     _segments = _segmentText(text);
@@ -73,7 +76,7 @@ class PenroseTtsService {
     try {
       final response = await _api.post(
         '/voice/tts',
-        body: {'text': text, 'speed': speed},
+        body: {'text': text, 'speed': speed, if (voiceId != null) 'voice_id': voiceId},
       );
       if (response.statusCode != 200) return false;
       final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -87,11 +90,32 @@ class PenroseTtsService {
   }
 
   /// Speak a streaming chunk (called as AI generates text).
-  Future<void> speakChunk(String chunk, {String lang = 'en-US'}) async {
+  Future<void> speakChunk(String chunk, {String lang = 'en-US', double speed = 1.0}) async {
     if (chunk.isEmpty) return;
-    // Use browser TTS for immediate feedback on streaming chunks
     _session.startSpeaking(chunk);
-    await _speech.speak(chunk, lang: lang);
+    // Prefer server audio; fall back to browser speech when it is unavailable.
+    final playedViaServer = await _speakServerSegment(chunk, speed: speed);
+    if (!playedViaServer && _speech.isSupported) {
+      await _speech.speak(chunk, lang: lang);
+    }
+  }
+
+  /// Speak one complete utterance and wait for playback to finish.
+  ///
+  /// Used by the visual maths tutor, which narrates one solution step at a
+  /// time and must know when a step has finished before moving to the next.
+  /// Returns `true` when the server produced the audio, `false` when browser
+  /// speech was used instead.
+  Future<bool> speakOnce(String text, {String lang = 'en-US', double speed = 1.0}) async {
+    if (text.isEmpty || !isAvailable) return false;
+    stop();
+    _isSpeaking = true;
+    final playedViaServer = await _speakServerSegment(text, speed: speed);
+    if (!playedViaServer && _speech.isSupported) {
+      await _speech.speak(text, lang: lang);
+    }
+    _isSpeaking = false;
+    return playedViaServer;
   }
 
   /// Stop speaking.
@@ -145,7 +169,7 @@ class PenroseTtsService {
       _session.updateSpeakingText(_segments[i]);
 
       final playedViaServer = await _speakServerSegment(_segments[i], speed: speed);
-      if (!playedViaServer) {
+      if (!playedViaServer && _speech.isSupported) {
         await _speech.speak(_segments[i], lang: lang);
       }
 

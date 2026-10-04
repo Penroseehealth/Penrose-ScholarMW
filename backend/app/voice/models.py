@@ -5,6 +5,8 @@ from enum import Enum
 
 from pydantic import BaseModel, Field
 
+from app.voice.voice_catalog import DEFAULT_VOICE_ID
+
 
 class VoiceSessionState(str, Enum):
     IDLE = "idle"
@@ -58,6 +60,7 @@ class TTSResponse(BaseModel):
     audio_base64: str
     duration_ms: int
     sample_rate: int = 24000
+    provider: str = "browser"
 
 
 class VoiceInterruptRequest(BaseModel):
@@ -72,8 +75,29 @@ class ConversationTurn(BaseModel):
     metadata: dict = Field(default_factory=dict)
 
 
+class VoiceOption(BaseModel):
+    id: str
+    label: str
+    accent: str
+    gender: str
+    locale: str
+    provider: str
+    voice_name: str
+    description: str
+    preview_text: str
+    is_default: bool = False
+
+
+class VoiceListResponse(BaseModel):
+    voices: list[VoiceOption]
+    accents: list[str]
+    genders: list[str]
+    default_voice_id: str
+
+
 class VoiceHealthResponse(BaseModel):
     status: str
     tts_available: bool
     stt_available: bool
     session_count: int
+    default_voice_id: str = DEFAULT_VOICE_ID

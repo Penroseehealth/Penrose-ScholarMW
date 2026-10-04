@@ -10,6 +10,8 @@ from app.voice.models import (
     TTSResponse,
     VoiceHealthResponse,
     VoiceInterruptRequest,
+    VoiceListResponse,
+    VoiceOption,
     VoiceSessionRequest,
     VoiceSessionResponse,
     VoiceSessionState,
@@ -17,6 +19,12 @@ from app.voice.models import (
     VoiceTranscriptResponse,
 )
 from app.voice.tts_service import tts_service
+from app.voice.voice_catalog import (
+    ACCENTS,
+    DEFAULT_VOICE_ID,
+    GENDERS,
+    voice_payloads,
+)
 
 router = APIRouter(prefix="/voice", tags=["voice"])
 
@@ -99,11 +107,17 @@ async def text_to_speech(
     user: User = Depends(get_current_user),
 ):
     tts_service.set_speed(body.speed)
-    result = await tts_service.synthesize(body.text, speed=body.speed)
+    result = await tts_service.synthesize(
+        body.text,
+        speed=body.speed,
+        language=body.language,
+        voice_id=body.voice_id,
+    )
     return TTSResponse(
         audio_base64=result["audio_base64"],
         duration_ms=result["duration_ms"],
         sample_rate=result["sample_rate"],
+        provider=result.get("provider", "browser"),
     )
 
 
@@ -114,6 +128,17 @@ async def interrupt_voice(
 ):
     interrupted = orchestrator.interrupt(body.session_id)
     return {"interrupted": interrupted}
+
+
+@router.get("/voices", response_model=VoiceListResponse)
+async def list_voices():
+    """Narration voices available for tutor playback (accent + gender)."""
+    return VoiceListResponse(
+        voices=[VoiceOption(**payload) for payload in voice_payloads()],
+        accents=list(ACCENTS),
+        genders=list(GENDERS),
+        default_voice_id=DEFAULT_VOICE_ID,
+    )
 
 
 @router.get("/health", response_model=VoiceHealthResponse)

@@ -989,7 +989,10 @@ MATH_SYLLABUS = {
                         {"text": "Bottle tops", "type": "equipment"},
                         {"text": "Seeds", "type": "equipment"},
                         {"text": "Tables of frequencies", "type": "equipment"},
-                        {"text": "Arrays of prices and frequencies", "type": "equipment"},
+                        {
+                            "text": "Arrays of prices and frequencies",
+                            "type": "equipment",
+                        },
                         {"text": "Squared paper", "type": "equipment"},
                     ],
                 },
@@ -1787,7 +1790,10 @@ MATH_SYLLABUS = {
                         {"text": "Squared paper", "type": "equipment"},
                         {"text": "Graph paper", "type": "equipment"},
                         {"text": "Interlocking blocks", "type": "equipment"},
-                        {"text": "Crayons (coloured pencils/chalk)", "type": "equipment"},
+                        {
+                            "text": "Crayons (coloured pencils/chalk)",
+                            "type": "equipment",
+                        },
                         {"text": "Computers", "type": "equipment"},
                         {"text": "Pictures", "type": "equipment"},
                         {"text": "Magnifying glasses", "type": "equipment"},
@@ -2770,7 +2776,10 @@ MATH_SYLLABUS = {
                     "resources": [
                         {"text": "Charts", "type": "equipment"},
                         {"text": "Mathematical sets", "type": "equipment"},
-                        {"text": "Models of cuboids, cubes, cones and prisms", "type": "equipment"},
+                        {
+                            "text": "Models of cuboids, cubes, cones and prisms",
+                            "type": "equipment",
+                        },
                         {"text": "Calculators", "type": "equipment"},
                     ],
                 },
@@ -3329,7 +3338,10 @@ MATH_SYLLABUS = {
                     ],
                     "resources": [
                         {"text": "Chart paper", "type": "equipment"},
-                        {"text": "Input and output machine models", "type": "equipment"},
+                        {
+                            "text": "Input and output machine models",
+                            "type": "equipment",
+                        },
                     ],
                 },
                 {

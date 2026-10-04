@@ -207,9 +207,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
               Expanded(child: Center(child: ShimmerLoading.list(count: 3)))
             else ...[
               _buildConceptSelector(),
-              _buildModeSelector(),
               Expanded(child: _buildChatArea()),
-              MathToolsPanel(onToolSelected: _onToolSelected),
               _buildInputBar(),
             ],
           ],
@@ -227,18 +225,94 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
         ),
         child: SizedBox(
           height: 56,
-          child: Center(
-            child: Text(
-              'STEM Tutor',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: context.colors.textPrimary,
+          child: Row(
+            children: [
+              const SizedBox(width: 16),
+              Text(
+                'STEM Tutor',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: context.colors.textPrimary,
+                ),
               ),
-            ),
+              const Spacer(),
+              _buildModeMenu(),
+              IconButton(
+                tooltip: 'Insert maths tools',
+                icon: Icon(Icons.construction_rounded, color: context.colors.textPrimary),
+                onPressed: _openToolsSheet,
+              ),
+            ],
           ),
         ),
       );
+
+  /// Contextual teaching mode: lives in the app bar instead of a permanent row.
+  Widget _buildModeMenu() => PopupMenuButton<String>(
+        tooltip: 'Teaching mode',
+        color: context.colors.surfaceElevated,
+        onSelected: (mode) => setState(() => _selectedMode = mode),
+        itemBuilder: (context) => _modes
+            .map(
+              (mode) => PopupMenuItem<String>(
+                value: mode,
+                child: Row(
+                  children: [
+                    Icon(
+                      _selectedMode == mode ? Icons.check_rounded : Icons.radio_button_unchecked_rounded,
+                      size: 16,
+                      color: _selectedMode == mode ? AppColors.primary : context.colors.textMuted,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(_modeLabels[mode] ?? mode, style: TextStyle(color: context.colors.textSecondary)),
+                  ],
+                ),
+              ),
+            )
+            .toList(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          child: Row(
+            children: [
+              Icon(Icons.tune_rounded, size: 18, color: context.colors.textPrimary),
+              const SizedBox(width: 6),
+              Text(
+                _modeLabels[_selectedMode] ?? _selectedMode,
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
+              ),
+            ],
+          ),
+        ),
+      );
+
+  /// Draws on demand: the maths tools open in a sheet rather than holding
+  /// permanent space above the conversation.
+  void _openToolsSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: context.colors.surfaceElevated,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Maths tools',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
+            ),
+            const SizedBox(height: 8),
+            MathToolsPanel(
+              onToolSelected: (type, params) {
+                Navigator.of(sheetContext).pop();
+                _onToolSelected(type, params);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _buildConceptSelector() => Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -263,37 +337,6 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
                   ))
               .toList(),
           onChanged: (v) => setState(() => _selectedConceptId = v ?? 0),
-        ),
-      );
-
-  Widget _buildModeSelector() => SizedBox(
-        height: 44,
-        child: ListView.separated(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          scrollDirection: Axis.horizontal,
-          itemCount: _modes.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 8),
-          itemBuilder: (context, index) {
-            final mode = _modes[index];
-            final selected = _selectedMode == mode;
-            return ChoiceChip(
-              label: Text(
-                _modeLabels[mode] ?? mode,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: selected ? Colors.white : context.colors.textSecondary,
-                ),
-              ),
-              selected: selected,
-              selectedColor: AppColors.primary,
-              backgroundColor: context.colors.surface,
-              side: BorderSide(
-                color: selected ? AppColors.primary : context.colors.border,
-              ),
-              onSelected: (_) => setState(() => _selectedMode = mode),
-            );
-          },
         ),
       );
 
@@ -366,7 +409,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
             : isDirectVisual
                 ? DirectVisualMessage(visual: msg.visual!, description: msg.text)
                 : hasVisuals
-                    ? InlineVisualMessage(text: msg.text, isUser: false)
+                    ? InlineVisualMessage(text: msg.text)
                     : StemText(
                         msg.text,
                         style: TextStyle(

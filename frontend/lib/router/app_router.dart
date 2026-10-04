@@ -72,6 +72,7 @@ import '../screens/lecturer/lecture_presentation_builder_screen.dart';
 import '../screens/lecturer/lecturer_centre.dart';
 import '../screens/lecturer/smart_marking.dart';
 import '../screens/mathematics/math_syllabus_screen.dart';
+import '../screens/mathematics/math_tutor_screen.dart';
 import '../screens/notifications/smart_notifications_screen.dart';
 import '../screens/research/research_lab.dart';
 import '../screens/search/global_search_screen.dart';
@@ -142,11 +143,17 @@ class AppRouter {
     );
   }
 
+  /// Wraps routed content so every screen's text is selectable and copyable.
+  ///
+  /// Must sit below the app's `Overlay` (i.e. inside the router, not in
+  /// `MaterialApp.builder`) or the selection toolbar has nowhere to render.
+  static Widget _selectable(Widget child) => SelectionArea(child: child);
+
   GoRoute _route(String path, Widget Function(GoRouterState) builder) => GoRoute(
         path: path,
         pageBuilder: (context, state) => CustomTransitionPage<void>(
           key: state.pageKey,
-          child: builder(state),
+          child: _selectable(builder(state)),
           transitionsBuilder: _slideTransition,
         ),
       );
@@ -167,7 +174,7 @@ class AppRouter {
         path: '/login',
         pageBuilder: (context, state) => CustomTransitionPage<void>(
           key: state.pageKey,
-          child: const LoginScreen(),
+          child: _selectable(const LoginScreen()),
           transitionsBuilder: _fadeTransition,
         ),
       ),
@@ -175,7 +182,7 @@ class AppRouter {
         path: '/register',
         pageBuilder: (context, state) => CustomTransitionPage<void>(
           key: state.pageKey,
-          child: const RegisterScreen(),
+          child: _selectable(const RegisterScreen()),
           transitionsBuilder: _fadeTransition,
         ),
       ),
@@ -183,7 +190,7 @@ class AppRouter {
       _route('/lecturer/presentation-builder', (_) => const LecturePresentationBuilderScreen()),
       _route('/lecturer/examination-builder', (_) => const ExaminationBuilderScreen()),
       ShellRoute(
-        builder: (_, __, child) => HomeShell(child: child),
+        builder: (_, __, child) => _selectable(HomeShell(child: child)),
         routes: [
           _route('/', (_) => const HomeRedirect()),
           _route('/student', (_) => const StudentDashboard()),
@@ -375,6 +382,7 @@ class AppRouter {
           _route('/stem-gamification', (_) => const StemGamificationScreen()),
           _route('/stem-groups', (_) => const StemGroupsScreen()),
           _route('/mock-exam', (_) => const MockExamScreen()),
+          _route('/math-tutor', (_) => const MathTutorScreen()),
           _route('/certificates', (_) => const CertificatesScreen()),
           _route('/exam-analytics', (_) => const ExamAnalyticsScreen()),
           _route('/study-planner', (_) => const StudyPlannerScreen()),
@@ -673,7 +681,7 @@ class AppRouter {
         ],
       ),
       ShellRoute(
-        builder: (_, __, child) => AiTutorShell(child: child),
+        builder: (_, __, child) => _selectable(AiTutorShell(child: child)),
         routes: [
           _route('/ai-tutor', (_) => const AiTutorScreen()),
         ],

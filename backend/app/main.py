@@ -29,6 +29,7 @@ from app.languages.router import router as languages_router
 from app.livekit.router import router as livekit_router
 from app.malawi_context.router import router as malawi_context_router
 from app.mathematics.router import router as math_syllabus_router
+from app.mathematics.tutor_router import router as math_tutor_router
 from app.messaging.router import router as messaging_router
 from app.middleware.security import RateLimitMiddleware
 from app.notifications.router import router as notifications_router
@@ -273,6 +274,7 @@ app.include_router(collaboration_router, prefix="/api/v1")
 app.include_router(export_router, prefix="/api/v1")
 app.include_router(syllabus_router, prefix="/api/v1")
 app.include_router(math_syllabus_router, prefix="/api/v1")
+app.include_router(math_tutor_router, prefix="/api/v1")
 app.include_router(chem_syllabus_router, prefix="/api/v1")
 app.include_router(phys_syllabus_router, prefix="/api/v1")
 app.include_router(languages_router, prefix="/api/v1")
