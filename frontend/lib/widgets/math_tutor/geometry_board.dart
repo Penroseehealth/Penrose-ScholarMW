@@ -280,9 +280,10 @@ class _GeometryBoardPainter extends CustomPainter {
       from,
       tip,
       Paint()
-        ..color = line
-        ..strokeWidth = 3.0
-        ..strokeCap = StrokeCap.round,
+        ..color = const Color(0xFF1A1A1A)
+        ..strokeWidth = 1.4
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round,
     );
     canvas.drawCircle(from, 3.2, Paint()..color = line);
 
@@ -365,28 +366,28 @@ class _GeometryBoardPainter extends CustomPainter {
     canvas.translate(tip.dx, tip.dy);
     canvas.rotate(angle);
     canvas.drawRRect(
-      RRect.fromRectAndRadius(const Rect.fromLTWH(-30, -4.5, 24, 9), const Radius.circular(2)),
-      Paint()..color = wood,
+      RRect.fromRectAndRadius(const Rect.fromLTWH(-30, -3.5, 24, 7), const Radius.circular(2)),
+      Paint()..color = wood.withAlpha(200),
     );
     canvas.drawRRect(
-      RRect.fromRectAndRadius(const Rect.fromLTWH(-30, -4.5, 24, 9), const Radius.circular(2)),
+      RRect.fromRectAndRadius(const Rect.fromLTWH(-30, -3.5, 24, 7), const Radius.circular(2)),
       Paint()
-        ..color = Colors.black.withAlpha(30)
+        ..color = Colors.black.withAlpha(20)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1,
     );
     final Path tipPath = Path()
-      ..moveTo(-6, -4.5)
+      ..moveTo(-6, -3.5)
       ..lineTo(0, 0)
-      ..lineTo(-6, 4.5)
+      ..lineTo(-6, 3.5)
       ..close();
-    canvas.drawPath(tipPath, Paint()..color = const Color(0xFFE6D2C0));
+    canvas.drawPath(tipPath, Paint()..color = const Color(0xFFF0DCC6));
     final Path leadPath = Path()
-      ..moveTo(-2.4, -2)
+      ..moveTo(-2.0, -1.5)
       ..lineTo(0, 0)
-      ..lineTo(-2.4, 2)
+      ..lineTo(-2.0, 1.5)
       ..close();
-    canvas.drawPath(leadPath, Paint()..color = graphite);
+    canvas.drawPath(leadPath, Paint()..color = const Color(0xFF1F2933));
     canvas.restore();
   }
 
@@ -437,7 +438,7 @@ class _GeometryBoardPainter extends CustomPainter {
       Paint()
         ..color = line
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.8
+        ..strokeWidth = 2.0
         ..strokeCap = StrokeCap.round,
     );
 
@@ -451,7 +452,7 @@ class _GeometryBoardPainter extends CustomPainter {
       Paint()
         ..color = line
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.0,
+        ..strokeWidth = 1.6,
     );
 
     _text(canvas, '90\u00b0', vertex + (aN + bN) * (radius * 0.52), label.withAlpha(200), 11);
@@ -462,8 +463,8 @@ class _GeometryBoardPainter extends CustomPainter {
       from,
       to,
       Paint()
-        ..color = accent.withAlpha((70 * h).round())
-        ..strokeWidth = 11
+        ..color = accent.withAlpha((50 * h).round())
+        ..strokeWidth = 8
         ..strokeCap = StrokeCap.round,
     );
   }
@@ -628,40 +629,47 @@ class _GeometryBoardPainter extends CustomPainter {
       wrist,
       elbow,
       Paint()
-        ..color = sleeve
-        ..strokeWidth = 16
+        ..color = sleeve.withAlpha(220)
+        ..strokeWidth = 12
         ..strokeCap = StrokeCap.round,
-    );
-    canvas.drawLine(
-      wrist,
-      elbow,
-      Paint()
-        ..color = Colors.black.withAlpha(22)
-        ..strokeWidth = 16
-        ..strokeCap = StrokeCap.round
-        ..style = PaintingStyle.stroke,
     );
 
     canvas.save();
     canvas.translate(hand.dx, hand.dy);
     canvas.rotate(pose.angle);
-    final Paint skinPaint = Paint()..color = skin;
+    final Paint skinPaint = Paint()..color = skin.withAlpha(240);
     final Paint fingerPaint = Paint()
-      ..color = skin
-      ..strokeWidth = 9
+      ..color = skin.withAlpha(240)
+      ..strokeWidth = 7
       ..strokeCap = StrokeCap.round;
     final bool grip = pose.instrument == MathInstrument.pencil ||
         pose.instrument == MathInstrument.eraser ||
         pose.instrument == MathInstrument.protractor;
 
     canvas.drawRRect(
-      RRect.fromRectAndRadius(const Rect.fromLTWH(-17, -14, 32, 28), const Radius.circular(10)),
+      RRect.fromRectAndRadius(const Rect.fromLTWH(-14, -12, 26, 24), const Radius.circular(8)),
       skinPaint,
     );
     for (int i = 0; i < 4; i++) {
-      final double y = -10 + i * 6.6;
-      final double len = grip ? 11 : 20;
+      final double y = -9 + i * 6;
+      final double len = grip ? 9 : 16;
       canvas.drawLine(Offset(6, y), Offset(6 + len, y), fingerPaint);
+    }
+    canvas.drawLine(
+        const Offset(-8, 3),
+        const Offset(4, 13),
+        Paint()
+          ..color = skin.withAlpha(240)
+          ..strokeWidth = 8
+          ..strokeCap = StrokeCap.round);
+    if (pose.pointing) {
+      canvas.drawLine(const Offset(6, -9), const Offset(28, -9), fingerPaint);
+    }
+    if (pose.instrument == MathInstrument.eraser) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(const Rect.fromLTWH(12, -7, 18, 14), const Radius.circular(3)),
+        Paint()..color = const Color(0xFFF48FB1),
+      );
     }
     canvas.drawLine(
         const Offset(-10, 4),
