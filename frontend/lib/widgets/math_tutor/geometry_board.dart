@@ -113,7 +113,6 @@ class _GeometryBoardState extends State<GeometryBoard> with SingleTickerProvider
                 lesson: _lesson,
                 position: _controller.value,
                 board: scheme.surfaceContainerLowest,
-                grid: scheme.outlineVariant.withAlpha(55),
                 line: scheme.primary,
                 accent: scheme.tertiary,
                 label: scheme.onSurface,
@@ -141,7 +140,6 @@ class _GeometryBoardPainter extends CustomPainter {
     required this.lesson,
     required this.position,
     required this.board,
-    required this.grid,
     required this.line,
     required this.accent,
     required this.label,
@@ -160,7 +158,6 @@ class _GeometryBoardPainter extends CustomPainter {
   final GeometryLesson lesson;
   final double position;
   final Color board;
-  final Color grid;
   final Color line;
   final Color accent;
   final Color label;
@@ -262,26 +259,9 @@ class _GeometryBoardPainter extends CustomPainter {
   }
 
   void _paintBoard(Canvas canvas, Size size) {
-    final Rect rect = Offset.zero & size;
-    canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(10)), Paint()..color = board);
-
-    final Paint gridPaint = Paint()
-      ..color = grid
-      ..strokeWidth = 1;
-    const double gap = 26;
-    for (double y = gap; y < size.height; y += gap) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
-    }
-    for (double x = gap; x < size.width; x += gap) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
-    }
-
-    canvas.drawLine(
-      const Offset(34, 0),
-      Offset(34, size.height),
-      Paint()
-        ..color = line.withAlpha(38)
-        ..strokeWidth = 1.2,
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(Offset.zero & size, const Radius.circular(10)),
+      Paint()..color = board,
     );
   }
 

@@ -41,10 +41,15 @@ class MathTutorScreen extends StatefulWidget {
 class _MathTutorScreenState extends State<MathTutorScreen> {
   static const List<String> _examples = <String>[
     'Find the hypotenuse of a right triangle with legs 3 and 4 cm',
-    'Solve x^2 + 5x + 6 = 0',
-    'Solve 3x + 5 = 20',
-    'What is 15% of 240?',
-    'Calculate 12 + 6 * 2',
+    'In a right triangle the opposite side is 6 cm and the angle is 30\u00b0. Find the hypotenuse',
+    'Construct a triangle with AB = 5 cm, AC = 7 cm and angle BAC = 60\u00b0',
+    'Draw a triangle with sides 5 cm, 6 cm and 7 cm',
+    'Find the area and perimeter of a rectangle 12 cm by 5 cm',
+    'Find the volume of a cylinder with radius 7 cm and height 10 cm',
+    'A circle has radius 6 cm. Find its circumference and area',
+    'Maximise P = 3x + 2y subject to x + y \u2264 4, x \u2265 0, y \u2265 0',
+    'Plot the line y = 2x + 1 and find where it crosses the x-axis',
+    'Sketch the graph of y = x\u00b2 - 4x + 3 and state the turning point',
   ];
 
   final TextEditingController _input = TextEditingController();
