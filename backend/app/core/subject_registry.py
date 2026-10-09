@@ -166,7 +166,11 @@ DEFAULT_ENABLED_MODULES: list[str] = list(SUBJECT_REGISTRY.keys())
 
 
 def get_enabled_subjects() -> list[SubjectModule]:
-    return [SUBJECT_REGISTRY[slug] for slug in DEFAULT_ENABLED_MODULES if slug in SUBJECT_REGISTRY]
+    return [
+        SUBJECT_REGISTRY[slug]
+        for slug in DEFAULT_ENABLED_MODULES
+        if slug in SUBJECT_REGISTRY
+    ]
 
 
 def get_subject_module(slug: str) -> SubjectModule | None:

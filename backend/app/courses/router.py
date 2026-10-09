@@ -62,12 +62,16 @@ router = APIRouter(prefix="/courses", tags=["Courses"])
 
 
 @router.get("/", response_model=list[CourseResponse])
-async def list_courses(user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def list_courses(
+    user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
+):
     if user.role == UserRole.LECTURER:
         result = await db.execute(select(Course).where(Course.lecturer_id == user.id))
     elif user.role == UserRole.STUDENT:
         result = await db.execute(
-            select(Course).join(Enrollment).where(Enrollment.student_id == user.id, Enrollment.is_active == True)
+            select(Course)
+            .join(Enrollment)
+            .where(Enrollment.student_id == user.id, Enrollment.is_active == True)
         )
     else:
         result = await db.execute(select(Course))
@@ -92,10 +96,14 @@ async def get_course(course_id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Course).where(Course.id == course_id))
     course = result.scalar_one_or_none()
     if not course:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Course not found"
+        )
 
     enroll_result = await db.execute(
-        select(Enrollment).where(Enrollment.course_id == course_id, Enrollment.is_active == True)
+        select(Enrollment).where(
+            Enrollment.course_id == course_id, Enrollment.is_active == True
+        )
     )
     enrollments = enroll_result.scalars().all()
     count = len(enrollments)
@@ -121,7 +129,9 @@ async def enroll_in_course(
         )
     )
     if existing.scalar_one_or_none():
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Already enrolled")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Already enrolled"
+        )
 
     enrollment = Enrollment(student_id=user.id, course_id=course_id)
     db.add(enrollment)
@@ -132,7 +142,9 @@ async def enroll_in_course(
 
 @router.get("/{course_id}/schedule", response_model=list[ScheduleItemResponse])
 async def get_schedule(course_id: int, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(ScheduleItem).where(ScheduleItem.course_id == course_id))
+    result = await db.execute(
+        select(ScheduleItem).where(ScheduleItem.course_id == course_id)
+    )
     return [ScheduleItemResponse.model_validate(s) for s in result.scalars().all()]
 
 
@@ -161,7 +173,9 @@ async def list_modules(
     user: User = Depends(get_current_user),
 ):
     result = await db.execute(
-        select(CourseModule).where(CourseModule.course_id == course_id).order_by(CourseModule.order)
+        select(CourseModule)
+        .where(CourseModule.course_id == course_id)
+        .order_by(CourseModule.order)
     )
     return [ModuleResponse.model_validate(m) for m in result.scalars().all()]
 
@@ -223,7 +237,9 @@ async def list_lessons(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    result = await db.execute(select(Lesson).where(Lesson.module_id == module_id).order_by(Lesson.order))
+    result = await db.execute(
+        select(Lesson).where(Lesson.module_id == module_id).order_by(Lesson.order)
+    )
     return [LessonResponse.model_validate(lesson) for lesson in result.scalars().all()]
 
 

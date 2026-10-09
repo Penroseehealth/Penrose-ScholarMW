@@ -2,6 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, EmailStr, computed_field
 
+from app.core.names import first_name_from
 from app.models.models import UserRole
 
 
@@ -39,6 +40,12 @@ class UserResponse(BaseModel):
     @property
     def display_name(self) -> str:
         return self.full_name
+
+    @computed_field
+    @property
+    def first_name(self) -> str:
+        """Derived from ``full_name`` so greetings never need a new column."""
+        return first_name_from(self.full_name)
 
     model_config = {"from_attributes": True}
 

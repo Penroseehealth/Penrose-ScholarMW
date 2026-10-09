@@ -19,10 +19,14 @@ async def get_current_user(
     token = credentials.credentials
     payload = decode_token(token)
     if payload is None or payload.get("type") != "access":
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+        )
     user_id = payload.get("sub")
     if user_id is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload"
+        )
     result = await db.execute(select(User).where(User.id == int(user_id)))
     user = result.scalar_one_or_none()
     if user is None or not user.is_active:
@@ -38,7 +42,9 @@ async def get_current_user(
 async def require_role(*roles: UserRole):
     def checker(user: User = Depends(get_current_user)) -> User:
         if user.role not in roles:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
+            )
         return user
 
     return checker
@@ -46,17 +52,23 @@ async def require_role(*roles: UserRole):
 
 async def require_lecturer(user: User = Depends(get_current_user)) -> User:
     if user.role not in (UserRole.LECTURER, UserRole.ADMIN):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Lecturer access required")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Lecturer access required"
+        )
     return user
 
 
 async def require_admin(user: User = Depends(get_current_user)) -> User:
     if user.role != UserRole.ADMIN:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required"
+        )
     return user
 
 
 async def require_student(user: User = Depends(get_current_user)) -> User:
     if user.role not in (UserRole.STUDENT, UserRole.ADMIN):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Student access required")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Student access required"
+        )
     return user

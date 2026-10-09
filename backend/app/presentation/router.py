@@ -54,6 +54,7 @@ def _pptx_response(topic: str, pptx_bytes: bytes) -> StreamingResponse:
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
+
 UPLOAD_LABEL_HINTS = {
     "syllabus": "syllabus",
     "textbook": "textbook",

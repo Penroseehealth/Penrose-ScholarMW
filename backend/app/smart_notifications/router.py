@@ -34,8 +34,12 @@ class GenerateRequest(BaseModel):
     context: str = "recent_activity"
 
 
-async def _get_or_create_prefs(user_id: int, db: AsyncSession) -> NotificationPreference:
-    result = await db.execute(select(NotificationPreference).where(NotificationPreference.user_id == user_id))
+async def _get_or_create_prefs(
+    user_id: int, db: AsyncSession
+) -> NotificationPreference:
+    result = await db.execute(
+        select(NotificationPreference).where(NotificationPreference.user_id == user_id)
+    )
     prefs = result.scalar_one_or_none()
     if not prefs:
         prefs = NotificationPreference(user_id=user_id)
@@ -50,7 +54,9 @@ async def _generate_dynamic_notifications(user: User, db: AsyncSession) -> list[
     now = datetime.now(timezone.utc)
 
     enroll_result = await db.execute(
-        select(Enrollment).where(Enrollment.student_id == user.id, Enrollment.is_active == True)
+        select(Enrollment).where(
+            Enrollment.student_id == user.id, Enrollment.is_active == True
+        )
     )
     enrollments = enroll_result.scalars().all()
     enrolled_course_ids = [e.course_id for e in enrollments]
@@ -135,7 +141,9 @@ async def list_notifications(
     prefs = await _get_or_create_prefs(user.id, db)
     all_notifications = await _generate_dynamic_notifications(user, db)
 
-    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = datetime.now(timezone.utc).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
     existing_result = await db.execute(
         select(Notification.title).where(
             Notification.user_id == user.id,
@@ -224,12 +232,16 @@ async def generate_ai_notifications(
     db: AsyncSession = Depends(get_db),
 ):
     enroll_result = await db.execute(
-        select(Enrollment).where(Enrollment.student_id == user.id, Enrollment.is_active == True)
+        select(Enrollment).where(
+            Enrollment.student_id == user.id, Enrollment.is_active == True
+        )
     )
     enrollments = enroll_result.scalars().all()
     course_ids = [e.course_id for e in enrollments]
 
-    perf_result = await db.execute(select(StudentPerformance).where(StudentPerformance.student_id == user.id))
+    perf_result = await db.execute(
+        select(StudentPerformance).where(StudentPerformance.student_id == user.id)
+    )
     performances = perf_result.scalars().all()
 
     insights = []

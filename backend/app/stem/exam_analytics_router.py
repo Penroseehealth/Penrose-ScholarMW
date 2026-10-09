@@ -124,7 +124,8 @@ async def get_exam_summary(
         .group_by(MockExamResult.subject_slug)
     )
     exams_by_subject = [
-        SubjectSummary(slug=r[0], count=r[1], avg_pct=round(float(r[2]), 2)) for r in subject_result.all()
+        SubjectSummary(slug=r[0], count=r[1], avg_pct=round(float(r[2]), 2))
+        for r in subject_result.all()
     ]
 
     return ExamSummary(
@@ -164,7 +165,8 @@ async def get_exam_breakdown(
     if row.difficulty_breakdown:
         raw = json.loads(row.difficulty_breakdown)
         difficulty_bd = [
-            DifficultyBreakdownItem(level=k, total=v["total"], correct=v["correct"]) for k, v in raw.items()
+            DifficultyBreakdownItem(level=k, total=v["total"], correct=v["correct"])
+            for k, v in raw.items()
         ]
 
     return ExamBreakdown(

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../modules/biology_lab/screens/biology_lab_screen.dart';
+import '../modules/chemistry_lab/screens/chemistry_lab_screen.dart';
 import '../providers/auth_provider.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
 import '../screens/admin/admin_syllabus_screen.dart';
@@ -29,6 +31,7 @@ import '../screens/biology/biology_visualization_screen.dart';
 import '../screens/biology/neuron/neuron_communication_screen.dart';
 import '../screens/chemistry/chemistry_syllabus_screen.dart';
 import '../screens/physics/physics_syllabus_screen.dart';
+import '../screens/physics/physics_tutor_screen.dart';
 import '../screens/stem/stem_syllabus_screen.dart';
 import '../screens/data_analysis/coding_playground_screen.dart';
 import '../screens/data_analysis/data_analysis_screen.dart';
@@ -383,6 +386,7 @@ class AppRouter {
           _route('/stem-groups', (_) => const StemGroupsScreen()),
           _route('/mock-exam', (_) => const MockExamScreen()),
           _route('/math-tutor', (_) => const MathTutorScreen()),
+          _route('/physics-tutor', (_) => const PhysicsTutorScreen()),
           _route('/certificates', (_) => const CertificatesScreen()),
           _route('/exam-analytics', (_) => const ExamAnalyticsScreen()),
           _route('/study-planner', (_) => const StudyPlannerScreen()),
@@ -398,6 +402,7 @@ class AppRouter {
           _route('/admin/syllabus', (_) => const AdminSyllabusScreen()),
           _route('/math-syllabus', (_) => const MathSyllabusScreen()),
           _route('/chem-syllabus', (_) => const ChemistrySyllabusScreen()),
+          _route('/chem-lab', (_) => const ChemistryLabScreen()),
           _route('/phys-syllabus', (_) => const PhysicsSyllabusScreen()),
           GoRoute(
             path: '/stem-syllabus/:slug',
@@ -470,6 +475,7 @@ class AppRouter {
           ),
           _route('/bio-topics', (_) => const BiologyTopicsScreen()),
           _route('/bio-virtual-lab', (_) => const BiologyVirtualLabScreen()),
+          _route('/bio-3d-lab', (_) => const BiologyLabScreen()),
           _route('/bio-diagrams', (_) => const BiologyVisualizationScreen()),
           _route('/bio-neuron', (_) => const NeuronCommunicationScreen()),
           _route('/bio-practicals', (_) => const BiologyPracticalHubScreen()),

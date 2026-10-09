@@ -133,7 +133,9 @@ async def start_mock_exam(
 ):
     global _session_counter
 
-    subject_result = await db.execute(select(STEMSubject).where(STEMSubject.subject_slug == body.subject_slug))
+    subject_result = await db.execute(
+        select(STEMSubject).where(STEMSubject.subject_slug == body.subject_slug)
+    )
     subject = subject_result.scalar_one_or_none()
     if not subject:
         raise HTTPException(
@@ -245,7 +247,9 @@ async def submit_mock_exam(
     answers_map = {a.question_id: a.answer for a in body.answers}
 
     question_ids = [q["id"] for q in session["questions"]]
-    practice_result = await db.execute(select(STPractice).where(STPractice.id.in_(question_ids)))
+    practice_result = await db.execute(
+        select(STPractice).where(STPractice.id.in_(question_ids))
+    )
     practice_map = {p.id: p for p in practice_result.scalars().all()}
 
     results: list[QuestionResult] = []
@@ -263,12 +267,18 @@ async def submit_mock_exam(
         user_answer = answers_map.get(q_id, "")
         correct_answer = q_data["correct_answer"]
 
-        is_correct = user_answer.strip().lower() == (correct_answer or "").strip().lower()
+        is_correct = (
+            user_answer.strip().lower() == (correct_answer or "").strip().lower()
+        )
         marks = practice.marks if practice else 1
         max_score += marks
 
         auto_graded_types = {"mcq", "true_false", "fill_in_blank", "short_answer"}
-        grading_method = "auto" if practice and practice.question_type in auto_graded_types else "auto"
+        grading_method = (
+            "auto"
+            if practice and practice.question_type in auto_graded_types
+            else "auto"
+        )
 
         if is_correct:
             correct_count += marks
@@ -307,7 +317,9 @@ async def submit_mock_exam(
             if is_correct:
                 existing_cb["correct"] += 1
         else:
-            concept_result = await db.execute(select(STEMConcept.title).where(STEMConcept.id == concept_id))
+            concept_result = await db.execute(
+                select(STEMConcept.title).where(STEMConcept.id == concept_id)
+            )
             ct = concept_result.scalar_one_or_none()
             concept_breakdown_list.append(
                 {
@@ -335,9 +347,13 @@ async def submit_mock_exam(
         if record:
             record.attempts += stats["total"]
             record.correct += stats["correct"]
-            record.mastery_level = record.correct / record.attempts if record.attempts > 0 else 0.0
+            record.mastery_level = (
+                record.correct / record.attempts if record.attempts > 0 else 0.0
+            )
             record.last_practiced = now
-            record.next_review = _compute_next_review(record.mastery_level, record.attempts)
+            record.next_review = _compute_next_review(
+                record.mastery_level, record.attempts
+            )
         else:
             mastery = stats["correct"] / stats["total"] if stats["total"] > 0 else 0.0
             record = MasteryRecord(

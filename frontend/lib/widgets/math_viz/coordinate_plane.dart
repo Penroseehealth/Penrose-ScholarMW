@@ -18,7 +18,7 @@ class CoordinatePlane extends StatelessWidget {
     this.yMin = -10,
     this.yMax = 10,
     this.child,
-    this.showGrid = true,
+    this.showGrid = false,
     this.labelStyle,
   });
 

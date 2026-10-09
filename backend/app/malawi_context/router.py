@@ -59,7 +59,9 @@ async def list_knowledge_layers(
     if layer_type:
         stmt = stmt.where(KnowledgeLayer.layer_type == layer_type)
     result = await db.execute(stmt)
-    return [KnowledgeLayerResponse.model_validate(rec) for rec in result.scalars().all()]
+    return [
+        KnowledgeLayerResponse.model_validate(rec) for rec in result.scalars().all()
+    ]
 
 
 @router.get("/layers/{layer_id}", response_model=KnowledgeLayerResponse)
@@ -67,7 +69,9 @@ async def get_knowledge_layer(
     layer_id: int,
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(KnowledgeLayer).where(KnowledgeLayer.id == layer_id))
+    result = await db.execute(
+        select(KnowledgeLayer).where(KnowledgeLayer.id == layer_id)
+    )
     layer = result.scalar_one_or_none()
     if not layer:
         raise HTTPException(status_code=404, detail="Knowledge layer not found")
@@ -84,7 +88,9 @@ async def create_knowledge_document(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(KnowledgeLayer).where(KnowledgeLayer.id == layer_id))
+    result = await db.execute(
+        select(KnowledgeLayer).where(KnowledgeLayer.id == layer_id)
+    )
     if not result.scalar_one_or_none():
         raise HTTPException(status_code=404, detail="Knowledge layer not found")
 
@@ -102,7 +108,9 @@ async def create_knowledge_document(
     return KnowledgeDocumentResponse.model_validate(doc)
 
 
-@router.get("/layers/{layer_id}/documents", response_model=list[KnowledgeDocumentResponse])
+@router.get(
+    "/layers/{layer_id}/documents", response_model=list[KnowledgeDocumentResponse]
+)
 async def list_knowledge_documents(
     layer_id: int,
     db: AsyncSession = Depends(get_db),
@@ -148,7 +156,9 @@ async def list_institutional_knowledge(
     if course_id is not None:
         stmt = stmt.where(InstitutionKnowledge.course_id == course_id)
     result = await db.execute(stmt)
-    return [InstitutionKnowledgeResponse.model_validate(ik) for ik in result.scalars().all()]
+    return [
+        InstitutionKnowledgeResponse.model_validate(ik) for ik in result.scalars().all()
+    ]
 
 
 # ─── Context Query ───────────────────────────────────────────────
@@ -160,7 +170,9 @@ async def query_knowledge_layers(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    keywords = [w.strip().lower() for w in payload.question.split() if len(w.strip()) > 2]
+    keywords = [
+        w.strip().lower() for w in payload.question.split() if len(w.strip()) > 2
+    ]
 
     layers_used: list[str] = []
     sources: list[str] = []
@@ -176,7 +188,9 @@ async def query_knowledge_layers(
     layers = layer_result.scalars().all()
 
     for layer in layers:
-        doc_stmt = select(KnowledgeDocument).where(KnowledgeDocument.layer_id == layer.id)
+        doc_stmt = select(KnowledgeDocument).where(
+            KnowledgeDocument.layer_id == layer.id
+        )
         doc_result = await db.execute(doc_stmt)
         docs = doc_result.scalars().all()
 
@@ -191,7 +205,9 @@ async def query_knowledge_layers(
     if payload.use_institutional:
         inst_stmt = select(InstitutionKnowledge)
         if payload.course_id is not None:
-            inst_stmt = inst_stmt.where(InstitutionKnowledge.course_id == payload.course_id)
+            inst_stmt = inst_stmt.where(
+                InstitutionKnowledge.course_id == payload.course_id
+            )
         inst_result = await db.execute(inst_stmt)
         for ik in inst_result.scalars().all():
             searchable = f"{ik.title} {ik.content} {ik.doc_type}".lower()
@@ -203,7 +219,11 @@ async def query_knowledge_layers(
     unique_layers = list(dict.fromkeys(layers_used))
     unique_sources = list(dict.fromkeys(sources))
 
-    answer = "\n\n".join(matched_contents) if matched_contents else "No matching knowledge found for the given query."
+    answer = (
+        "\n\n".join(matched_contents)
+        if matched_contents
+        else "No matching knowledge found for the given query."
+    )
 
     return ContextQueryResponse(
         answer=answer,

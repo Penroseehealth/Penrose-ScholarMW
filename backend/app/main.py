@@ -13,6 +13,7 @@ from app.assessments.router import router as assessments_router
 from app.auth.router import router as auth_router
 from app.biology_viz.router import router as biology_viz_router
 from app.chemistry.router import router as chem_syllabus_router
+from app.chemistry.tutor_router import router as chemistry_tutor_router
 from app.config.settings import get_settings
 from app.context_engine.router import router as context_engine_router
 from app.core.security import hash_password
@@ -35,6 +36,7 @@ from app.middleware.security import RateLimitMiddleware
 from app.notifications.router import router as notifications_router
 from app.ocr.router import router as ocr_router
 from app.physics.router import router as phys_syllabus_router
+from app.physics.tutor_router import router as physics_tutor_router
 from app.practical.router import router as practical_router
 from app.presentation.router import router as presentation_router
 from app.research.router import router as research_router
@@ -60,7 +62,9 @@ from app.stem.knowledge_graph_router import router as kg_router
 from app.stem.labs_router import router as labs_router
 from app.stem.malawi_stem_router import router as malawi_stem_router
 from app.stem.mastery_router import router as mastery_router
+from app.stem.math_verify_router import router as math_verify_router
 from app.stem.mock_exam_router import router as mock_exam_router
+from app.stem.multimodal_router import router as multimodal_router
 from app.stem.proctor_router import router as proctor_router
 from app.stem.revision_router import router as revision_router
 from app.stem.router import router as stem_router
@@ -275,8 +279,12 @@ app.include_router(export_router, prefix="/api/v1")
 app.include_router(syllabus_router, prefix="/api/v1")
 app.include_router(math_syllabus_router, prefix="/api/v1")
 app.include_router(math_tutor_router, prefix="/api/v1")
+app.include_router(math_verify_router, prefix="/api/v1")
+app.include_router(multimodal_router, prefix="/api/v1")
 app.include_router(chem_syllabus_router, prefix="/api/v1")
 app.include_router(phys_syllabus_router, prefix="/api/v1")
+app.include_router(physics_tutor_router, prefix="/api/v1")
+app.include_router(chemistry_tutor_router, prefix="/api/v1")
 app.include_router(languages_router, prefix="/api/v1")
 app.include_router(livekit_router, prefix="/api/v1")
 app.include_router(voice_router, prefix="/api/v1")

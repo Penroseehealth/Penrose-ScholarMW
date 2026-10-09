@@ -39,7 +39,9 @@ async def get_student_dashboard(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    enrollments_result = await db.execute(select(Enrollment).where(Enrollment.student_id == current_user.id))
+    enrollments_result = await db.execute(
+        select(Enrollment).where(Enrollment.student_id == current_user.id)
+    )
     enrollments = enrollments_result.scalars().all()
 
     overall_progress = 0.0
@@ -48,7 +50,11 @@ async def get_student_dashboard(
         if progress_values:
             overall_progress = sum(progress_values) / len(progress_values)
 
-    perf_result = await db.execute(select(StudentPerformance).where(StudentPerformance.student_id == current_user.id))
+    perf_result = await db.execute(
+        select(StudentPerformance).where(
+            StudentPerformance.student_id == current_user.id
+        )
+    )
     performances = perf_result.scalars().all()
 
     course_performances = []
@@ -66,7 +72,9 @@ async def get_student_dashboard(
 
     now = datetime.now(timezone.utc)
     assessment_result = await db.execute(
-        select(Assessment).where(Assessment.due_at > now, Assessment.is_published == True)
+        select(Assessment).where(
+            Assessment.due_at > now, Assessment.is_published == True
+        )
     )
     upcoming_raw = assessment_result.scalars().all()
     upcoming_assessments = [
@@ -80,17 +88,11 @@ async def get_student_dashboard(
     ]
 
     if overall_progress < 50:
-        recommended_action = (
-            "You're making progress but have room to catch up. Try to complete more module activities this week."
-        )
+        recommended_action = "You're making progress but have room to catch up. Try to complete more module activities this week."
     elif overall_progress >= 80:
-        recommended_action = (
-            "Great performance across courses. Consider tackling advanced topics to deepen your understanding."
-        )
+        recommended_action = "Great performance across courses. Consider tackling advanced topics to deepen your understanding."
     else:
-        recommended_action = (
-            "Keep up the consistent work. Review weak areas regularly and stay on schedule with your study plan."
-        )
+        recommended_action = "Keep up the consistent work. Review weak areas regularly and stay on schedule with your study plan."
 
     return StudentDashboardResponse(
         overall_progress=round(overall_progress, 2),
@@ -107,11 +109,19 @@ async def get_student_performance(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(StudentPerformance).where(StudentPerformance.student_id == current_user.id))
-    return [StudentPerformanceResponse.model_validate(p) for p in result.scalars().all()]
+    result = await db.execute(
+        select(StudentPerformance).where(
+            StudentPerformance.student_id == current_user.id
+        )
+    )
+    return [
+        StudentPerformanceResponse.model_validate(p) for p in result.scalars().all()
+    ]
 
 
-@router.get("/student/performance/{course_id}", response_model=StudentPerformanceResponse)
+@router.get(
+    "/student/performance/{course_id}", response_model=StudentPerformanceResponse
+)
 async def get_student_performance_by_course(
     course_id: int,
     current_user: User = Depends(get_current_user),
@@ -186,7 +196,9 @@ async def get_learning_plan(
     if not plan:
         raise HTTPException(status_code=404, detail="Learning plan not found")
 
-    items_result = await db.execute(select(LearningPlanItem).where(LearningPlanItem.plan_id == plan.id))
+    items_result = await db.execute(
+        select(LearningPlanItem).where(LearningPlanItem.plan_id == plan.id)
+    )
     items = items_result.scalars().all()
 
     plan_response = LearningPlanResponse.model_validate(plan)
@@ -268,14 +280,18 @@ class GeneratePlanRequest(BaseModel):
     hours_per_day: float = 2.0
 
 
-@router.post("/learning-plans/generate", response_model=LearningPlanResponse, status_code=201)
+@router.post(
+    "/learning-plans/generate", response_model=LearningPlanResponse, status_code=201
+)
 async def generate_study_plan(
     body: GeneratePlanRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     enrollments_result = await db.execute(
-        select(Enrollment).where(Enrollment.student_id == current_user.id, Enrollment.is_active == True)
+        select(Enrollment).where(
+            Enrollment.student_id == current_user.id, Enrollment.is_active == True
+        )
     )
     enrollments = enrollments_result.scalars().all()
 
@@ -319,7 +335,9 @@ async def generate_study_plan(
         day_name = day_names[(start_weekday + day_offset) % 7]
 
         for enrollment in enrollments:
-            course_result = await db.execute(select(Course).where(Course.id == enrollment.course_id))
+            course_result = await db.execute(
+                select(Course).where(Course.id == enrollment.course_id)
+            )
             course = course_result.scalars().first()
             course_title = course.title if course else f"Course {enrollment.course_id}"
 
@@ -339,7 +357,9 @@ async def generate_study_plan(
     await db.refresh(plan)
 
     plan_response = LearningPlanResponse.model_validate(plan)
-    plan_response.items = [LearningPlanItemResponse.model_validate(i) for i in items_created]
+    plan_response.items = [
+        LearningPlanItemResponse.model_validate(i) for i in items_created
+    ]
     return plan_response
 
 
@@ -357,11 +377,15 @@ async def get_lecturer_course_analytics(
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
 
-    enrolled_result = await db.execute(select(Enrollment).where(Enrollment.course_id == course_id))
+    enrolled_result = await db.execute(
+        select(Enrollment).where(Enrollment.course_id == course_id)
+    )
     enrollments = enrolled_result.scalars().all()
     total_students = len(enrollments)
 
-    submission_result = await db.execute(select(Submission).join(Assessment).where(Assessment.course_id == course_id))
+    submission_result = await db.execute(
+        select(Submission).join(Assessment).where(Assessment.course_id == course_id)
+    )
     submissions = submission_result.scalars().all()
 
     class_average = 0.0
@@ -382,14 +406,19 @@ async def get_lecturer_course_analytics(
                         }
                     )
 
-        assessment_result = await db.execute(select(Assessment).where(Assessment.course_id == course_id))
+        assessment_result = await db.execute(
+            select(Assessment).where(Assessment.course_id == course_id)
+        )
         assessments = assessment_result.scalars().all()
 
         for assessment in assessments:
             a_subs = [s for s in submissions if s.assessment_id == assessment.id]
             if a_subs:
                 a_scores = [s.final_marks for s in a_subs if s.final_marks is not None]
-                if a_scores and (sum(a_scores) / len(a_scores)) < (class_average or 50) * 0.75:
+                if (
+                    a_scores
+                    and (sum(a_scores) / len(a_scores)) < (class_average or 50) * 0.75
+                ):
                     if assessment.title:
                         difficult_topics.append(assessment.title)
 
@@ -426,14 +455,18 @@ async def get_lecturer_overview(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    courses_result = await db.execute(select(Course).where(Course.lecturer_id == current_user.id))
+    courses_result = await db.execute(
+        select(Course).where(Course.lecturer_id == current_user.id)
+    )
     courses = courses_result.scalars().all()
     if not courses:
         return []
 
     overviews: list[LecturerAnalyticsResponse] = []
     for course in courses:
-        enrolled_result = await db.execute(select(Enrollment).where(Enrollment.course_id == course.id))
+        enrolled_result = await db.execute(
+            select(Enrollment).where(Enrollment.course_id == course.id)
+        )
         total_students = len(enrolled_result.scalars().all())
 
         submission_result = await db.execute(

@@ -94,5 +94,10 @@ pre-commit run --files backend/app/path/to/file.py
 - Flutter analyze checker: `tools/flutter_analyze.py`
 - Ruff check wrapper: `tools/ruff_check.py`
 - Backend: `backend/app/` (FastAPI, Python)
-- Server: `python backend/run.py` (port 8000)
+- Server: `backend\.venv\Scripts\python.exe backend\run.py` (port 8000, cwd `backend/`)
+  - Use the venv interpreter. The system `python` has no `sqlalchemy` and fails at import.
+  - Startup takes ~10s; `/health` and `/docs` are the readiness checks.
+  - `backend/app/main.py` serves the Flutter SPA from `frontend/build/web` and requires
+    `main.dart.js` to exist. Run `flutter build web --release` (cwd `frontend/`) if the web
+    build is missing or `main.dart.js` is absent, otherwise the app fails to import.
 - Local dev proxy: `tools/penrose_web_proxy.py` (port 8080, serves `tools/build/web`, forwards `/api/*` to :8000, timeout 60s)

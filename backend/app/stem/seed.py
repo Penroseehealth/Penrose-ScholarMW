@@ -7436,7 +7436,6 @@ SUBJECTS: list[dict[str, Any]] = [
 
 
 async def seed_stem():
-
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
@@ -7495,7 +7494,9 @@ async def seed_stem():
                         sub = STEMSubtopic(
                             title=std["title"],
                             topic_id=top.id,
-                            difficulty_level=std.get("difficulty", td.get("difficulty", "intermediate")),
+                            difficulty_level=std.get(
+                                "difficulty", td.get("difficulty", "intermediate")
+                            ),
                             order_index=si,
                             description=std.get("description", ""),
                         )
@@ -7508,7 +7509,9 @@ async def seed_stem():
                                 title=cd["title"],
                                 subtopic_id=sub.id,
                                 description=cd.get("description", ""),
-                                difficulty_level=cd.get("difficulty", std.get("difficulty", "intermediate")),
+                                difficulty_level=cd.get(
+                                    "difficulty", std.get("difficulty", "intermediate")
+                                ),
                                 order_index=ci,
                             )
                             db.add(con)

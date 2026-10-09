@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import math
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 import sympy as sp
@@ -23,6 +23,16 @@ from sympy.parsing.sympy_parser import (
     parse_expr,
     standard_transformations,
 )
+
+from app.mathematics.formatting import (
+    fmt as _fmt,
+)
+from app.mathematics.formatting import (
+    spoken_number as _spoken_number,
+)
+from app.mathematics.intent import looks_like_pythagoras
+from app.mathematics.solution_types import TutorSolution, TutorStep
+from app.mathematics.topic_solvers import solve_topic
 
 _TRANSFORMS = standard_transformations + (implicit_multiplication_application,)
 
@@ -40,15 +50,23 @@ _UNICODE_MAP = {
     "\u2265": ">=",
 }
 
-_UNITS = (
+_SPELLED_UNITS = (
+    ("kilometres", "kilometre", "kilometer", "kilometer"),
+    ("centimetres", "centimetre", "centimeter", "centimeter"),
+    ("millimetres", "millimetre", "millimeter", "millimeter"),
+    ("metres", "metre", "meters", "meter"),
+    ("inches", "inch"),
+    ("feet", "foot", "feet"),
+)
+
+# Short codes are ambiguous inside prose, so they are only honoured when they
+# directly follow a measurement. Without that guard the English word "in" in
+# "the angles are in the ratio 2:3:4" would be read as inches.
+_ABBREVIATED_UNITS = (
     ("kilometres", "km"),
-    ("kilometers", "km"),
     ("centimetres", "cm"),
-    ("centimeters", "cm"),
     ("millimetres", "mm"),
-    ("millimeters", "mm"),
     ("metres", "m"),
-    ("meters", "m"),
     ("inches", "in"),
     ("feet", "ft"),
 )
@@ -57,52 +75,6 @@ _UNITS = (
 # ---------------------------------------------------------------------------
 # Structured output models
 # ---------------------------------------------------------------------------
-
-
-@dataclass
-class TutorStep:
-    """One renderable, explainable and speakable step."""
-
-    id: int
-    title: str
-    explanation: str
-    narration: str
-    latex_lines: list[str] = field(default_factory=list)
-
-
-@dataclass
-class TutorSolution:
-    problem: str
-    subject: str
-    topic: str
-    steps: list[TutorStep]
-    final_answer_latex: str
-    final_answer_text: str
-    verification_status: str = "unverified"
-    verification_detail: str = ""
-    visual: dict[str, Any] | None = None
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "problem": self.problem,
-            "subject": self.subject,
-            "topic": self.topic,
-            "steps": [
-                {
-                    "id": step.id,
-                    "title": step.title,
-                    "explanation": step.explanation,
-                    "narration": step.narration,
-                    "latex_lines": step.latex_lines,
-                }
-                for step in self.steps
-            ],
-            "final_answer_latex": self.final_answer_latex,
-            "final_answer_text": self.final_answer_text,
-            "verification_status": self.verification_status,
-            "verification_detail": self.verification_detail,
-            "visual": self.visual,
-        }
 
 
 def _clarification(problem: str, question: str) -> TutorSolution:
@@ -159,25 +131,21 @@ def _numbers(text: str) -> list[float]:
 
 
 def _unit(text: str) -> str:
+    """Return the measurement unit named in *text*.
+
+    Spelled-out names are unambiguous and may appear anywhere. Short codes are
+    only accepted straight after a number, so that ordinary English words such
+    as "in" are never mistaken for a unit.
+    """
     lowered = text.lower()
-    for name, short in _UNITS:
-        if re.search(rf"\b{short}\b", lowered):
+    for entry in _SPELLED_UNITS:
+        name, spellings = entry[0], entry[1:]
+        if any(re.search(rf"\b{word}\b", lowered) for word in spellings):
+            return name
+    for name, short in _ABBREVIATED_UNITS:
+        if re.search(rf"\d\s*{re.escape(short)}\b", lowered):
             return name
     return "units"
-
-
-def _fmt(value: float | sp.Expr) -> str:
-    if isinstance(value, sp.Expr):
-        value = float(sp.nsimplify(value))
-    if abs(value - round(value)) < 1e-12:
-        return str(int(round(value)))
-    return f"{round(value, 6):g}"
-
-
-def _spoken_number(value: float) -> str:
-    if abs(value - round(value)) < 1e-12:
-        return str(int(round(value)))
-    return f"{value:.2f}".rstrip("0").rstrip(".")
 
 
 # ---------------------------------------------------------------------------
@@ -193,7 +161,11 @@ def solve(problem: str) -> TutorSolution:
 
     lowered = text.lower()
 
-    if "triangle" in lowered or "pythagor" in lowered:
+    topic_result = solve_topic(text)
+    if topic_result is not None:
+        return topic_result
+
+    if looks_like_pythagoras(lowered):
         result = _solve_pythagoras(text, lowered)
         if result is not None:
             return result
@@ -217,8 +189,12 @@ def solve(problem: str) -> TutorSolution:
     return _clarification(
         problem,
         "I could not turn that into a calculation yet. I can work through "
-        "right-angled triangles, linear and quadratic equations, percentages, "
-        "and step-by-step arithmetic. Could you rephrase the question?",
+        "arithmetic, fractions, percentages and percentage change, ratios, "
+        "algebraic simplification, linear and quadratic equations, "
+        "simultaneous equations, inequalities, linear programming, functions, "
+        "sequences, statistics, probability, mensuration, trigonometry, "
+        "coordinate geometry and right-angled triangles. Could you rephrase "
+        "the question?",
     )
 
 
@@ -234,6 +210,86 @@ def _equation_sides(text: str) -> tuple[str, str] | None:
     if not left.strip() or not right.strip():
         return None
     return left, right
+
+
+def _constant_equation_solution(problem: str, expression: sp.Expr) -> TutorSolution:
+    """An equation whose variables cancel: either an identity or a contradiction."""
+    if expression == 0:
+        steps = [
+            TutorStep(
+                id=1,
+                title="Move every term to one side",
+                explanation=(
+                    "Collecting everything on one side leaves zero, so the two sides "
+                    "are really the same expression."
+                ),
+                narration=(
+                    "Collecting every term on one side leaves zero, which means the "
+                    "two sides are identical."
+                ),
+                latex_lines=[f"{sp.latex(expression)} = 0"],
+            ),
+            TutorStep(
+                id=2,
+                title="Interpret the result",
+                explanation=(
+                    "Because the equation is true for every value of the variable, "
+                    "it has infinitely many solutions."
+                ),
+                narration=(
+                    "The equation is true for any value of the variable, so there "
+                    "are infinitely many solutions."
+                ),
+            ),
+        ]
+        return TutorSolution(
+            problem=problem,
+            subject="algebra",
+            topic="linear_equation",
+            steps=steps,
+            final_answer_latex=r"\text{infinitely many solutions}",
+            final_answer_text="infinitely many solutions",
+            verification_status="verified",
+            verification_detail="The equation reduces to an identity.",
+        )
+
+    steps = [
+        TutorStep(
+            id=1,
+            title="Move every term to one side",
+            explanation=(
+                "Collecting everything on one side leaves a constant, so the "
+                "variable has cancelled out entirely."
+            ),
+            narration=(
+                "Collecting every term on one side leaves a constant, so the "
+                "variable has cancelled out."
+            ),
+            latex_lines=[f"{sp.latex(expression)} = 0"],
+        ),
+        TutorStep(
+            id=2,
+            title="Spot the contradiction",
+            explanation=(
+                "A constant can never equal zero, so no value of the variable can "
+                "make the equation true."
+            ),
+            narration=(
+                "A constant cannot equal zero, so the equation has no solution."
+            ),
+            latex_lines=[f"{sp.latex(expression)} \\neq 0"],
+        ),
+    ]
+    return TutorSolution(
+        problem=problem,
+        subject="algebra",
+        topic="linear_equation",
+        steps=steps,
+        final_answer_latex=r"\text{no solution}",
+        final_answer_text="no solution",
+        verification_status="verified",
+        verification_detail=f"The reduction leaves {sp.sstr(expression)} = 0, which is impossible.",
+    )
 
 
 def _solve_polynomial(text: str, degree: int) -> TutorSolution | None:
@@ -253,6 +309,8 @@ def _solve_polynomial(text: str, degree: int) -> TutorSolution | None:
         return None
 
     free = sorted(expression.free_symbols, key=lambda s: s.name)
+    if not free:
+        return _constant_equation_solution(text, expression)
     if len(free) != 1:
         return None
     variable = free[0]

@@ -31,7 +31,7 @@ class FunctionPlotter extends StatelessWidget {
     this.xMax = 10,
     this.yMin = -10,
     this.yMax = 10,
-    this.showGrid = true,
+    this.showGrid = false,
     this.showLegend = true,
   });
 

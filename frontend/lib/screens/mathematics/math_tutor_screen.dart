@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../../services/math_tutor_api.dart';
+import '../../services/tutor_preferences.dart';
 import '../../services/voice_catalog_service.dart';
 import '../../services/web_speech_service.dart';
 import '../../voice/tts_service.dart';
 import '../../voice/voice_session_manager.dart';
 import '../../widgets/math_tutor/math_solution.dart';
 import '../../widgets/math_tutor/math_solver.dart';
-import '../../widgets/math_tutor/math_tex.dart';
 import '../../widgets/math_tutor/math_tutor_audio_bar.dart';
 import '../../widgets/math_tutor/math_tutor_player.dart';
 import '../../widgets/math_tutor/math_typewriter.dart';
+import '../../widgets/math_tutor/math_writing.dart';
 import '../../widgets/math_tutor/tutor_visual.dart';
 import '../../widgets/math_tutor/voice_accent_picker.dart';
 
@@ -65,6 +66,8 @@ class _MathTutorScreenState extends State<MathTutorScreen> {
   final GlobalKey _visualKey = GlobalKey();
   final ScrollController _workspaceScroll = ScrollController();
 
+  TutorPreferences _preferences = TutorPreferences.memoryOnly();
+
   TutorSolution? _solution;
   String? _message;
   String _voiceId = VoiceCatalogService.defaultVoiceId;
@@ -86,7 +89,28 @@ class _MathTutorScreenState extends State<MathTutorScreen> {
     _player.addListener(_onPlayerChanged);
     _applyVoice(VoiceCatalogService.defaultVoiceId);
     _speechSupported = _speech.isSupported;
+    _loadPreferences();
     _bootstrap();
+  }
+
+  /// Restores the student's saved board and handwriting choices.
+  ///
+  /// Starts from the agreed defaults so the very first frame already shows a
+  /// plain whiteboard with handwritten, animated mathematics.
+  Future<void> _loadPreferences() async {
+    final TutorPreferences loaded = await TutorPreferences.load();
+    if (!mounted) {
+      loaded.dispose();
+      return;
+    }
+    _preferences.removeListener(_onPreferencesChanged);
+    _preferences.dispose();
+    loaded.addListener(_onPreferencesChanged);
+    setState(() => _preferences = loaded);
+  }
+
+  void _onPreferencesChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _bootstrap() async {
@@ -339,6 +363,8 @@ class _MathTutorScreenState extends State<MathTutorScreen> {
     _input.dispose();
     _question.dispose();
     _workspaceScroll.dispose();
+    _preferences.removeListener(_onPreferencesChanged);
+    _preferences.dispose();
     super.dispose();
   }
 
@@ -475,6 +501,7 @@ class _MathTutorScreenState extends State<MathTutorScreen> {
         ),
         const SizedBox(height: 8),
         _BoardSurface(
+          preferences: _preferences,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
@@ -489,6 +516,7 @@ class _MathTutorScreenState extends State<MathTutorScreen> {
                           step.id < (_player.currentStep?.id ?? 1) || _player.state == MathTutorPlaybackState.finished,
                       playing: _player.isPlaying || _player.isBusy,
                       speed: _player.speed,
+                      preferences: _preferences,
                       onTap: () => _player.seekTo(step.id),
                     ),
                   ),
@@ -497,7 +525,7 @@ class _MathTutorScreenState extends State<MathTutorScreen> {
               if (solution.finalAnswer.isNotEmpty && _player.isLastStep) ...<Widget>[
                 const SizedBox(height: 2),
                 Divider(color: scheme.outlineVariant.withAlpha(140)),
-                _FinalAnswerBlock(solution: solution),
+                _FinalAnswerBlock(solution: solution, preferences: _preferences),
               ],
             ],
           ),
@@ -544,9 +572,108 @@ class _MathTutorScreenState extends State<MathTutorScreen> {
               onSelected: _selectVoice,
               onPreview: _previewVoice,
             ),
+            const SizedBox(height: 18),
+            _buildBoardSettings(scheme),
           ],
         ),
       ),
+    );
+  }
+
+  /// Board and handwriting controls.
+  ///
+  /// These map one-to-one onto `TutorPreferences`, which is shared with the
+  /// subject chat so a student keeps the same handwriting style everywhere.
+  Widget _buildBoardSettings(ColorScheme scheme) {
+    final p = _preferences;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            Icon(Icons.draw_outlined, color: scheme.primary),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text('Board & handwriting', style: Theme.of(context).textTheme.titleMedium),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text('Show the working as', style: Theme.of(context).textTheme.labelLarge),
+        const SizedBox(height: 8),
+        SegmentedButton<bool>(
+          segments: const <ButtonSegment<bool>>[
+            ButtonSegment<bool>(
+              value: true,
+              icon: Icon(Icons.gesture_rounded),
+              label: Text('Handwritten'),
+              tooltip: 'Write the working out by hand',
+            ),
+            ButtonSegment<bool>(
+              value: false,
+              icon: Icon(Icons.keyboard_alt_outlined),
+              label: Text('Computer'),
+              tooltip: 'Show the working in typed notation',
+            ),
+          ],
+          selected: <bool>{p.showHandwriting},
+          showSelectedIcon: false,
+          onSelectionChanged: (Set<bool> value) {
+            final handwritten = value.first;
+            if (handwritten) {
+              p.setHandwrittenMath(true);
+            } else {
+              p.setTypedMath(true);
+            }
+          },
+        ),
+        const SizedBox(height: 4),
+        Text(
+          p.showHandwriting ? 'Answers are written out by hand' : 'Answers are shown in typed maths notation',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+        ),
+        const SizedBox(height: 4),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          value: p.animateSteps,
+          onChanged: (bool v) => p.setAnimateSteps(v),
+          title: const Text('Animate each step'),
+          subtitle: const Text('Write the working out stroke by stroke as it is solved'),
+        ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          value: p.gridVisible,
+          onChanged: (bool v) => p.setGridVisible(v),
+          title: const Text('Show grid'),
+          subtitle: const Text('Off by default so the board stays plain white'),
+        ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          value: p.contextualMemory,
+          onChanged: (bool v) => p.setContextualMemory(v),
+          title: const Text('Remember context'),
+          subtitle: const Text('Keep what you have already covered in this session'),
+        ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          value: p.speakReplies,
+          onChanged: (bool v) => p.setSpeakReplies(v),
+          title: const Text('Read answers aloud'),
+        ),
+        const SizedBox(height: 6),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            icon: const Icon(Icons.restart_alt_rounded, size: 18),
+            onPressed: () => p.reset(),
+            label: const Text('Reset to defaults'),
+          ),
+        ),
+      ],
     );
   }
 
@@ -766,6 +893,7 @@ class _LiveStepTile extends StatefulWidget {
     required this.done,
     required this.playing,
     required this.speed,
+    required this.preferences,
     required this.onTap,
   });
 
@@ -774,6 +902,7 @@ class _LiveStepTile extends StatefulWidget {
   final bool done;
   final bool playing;
   final double speed;
+  final TutorPreferences preferences;
   final VoidCallback onTap;
 
   @override
@@ -861,14 +990,24 @@ class _LiveStepTileState extends State<_LiveStepTile> {
                   for (var i = 0; i < visibleCount && i < lines.length; i++)
                     Padding(
                       padding: const EdgeInsets.only(top: 6),
-                      child: MathTypewriter(
-                        key: ValueKey<String>('${widget.step.id}:$i:${lines[i]}'),
-                        latex: lines[i],
-                        playing: active && widget.playing,
-                        complete: widget.done || _complete || i < _current,
-                        speed: widget.speed,
-                        onCompleted: () => _onLineComplete(i),
-                      ),
+                      child: widget.preferences.showHandwriting
+                          // Handwritten: the vector engine writes each line out
+                          // stroke by stroke, so the working appears pen-first.
+                          ? MathWriting(
+                              lines[i],
+                              preferences: widget.preferences,
+                              fontSize: 18,
+                              animate: widget.preferences.animateSteps && active && widget.playing,
+                              showGrid: false,
+                            )
+                          : MathTypewriter(
+                              key: ValueKey<String>('${widget.step.id}:$i:${lines[i]}'),
+                              latex: lines[i],
+                              playing: active && widget.playing,
+                              complete: widget.done || _complete || i < _current,
+                              speed: widget.speed,
+                              onCompleted: () => _onLineComplete(i),
+                            ),
                     ),
                   if (showExplanation)
                     Padding(
@@ -892,9 +1031,10 @@ class _LiveStepTileState extends State<_LiveStepTile> {
 }
 
 class _FinalAnswerBlock extends StatelessWidget {
-  const _FinalAnswerBlock({required this.solution});
+  const _FinalAnswerBlock({required this.solution, required this.preferences});
 
   final TutorSolution solution;
+  final TutorPreferences preferences;
 
   @override
   Widget build(BuildContext context) {
@@ -909,30 +1049,67 @@ class _FinalAnswerBlock extends StatelessWidget {
             style: Theme.of(context).textTheme.labelLarge?.copyWith(color: scheme.primary, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
-          MathTex(solution.answerLatex, fontSize: 24, color: scheme.primary),
+          // The answer is already the settled result of the working above it, so
+          // it is written out immediately rather than animated again.
+          MathWriting(
+            solution.answerLatex,
+            preferences: preferences,
+            fontSize: 24,
+            animate: false,
+            showGrid: false,
+          ),
         ],
       ),
     );
   }
 }
 
-/// A subtle ruled surface so the worked steps read as writing on a board
-/// rather than as a stack of boxed cards.
+/// The surface the working is written on.
+///
+/// A plain whiteboard by default: white paper, no rules. Turning the grid on in
+/// settings swaps in squared paper, because some students find ruled or gridded
+/// space easier to line their working up on.
 class _BoardSurface extends StatelessWidget {
-  const _BoardSurface({required this.child});
+  const _BoardSurface({required this.child, required this.preferences});
 
   final Widget child;
+  final TutorPreferences preferences;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    if (!preferences.plainWhiteboard && !preferences.gridVisible) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          color: scheme.surfaceContainerLowest,
+          padding: const EdgeInsets.fromLTRB(26, 18, 20, 20),
+          child: child,
+        ),
+      );
+    }
+    if (preferences.gridVisible) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: CustomPaint(
+          painter: _GridPaperPainter(
+            background: Colors.white,
+            line: scheme.outlineVariant.withAlpha(70),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(26, 18, 20, 20),
+            child: child,
+          ),
+        ),
+      );
+    }
     return ClipRRect(
       borderRadius: BorderRadius.circular(14),
       child: CustomPaint(
         painter: _RuledLinesPainter(
-          background: scheme.surfaceContainerLowest,
-          line: scheme.outlineVariant.withAlpha(40),
-          marginLine: scheme.primary.withAlpha(30),
+          background: Colors.white,
+          line: const Color(0xFFB0BEC5).withAlpha(90),
+          marginLine: const Color(0xFFE53935).withAlpha(70),
         ),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(26, 18, 20, 20),
@@ -941,6 +1118,32 @@ class _BoardSurface extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Faint squared paper, only drawn when the student turns the grid on.
+class _GridPaperPainter extends CustomPainter {
+  const _GridPaperPainter({required this.background, required this.line});
+
+  final Color background;
+  final Color line;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawRect(Offset.zero & size, Paint()..color = background);
+    final Paint paint = Paint()
+      ..color = line
+      ..strokeWidth = 0.7;
+    const double step = 20;
+    for (double x = step; x < size.width; x += step) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (double y = step; y < size.height; y += step) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_GridPaperPainter oldDelegate) => oldDelegate.background != background || oldDelegate.line != line;
 }
 
 class _RuledLinesPainter extends CustomPainter {

@@ -29,10 +29,16 @@
 
 ```bash
 cd backend
-python -m pip install -r requirements.txt
+python -m venv .venv
+.venv\Scripts\python -m pip install -r requirements.txt
 copy .env.example .env
-python -m uvicorn app.main:app --reload --port 8000
+.venv\Scripts\python run.py
 ```
+
+> Always use the `.venv` interpreter — a bare `python` will not have the dependencies
+> installed. The backend serves the compiled Flutter SPA from `frontend/build/web`, so run
+> `flutter build web --release` in `frontend/` at least once (the server will not start
+> without `frontend/build/web/main.dart.js`).
 
 ### Frontend
 

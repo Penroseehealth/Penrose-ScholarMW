@@ -997,7 +997,6 @@ def _docx_question(doc, q: PaperQuestion, qnum: int, paper: ConstructedPaper):
 
 
 def _docx_table(doc, table: dict):
-
     headers = list(table.get("headers") or [])
     rows = [[str(c) for c in r] for r in (table.get("rows") or [])]
     if not headers and not rows:

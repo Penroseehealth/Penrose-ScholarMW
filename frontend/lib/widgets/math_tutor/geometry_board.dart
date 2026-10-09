@@ -31,7 +31,7 @@ class GeometryBoard extends StatefulWidget {
 
 class _GeometryBoardState extends State<GeometryBoard> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late GeometryLesson _lesson;
+  GeometryLesson? _lesson;
 
   @override
   void initState() {
@@ -40,39 +40,50 @@ class _GeometryBoardState extends State<GeometryBoard> with SingleTickerProvider
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
-      upperBound: math.max(1.0, (_lesson.length - 1).toDouble()),
+      upperBound: math.max(1.0, ((_lesson?.length ?? 1) - 1).toDouble()),
     );
-    _animateTo(_target);
+    if (_lesson != null) {
+      _animateTo(_target);
+    }
   }
 
-  GeometryLesson _buildLesson() {
-    final double a = widget.solution.sideA ?? 3;
-    final double b = widget.solution.sideB ?? 4;
+  /// The construction for the real measurements, or null when the solver gave
+  /// us none.
+  ///
+  /// There is deliberately no default triangle here. Substituting invented
+  /// sides would put a confident, unrelated picture on the board next to a
+  /// correct answer, which is worse than showing nothing.
+  GeometryLesson? _buildLesson() {
+    final double? a = widget.solution.sideA;
+    final double? b = widget.solution.sideB;
+    if (a == null || b == null || a <= 0 || b <= 0) {
+      return null;
+    }
     final double c = widget.solution.sideC ?? math.sqrt(a * a + b * b);
     return GeometryLesson.rightTriangle(GeometryScene.rightTriangle(a: a, b: b, c: c));
   }
 
   /// Construction beat reached on the current step.
-  double get _target => _lesson.beatIndexFor(widget.stepIndex, widget.solution.stepCount).toDouble();
+  double get _target => _lesson?.beatIndexFor(widget.stepIndex, widget.solution.stepCount).toDouble() ?? 0;
 
   @override
   void didUpdateWidget(covariant GeometryBoard oldWidget) {
     super.didUpdateWidget(oldWidget);
     final bool newProblem = oldWidget.solution != widget.solution;
     if (newProblem) {
-      final GeometryLesson rebuilt = _buildLesson();
-      final bool lengthChanged = rebuilt.length != _lesson.length;
+      final GeometryLesson? rebuilt = _buildLesson();
+      final bool lengthChanged = (rebuilt?.length ?? 1) != (_lesson?.length ?? 1);
       _lesson = rebuilt;
       if (lengthChanged) {
         _controller.dispose();
         _controller = AnimationController(
           vsync: this,
           duration: const Duration(milliseconds: 1200),
-          upperBound: math.max(1.0, (_lesson.length - 1).toDouble()),
+          upperBound: math.max(1.0, ((_lesson?.length ?? 1) - 1).toDouble()),
         );
       }
     }
-    if (newProblem || oldWidget.stepIndex != widget.stepIndex) {
+    if (_lesson != null && (newProblem || oldWidget.stepIndex != widget.stepIndex)) {
       _animateTo(_target);
     }
   }
@@ -99,10 +110,14 @@ class _GeometryBoardState extends State<GeometryBoard> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     final ColorScheme scheme = Theme.of(context).colorScheme;
+    final GeometryLesson? lesson = _lesson;
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final double width = math.max(constraints.maxWidth, 280.0);
         final double height = math.min(math.max(width * 0.66, 250.0), 400.0);
+        if (lesson == null) {
+          return SizedBox(width: width, height: height, child: _NoMeasurementsBoard());
+        }
         return SizedBox(
           width: width,
           height: height,
@@ -110,7 +125,7 @@ class _GeometryBoardState extends State<GeometryBoard> with SingleTickerProvider
             animation: _controller,
             builder: (BuildContext context, Widget? _) => CustomPaint(
               painter: _GeometryBoardPainter(
-                lesson: _lesson,
+                lesson: lesson,
                 position: _controller.value,
                 board: scheme.surfaceContainerLowest,
                 line: scheme.primary,
@@ -131,6 +146,44 @@ class _GeometryBoardState extends State<GeometryBoard> with SingleTickerProvider
           ),
         );
       },
+    );
+  }
+}
+
+class _NoMeasurementsBoard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLowest,
+        border: Border.all(color: scheme.outlineVariant),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Icon(Icons.help_outline, color: scheme.outline, size: 28),
+              const SizedBox(height: 10),
+              Text(
+                'No measurements to draw yet',
+                style: Theme.of(context).textTheme.titleSmall,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'This diagram needs the side lengths from the problem before it can '
+                'be constructed.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

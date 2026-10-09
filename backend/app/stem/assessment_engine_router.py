@@ -113,9 +113,13 @@ async def generate_assessment(
             detail=f"Invalid assessment type. Must be one of: {', '.join(sorted(valid_types))}",
         )
 
-    concept_result = await db.execute(select(STEMConcept).where(STEMConcept.id == body.concept_id))
+    concept_result = await db.execute(
+        select(STEMConcept).where(STEMConcept.id == body.concept_id)
+    )
     if not concept_result.scalar_one_or_none():
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found"
+        )
 
     stmt = select(STMAssessmentQuestion).where(
         STMAssessmentQuestion.concept_id == body.concept_id,
@@ -162,9 +166,13 @@ async def submit_assessment(
 ):
     question_ids = [a.question_id for a in body.answers]
     if not question_ids:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No answers submitted")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="No answers submitted"
+        )
 
-    questions_result = await db.execute(select(STMAssessmentQuestion).where(STMAssessmentQuestion.id.in_(question_ids)))
+    questions_result = await db.execute(
+        select(STMAssessmentQuestion).where(STMAssessmentQuestion.id.in_(question_ids))
+    )
     questions_map = {q.id: q for q in questions_result.scalars().all()}
 
     if len(questions_map) != len(question_ids):
@@ -206,7 +214,9 @@ async def submit_assessment(
     if record:
         record.attempts += total
         record.correct += correct_count
-        record.mastery_level = record.correct / record.attempts if record.attempts > 0 else 0.0
+        record.mastery_level = (
+            record.correct / record.attempts if record.attempts > 0 else 0.0
+        )
         record.last_practiced = now
         record.next_review = _compute_next_review(record.mastery_level, record.attempts)
     else:
@@ -217,7 +227,9 @@ async def submit_assessment(
             attempts=total,
             correct=correct_count,
             last_practiced=now,
-            next_review=_compute_next_review(correct_count / total if total > 0 else 0.0, total),
+            next_review=_compute_next_review(
+                correct_count / total if total > 0 else 0.0, total
+            ),
         )
         db.add(record)
 
@@ -246,7 +258,9 @@ async def get_assessment_history(
 
     items: list[AssessmentHistoryItem] = []
     for r in records:
-        concept_result = await db.execute(select(STEMConcept).where(STEMConcept.id == r.concept_id))
+        concept_result = await db.execute(
+            select(STEMConcept).where(STEMConcept.id == r.concept_id)
+        )
         concept = concept_result.scalar_one_or_none()
         items.append(
             AssessmentHistoryItem(

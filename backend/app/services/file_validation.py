@@ -215,6 +215,16 @@ async def extract_audio_metadata(content: bytes, filename: str) -> str:
     )
 
 
+def extract_text_content(content: bytes) -> str:
+    """Decode a plain-text upload.
+
+    Plain text is one of the most common things a student attaches, so it is
+    read directly rather than being reported as an unsupported type.
+    """
+    text = content.decode("utf-8", errors="replace").strip()
+    return text if text else "(Empty text file)"
+
+
 async def extract_file_content(validated: ValidatedFile) -> str:
     if validated.file_type == "pdf":
         return await extract_pdf_text(validated.content)
@@ -222,6 +232,8 @@ async def extract_file_content(validated: ValidatedFile) -> str:
         return await extract_docx_text(validated.content)
     elif validated.file_type == "spreadsheet":
         return await extract_spreadsheet_text(validated.content, validated.filename)
+    elif validated.file_type == "text":
+        return extract_text_content(validated.content)
     elif validated.file_type == "image":
         return await extract_image_metadata(validated.content, validated.filename)
     elif validated.file_type == "audio":

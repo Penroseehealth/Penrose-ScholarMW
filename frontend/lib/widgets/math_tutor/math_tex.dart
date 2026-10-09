@@ -46,14 +46,31 @@ class MathTex extends StatelessWidget {
   }
 
   /// Best-effort readable form when the renderer cannot parse the input.
-  static String _plain(String latex) => latex
+  static String _plain(String latex) => plainText(latex);
+
+  /// LaTeX reduced to characters that can be written or typeset directly.
+  ///
+  /// Shared with the handwriting engine, which has no LaTeX support and needs
+  /// the same readable form this fallback uses.
+  static String plainText(String latex) => latex
       .replaceAll('\\times', '\u00d7')
       .replaceAll('\\div', '\u00f7')
       .replaceAll('\\cdot', '\u00b7')
       .replaceAll('\\pm', '\u00b1')
+      .replaceAll('\\frac', ' / ')
+      .replaceAll('\\sqrt', '\u221a')
+      .replaceAll('\\leq', '\u2264')
+      .replaceAll('\\geq', '\u2265')
+      .replaceAll('\\pi', '\u03c0')
+      .replaceAll('\\theta', '\u03b8')
+      .replaceAll('\\infty', '\u221e')
       .replaceAll('\\%', '%')
       .replaceAll('\\quad', '  ')
       .replaceAll('\\left', '')
       .replaceAll('\\right', '')
+      .replaceAll('\\text', '')
+      .replaceAll('\\mathrm', '')
+      .replaceAll('{', '')
+      .replaceAll('}', '')
       .replaceAll('\\', '');
 }

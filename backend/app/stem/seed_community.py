@@ -33,7 +33,9 @@ FORUM_POSTS = [
     },
     {
         "title": "Newton's Third Law — common misconception",
-        "body": ("A lot of students think the forces cancel out. They don't — they act on different bodies!"),
+        "body": (
+            "A lot of students think the forces cancel out. They don't — they act on different bodies!"
+        ),
         "subject_slug": "physics",
         "is_question": True,
     },
@@ -49,19 +51,25 @@ FORUM_POSTS = [
     },
     {
         "title": "What is the difference between mitosis and meiosis?",
-        "body": ("I keep confusing the two. Can someone give a clear comparison with diagrams?"),
+        "body": (
+            "I keep confusing the two. Can someone give a clear comparison with diagrams?"
+        ),
         "subject_slug": "biology",
         "is_question": True,
     },
     {
         "title": "Recursion vs Iteration — when to use which?",
-        "body": ("I understand both concepts but I'm never sure when to pick one over the other. Any advice?"),
+        "body": (
+            "I understand both concepts but I'm never sure when to pick one over the other. Any advice?"
+        ),
         "subject_slug": "computer_science",
         "is_question": True,
     },
     {
         "title": "Best resources for MSCE revision",
-        "body": ("I've compiled a list of free online resources for MSCE revision. Check them out and add your own!"),
+        "body": (
+            "I've compiled a list of free online resources for MSCE revision. Check them out and add your own!"
+        ),
         "subject_slug": None,
         "is_question": False,
     },
@@ -80,7 +88,9 @@ ANNOUNCEMENTS = [
     },
     {
         "title": "New Computer Science lab hours",
-        "body": ("The CS lab will now be open from 8 AM to 8 PM on weekdays to support your coursework."),
+        "body": (
+            "The CS lab will now be open from 8 AM to 8 PM on weekdays to support your coursework."
+        ),
         "subject_slug": "computer_science",
         "priority": "normal",
         "is_pinned": False,
@@ -98,7 +108,9 @@ ANNOUNCEMENTS = [
     },
     {
         "title": "Assignment 3 deadline extended",
-        "body": ("Due to the network outage, the deadline for Assignment 3 has been extended to Friday 5 PM."),
+        "body": (
+            "Due to the network outage, the deadline for Assignment 3 has been extended to Friday 5 PM."
+        ),
         "subject_slug": "computer_science",
         "priority": "low",
         "is_pinned": False,
@@ -136,7 +148,11 @@ GROUP_MESSAGES = [
 
 async def _seed_forum_posts(db: AsyncSession) -> dict:
     existing = {row[0] for row in await db.execute(select(STEMForumPost.title))}
-    students = (await db.execute(select(User).where(User.role == "student").limit(3))).scalars().all()
+    students = (
+        (await db.execute(select(User).where(User.role == "student").limit(3)))
+        .scalars()
+        .all()
+    )
     if not students:
         return {"posts": 0, "answers": 0, "votes": 0}
 
@@ -165,7 +181,11 @@ async def _seed_forum_posts(db: AsyncSession) -> dict:
         for post in all_posts[:2]:
             if any(a.body.startswith("Here's the answer") for a in []):
                 continue
-            responder = students[1] if len(students) > 1 and post.user_id == students[0].id else students[0]
+            responder = (
+                students[1]
+                if len(students) > 1 and post.user_id == students[0].id
+                else students[0]
+            )
             answer = STEMForumAnswer(
                 post_id=post.id,
                 user_id=responder.id,
@@ -177,7 +197,10 @@ async def _seed_forum_posts(db: AsyncSession) -> dict:
         await db.flush()
 
         existing_votes = set(
-            (row[0], row[1]) for row in await db.execute(select(STEMForumVote.user_id, STEMForumVote.post_id))
+            (row[0], row[1])
+            for row in await db.execute(
+                select(STEMForumVote.user_id, STEMForumVote.post_id)
+            )
         )
         for post in all_posts[:3]:
             if (students[0].id, post.id) not in existing_votes:
@@ -194,7 +217,11 @@ async def _seed_forum_posts(db: AsyncSession) -> dict:
 
 async def _seed_announcements(db: AsyncSession) -> int:
     existing = {row[0] for row in await db.execute(select(STEMAnnouncement.title))}
-    lecturer = (await db.execute(select(User).where(User.role == "lecturer").limit(1))).scalars().first()
+    lecturer = (
+        (await db.execute(select(User).where(User.role == "lecturer").limit(1)))
+        .scalars()
+        .first()
+    )
     if not lecturer:
         return 0
 
@@ -218,7 +245,11 @@ async def _seed_announcements(db: AsyncSession) -> int:
 
 async def _seed_study_groups(db: AsyncSession) -> dict:
     existing = {row[0] for row in await db.execute(select(STEMStudyGroup.name))}
-    students = (await db.execute(select(User).where(User.role == "student").limit(3))).scalars().all()
+    students = (
+        (await db.execute(select(User).where(User.role == "student").limit(3)))
+        .scalars()
+        .all()
+    )
     if not students:
         return {"groups": 0, "members": 0, "messages": 0}
 
@@ -245,7 +276,11 @@ async def _seed_study_groups(db: AsyncSession) -> dict:
     for group in all_groups[:3]:
         existing_members = {
             row[0]
-            for row in await db.execute(select(STEMGroupMember.user_id).where(STEMGroupMember.group_id == group.id))
+            for row in await db.execute(
+                select(STEMGroupMember.user_id).where(
+                    STEMGroupMember.group_id == group.id
+                )
+            )
         }
         if group.creator_id not in existing_members:
             db.add(
@@ -271,7 +306,15 @@ async def _seed_study_groups(db: AsyncSession) -> dict:
 
     for group in all_groups[:2]:
         msg_count = (
-            (await db.execute(select(STEMGroupMessage).where(STEMGroupMessage.group_id == group.id))).scalars().all()
+            (
+                await db.execute(
+                    select(STEMGroupMessage).where(
+                        STEMGroupMessage.group_id == group.id
+                    )
+                )
+            )
+            .scalars()
+            .all()
         )
         if not msg_count:
             for j, msg_data in enumerate(GROUP_MESSAGES):

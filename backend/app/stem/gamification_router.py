@@ -226,7 +226,9 @@ async def list_challenges(
     response: list[ChallengeResponse] = []
     for c in challenges:
         count_result = await db.execute(
-            select(func.count(STEMChallengeParticipant.id)).where(STEMChallengeParticipant.challenge_id == c.id)
+            select(func.count(STEMChallengeParticipant.id)).where(
+                STEMChallengeParticipant.challenge_id == c.id
+            )
         )
         participants_count = count_result.scalar()
         response.append(
@@ -252,7 +254,11 @@ async def join_challenge(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(STEMChallenge).where(STEMChallenge.id == id, STEMChallenge.is_active.is_(True)))
+    result = await db.execute(
+        select(STEMChallenge).where(
+            STEMChallenge.id == id, STEMChallenge.is_active.is_(True)
+        )
+    )
     challenge = result.scalar_one_or_none()
     if not challenge:
         raise HTTPException(
@@ -334,7 +340,9 @@ async def get_streak(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(STEMLeaderboardEntry).where(STEMLeaderboardEntry.user_id == user.id))
+    result = await db.execute(
+        select(STEMLeaderboardEntry).where(STEMLeaderboardEntry.user_id == user.id)
+    )
     entry = result.scalar_one_or_none()
 
     last_activity: datetime | None = None
@@ -356,10 +364,14 @@ async def get_points(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    entry_result = await db.execute(select(STEMLeaderboardEntry).where(STEMLeaderboardEntry.user_id == user.id))
+    entry_result = await db.execute(
+        select(STEMLeaderboardEntry).where(STEMLeaderboardEntry.user_id == user.id)
+    )
     entry = entry_result.scalar_one_or_none()
 
-    badge_count_result = await db.execute(select(func.count(STEMUserBadge.id)).where(STEMUserBadge.user_id == user.id))
+    badge_count_result = await db.execute(
+        select(func.count(STEMUserBadge.id)).where(STEMUserBadge.user_id == user.id)
+    )
     badges_earned = badge_count_result.scalar()
 
     return PointsResponse(

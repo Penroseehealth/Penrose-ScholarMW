@@ -69,14 +69,18 @@ async def generate_certificate(
         )
 
 
-async def _generate_subject_mastery_cert(user: User, subject_slug: str | None, db: AsyncSession, now: datetime):
+async def _generate_subject_mastery_cert(
+    user: User, subject_slug: str | None, db: AsyncSession, now: datetime
+):
     if not subject_slug:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="subject_slug is required for subject_mastery certificate",
         )
 
-    subject_result = await db.execute(select(STEMSubject).where(STEMSubject.subject_slug == subject_slug))
+    subject_result = await db.execute(
+        select(STEMSubject).where(STEMSubject.subject_slug == subject_slug)
+    )
     subject = subject_result.scalar_one_or_none()
     if not subject:
         raise HTTPException(
@@ -153,7 +157,9 @@ async def _generate_subject_mastery_cert(user: User, subject_slug: str | None, d
     )
 
 
-async def _generate_exam_achievement_cert(user: User, subject_slug: str | None, db: AsyncSession, now: datetime):
+async def _generate_exam_achievement_cert(
+    user: User, subject_slug: str | None, db: AsyncSession, now: datetime
+):
     if not subject_slug:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -177,7 +183,9 @@ async def _generate_exam_achievement_cert(user: User, subject_slug: str | None, 
             detail="No mock exam with 90%+ score found for this subject",
         )
 
-    subject_result = await db.execute(select(STEMSubject).where(STEMSubject.subject_slug == subject_slug))
+    subject_result = await db.execute(
+        select(STEMSubject).where(STEMSubject.subject_slug == subject_slug)
+    )
     subject = subject_result.scalar_one_or_none()
     subject_name = subject.title if subject else subject_slug
 
@@ -215,7 +223,9 @@ async def _generate_exam_achievement_cert(user: User, subject_slug: str | None, 
     )
 
 
-async def _generate_challenge_champion_cert(user: User, subject_slug: str | None, db: AsyncSession, now: datetime):
+async def _generate_challenge_champion_cert(
+    user: User, subject_slug: str | None, db: AsyncSession, now: datetime
+):
     stmt = select(STEMChallengeParticipant).where(
         STEMChallengeParticipant.user_id == user.id,
         STEMChallengeParticipant.is_completed.is_(True),
@@ -238,7 +248,9 @@ async def _generate_challenge_champion_cert(user: User, subject_slug: str | None
 
     from app.models.stem import STEMChallenge
 
-    challenge_result = await db.execute(select(STEMChallenge).where(STEMChallenge.id == participant.challenge_id))
+    challenge_result = await db.execute(
+        select(STEMChallenge).where(STEMChallenge.id == participant.challenge_id)
+    )
     challenge = challenge_result.scalar_one_or_none()
     challenge_name = challenge.title if challenge else "Challenge"
 
@@ -253,7 +265,9 @@ async def _generate_challenge_champion_cert(user: User, subject_slug: str | None
             {
                 "challenge_id": participant.challenge_id,
                 "challenge_title": challenge_name,
-                "completed_at": participant.completed_at.isoformat() if participant.completed_at else None,
+                "completed_at": participant.completed_at.isoformat()
+                if participant.completed_at
+                else None,
                 "progress_pct": participant.progress_pct,
             }
         ),

@@ -53,13 +53,17 @@ async def get_career(id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(STEMCareerPath).where(STEMCareerPath.id == id))
     career = result.scalar_one_or_none()
     if not career:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Career path not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Career path not found"
+        )
     return _career_to_response(career)
 
 
 @router.get("/careers/subject/{slug}", response_model=list[CareerPathResponse])
 async def get_careers_for_subject(slug: str, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(STEMCareerPath).where(STEMCareerPath.subject_slug == slug).order_by(STEMCareerPath.career_title)
+        select(STEMCareerPath)
+        .where(STEMCareerPath.subject_slug == slug)
+        .order_by(STEMCareerPath.career_title)
     )
     return [_career_to_response(c) for c in result.scalars().all()]

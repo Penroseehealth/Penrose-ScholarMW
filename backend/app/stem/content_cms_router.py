@@ -581,8 +581,12 @@ def _assessment_question_response(
 # ---------------------------------------------------------------------------
 
 
-async def _count_children(db: AsyncSession, model, foreign_key_col, parent_id: int) -> int:
-    result = await db.execute(select(func.count()).select_from(model).where(foreign_key_col == parent_id))
+async def _count_children(
+    db: AsyncSession, model, foreign_key_col, parent_id: int
+) -> int:
+    result = await db.execute(
+        select(func.count()).select_from(model).where(foreign_key_col == parent_id)
+    )
     return result.scalar_one() or 0
 
 
@@ -597,12 +601,16 @@ async def list_subjects(db: AsyncSession = Depends(get_db)):
     subjects = result.scalars().all()
     responses: list[SubjectResponse] = []
     for s in subjects:
-        count = await _count_children(db, STEMDiscipline, STEMDiscipline.subject_id, s.id)
+        count = await _count_children(
+            db, STEMDiscipline, STEMDiscipline.subject_id, s.id
+        )
         responses.append(_subject_response(s, count))
     return responses
 
 
-@router.post("/cms/subjects", response_model=SubjectResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/cms/subjects", response_model=SubjectResponse, status_code=status.HTTP_201_CREATED
+)
 async def create_subject(
     body: SubjectCreate,
     user: User = Depends(require_lecturer),
@@ -621,7 +629,9 @@ async def get_subject(subject_id: int, db: AsyncSession = Depends(get_db)):
     subject = result.scalar_one_or_none()
     if not subject:
         raise HTTPException(status_code=404, detail="Subject not found")
-    count = await _count_children(db, STEMDiscipline, STEMDiscipline.subject_id, subject.id)
+    count = await _count_children(
+        db, STEMDiscipline, STEMDiscipline.subject_id, subject.id
+    )
     return _subject_response(subject, count)
 
 
@@ -711,7 +721,9 @@ async def update_discipline(
     user: User = Depends(require_lecturer),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(STEMDiscipline).where(STEMDiscipline.id == discipline_id))
+    result = await db.execute(
+        select(STEMDiscipline).where(STEMDiscipline.id == discipline_id)
+    )
     discipline = result.scalar_one_or_none()
     if not discipline:
         raise HTTPException(status_code=404, detail="Discipline not found")
@@ -722,13 +734,17 @@ async def update_discipline(
     return _discipline_response(discipline)
 
 
-@router.delete("/cms/disciplines/{discipline_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/cms/disciplines/{discipline_id}", status_code=status.HTTP_204_NO_CONTENT
+)
 async def delete_discipline(
     discipline_id: int,
     user: User = Depends(require_lecturer),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(STEMDiscipline).where(STEMDiscipline.id == discipline_id))
+    result = await db.execute(
+        select(STEMDiscipline).where(STEMDiscipline.id == discipline_id)
+    )
     discipline = result.scalar_one_or_none()
     if not discipline:
         raise HTTPException(status_code=404, detail="Discipline not found")
@@ -746,7 +762,9 @@ async def delete_discipline(
     response_model=list[TopicResponse],
 )
 async def list_topics(discipline_id: int, db: AsyncSession = Depends(get_db)):
-    parent = await db.execute(select(STEMDiscipline).where(STEMDiscipline.id == discipline_id))
+    parent = await db.execute(
+        select(STEMDiscipline).where(STEMDiscipline.id == discipline_id)
+    )
     if not parent.scalar_one_or_none():
         raise HTTPException(status_code=404, detail="Discipline not found")
     result = await db.execute(
@@ -773,7 +791,9 @@ async def create_topic(
     user: User = Depends(require_lecturer),
     db: AsyncSession = Depends(get_db),
 ):
-    parent = await db.execute(select(STEMDiscipline).where(STEMDiscipline.id == discipline_id))
+    parent = await db.execute(
+        select(STEMDiscipline).where(STEMDiscipline.id == discipline_id)
+    )
     if not parent.scalar_one_or_none():
         raise HTTPException(status_code=404, detail="Discipline not found")
     topic = STEMTopic(discipline_id=discipline_id, **body.model_dump())
@@ -869,7 +889,9 @@ async def update_subtopic(
     user: User = Depends(require_lecturer),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(STEMSubtopic).where(STEMSubtopic.id == subtopic_id))
+    result = await db.execute(
+        select(STEMSubtopic).where(STEMSubtopic.id == subtopic_id)
+    )
     subtopic = result.scalar_one_or_none()
     if not subtopic:
         raise HTTPException(status_code=404, detail="Subtopic not found")
@@ -886,7 +908,9 @@ async def delete_subtopic(
     user: User = Depends(require_lecturer),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(STEMSubtopic).where(STEMSubtopic.id == subtopic_id))
+    result = await db.execute(
+        select(STEMSubtopic).where(STEMSubtopic.id == subtopic_id)
+    )
     subtopic = result.scalar_one_or_none()
     if not subtopic:
         raise HTTPException(status_code=404, detail="Subtopic not found")
@@ -904,7 +928,9 @@ async def delete_subtopic(
     response_model=list[ConceptResponse],
 )
 async def list_concepts(subtopic_id: int, db: AsyncSession = Depends(get_db)):
-    parent = await db.execute(select(STEMSubtopic).where(STEMSubtopic.id == subtopic_id))
+    parent = await db.execute(
+        select(STEMSubtopic).where(STEMSubtopic.id == subtopic_id)
+    )
     if not parent.scalar_one_or_none():
         raise HTTPException(status_code=404, detail="Subtopic not found")
     result = await db.execute(
@@ -915,8 +941,12 @@ async def list_concepts(subtopic_id: int, db: AsyncSession = Depends(get_db)):
     concepts = result.scalars().all()
     responses: list[ConceptResponse] = []
     for c in concepts:
-        mat_count = await _count_children(db, STLearningMaterial, STLearningMaterial.concept_id, c.id)
-        obj_count = await _count_children(db, STLearningObjective, STLearningObjective.concept_id, c.id)
+        mat_count = await _count_children(
+            db, STLearningMaterial, STLearningMaterial.concept_id, c.id
+        )
+        obj_count = await _count_children(
+            db, STLearningObjective, STLearningObjective.concept_id, c.id
+        )
         prac_count = await _count_children(db, STPractice, STPractice.concept_id, c.id)
         responses.append(_concept_response(c, mat_count, obj_count, prac_count))
     return responses
@@ -933,7 +963,9 @@ async def create_concept(
     user: User = Depends(require_lecturer),
     db: AsyncSession = Depends(get_db),
 ):
-    parent = await db.execute(select(STEMSubtopic).where(STEMSubtopic.id == subtopic_id))
+    parent = await db.execute(
+        select(STEMSubtopic).where(STEMSubtopic.id == subtopic_id)
+    )
     if not parent.scalar_one_or_none():
         raise HTTPException(status_code=404, detail="Subtopic not found")
     concept = STEMConcept(subtopic_id=subtopic_id, **body.model_dump())
@@ -1024,7 +1056,9 @@ async def update_material(
     user: User = Depends(require_lecturer),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(STLearningMaterial).where(STLearningMaterial.id == material_id))
+    result = await db.execute(
+        select(STLearningMaterial).where(STLearningMaterial.id == material_id)
+    )
     material = result.scalar_one_or_none()
     if not material:
         raise HTTPException(status_code=404, detail="Material not found")
@@ -1041,7 +1075,9 @@ async def delete_material(
     user: User = Depends(require_lecturer),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(STLearningMaterial).where(STLearningMaterial.id == material_id))
+    result = await db.execute(
+        select(STLearningMaterial).where(STLearningMaterial.id == material_id)
+    )
     material = result.scalar_one_or_none()
     if not material:
         raise HTTPException(status_code=404, detail="Material not found")
@@ -1098,7 +1134,9 @@ async def update_objective(
     user: User = Depends(require_lecturer),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(STLearningObjective).where(STLearningObjective.id == objective_id))
+    result = await db.execute(
+        select(STLearningObjective).where(STLearningObjective.id == objective_id)
+    )
     objective = result.scalar_one_or_none()
     if not objective:
         raise HTTPException(status_code=404, detail="Objective not found")
@@ -1115,7 +1153,9 @@ async def delete_objective(
     user: User = Depends(require_lecturer),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(STLearningObjective).where(STLearningObjective.id == objective_id))
+    result = await db.execute(
+        select(STLearningObjective).where(STLearningObjective.id == objective_id)
+    )
     objective = result.scalar_one_or_none()
     if not objective:
         raise HTTPException(status_code=404, detail="Objective not found")
@@ -1137,7 +1177,9 @@ async def list_practices(concept_id: int, db: AsyncSession = Depends(get_db)):
     if not parent.scalar_one_or_none():
         raise HTTPException(status_code=404, detail="Concept not found")
     result = await db.execute(
-        select(STPractice).where(STPractice.concept_id == concept_id).order_by(STPractice.order_index, STPractice.title)
+        select(STPractice)
+        .where(STPractice.concept_id == concept_id)
+        .order_by(STPractice.order_index, STPractice.title)
     )
     return [_practice_response(p) for p in result.scalars().all()]
 
@@ -1202,11 +1244,15 @@ async def delete_practice(
 
 @router.get("/cms/formulas", response_model=list[FormulaResponse])
 async def list_formulas(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(STEMFormula).order_by(STEMFormula.category, STEMFormula.title))
+    result = await db.execute(
+        select(STEMFormula).order_by(STEMFormula.category, STEMFormula.title)
+    )
     return [_formula_response(f) for f in result.scalars().all()]
 
 
-@router.post("/cms/formulas", response_model=FormulaResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/cms/formulas", response_model=FormulaResponse, status_code=status.HTTP_201_CREATED
+)
 async def create_formula(
     body: FormulaCreate,
     user: User = Depends(require_lecturer),
@@ -1258,7 +1304,9 @@ async def delete_formula(
 
 @router.get("/cms/careers", response_model=list[CareerPathResponse])
 async def list_careers(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(STEMCareerPath).order_by(STEMCareerPath.career_title))
+    result = await db.execute(
+        select(STEMCareerPath).order_by(STEMCareerPath.career_title)
+    )
     return [_career_response(c) for c in result.scalars().all()]
 
 
@@ -1286,7 +1334,9 @@ async def update_career(
     user: User = Depends(require_lecturer),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(STEMCareerPath).where(STEMCareerPath.id == career_id))
+    result = await db.execute(
+        select(STEMCareerPath).where(STEMCareerPath.id == career_id)
+    )
     career = result.scalar_one_or_none()
     if not career:
         raise HTTPException(status_code=404, detail="Career path not found")
@@ -1303,7 +1353,9 @@ async def delete_career(
     user: User = Depends(require_lecturer),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(STEMCareerPath).where(STEMCareerPath.id == career_id))
+    result = await db.execute(
+        select(STEMCareerPath).where(STEMCareerPath.id == career_id)
+    )
     career = result.scalar_one_or_none()
     if not career:
         raise HTTPException(status_code=404, detail="Career path not found")
@@ -1319,7 +1371,9 @@ async def delete_career(
 @router.get("/cms/questions", response_model=list[AssessmentQuestionResponse])
 async def list_assessment_questions(db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(STMAssessmentQuestion).order_by(STMAssessmentQuestion.concept_id, STMAssessmentQuestion.order_index)
+        select(STMAssessmentQuestion).order_by(
+            STMAssessmentQuestion.concept_id, STMAssessmentQuestion.order_index
+        )
     )
     return [_assessment_question_response(q) for q in result.scalars().all()]
 
@@ -1334,7 +1388,9 @@ async def create_assessment_question(
     user: User = Depends(require_lecturer),
     db: AsyncSession = Depends(get_db),
 ):
-    parent = await db.execute(select(STEMConcept).where(STEMConcept.id == body.concept_id))
+    parent = await db.execute(
+        select(STEMConcept).where(STEMConcept.id == body.concept_id)
+    )
     if not parent.scalar_one_or_none():
         raise HTTPException(status_code=404, detail="Concept not found")
     question = STMAssessmentQuestion(**body.model_dump())
@@ -1354,7 +1410,9 @@ async def update_assessment_question(
     user: User = Depends(require_lecturer),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(STMAssessmentQuestion).where(STMAssessmentQuestion.id == question_id))
+    result = await db.execute(
+        select(STMAssessmentQuestion).where(STMAssessmentQuestion.id == question_id)
+    )
     question = result.scalar_one_or_none()
     if not question:
         raise HTTPException(status_code=404, detail="Assessment question not found")
@@ -1371,7 +1429,9 @@ async def delete_assessment_question(
     user: User = Depends(require_lecturer),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(STMAssessmentQuestion).where(STMAssessmentQuestion.id == question_id))
+    result = await db.execute(
+        select(STMAssessmentQuestion).where(STMAssessmentQuestion.id == question_id)
+    )
     question = result.scalar_one_or_none()
     if not question:
         raise HTTPException(status_code=404, detail="Assessment question not found")
@@ -1400,8 +1460,12 @@ async def get_cms_stats(db: AsyncSession = Depends(get_db)):
         total_materials=await _total(db, STLearningMaterial),
         total_objectives=await _total(db, STLearningObjective),
         total_practices=await _total(db, STPractice),
-        published_materials=await _count_where(db, STLearningMaterial, STLearningMaterial.is_published.is_(True)),
-        published_practices=await _count_where(db, STPractice, STPractice.is_published.is_(True)),
+        published_materials=await _count_where(
+            db, STLearningMaterial, STLearningMaterial.is_published.is_(True)
+        ),
+        published_practices=await _count_where(
+            db, STPractice, STPractice.is_published.is_(True)
+        ),
     )
 
 

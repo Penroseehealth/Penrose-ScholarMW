@@ -146,7 +146,9 @@ async def update_voice_settings(
 ):
     voice = get_voice(body.default_voice_id)
     if not voice:
-        raise HTTPException(status_code=400, detail=f"Voice '{body.default_voice_id}' not found")
+        raise HTTPException(
+            status_code=400, detail=f"Voice '{body.default_voice_id}' not found"
+        )
     return {"status": "updated", "settings": body.model_dump()}
 
 

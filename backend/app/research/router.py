@@ -102,7 +102,9 @@ async def list_projects(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(ResearchProject).where(ResearchProject.owner_id == user.id))
+    result = await db.execute(
+        select(ResearchProject).where(ResearchProject.owner_id == user.id)
+    )
     return [ResearchProjectResponse.model_validate(p) for p in result.scalars().all()]
 
 
@@ -130,11 +132,15 @@ async def get_project(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(ResearchProject).where(ResearchProject.id == project_id, ResearchProject.owner_id == user.id)
+        select(ResearchProject).where(
+            ResearchProject.id == project_id, ResearchProject.owner_id == user.id
+        )
     )
     project = result.scalar_one_or_none()
     if not project:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
+        )
     return ResearchProjectResponse.model_validate(project)
 
 
@@ -144,7 +150,9 @@ async def list_notes(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(ResearchNote).where(ResearchNote.project_id == project_id))
+    result = await db.execute(
+        select(ResearchNote).where(ResearchNote.project_id == project_id)
+    )
     return [ResearchNoteResponse.model_validate(n) for n in result.scalars().all()]
 
 
@@ -186,14 +194,17 @@ async def search_literature(
                     {
                         "title": work.get("title", ""),
                         "authors": ", ".join(
-                            a.get("author", {}).get("display_name", "") for a in work.get("authorships", [])[:5]
+                            a.get("author", {}).get("display_name", "")
+                            for a in work.get("authorships", [])[:5]
                         ),
                         "abstract": work.get("abstract_inverted_index", {})
                         if isinstance(work.get("abstract_inverted_index"), str)
                         else "",
                         "year": work.get("publication_year", 0),
                         "doi": work.get("doi"),
-                        "source": work.get("primary_location", {}).get("source", {}).get("display_name", "")
+                        "source": work.get("primary_location", {})
+                        .get("source", {})
+                        .get("display_name", "")
                         if work.get("primary_location")
                         else "",
                         "relevance_score": work.get("relevance_score", 0.0),
@@ -217,12 +228,18 @@ async def list_evidence_cards(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(ResearchProject).where(ResearchProject.id == project_id, ResearchProject.owner_id == user.id)
+        select(ResearchProject).where(
+            ResearchProject.id == project_id, ResearchProject.owner_id == user.id
+        )
     )
     if result.scalar_one_or_none() is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
+        )
     cards = await db.execute(
-        select(EvidenceCard).where(EvidenceCard.project_id == project_id).order_by(EvidenceCard.created_at.desc())
+        select(EvidenceCard)
+        .where(EvidenceCard.project_id == project_id)
+        .order_by(EvidenceCard.created_at.desc())
     )
     return [EvidenceCardResponse.model_validate(c) for c in cards.scalars().all()]
 
@@ -239,10 +256,14 @@ async def create_evidence_card(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(ResearchProject).where(ResearchProject.id == project_id, ResearchProject.owner_id == user.id)
+        select(ResearchProject).where(
+            ResearchProject.id == project_id, ResearchProject.owner_id == user.id
+        )
     )
     if result.scalar_one_or_none() is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
+        )
     card = EvidenceCard(project_id=project_id, **body.model_dump())
     db.add(card)
     await db.commit()
@@ -260,7 +281,9 @@ async def update_evidence_card(
     result = await db.execute(select(EvidenceCard).where(EvidenceCard.id == card_id))
     card = result.scalar_one_or_none()
     if card is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evidence card not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Evidence card not found"
+        )
     owner_check = await db.execute(
         select(ResearchProject).where(
             ResearchProject.id == card.project_id,
@@ -268,7 +291,9 @@ async def update_evidence_card(
         )
     )
     if owner_check.scalar_one_or_none() is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
+        )
     for field, value in body.model_dump(exclude_unset=True).items():
         setattr(card, field, value)
     await db.commit()
@@ -285,7 +310,9 @@ async def delete_evidence_card(
     result = await db.execute(select(EvidenceCard).where(EvidenceCard.id == card_id))
     card = result.scalar_one_or_none()
     if card is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evidence card not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Evidence card not found"
+        )
     owner_check = await db.execute(
         select(ResearchProject).where(
             ResearchProject.id == card.project_id,
@@ -293,7 +320,9 @@ async def delete_evidence_card(
         )
     )
     if owner_check.scalar_one_or_none() is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
+        )
     await db.delete(card)
     await db.commit()
 
@@ -311,12 +340,18 @@ async def list_evidence_matrices(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(ResearchProject).where(ResearchProject.id == project_id, ResearchProject.owner_id == user.id)
+        select(ResearchProject).where(
+            ResearchProject.id == project_id, ResearchProject.owner_id == user.id
+        )
     )
     if result.scalar_one_or_none() is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
+        )
     matrices = await db.execute(
-        select(EvidenceMatrix).where(EvidenceMatrix.project_id == project_id).order_by(EvidenceMatrix.created_at.desc())
+        select(EvidenceMatrix)
+        .where(EvidenceMatrix.project_id == project_id)
+        .order_by(EvidenceMatrix.created_at.desc())
     )
     return [EvidenceMatrixResponse.model_validate(m) for m in matrices.scalars().all()]
 
@@ -333,10 +368,14 @@ async def create_evidence_matrix(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(ResearchProject).where(ResearchProject.id == project_id, ResearchProject.owner_id == user.id)
+        select(ResearchProject).where(
+            ResearchProject.id == project_id, ResearchProject.owner_id == user.id
+        )
     )
     if result.scalar_one_or_none() is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
+        )
     matrix = EvidenceMatrix(project_id=project_id, **body.model_dump())
     db.add(matrix)
     await db.commit()
@@ -350,10 +389,14 @@ async def delete_evidence_matrix(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(EvidenceMatrix).where(EvidenceMatrix.id == matrix_id))
+    result = await db.execute(
+        select(EvidenceMatrix).where(EvidenceMatrix.id == matrix_id)
+    )
     matrix = result.scalar_one_or_none()
     if matrix is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evidence matrix not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Evidence matrix not found"
+        )
     owner_check = await db.execute(
         select(ResearchProject).where(
             ResearchProject.id == matrix.project_id,
@@ -361,6 +404,8 @@ async def delete_evidence_matrix(
         )
     )
     if owner_check.scalar_one_or_none() is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
+        )
     await db.delete(matrix)
     await db.commit()

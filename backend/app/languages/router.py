@@ -26,7 +26,9 @@ class PlacementStartRequest(BaseModel):
 
 @router.get("")
 async def list_languages(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Language).where(Language.is_active == True).order_by(Language.id))
+    result = await db.execute(
+        select(Language).where(Language.is_active == True).order_by(Language.id)
+    )
     langs = result.scalars().all()
     out = []
     for lang in langs:
@@ -85,7 +87,10 @@ async def search_languages(
         .join(LanguageUnit)
         .join(LanguageLevel)
         .join(Language)
-        .where(LanguageVocabulary.word.ilike(pattern) | LanguageVocabulary.translation.ilike(pattern))
+        .where(
+            LanguageVocabulary.word.ilike(pattern)
+            | LanguageVocabulary.translation.ilike(pattern)
+        )
         .limit(20)
     )
     vocab = vr.scalars().all()
@@ -109,7 +114,10 @@ async def search_languages(
             }
             for v in vocab
         ],
-        "grammar": [{"id": g.id, "rule_name": g.rule_name, "explanation": g.explanation} for g in grammar],
+        "grammar": [
+            {"id": g.id, "rule_name": g.rule_name, "explanation": g.explanation}
+            for g in grammar
+        ],
     }
 
 
@@ -160,7 +168,9 @@ async def get_language_tree(slug: str, db: AsyncSession = Depends(get_db)):
         select(LanguageLevel)
         .where(LanguageLevel.language_id == lang.id)
         .options(
-            selectinload(LanguageLevel.units).selectinload(LanguageUnit.lessons).selectinload(LanguageLesson.vocabulary)
+            selectinload(LanguageLevel.units)
+            .selectinload(LanguageUnit.lessons)
+            .selectinload(LanguageLesson.vocabulary)
         )
         .order_by(LanguageLevel.order_index)
     )
@@ -185,7 +195,9 @@ async def get_language_tree(slug: str, db: AsyncSession = Depends(get_db)):
                         "name": u.name,
                         "description": u.description,
                         "lesson_count": len(u.lessons),
-                        "vocab_count": sum(len(lesson.vocabulary) for lesson in u.lessons),
+                        "vocab_count": sum(
+                            len(lesson.vocabulary) for lesson in u.lessons
+                        ),
                     }
                     for u in sorted(lv.units, key=lambda x: x.order_index)
                 ],
@@ -209,9 +221,13 @@ async def list_levels(slug: str, db: AsyncSession = Depends(get_db)):
     levels = lvls.scalars().all()
     out = []
     for lv in levels:
-        ucnt = await db.execute(select(func.count(LanguageUnit.id)).where(LanguageUnit.level_id == lv.id))
+        ucnt = await db.execute(
+            select(func.count(LanguageUnit.id)).where(LanguageUnit.level_id == lv.id)
+        )
         lcnt = await db.execute(
-            select(func.count(LanguageLesson.id)).join(LanguageUnit).where(LanguageUnit.level_id == lv.id)
+            select(func.count(LanguageLesson.id))
+            .join(LanguageUnit)
+            .where(LanguageUnit.level_id == lv.id)
         )
         out.append(
             {
@@ -236,7 +252,9 @@ async def get_level(slug: str, level_slug: str, db: AsyncSession = Depends(get_d
     if not lang:
         raise HTTPException(404, "Language not found")
     lr = await db.execute(
-        select(LanguageLevel).where(LanguageLevel.language_id == lang.id, LanguageLevel.slug == level_slug)
+        select(LanguageLevel).where(
+            LanguageLevel.language_id == lang.id, LanguageLevel.slug == level_slug
+        )
     )
     lv = lr.scalar_one_or_none()
     if not lv:
@@ -281,7 +299,9 @@ async def get_unit(unit_id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         select(LanguageUnit)
         .where(LanguageUnit.id == unit_id)
-        .options(selectinload(LanguageUnit.lessons).selectinload(LanguageLesson.vocabulary))
+        .options(
+            selectinload(LanguageUnit.lessons).selectinload(LanguageLesson.vocabulary)
+        )
     )
     unit = result.scalar_one_or_none()
     if not unit:
@@ -403,7 +423,9 @@ async def vocabulary_themes(slug: str, db: AsyncSession = Depends(get_db)):
         .join(LanguageLesson)
         .join(LanguageUnit)
         .join(LanguageLevel)
-        .where(LanguageLevel.language_id == lang.id, LanguageVocabulary.theme.isnot(None))
+        .where(
+            LanguageLevel.language_id == lang.id, LanguageVocabulary.theme.isnot(None)
+        )
         .group_by(LanguageVocabulary.theme)
         .order_by(func.count(LanguageVocabulary.id).desc())
     )
@@ -513,7 +535,9 @@ async def get_analytics(slug: str, user_id: int, db: AsyncSession = Depends(get_
 
 
 @router.post("/placement/start")
-async def start_placement(req: PlacementStartRequest, db: AsyncSession = Depends(get_db)):
+async def start_placement(
+    req: PlacementStartRequest, db: AsyncSession = Depends(get_db)
+):
     lang_r = await db.execute(select(Language).where(Language.id == req.language_id))
     lang = lang_r.scalar_one_or_none()
     if not lang:

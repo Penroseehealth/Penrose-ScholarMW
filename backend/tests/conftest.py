@@ -1,3 +1,4 @@
+import os
 from contextlib import asynccontextmanager
 
 import pytest
@@ -8,7 +9,9 @@ from app.core.security import create_access_token, hash_password
 from app.database.engine import Base, get_db
 from app.models.models import User, UserRole
 
-TEST_DATABASE_URL = "sqlite+aiosqlite:///./test.db"
+# Isolate the test database so parallel/serial runs cannot clash on a shared
+# file. Override with TEST_DATABASE_URL for a throwaway database.
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "sqlite+aiosqlite:///./test.db")
 test_engine = create_async_engine(TEST_DATABASE_URL, echo=False)
 TestSessionLocal = async_sessionmaker(
     test_engine, class_=AsyncSession, expire_on_commit=False
@@ -31,8 +34,15 @@ async def lifespan_override(app):
 app = None
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 async def setup_db():
+    """Create a clean schema.
+
+    Opt-in rather than autouse: the majority of tests (in particular the
+    deterministic maths-engine tests) never touch the database, so paying for
+    a drop_all/create_all per test is pure waste. Fixtures that genuinely need
+    tables depend on this explicitly.
+    """
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
@@ -42,13 +52,15 @@ async def setup_db():
 
 
 @pytest.fixture
-async def db_session():
+async def db_session(setup_db):
+    _ = setup_db
     async with TestSessionLocal() as session:
         yield session
 
 
 @pytest.fixture
-def client():
+async def client(setup_db):
+    _ = setup_db
     from app.main import app as real_app
 
     real_app.router.lifespan_context = lifespan_override

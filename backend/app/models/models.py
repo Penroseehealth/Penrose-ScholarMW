@@ -13,6 +13,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.core.names import first_name_from
 from app.database.engine import Base
 
 
@@ -64,6 +65,11 @@ class User(Base):
     refresh_tokens: Mapped[list["RefreshToken"]] = relationship(back_populates="user")
     chat_sessions: Mapped[list["ChatSession"]] = relationship(back_populates="user")
     submissions: Mapped[list["Submission"]] = relationship(back_populates="student")
+
+    @property
+    def first_name(self) -> str:
+        """Derived from ``full_name``; no column, so no migration is needed."""
+        return first_name_from(self.full_name)
 
 
 class RefreshToken(Base):

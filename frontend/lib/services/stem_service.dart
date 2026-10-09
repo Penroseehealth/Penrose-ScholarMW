@@ -170,8 +170,13 @@ class StemService {
 
   // ── STEM Tutor ──
 
+  /// Sends a tutor turn.
+  ///
+  /// [context] carries the workspace snapshot so the reply accounts for what
+  /// the student is currently looking at; it is omitted when contextual memory
+  /// is switched off in settings.
   Future<Map<String, dynamic>> chatWithStemTutor(int conceptId, String message, String mode,
-      {List<Map<String, String>>? history}) async {
+      {List<Map<String, String>>? history, Map<String, dynamic>? context}) async {
     final body = <String, dynamic>{
       'concept_id': conceptId,
       'message': message,
@@ -179,6 +184,9 @@ class StemService {
     };
     if (history != null && history.isNotEmpty) {
       body['history'] = history;
+    }
+    if (context != null && context.isNotEmpty) {
+      body['workspace'] = context;
     }
     final response = await _api.post('/stem/tutor/chat', body: body);
     if (response.statusCode == 200) return jsonDecode(response.body) as Map<String, dynamic>;

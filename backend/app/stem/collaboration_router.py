@@ -48,12 +48,18 @@ async def get_ws_user(token: str, db: AsyncSession) -> User | None:
     return user
 
 
-async def _verify_group_exists(db: AsyncSession, group_id: int) -> STEMStudyGroup | None:
-    result = await db.execute(select(STEMStudyGroup).where(STEMStudyGroup.id == group_id))
+async def _verify_group_exists(
+    db: AsyncSession, group_id: int
+) -> STEMStudyGroup | None:
+    result = await db.execute(
+        select(STEMStudyGroup).where(STEMStudyGroup.id == group_id)
+    )
     return result.scalar_one_or_none()
 
 
-async def _verify_membership(db: AsyncSession, group_id: int, user_id: int) -> STEMGroupMember | None:
+async def _verify_membership(
+    db: AsyncSession, group_id: int, user_id: int
+) -> STEMGroupMember | None:
     result = await db.execute(
         select(STEMGroupMember).where(
             STEMGroupMember.group_id == group_id,
@@ -157,7 +163,9 @@ async def websocket_groups(
             if msg_type == "chat":
                 content = payload.get("content", "").strip()
                 if not content:
-                    await websocket.send_json({"type": "error", "message": "Empty message"})
+                    await websocket.send_json(
+                        {"type": "error", "message": "Empty message"}
+                    )
                     continue
 
                 if len(content) > 5000:
@@ -226,7 +234,9 @@ async def websocket_groups(
         except Exception:
             pass
     finally:
-        active_connections.get(group_id, set()).discard((websocket, user.id if user else -1))
+        active_connections.get(group_id, set()).discard(
+            (websocket, user.id if user else -1)
+        )
         if not active_connections.get(group_id):
             active_connections.pop(group_id, None)
         if db is not None:
@@ -353,7 +363,9 @@ async def get_user_online_groups(
                 group_id=group.id,
                 group_name=group.name,
                 online_count=len(online_ids),
-                online_users=[OnlineUserInfo(user_id=u.id, full_name=u.full_name) for u in users],
+                online_users=[
+                    OnlineUserInfo(user_id=u.id, full_name=u.full_name) for u in users
+                ],
             )
         )
 

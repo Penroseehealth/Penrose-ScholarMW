@@ -331,6 +331,8 @@ class _BiologyDashboardState extends State<BiologyDashboard> with SingleTickerPr
     const _BioModule(Icons.menu_book_rounded, 'Topics & Syllabus', 'Full MSCE Biology curriculum', '/bio-topics'),
     const _BioModule(Icons.auto_awesome_rounded, 'Biology AI Tutor', 'AI-powered Biology assistant', '/bio-ai-tutor'),
     const _BioModule(Icons.science_rounded, 'Virtual Biology Lab', 'Interactive experiments', '/bio-virtual-lab'),
+    const _BioModule(
+        Icons.view_in_ar_rounded, 'Biology 3D Laboratory', 'Explore cells, organs & molecules in 3D', '/bio-3d-lab'),
     const _BioModule(Icons.science_outlined, 'Practical Skills', 'Lab techniques & procedures', '/bio-practicals'),
     const _BioModule(Icons.image_rounded, 'Diagram Centre', 'Interactive biology diagrams', '/bio-diagrams'),
     const _BioModule(Icons.bolt_rounded, 'Neuron Communication', 'Animated two-neuron signalling', '/bio-neuron'),

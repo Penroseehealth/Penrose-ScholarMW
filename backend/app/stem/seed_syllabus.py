@@ -59,7 +59,9 @@ BIOLOGY_SYLLABUS = {
                     "subtopics": [
                         {
                             "title": "Safety Measures, Risk Factors and Handling of Accidents",
-                            "description": ("Safety measures in the laboratory; risk factors; handling of accidents."),
+                            "description": (
+                                "Safety measures in the laboratory; risk factors; handling of accidents."
+                            ),
                             "learning_objectives": [
                                 {
                                     "objective": "Identify safety measures to be observed in the laboratory",
@@ -134,7 +136,9 @@ BIOLOGY_SYLLABUS = {
                     "subtopics": [
                         {
                             "title": "Measurement and Calculation",
-                            "description": ("Measurements of organisms; calculation of variables from measurements."),
+                            "description": (
+                                "Measurements of organisms; calculation of variables from measurements."
+                            ),
                             "learning_objectives": [
                                 {
                                     "objective": "Measure organisms using appropriate instruments (ruler, calipers, balance)",
@@ -2009,7 +2013,9 @@ BIOLOGY_SYLLABUS = {
                     "subtopics": [
                         {
                             "title": "Lymphatic Vessels and Nodes",
-                            "description": ("Component parts of the lymphatic system and their functions."),
+                            "description": (
+                                "Component parts of the lymphatic system and their functions."
+                            ),
                             "learning_objectives": [
                                 {
                                     "objective": "Identify the component parts of the lymphatic system (lymph vessels, lymph nodes, spleen, thymus gland, tonsils)",
@@ -2260,7 +2266,9 @@ BIOLOGY_SYLLABUS = {
                         },
                         {
                             "title": "Endocrine System",
-                            "description": ("Endocrine system and glands; factors modifying growth and development."),
+                            "description": (
+                                "Endocrine system and glands; factors modifying growth and development."
+                            ),
                             "learning_objectives": [
                                 {
                                     "objective": "Describe the endocrine system and identify the major endocrine glands (pituitary, thyroid, adrenal, pancreas, ovaries, testes)",
@@ -2762,7 +2770,9 @@ BIOLOGY_SYLLABUS = {
                         },
                         {
                             "title": "Cell Division",
-                            "description": ("Chromosomes; mitosis; meiosis; and their significance."),
+                            "description": (
+                                "Chromosomes; mitosis; meiosis; and their significance."
+                            ),
                             "learning_objectives": [
                                 {
                                     "objective": "Describe chromosomes as carriers of genetic information and state the human chromosome number (46)",
@@ -3075,7 +3085,9 @@ async def seed_syllabus():
     """Seed the Biology MSCE syllabus. Idempotent."""
     async with async_session() as db:
         existing = (
-            await db.execute(select(SyllabusSubject).where(SyllabusSubject.slug == "biology"))
+            await db.execute(
+                select(SyllabusSubject).where(SyllabusSubject.slug == "biology")
+            )
         ).scalar_one_or_none()
         if existing:
             return

@@ -117,7 +117,9 @@ async def analytics_progress_over_time(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    records_result = await db.execute(select(MasteryRecord).where(MasteryRecord.user_id == user.id))
+    records_result = await db.execute(
+        select(MasteryRecord).where(MasteryRecord.user_id == user.id)
+    )
     records = records_result.scalars().all()
 
     if not records:
@@ -130,7 +132,10 @@ async def analytics_progress_over_time(
         .join(STEMSubtopic, STEMSubtopic.id == STEMConcept.subtopic_id)
         .where(STEMConcept.id.in_(concept_ids))
     )
-    concept_map = {row[0]: {"title": row[1], "subtopic_id": row[2]} for row in concepts_result.all()}
+    concept_map = {
+        row[0]: {"title": row[1], "subtopic_id": row[2]}
+        for row in concepts_result.all()
+    }
 
     subtopic_ids = list({c["subtopic_id"] for c in concept_map.values()})
     subtopic_result = await db.execute(
@@ -190,7 +195,9 @@ async def analytics_subject_comparison(
     subjects_result = await db.execute(select(STEMSubject).order_by(STEMSubject.title))
     subjects = subjects_result.scalars().all()
 
-    records_result = await db.execute(select(MasteryRecord).where(MasteryRecord.user_id == user.id))
+    records_result = await db.execute(
+        select(MasteryRecord).where(MasteryRecord.user_id == user.id)
+    )
     records = {r.concept_id: r for r in records_result.scalars().all()}
 
     comparisons: list[SubjectComparison] = []
@@ -204,7 +211,11 @@ async def analytics_subject_comparison(
         )
         concept_ids = [row[0] for row in concepts_result.all()]
         total = len(concept_ids)
-        mastered = sum(1 for cid in concept_ids if cid in records and records[cid].mastery_level >= 0.8)
+        mastered = sum(
+            1
+            for cid in concept_ids
+            if cid in records and records[cid].mastery_level >= 0.8
+        )
         avg = (
             sum(records[cid].mastery_level for cid in concept_ids if cid in records)
             / len([cid for cid in concept_ids if cid in records])
@@ -228,7 +239,9 @@ async def analytics_study_summary(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    sessions_result = await db.execute(select(STEMStudySession).where(STEMStudySession.user_id == user.id))
+    sessions_result = await db.execute(
+        select(STEMStudySession).where(STEMStudySession.user_id == user.id)
+    )
     sessions = sessions_result.scalars().all()
 
     total_minutes = sum(s.duration_minutes for s in sessions)
@@ -287,7 +300,9 @@ async def analytics_weakest_concepts(
     weakest: list[WeakestConcept] = []
     for r in records:
         concept_result = await db.execute(
-            select(STEMConcept.id, STEMConcept.title, STEMSubtopic.id.label("subtopic_id"))
+            select(
+                STEMConcept.id, STEMConcept.title, STEMSubtopic.id.label("subtopic_id")
+            )
             .join(STEMSubtopic, STEMSubtopic.id == STEMConcept.subtopic_id)
             .where(STEMConcept.id == r.concept_id)
         )
@@ -336,18 +351,26 @@ async def analytics_subject_breakdown(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    subject_result = await db.execute(select(STEMSubject).where(STEMSubject.subject_slug == slug))
+    subject_result = await db.execute(
+        select(STEMSubject).where(STEMSubject.subject_slug == slug)
+    )
     subject = subject_result.scalar_one_or_none()
     if not subject:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found"
+        )
 
-    disciplines_result = await db.execute(select(STEMDiscipline).where(STEMDiscipline.subject_id == subject.id))
+    disciplines_result = await db.execute(
+        select(STEMDiscipline).where(STEMDiscipline.subject_id == subject.id)
+    )
     disciplines = disciplines_result.scalars().all()
     total_disciplines = len(disciplines)
 
     discipline_ids = [d.id for d in disciplines]
 
-    topics_result = await db.execute(select(STEMTopic).where(STEMTopic.discipline_id.in_(discipline_ids)))
+    topics_result = await db.execute(
+        select(STEMTopic).where(STEMTopic.discipline_id.in_(discipline_ids))
+    )
     topics = topics_result.scalars().all()
     total_topics = len(topics)
 
@@ -355,7 +378,9 @@ async def analytics_subject_breakdown(
 
     concepts_result = await db.execute(
         select(STEMConcept).where(
-            STEMConcept.subtopic_id.in_(select(STEMSubtopic.id).where(STEMSubtopic.topic_id.in_(topic_ids)))
+            STEMConcept.subtopic_id.in_(
+                select(STEMSubtopic.id).where(STEMSubtopic.topic_id.in_(topic_ids))
+            )
         )
     )
     concept_ids = [c.id for c in concepts_result.scalars().all()]
@@ -392,7 +417,9 @@ async def analytics_subject_breakdown(
         .order_by(STEMDailyProgress.date.desc())
     )
     recent_progress = progress_result.scalars().all()
-    recent_activity = [RecentActivity(date=p.date, minutes=p.study_minutes) for p in recent_progress]
+    recent_activity = [
+        RecentActivity(date=p.date, minutes=p.study_minutes) for p in recent_progress
+    ]
 
     return SubjectBreakdown(
         subject_title=subject.title,

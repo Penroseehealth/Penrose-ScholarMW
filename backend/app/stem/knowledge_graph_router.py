@@ -86,10 +86,14 @@ def _edge_response(edge: KnowledgeGraphEdge) -> EdgeResponse:
 
 @router.get("/knowledge-graph/subject/{slug}", response_model=list[EdgeResponse])
 async def get_edges_for_subject(slug: str, db: AsyncSession = Depends(get_db)):
-    subject_result = await db.execute(select(STEMSubject).where(STEMSubject.subject_slug == slug))
+    subject_result = await db.execute(
+        select(STEMSubject).where(STEMSubject.subject_slug == slug)
+    )
     subject = subject_result.scalar_one_or_none()
     if not subject:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found"
+        )
 
     concept_ids_result = await db.execute(
         select(STEMConcept.id)
@@ -124,9 +128,13 @@ async def get_edges_for_subject(slug: str, db: AsyncSession = Depends(get_db)):
     response_model=list[ConnectedConceptResponse],
 )
 async def get_connected_concepts(concept_id: int, db: AsyncSession = Depends(get_db)):
-    concept_result = await db.execute(select(STEMConcept).where(STEMConcept.id == concept_id))
+    concept_result = await db.execute(
+        select(STEMConcept).where(STEMConcept.id == concept_id)
+    )
     if not concept_result.scalar_one_or_none():
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Concept not found"
+        )
 
     edges_result = await db.execute(
         select(KnowledgeGraphEdge)
@@ -145,7 +153,11 @@ async def get_connected_concepts(concept_id: int, db: AsyncSession = Depends(get
 
     connected: dict[int, list[KnowledgeGraphEdge]] = defaultdict(list)
     for edge in edges:
-        other_id = edge.target_concept_id if edge.source_concept_id == concept_id else edge.source_concept_id
+        other_id = (
+            edge.target_concept_id
+            if edge.source_concept_id == concept_id
+            else edge.source_concept_id
+        )
         connected[other_id].append(edge)
 
     results: list[ConnectedConceptResponse] = []
@@ -168,16 +180,26 @@ async def get_connected_concepts(concept_id: int, db: AsyncSession = Depends(get
     "/knowledge-graph/paths/{source_id}/{target_id}",
     response_model=ShortestPathResponse,
 )
-async def shortest_path(source_id: int, target_id: int, db: AsyncSession = Depends(get_db)):
-    source_result = await db.execute(select(STEMConcept).where(STEMConcept.id == source_id))
+async def shortest_path(
+    source_id: int, target_id: int, db: AsyncSession = Depends(get_db)
+):
+    source_result = await db.execute(
+        select(STEMConcept).where(STEMConcept.id == source_id)
+    )
     source_concept = source_result.scalar_one_or_none()
     if not source_concept:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source concept not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Source concept not found"
+        )
 
-    target_result = await db.execute(select(STEMConcept).where(STEMConcept.id == target_id))
+    target_result = await db.execute(
+        select(STEMConcept).where(STEMConcept.id == target_id)
+    )
     target_concept = target_result.scalar_one_or_none()
     if not target_concept:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Target concept not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Target concept not found"
+        )
 
     if source_id == target_id:
         return ShortestPathResponse(
@@ -198,8 +220,12 @@ async def shortest_path(source_id: int, target_id: int, db: AsyncSession = Depen
     adjacency: dict[int, list[tuple[int, str, int]]] = defaultdict(list)
     edge_map: dict[int, STEMConcept] = {}
     for edge in all_edges:
-        adjacency[edge.source_concept_id].append((edge.target_concept_id, edge.relationship_type, edge.id))
-        adjacency[edge.target_concept_id].append((edge.source_concept_id, edge.relationship_type, edge.id))
+        adjacency[edge.source_concept_id].append(
+            (edge.target_concept_id, edge.relationship_type, edge.id)
+        )
+        adjacency[edge.target_concept_id].append(
+            (edge.source_concept_id, edge.relationship_type, edge.id)
+        )
         edge_map[edge.source_concept_id] = edge.source_concept
         edge_map[edge.target_concept_id] = edge.target_concept
 
@@ -226,7 +252,9 @@ async def shortest_path(source_id: int, target_id: int, db: AsyncSession = Depen
                     node = target_id
                     while node is not None:
                         parent = visited[node]
-                        concept_result = await db.execute(select(STEMConcept).where(STEMConcept.id == node))
+                        concept_result = await db.execute(
+                            select(STEMConcept).where(STEMConcept.id == node)
+                        )
                         concept = concept_result.scalar_one_or_none()
                         seg = PathSegment(
                             concept=_concept_brief(concept),
@@ -254,7 +282,9 @@ async def shortest_path(source_id: int, target_id: int, db: AsyncSession = Depen
 
 @router.get("/knowledge-graph/stats", response_model=KnowledgeGraphStats)
 async def get_knowledge_graph_stats(db: AsyncSession = Depends(get_db)):
-    total_result = await db.execute(select(func.count()).select_from(KnowledgeGraphEdge))
+    total_result = await db.execute(
+        select(func.count()).select_from(KnowledgeGraphEdge)
+    )
     total_edges = total_result.scalar() or 0
 
     subject_edges_result = await db.execute(

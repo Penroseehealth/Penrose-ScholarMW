@@ -10,9 +10,9 @@
 /// solver can keep producing solutions with no network at all.
 library;
 
-enum TutorVisualKind { rightTriangle, parabola, percentageBar, expression, balance, none }
+enum TutorVisualKind { rightTriangle, parabola, percentageBar, expression, balance, figure, none }
 
-enum TutorSubject { geometry, algebra, arithmetic, percentage, clarification }
+enum TutorSubject { geometry, algebra, arithmetic, percentage, physics, clarification }
 
 /// One narration step: renderable on the canvas, speakable on its own.
 class TutorStep {
@@ -120,6 +120,7 @@ class TutorSolution {
         'algebra' => TutorSubject.algebra,
         'arithmetic' => TutorSubject.arithmetic,
         'percentage' => TutorSubject.percentage,
+        'physics' => TutorSubject.physics,
         'clarification' => TutorSubject.clarification,
         _ => TutorSubject.clarification,
       };
@@ -131,6 +132,7 @@ class TutorSolution {
       'parabola' => TutorVisualKind.parabola,
       'percentage_bar' => TutorVisualKind.percentageBar,
       'expression' => TutorVisualKind.expression,
+      'figure' => TutorVisualKind.figure,
       _ => TutorVisualKind.none,
     };
   }

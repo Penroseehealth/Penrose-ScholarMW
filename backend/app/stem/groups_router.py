@@ -130,11 +130,17 @@ async def get_group(
     id: int,
     db: AsyncSession = Depends(get_db),
 ):
-    stmt = select(STEMStudyGroup).options(joinedload(STEMStudyGroup.members)).where(STEMStudyGroup.id == id)
+    stmt = (
+        select(STEMStudyGroup)
+        .options(joinedload(STEMStudyGroup.members))
+        .where(STEMStudyGroup.id == id)
+    )
     result = await db.execute(stmt)
     group = result.unique().scalar_one_or_none()
     if not group:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Group not found"
+        )
 
     member_responses: list[MemberResponse] = []
     for m in group.members:
@@ -157,7 +163,9 @@ async def get_group(
     )
 
 
-@router.post("/groups", response_model=GroupResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/groups", response_model=GroupResponse, status_code=status.HTTP_201_CREATED
+)
 async def create_group(
     body: GroupCreate,
     user: User = Depends(get_current_user),
@@ -194,9 +202,13 @@ async def join_group(
     result = await db.execute(select(STEMStudyGroup).where(STEMStudyGroup.id == id))
     group = result.scalar_one_or_none()
     if not group:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Group not found"
+        )
     if not group.is_active:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Group is not active")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Group is not active"
+        )
 
     existing = await db.execute(
         select(STEMGroupMember).where(
@@ -205,12 +217,18 @@ async def join_group(
         )
     )
     if existing.scalar_one_or_none():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Already a member")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Already a member"
+        )
 
-    count_result = await db.execute(select(func.count(STEMGroupMember.id)).where(STEMGroupMember.group_id == id))
+    count_result = await db.execute(
+        select(func.count(STEMGroupMember.id)).where(STEMGroupMember.group_id == id)
+    )
     current_count = count_result.scalar()
     if current_count >= group.max_members:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Group is full")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Group is full"
+        )
 
     member = STEMGroupMember(group_id=id, user_id=user.id)
     db.add(member)
@@ -232,9 +250,13 @@ async def leave_group(
     )
     member = result.scalar_one_or_none()
     if not member:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Not a member of this group")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Not a member of this group"
+        )
 
-    group_result = await db.execute(select(STEMStudyGroup).where(STEMStudyGroup.id == id))
+    group_result = await db.execute(
+        select(STEMStudyGroup).where(STEMStudyGroup.id == id)
+    )
     group = group_result.scalar_one_or_none()
     if group and group.creator_id == user.id:
         raise HTTPException(
@@ -252,7 +274,11 @@ async def list_messages(
     id: int,
     db: AsyncSession = Depends(get_db),
 ):
-    stmt = select(STEMGroupMessage).where(STEMGroupMessage.group_id == id).order_by(STEMGroupMessage.created_at.asc())
+    stmt = (
+        select(STEMGroupMessage)
+        .where(STEMGroupMessage.group_id == id)
+        .order_by(STEMGroupMessage.created_at.asc())
+    )
     result = await db.execute(stmt)
     messages = result.scalars().all()
 
@@ -279,7 +305,9 @@ async def send_message(
     result = await db.execute(select(STEMStudyGroup).where(STEMStudyGroup.id == id))
     group = result.scalar_one_or_none()
     if not group:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Group not found"
+        )
 
     member_result = await db.execute(
         select(STEMGroupMember).where(

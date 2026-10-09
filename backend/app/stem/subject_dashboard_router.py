@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.names import greeting_name
 from app.database.engine import get_db
 from app.dependencies.auth import get_current_user
 from app.models.models import User
@@ -80,7 +81,7 @@ def _build_greeting(user_full_name: str) -> str:
         time_of_day = "afternoon"
     else:
         time_of_day = "evening"
-    return f"Good {time_of_day}, {user_full_name}"
+    return f"Good {time_of_day}, {greeting_name(user_full_name)}"
 
 
 @router.get(

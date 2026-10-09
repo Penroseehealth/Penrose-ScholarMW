@@ -112,12 +112,18 @@ async def get_announcement(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(STEMAnnouncement).where(STEMAnnouncement.id == announcement_id))
+    result = await db.execute(
+        select(STEMAnnouncement).where(STEMAnnouncement.id == announcement_id)
+    )
     announcement = result.scalar_one_or_none()
     if not announcement:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Announcement not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Announcement not found"
+        )
 
-    author_result = await db.execute(select(User).where(User.id == announcement.author_id))
+    author_result = await db.execute(
+        select(User).where(User.id == announcement.author_id)
+    )
     author = author_result.scalar_one_or_none()
 
     return AnnouncementDetailResponse(
@@ -140,10 +146,14 @@ async def delete_announcement(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(STEMAnnouncement).where(STEMAnnouncement.id == announcement_id))
+    result = await db.execute(
+        select(STEMAnnouncement).where(STEMAnnouncement.id == announcement_id)
+    )
     announcement = result.scalar_one_or_none()
     if not announcement:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Announcement not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Announcement not found"
+        )
     if announcement.author_id != user.id and user.role != UserRole.ADMIN:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

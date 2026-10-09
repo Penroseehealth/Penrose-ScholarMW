@@ -1817,7 +1817,9 @@ async def seed_phase2():
         counts["knowledge_edges"] = await _seed_knowledge_edges(db, concept_index)
         counts["formulas"] = await _seed_formulas(db)
         counts["careers"] = await _seed_careers(db)
-        counts["assessment_questions"] = await _seed_assessment_questions(db, concept_index)
+        counts["assessment_questions"] = await _seed_assessment_questions(
+            db, concept_index
+        )
         counts["labs"] = await _seed_labs(db)
 
         await db.commit()

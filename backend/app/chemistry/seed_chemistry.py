@@ -134,8 +134,12 @@ CHEMISTRY_SYLLABUS = {
                     "year_level": 2,
                     "periods": 12,
                     "subtopics": [
-                        {"title": "Ways of disposing chemical wastes in the laboratory"},
-                        {"title": "Designing experiments for scientific investigations"},
+                        {
+                            "title": "Ways of disposing chemical wastes in the laboratory"
+                        },
+                        {
+                            "title": "Designing experiments for scientific investigations"
+                        },
                         {"title": "Determining the purity of substances"},
                         {"title": "Simple tests for water, ions and gases"},
                     ],
@@ -193,7 +197,9 @@ CHEMISTRY_SYLLABUS = {
                     "description": "Advanced experimental techniques for purification and analysis.",
                     "subtopics": [
                         {"title": "Safe disposal of chemical wastes"},
-                        {"title": "Designing and carrying out scientific investigations"},
+                        {
+                            "title": "Designing and carrying out scientific investigations"
+                        },
                         {"title": "Determining purity of substances"},
                         {"title": "Tests for water, ions and gases"},
                     ],
@@ -471,7 +477,9 @@ CHEMISTRY_SYLLABUS = {
                     "periods": 9,
                     "subtopics": [
                         {"title": "Definition of periodic table"},
-                        {"title": "Arrangement of the first twenty elements in the periodic table"},
+                        {
+                            "title": "Arrangement of the first twenty elements in the periodic table"
+                        },
                         {"title": "Family of elements"},
                     ],
                     "learning_objectives": [
@@ -702,7 +710,9 @@ CHEMISTRY_SYLLABUS = {
                         {"title": "Balancing chemical equations"},
                         {"title": "Relative formula masses"},
                         {"title": "The mole concept"},
-                        {"title": "Percentage of water in molecular and hydrated ionic compounds"},
+                        {
+                            "title": "Percentage of water in molecular and hydrated ionic compounds"
+                        },
                         {"title": "Empirical and molecular formula"},
                         {"title": "Concentration of solutions"},
                         {"title": "Preparation of standard solutions"},
@@ -858,12 +868,16 @@ CHEMISTRY_SYLLABUS = {
                     "year_level": 4,
                     "periods": 16,
                     "subtopics": [
-                        {"title": "Definition of acids and bases according to Bronsted-Lowry theory"},
+                        {
+                            "title": "Definition of acids and bases according to Bronsted-Lowry theory"
+                        },
                         {"title": "Conjugate acid-base pairs"},
                         {"title": "Strength of acids and bases in terms of ionisation"},
                         {"title": "Concentration versus strength of acids and bases"},
                         {"title": "Ways of controlling pH in different environments"},
-                        {"title": "Classification of metal oxides and non-metal oxides as acidic and basic"},
+                        {
+                            "title": "Classification of metal oxides and non-metal oxides as acidic and basic"
+                        },
                     ],
                     "learning_objectives": [
                         {
@@ -1151,9 +1165,13 @@ CHEMISTRY_SYLLABUS = {
                     "periods": 15,
                     "subtopics": [
                         {"title": "Nomenclature of alkanes and alkenes"},
-                        {"title": "Molecular, condensed, structural and skeletal formulae of alkanes and alkenes"},
+                        {
+                            "title": "Molecular, condensed, structural and skeletal formulae of alkanes and alkenes"
+                        },
                         {"title": "Saturated and unsaturated hydrocarbons"},
-                        {"title": "Physical and chemical properties of alkanes and alkenes"},
+                        {
+                            "title": "Physical and chemical properties of alkanes and alkenes"
+                        },
                         {"title": "Uses of alkanes and alkenes"},
                     ],
                     "learning_objectives": [
@@ -1281,7 +1299,9 @@ CHEMISTRY_SYLLABUS = {
                     "subtopics": [
                         {"title": "Definition of isomers"},
                         {"title": "Structures and nomenclature of isomers"},
-                        {"title": "Effects of branching on physical properties of organic compounds"},
+                        {
+                            "title": "Effects of branching on physical properties of organic compounds"
+                        },
                     ],
                     "learning_objectives": [
                         {
@@ -1506,7 +1526,9 @@ CHEMISTRY_SYLLABUS = {
                     "year_level": 4,
                     "periods": 4,
                     "subtopics": [
-                        {"title": "Deducing class and formulae of unknown organic compounds"},
+                        {
+                            "title": "Deducing class and formulae of unknown organic compounds"
+                        },
                         {"title": "Construction of flow diagrams"},
                     ],
                     "learning_objectives": [
@@ -1615,7 +1637,9 @@ CHEMISTRY_SYLLABUS = {
                         {"title": "Dangers of polluted water"},
                         {"title": "Purification and treatment of water"},
                         {"title": "Prevention of water pollution"},
-                        {"title": "International and national standards on water quality"},
+                        {
+                            "title": "International and national standards on water quality"
+                        },
                         {"title": "Impact of human activities on the atmosphere"},
                     ],
                     "learning_objectives": [
@@ -1924,7 +1948,9 @@ CHEMISTRY_SYLLABUS = {
 async def seed_chemistry_syllabus():
     """Seed the Malawi Chemistry syllabus. Idempotent — skips if already seeded."""
     async with async_session() as db:
-        existing = await db.execute(select(SyllabusSubject).where(SyllabusSubject.slug == "chemistry"))
+        existing = await db.execute(
+            select(SyllabusSubject).where(SyllabusSubject.slug == "chemistry")
+        )
         if existing.scalar_one_or_none():
             return
 

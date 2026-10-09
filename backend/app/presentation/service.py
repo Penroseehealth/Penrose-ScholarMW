@@ -376,11 +376,7 @@ async def load_seeded_syllabus(db, config) -> str:
     if not topics:
         return f"[SUBJECT] {subject.name} (seeded syllabus — no aligned topics found)\n{subject.description or ''}"
 
-    needles = [
-        t
-        for t in (_norm(config.topic), _norm(config.subtopic))
-        if t
-    ]
+    needles = [t for t in (_norm(config.topic), _norm(config.subtopic)) if t]
     if not needles:
         needles = None  # topic/subtopic blank -> include the whole syllabus
 
@@ -404,7 +400,9 @@ async def load_seeded_syllabus(db, config) -> str:
     if not selected:
         selected = topics[:5]
 
-    chunks: list[str] = [f"[SYLLABUS] {subject.name} — {subject.description or ''}".strip()]
+    chunks: list[str] = [
+        f"[SYLLABUS] {subject.name} — {subject.description or ''}".strip()
+    ]
     for t in selected[:8]:
         chunk = [f"TOPIC: {t.title}"]
         if t.description:
@@ -421,7 +419,9 @@ async def load_seeded_syllabus(db, config) -> str:
             .all()
         )
         for st in subtopics:
-            chunk.append(f"  - {st.title}" + (f": {st.description}" if st.description else ""))
+            chunk.append(
+                f"  - {st.title}" + (f": {st.description}" if st.description else "")
+            )
             los = (
                 (
                     await db.execute(
