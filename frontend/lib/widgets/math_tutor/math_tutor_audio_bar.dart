@@ -55,9 +55,12 @@ class MathTutorAudioBar extends StatelessWidget {
             children: <Widget>[
               Row(
                 children: <Widget>[
-                  Text(
-                    step == null ? 'Narration' : 'Step ${player.stepNumber} of ${player.stepCount}',
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(color: scheme.primary),
+                  Flexible(
+                    child: Text(
+                      step == null ? 'Narration' : 'Step ${player.stepNumber} of ${player.stepCount}',
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(color: scheme.primary),
+                    ),
                   ),
                   const SizedBox(width: 10),
                   if (step != null && step.equation != null)
@@ -74,7 +77,7 @@ class MathTutorAudioBar extends StatelessWidget {
                   const Spacer(),
                   _SpeedMenu(player: player),
                   const SizedBox(width: 6),
-                  _StatusChip(player: player, voiceLabel: voiceLabel),
+                  Flexible(child: _StatusChip(player: player, voiceLabel: voiceLabel)),
                 ],
               ),
               const SizedBox(height: 8),
@@ -268,9 +271,12 @@ class _StatusChip extends StatelessWidget {
         children: <Widget>[
           Icon(icon, size: 14, color: scheme.primary),
           const SizedBox(width: 4),
-          Text(
-            '$text \u00b7 $voiceLabel',
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(color: scheme.primary),
+          Flexible(
+            child: Text(
+              '$text \u00b7 $voiceLabel',
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(color: scheme.primary),
+            ),
           ),
         ],
       ),

@@ -11,6 +11,14 @@
   <meta name="apple-mobile-web-app-title" content="ScholarMW">
   <meta name="theme-color" content="#0A0A14">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./chemistry_lab/three.module.min.js",
+        "three/addons/": "./chemistry_lab/jsm/"
+      }
+    }
+  </script>
   <title>Penrose ScholarMW</title>
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,8 +52,6 @@
       });
     }
   </script>
-  <!-- Three.js 3D rendering library (version locked via frontend/package.json) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

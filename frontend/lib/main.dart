@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +19,10 @@ import 'widgets/error_boundary.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  PlatformDispatcher.instance.onError = (error, stack) {
+    unawaited(reportClientError('async', error, stack));
+    return true;
+  };
   await DataSaverService().init();
   await OfflineCacheService().init();
   runApp(const PenroseScholarApp());

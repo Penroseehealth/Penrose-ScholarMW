@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 
@@ -319,15 +319,26 @@ if WEB_DIR.is_dir():
         "Expires": "0",
     }
 
-    _index_html = (WEB_DIR / "index.html").read_text(encoding="utf-8")
-    _index_html = _index_html.replace(
-        "flutter_bootstrap.js", f"flutter_bootstrap.js?v={_build_hash}"
-    )
-    _index_html = _index_html.replace("main.dart.js", f"main.dart.js?v={_build_hash}")
-    _index_html = _index_html.replace(
-        "flutter_service_worker.js",
-        f"flutter_service_worker.js?v={_startup_version}",
-    )
+    def _render_index_html() -> str:
+        """Read index.html per request.
+
+        Serving a module-level cached copy meant a web rebuild (e.g. an edited
+        importmap in index.html) was invisible until the server restarted, so a
+        stale HTML could reference removed assets. The file is ~2 KB, so reading
+        it per-request is negligible and keeps the served HTML in sync with the
+        build output. main.dart.js / flutter_bootstrap.js stay versioned via the
+        ?v= build-hash query, so cache-busting is unaffected.
+        """
+        html = (WEB_DIR / "index.html").read_text(encoding="utf-8")
+        html = html.replace(
+            "flutter_bootstrap.js", f"flutter_bootstrap.js?v={_build_hash}"
+        )
+        html = html.replace("main.dart.js", f"main.dart.js?v={_build_hash}")
+        return html.replace(
+            "flutter_service_worker.js",
+            f"flutter_service_worker.js?v={_startup_version}",
+        )
+
     _bootstrap_js = (WEB_DIR / "flutter_bootstrap.js").read_text(encoding="utf-8")
     _bootstrap_js = _bootstrap_js.replace(
         "main.dart.js", f"main.dart.js?v={_build_hash}"
@@ -345,12 +356,20 @@ if WEB_DIR.is_dir():
         ".ico": "image/x-icon",
     }
 
+    @app.post("/__diag")
+    async def client_diag(request: Request):
+        import sys
+
+        body = (await request.body()).decode("utf-8", "replace")
+        print(f"[CLIENT-DIAG] {body}", file=sys.stderr, flush=True)
+        return {"ok": True}
+
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
         file_path = WEB_DIR / full_path
         if full_path == "" or full_path == "index.html":
             return HTMLResponse(
-                _index_html,
+                _render_index_html(),
                 headers=_no_cache_headers,
             )
         if full_path == "flutter_bootstrap.js":
@@ -383,4 +402,4 @@ if WEB_DIR.is_dir():
                 str(file_path),
                 headers=_no_cache_headers,
             )
-        return HTMLResponse(_index_html, headers=_no_cache_headers)
+        return HTMLResponse(_render_index_html(), headers=_no_cache_headers)
