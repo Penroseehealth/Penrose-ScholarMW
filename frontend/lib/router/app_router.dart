@@ -31,7 +31,6 @@ import '../screens/biology/biology_visualization_screen.dart';
 import '../screens/biology/neuron/neuron_communication_screen.dart';
 import '../screens/chemistry/chemistry_syllabus_screen.dart';
 import '../screens/physics/physics_syllabus_screen.dart';
-import '../screens/physics/physics_tutor_screen.dart';
 import '../screens/stem/stem_syllabus_screen.dart';
 import '../screens/data_analysis/coding_playground_screen.dart';
 import '../screens/data_analysis/data_analysis_screen.dart';
@@ -386,7 +385,6 @@ class AppRouter {
           _route('/stem-groups', (_) => const StemGroupsScreen()),
           _route('/mock-exam', (_) => const MockExamScreen()),
           _route('/math-tutor', (_) => const MathTutorScreen()),
-          _route('/physics-tutor', (_) => const PhysicsTutorScreen()),
           _route('/certificates', (_) => const CertificatesScreen()),
           _route('/exam-analytics', (_) => const ExamAnalyticsScreen()),
           _route('/study-planner', (_) => const StudyPlannerScreen()),

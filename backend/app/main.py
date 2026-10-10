@@ -36,7 +36,6 @@ from app.middleware.security import RateLimitMiddleware
 from app.notifications.router import router as notifications_router
 from app.ocr.router import router as ocr_router
 from app.physics.router import router as phys_syllabus_router
-from app.physics.tutor_router import router as physics_tutor_router
 from app.practical.router import router as practical_router
 from app.presentation.router import router as presentation_router
 from app.research.router import router as research_router
@@ -283,7 +282,6 @@ app.include_router(math_verify_router, prefix="/api/v1")
 app.include_router(multimodal_router, prefix="/api/v1")
 app.include_router(chem_syllabus_router, prefix="/api/v1")
 app.include_router(phys_syllabus_router, prefix="/api/v1")
-app.include_router(physics_tutor_router, prefix="/api/v1")
 app.include_router(chemistry_tutor_router, prefix="/api/v1")
 app.include_router(languages_router, prefix="/api/v1")
 app.include_router(livekit_router, prefix="/api/v1")

@@ -12,7 +12,7 @@ library;
 
 enum TutorVisualKind { rightTriangle, parabola, percentageBar, expression, balance, figure, none }
 
-enum TutorSubject { geometry, algebra, arithmetic, percentage, physics, clarification }
+enum TutorSubject { geometry, algebra, arithmetic, percentage, clarification }
 
 /// One narration step: renderable on the canvas, speakable on its own.
 class TutorStep {
@@ -120,7 +120,6 @@ class TutorSolution {
         'algebra' => TutorSubject.algebra,
         'arithmetic' => TutorSubject.arithmetic,
         'percentage' => TutorSubject.percentage,
-        'physics' => TutorSubject.physics,
         'clarification' => TutorSubject.clarification,
         _ => TutorSubject.clarification,
       };
