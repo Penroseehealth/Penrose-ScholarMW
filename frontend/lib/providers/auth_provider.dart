@@ -26,12 +26,14 @@ class AuthProvider extends ChangeNotifier {
     _api.onAuthExpired = _handleAuthExpired;
 
     try {
-      final me = await _authService.getMe();
-      if (me != null) {
-        _user = me;
-        _isLoading = false;
-        notifyListeners();
-        return;
+      if (await _api.hasToken()) {
+        final me = await _authService.getMe();
+        if (me != null) {
+          _user = me;
+          _isLoading = false;
+          notifyListeners();
+          return;
+        }
       }
       final result = await _authService.login('student@scholar.mw', 'student123');
       if (result['success'] == true) {
