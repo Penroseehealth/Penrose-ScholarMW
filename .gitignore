@@ -43,3 +43,8 @@ backend/static/
 
 # Local LiveKit server binary (large; distributed via release/LFS instead)
 tools/livekit-server/livekit-server.exe
+
+# Scratch command output (ad-hoc flutter analyze/test/build captures)
+scratch_*.txt
+*_final.txt
+build_web.txt
