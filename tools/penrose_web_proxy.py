@@ -1,8 +1,8 @@
 """Local dev proxy for Penrose ScholarMW web build.
 
-Serves the Flutter web release from build/web and forwards any /api/* request
-to the FastAPI backend on port 8000. Lets us hand the user a single working
-link without rebuilding the frontend with an absolute API_BASE_URL.
+Serves the Flutter web release from frontend/build/web and forwards any
+/api/* request to the FastAPI backend on port 8000. Lets us hand the user a
+single working link without rebuilding the frontend with an absolute API_BASE_URL.
 """
 
 import http.server
@@ -10,11 +10,16 @@ import json
 import mimetypes
 import os
 import socketserver
+import urllib.parse
 import urllib.request
 
-ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "build", "web")
+ROOT = os.path.abspath(
+    os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "..", "frontend", "build", "web"
+    )
+)
 BACKEND = "http://127.0.0.1:8000"
-PORT = 8080
+PORT = int(os.environ.get("PENROSE_WEB_PORT", "8080"))
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -43,7 +48,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         except urllib.error.HTTPError as e:
             data = e.read()
             self.send_response(e.code)
-            self.send_header("Content-Type", e.headers.get("Content-Type", "application/json"))
+            self.send_header(
+                "Content-Type", e.headers.get("Content-Type", "application/json")
+            )
             self.send_header("Content-Length", str(len(data)))
             self.end_headers()
             self.wfile.write(data)
@@ -59,10 +66,18 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if self.path.startswith("/api/") or self.path == "/health":
             self._forward("GET")
         else:
+            parsed = urllib.parse.urlsplit(self.path)
+            if (
+                not os.path.exists(self.translate_path(parsed.path))
+                and not os.path.splitext(parsed.path)[1]
+            ):
+                self.path = "/index.html"
+                if parsed.query:
+                    self.path += f"?{parsed.query}"
             super().do_GET()
 
     def do_POST(self):
-        if self.path.startswith("/api/"):
+        if self.path.startswith("/api/") or self.path == "/__diag":
             self._forward("POST")
         else:
             self.send_error(404)

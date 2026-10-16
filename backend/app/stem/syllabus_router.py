@@ -266,7 +266,7 @@ async def get_objectives(subtopic_id: int, db: AsyncSession = Depends(get_db)):
     }
 
 
-@router.get("/search")
+@router.get("/subjects/{slug}/tree")
 async def get_syllabus_tree(slug: str, db: AsyncSession = Depends(get_db)):
     """Full syllabus tree for a subject: versions → core elements → topics → subtopics → L.O.s"""
     from app.stem.slug_utils import resolve_slug
@@ -404,30 +404,33 @@ async def list_topics_flat(slug: str, db: AsyncSession = Depends(get_db)):
 async def search_syllabus(q: str, db: AsyncSession = Depends(get_db)):
     """Search across topics, subtopics, and learning objectives."""
     pattern = f"%{q}%"
-    lo_results = await db.execute(
-        select(
-            SyllabusLearningObjective.id,
-            SyllabusLearningObjective.objective,
-            SyllabusLearningObjective.cognitive_level,
-            SyllabusTopic.title.label("topic_title"),
-            SyllabusCoreElement.name.label("ce_name"),
-            SyllabusSubject.slug.label("subject_slug"),
-        )
-        .join(
-            SyllabusSubtopic,
-            SyllabusLearningObjective.subtopic_id == SyllabusSubtopic.id,
-        )
-        .join(SyllabusTopic, SyllabusSubtopic.topic_id == SyllabusTopic.id)
-        .join(
-            SyllabusCoreElement, SyllabusTopic.core_element_id == SyllabusCoreElement.id
-        )
-        .join(SyllabusVersion, SyllabusCoreElement.version_id == SyllabusVersion.id)
-        .join(SyllabusSubject, SyllabusVersion.subject_id == SyllabusSubject.id)
-        .where(
-            SyllabusLearningObjective.objective.ilike(pattern)
-            | (
-                SyllabusLearningObjective.description.is_not(None)
-                & SyllabusLearningObjective.description.ilike(pattern)
+    lo_results = (
+        await db.execute(
+            select(
+                SyllabusLearningObjective.id,
+                SyllabusLearningObjective.objective,
+                SyllabusLearningObjective.cognitive_level,
+                SyllabusTopic.title.label("topic_title"),
+                SyllabusCoreElement.name.label("ce_name"),
+                SyllabusSubject.slug.label("subject_slug"),
+            )
+            .join(
+                SyllabusSubtopic,
+                SyllabusLearningObjective.subtopic_id == SyllabusSubtopic.id,
+            )
+            .join(SyllabusTopic, SyllabusSubtopic.topic_id == SyllabusTopic.id)
+            .join(
+                SyllabusCoreElement,
+                SyllabusTopic.core_element_id == SyllabusCoreElement.id,
+            )
+            .join(SyllabusVersion, SyllabusCoreElement.version_id == SyllabusVersion.id)
+            .join(SyllabusSubject, SyllabusVersion.subject_id == SyllabusSubject.id)
+            .where(
+                SyllabusLearningObjective.objective.ilike(pattern)
+                | (
+                    SyllabusLearningObjective.description.is_not(None)
+                    & SyllabusLearningObjective.description.ilike(pattern)
+                )
             )
         )
     ).all()

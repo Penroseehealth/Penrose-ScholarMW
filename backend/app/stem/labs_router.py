@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -8,19 +10,49 @@ from app.models.stem import STLabActivity
 
 router = APIRouter(prefix="/stem", tags=["STEM Intelligence"])
 
+_SUBJECT_NAMES = {
+    "physics": "Physics",
+    "chemistry": "Chemistry",
+    "biology": "Biology",
+    "agriculture": "Agriculture",
+    "computer-science": "Computer Science",
+    "mathematics": "Mathematics",
+}
+
+
+def _parse_steps(steps: str | None) -> list[str] | None:
+    if not steps:
+        return None
+    try:
+        parsed = json.loads(steps)
+    except (json.JSONDecodeError, TypeError):
+        return [steps]
+    if isinstance(parsed, list):
+        return [str(item) for item in parsed]
+    return [str(parsed)]
+
+
+def _parse_materials(materials: str | None) -> list[str] | None:
+    if not materials:
+        return None
+    return [part.strip() for part in materials.split(",") if part.strip()]
+
 
 class LabActivityResponse(BaseModel):
     id: int
     subject_slug: str
+    subject: str | None = None
     title: str
     description: str | None
     lab_type: str
     instructions: str | None
     materials_needed: str | None
-    steps: str | None
+    materials: list[str] | None = None
+    steps: list[str] | None = None
     expected_outcome: str | None
     difficulty: str
     duration_minutes: int | None
+    duration: int | None = None
     is_published: bool
 
 
@@ -28,15 +60,20 @@ def _lab_to_response(lab: STLabActivity) -> LabActivityResponse:
     return LabActivityResponse(
         id=lab.id,
         subject_slug=lab.subject_slug,
+        subject=_SUBJECT_NAMES.get(
+            lab.subject_slug, lab.subject_slug.replace("-", " ").title()
+        ),
         title=lab.title,
         description=lab.description,
         lab_type=lab.lab_type,
         instructions=lab.instructions,
         materials_needed=lab.materials_needed,
-        steps=lab.steps,
+        materials=_parse_materials(lab.materials_needed),
+        steps=_parse_steps(lab.steps),
         expected_outcome=lab.expected_outcome,
         difficulty=lab.difficulty,
         duration_minutes=lab.duration_minutes,
+        duration=lab.duration_minutes,
         is_published=lab.is_published,
     )
 

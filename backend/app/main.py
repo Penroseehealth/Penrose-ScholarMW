@@ -13,7 +13,6 @@ from app.assessments.router import router as assessments_router
 from app.auth.router import router as auth_router
 from app.biology_viz.router import router as biology_viz_router
 from app.chemistry.router import router as chem_syllabus_router
-from app.chemistry.tutor_router import router as chemistry_tutor_router
 from app.config.settings import get_settings
 from app.context_engine.router import router as context_engine_router
 from app.core.security import hash_password
@@ -282,7 +281,6 @@ app.include_router(math_verify_router, prefix="/api/v1")
 app.include_router(multimodal_router, prefix="/api/v1")
 app.include_router(chem_syllabus_router, prefix="/api/v1")
 app.include_router(phys_syllabus_router, prefix="/api/v1")
-app.include_router(chemistry_tutor_router, prefix="/api/v1")
 app.include_router(languages_router, prefix="/api/v1")
 app.include_router(livekit_router, prefix="/api/v1")
 app.include_router(voice_router, prefix="/api/v1")
