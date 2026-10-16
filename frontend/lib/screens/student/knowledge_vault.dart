@@ -277,10 +277,7 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
                         ..._tasks.map((t) => _buildUploadTaskCard(t)),
                         const SizedBox(height: 12),
                       ],
-                      if (filtered.isEmpty)
-                        _buildEmptyState()
-                      else
-                        ...filtered.map((d) => _buildDocumentCard(d)),
+                      if (filtered.isEmpty) _buildEmptyState() else ...filtered.map((d) => _buildDocumentCard(d)),
                     ],
                   ),
           ),
@@ -645,7 +642,21 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowMultiple: true,
-      allowedExtensions: const ['pdf', 'docx', 'txt', 'pptx', 'xlsx', 'csv', 'jpg', 'png', 'mp4', 'webm', 'mov', 'mkv', 'avi'],
+      allowedExtensions: const [
+        'pdf',
+        'docx',
+        'txt',
+        'pptx',
+        'xlsx',
+        'csv',
+        'jpg',
+        'png',
+        'mp4',
+        'webm',
+        'mov',
+        'mkv',
+        'avi'
+      ],
       withData: true,
     );
     if (result == null || result.files.isEmpty) return;

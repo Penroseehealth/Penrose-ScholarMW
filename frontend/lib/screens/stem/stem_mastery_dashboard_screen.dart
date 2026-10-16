@@ -378,10 +378,8 @@ class _StemMasteryDashboardScreenState extends State<StemMasteryDashboardScreen>
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () async {
-                          if (id != null) {
-                            await _stemService.completeRecommendation(id);
-                            _loadData();
-                          }
+                          await _stemService.completeRecommendation(id);
+                          _loadData();
                         },
                         style: TextButton.styleFrom(
                           backgroundColor: AppColors.primary,

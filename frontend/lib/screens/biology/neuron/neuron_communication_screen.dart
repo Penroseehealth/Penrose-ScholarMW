@@ -23,8 +23,7 @@ class NeuronCommunicationScreen extends StatelessWidget {
     SimulationStage(
       id: 'resting_state',
       title: 'Resting neurone',
-      explanation:
-          'A neurone at rest is polarised: the inside of the membrane is more '
+      explanation: 'A neurone at rest is polarised: the inside of the membrane is more '
           'negative than the outside (resting potential of about -70 mV) because '
           'the sodium-potassium pump keeps more K⁺ inside and more Na⁺ outside.',
       teachGroup: '1. Neurone structure',
@@ -32,8 +31,7 @@ class NeuronCommunicationScreen extends StatelessWidget {
     SimulationStage(
       id: 'stimulus',
       title: 'Stimulus and depolarisation',
-      explanation:
-          'A stimulus of threshold strength causes Na⁺ gates at the trigger zone '
+      explanation: 'A stimulus of threshold strength causes Na⁺ gates at the trigger zone '
           'to open. Sodium ions rush in and the membrane potential rises, '
           'reversing the polarity (depolarisation).',
       teachGroup: '2. Action potential',
@@ -41,8 +39,7 @@ class NeuronCommunicationScreen extends StatelessWidget {
     SimulationStage(
       id: 'propagation',
       title: 'Saltatory conduction',
-      explanation:
-          'The action potential travels along the axon because the depolarised '
+      explanation: 'The action potential travels along the axon because the depolarised '
           'patch of membrane depolarises the next patch. Between the myelin '
           'sheath gaps (nodes of Ranvier) the impulse jumps from node to node, '
           'which is faster and saves energy — this is saltatory conduction.',
@@ -51,8 +48,7 @@ class NeuronCommunicationScreen extends StatelessWidget {
     SimulationStage(
       id: 'arrival',
       title: 'Arrival at the axon terminal',
-      explanation:
-          'When the impulse reaches the axon terminal, membrane depolarisation '
+      explanation: 'When the impulse reaches the axon terminal, membrane depolarisation '
           'opens voltage-gated calcium channels. Calcium ions flow into the '
           'terminal and trigger the synaptic vesicles to move towards the '
           'presynaptic membrane.',
@@ -61,8 +57,7 @@ class NeuronCommunicationScreen extends StatelessWidget {
     SimulationStage(
       id: 'release',
       title: 'Neurotransmitter release',
-      explanation:
-          'Vesicles fuse with the presynaptic membrane and release '
+      explanation: 'Vesicles fuse with the presynaptic membrane and release '
           'neurotransmitter molecules into the synaptic cleft by exocytosis. '
           'This is the chemical step — the signal becomes chemical.',
       teachGroup: '5. Neurotransmitter release',
@@ -70,8 +65,7 @@ class NeuronCommunicationScreen extends StatelessWidget {
     SimulationStage(
       id: 'transmission',
       title: 'Diffusion across the cleft',
-      explanation:
-          'Neurotransmitters diffuse across the narrow synaptic cleft. Because '
+      explanation: 'Neurotransmitters diffuse across the narrow synaptic cleft. Because '
           'the gap is tiny (about 20 nm), transmission of nerve impulses across '
           'the synapse takes only a fraction of a millisecond.',
       teachGroup: '6. Synaptic cleft',
@@ -79,8 +73,7 @@ class NeuronCommunicationScreen extends StatelessWidget {
     SimulationStage(
       id: 'binding',
       title: 'Receptor binding',
-      explanation:
-          'Neurotransmitter molecules bind to specific receptors on the '
+      explanation: 'Neurotransmitter molecules bind to specific receptors on the '
           'postsynaptic membrane. Binding is like a lock and key — only the '
           'matching neurotransmitter fits its receptor.',
       teachGroup: '7. Postsynaptic receptors',
@@ -88,8 +81,7 @@ class NeuronCommunicationScreen extends StatelessWidget {
     SimulationStage(
       id: 'ion_influx',
       title: 'Ion influx and depolarisation',
-      explanation:
-          'Binding opens ion channels in the postsynaptic membrane. Sodium ions '
+      explanation: 'Binding opens ion channels in the postsynaptic membrane. Sodium ions '
           'flow in, depolarising the membrane of the second neurone and '
           'generating a new action potential if the threshold is reached.',
       teachGroup: '8. Postsynaptic response',
@@ -97,8 +89,7 @@ class NeuronCommunicationScreen extends StatelessWidget {
     SimulationStage(
       id: 'continuation',
       title: 'Signal continues',
-      explanation:
-          'The action potential is re-generated in the postsynaptic neurone and '
+      explanation: 'The action potential is re-generated in the postsynaptic neurone and '
           'continues along its dendrites, carrying the message onward. '
           'Meanwhile enzymes in the cleft break down neurotransmitter so the '
           'synapse is ready for the next signal.',
@@ -129,8 +120,7 @@ class NeuronCommunicationScreen extends StatelessWidget {
                 stages: _stages,
                 accent: _neuronAccent,
                 title: 'How two neurones communicate',
-                subtitle:
-                    'Electrical within the neurone · Chemical across the synapse',
+                subtitle: 'Electrical within the neurone · Chemical across the synapse',
                 buildFrame: (context, frame) => CustomPaint(
                   painter: NeuronPainter(
                     scene: NeuronScene(

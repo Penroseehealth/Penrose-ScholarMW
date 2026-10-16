@@ -27,7 +27,6 @@ void main() {
     );
     final ui.Image image = await boundary.toImage(pixelRatio: 2);
     final ByteData? bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-    File(r'C:\Users\zispaas\AppData\Local\Temp\opencode\penrose.png')
-        .writeAsBytesSync(bytes!.buffer.asUint8List());
+    File(r'C:\Users\zispaas\AppData\Local\Temp\opencode\penrose.png').writeAsBytesSync(bytes!.buffer.asUint8List());
   });
 }

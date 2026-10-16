@@ -134,7 +134,7 @@ class _StemSyllabusScreenState extends State<StemSyllabusScreen> with SingleTick
               'resources': [],
             };
 
-            (themeEntry!['topics'] as List<Map<String, dynamic>>).add(topicEntry);
+            (themeEntry['topics'] as List<Map<String, dynamic>>).add(topicEntry);
           }
         }
 

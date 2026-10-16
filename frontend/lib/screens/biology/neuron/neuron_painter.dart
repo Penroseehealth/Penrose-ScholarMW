@@ -67,8 +67,7 @@ class NeuronPainter extends CustomPainter {
   // ── Presynaptic neuron ─────────────────────────────────────────────
 
   void _drawDendrites(Canvas canvas, {required bool postsynaptic}) {
-    final color =
-        postsynaptic ? _c.postFill.withValues(alpha: 0.9) : _c.presynapticFill;
+    final color = postsynaptic ? _c.postFill.withValues(alpha: 0.9) : _c.presynapticFill;
     final stroke = postsynaptic ? _c.postStroke : _c.presynapticStroke;
     final line = Paint()
       ..color = color

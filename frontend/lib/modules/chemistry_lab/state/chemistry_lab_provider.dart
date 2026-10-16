@@ -158,7 +158,8 @@ class ChemistryLabProvider extends ChangeNotifier {
       final before = snapshot.deliveredVolumeMl;
       _engine.addDeliveredVolumeMl(_maxRateMlPerS * stopcockOpening * dt);
       final after = snapshot.deliveredVolumeMl;
-      if (after <= before + 1e-9 && after >= snapshot.settings.buretteCapacityMl - snapshot.settings.initialBuretteReadingMl - 1e-9) {
+      if (after <= before + 1e-9 &&
+          after >= snapshot.settings.buretteCapacityMl - snapshot.settings.initialBuretteReadingMl - 1e-9) {
         _complete('Burette emptied.');
         return;
       }

@@ -17,8 +17,7 @@ Future<int> countInk(WidgetTester tester, Finder finder) async {
   // toImage and toByteData do real raster work outside the fake-async zone;
   // without runAsync the test never completes.
   final ui.Image? image = await tester.runAsync(() => boundary.toImage());
-  final ByteData? data =
-      await tester.runAsync(() => image!.toByteData(format: ui.ImageByteFormat.rawRgba)) as ByteData?;
+  final ByteData? data = await tester.runAsync<ByteData?>(() => image!.toByteData(format: ui.ImageByteFormat.rawRgba));
   final Uint8List bytes = data!.buffer.asUint8List();
 
   int ink = 0;

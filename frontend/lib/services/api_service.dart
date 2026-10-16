@@ -222,8 +222,7 @@ class ApiService {
     return _sendMultipart(request, path, onProgress);
   }
 
-  Future<http.MultipartRequest> _buildMultipart(
-      String path, Map<String, String>? fields) async {
+  Future<http.MultipartRequest> _buildMultipart(String path, Map<String, String>? fields) async {
     final h = await headers;
     final request = http.MultipartRequest('POST', Uri.parse('$apiBaseUrl$path'));
     request.headers.addAll(h);
@@ -234,11 +233,9 @@ class ApiService {
 
   /// Sends a multipart request with optional upload progress and 401
   /// refresh-token retry (mirroring the JSON helpers).
-  Future<http.Response> _sendMultipart(http.MultipartRequest request, String path,
-      void Function(int, int)? onProgress) async {
-    final response = onProgress == null
-        ? await request.send()
-        : await _sendWithProgress(request, onProgress);
+  Future<http.Response> _sendMultipart(
+      http.MultipartRequest request, String path, void Function(int, int)? onProgress) async {
+    final response = onProgress == null ? await request.send() : await _sendWithProgress(request, onProgress);
     var parsed = await http.Response.fromStream(response);
     if (parsed.statusCode == 401 && _refreshToken != null) {
       final refreshed = await _tryRefresh();
@@ -248,9 +245,7 @@ class ApiService {
           ..files.addAll(request.files)
           ..headers.addAll(await headers)
           ..headers.remove('Content-Type');
-        final retried = onProgress == null
-            ? await retry.send()
-            : await _sendWithProgress(retry, onProgress);
+        final retried = onProgress == null ? await retry.send() : await _sendWithProgress(retry, onProgress);
         parsed = await http.Response.fromStream(retried);
       }
     }

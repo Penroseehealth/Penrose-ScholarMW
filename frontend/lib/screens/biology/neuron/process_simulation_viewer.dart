@@ -47,8 +47,7 @@ class ProcessSimulationViewer extends StatefulWidget {
   State<ProcessSimulationViewer> createState() => _ProcessSimulationViewerState();
 }
 
-class _ProcessSimulationViewerState extends State<ProcessSimulationViewer>
-    with SingleTickerProviderStateMixin {
+class _ProcessSimulationViewerState extends State<ProcessSimulationViewer> with SingleTickerProviderStateMixin {
   late final AnimationController _ctl;
   late final List<TeachStep> _teachSteps;
 
@@ -66,8 +65,7 @@ class _ProcessSimulationViewerState extends State<ProcessSimulationViewer>
   /// next stage boundary.
   int _stepLock = 0;
 
-  bool get _dark =>
-      Theme.of(context).brightness == Brightness.dark && !useAmoledPanel();
+  bool get _dark => Theme.of(context).brightness == Brightness.dark && !useAmoledPanel();
 
   @override
   void initState() {
@@ -79,13 +77,11 @@ class _ProcessSimulationViewerState extends State<ProcessSimulationViewer>
     )..addListener(_onTick);
   }
 
-  Duration _duration() =>
-      Duration(milliseconds: (ProcessSimulationViewer.baseDurationSeconds * 1000 / _speed).round());
+  Duration _duration() => Duration(milliseconds: (ProcessSimulationViewer.baseDurationSeconds * 1000 / _speed).round());
 
   int get _stageCount => widget.stages.length;
 
-  List<SimulationStage> get _visibleStages =>
-      _teachMode ? _teachSteps[_teachStep].stages : widget.stages;
+  List<SimulationStage> get _visibleStages => _teachMode ? _teachSteps[_teachStep].stages : widget.stages;
 
   int get _visibleCount => _visibleStages.length;
 
@@ -265,20 +261,16 @@ class _ProcessSimulationViewerState extends State<ProcessSimulationViewer>
           ),
         ),
       ),
-      transitionsBuilder: (_, anim, __, child) =>
-          FadeTransition(opacity: anim, child: child),
+      transitionsBuilder: (_, anim, __, child) => FadeTransition(opacity: anim, child: child),
     ));
   }
 
   Color _accentColor() => widget.accent;
   Color _inkColor() => _dark ? const Color(0xFFF2F1F8) : const Color(0xFF1E1E2A);
-  Color _inkMutedColor() =>
-      _dark ? const Color(0xFF9A98AC) : const Color(0xFF6B6B7E);
-  Color _panelColor() =>
-      _dark ? const Color(0xFF17172A) : const Color(0xFFFFFFFF);
+  Color _inkMutedColor() => _dark ? const Color(0xFF9A98AC) : const Color(0xFF6B6B7E);
+  Color _panelColor() => _dark ? const Color(0xFF17172A) : const Color(0xFFFFFFFF);
   Color _borderColor() => _dark ? const Color(0xFF2A2A3E) : const Color(0xFFE3E2EA);
-  Color _canvasPaddingColor() =>
-      _dark ? const Color(0xFF0A0A14) : const Color(0xFFF6F5FA);
+  Color _canvasPaddingColor() => _dark ? const Color(0xFF0A0A14) : const Color(0xFFF6F5FA);
 
   // ── Layout ───────────────────────────────────────────────────────────
 
@@ -480,45 +472,40 @@ class _ProcessSimulationViewerState extends State<ProcessSimulationViewer>
     );
   }
 
-  Widget _controls(Color accent) =>
-      Wrap(
+  Widget _controls(Color accent) => Wrap(
         alignment: WrapAlignment.center,
         crossAxisAlignment: WrapCrossAlignment.center,
         spacing: 10,
         runSpacing: 8,
         children: [
-        _roundButton(Icons.play_arrow_rounded, _playing ? Icons.pause_rounded : null, 'Play / Pause', _togglePlay),
-        _roundButton(Icons.replay_rounded, null, 'Restart', _restart),
-        _roundButton(Icons.skip_previous_rounded, null, 'Previous step', _stepBack),
-        _roundButton(Icons.skip_next_rounded, null, 'Next step', _stepForward),
-        SegmentedButton<double>(
-          segments: const [
-            ButtonSegment(value: 0.5, label: Text('0.5×')),
-            ButtonSegment(value: 1.0, label: Text('1×')),
-            ButtonSegment(value: 2.0, label: Text('2×')),
-          ],
-          selected: {_speed},
-          showSelectedIcon: false,
-          style: ButtonStyle(
-            visualDensity: VisualDensity.compact,
-            textStyle: WidgetStatePropertyAll(
-              TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: _inkColor()),
+          _roundButton(Icons.play_arrow_rounded, _playing ? Icons.pause_rounded : null, 'Play / Pause', _togglePlay),
+          _roundButton(Icons.replay_rounded, null, 'Restart', _restart),
+          _roundButton(Icons.skip_previous_rounded, null, 'Previous step', _stepBack),
+          _roundButton(Icons.skip_next_rounded, null, 'Next step', _stepForward),
+          SegmentedButton<double>(
+            segments: const [
+              ButtonSegment(value: 0.5, label: Text('0.5×')),
+              ButtonSegment(value: 1.0, label: Text('1×')),
+              ButtonSegment(value: 2.0, label: Text('2×')),
+            ],
+            selected: {_speed},
+            showSelectedIcon: false,
+            style: ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              textStyle: WidgetStatePropertyAll(
+                TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: _inkColor()),
+              ),
             ),
+            onSelectionChanged: (s) => _setSpeed(s.first),
           ),
-          onSelectionChanged: (s) => _setSpeed(s.first),
-        ),
-        _toggleChip(accent, Icons.label_outline_rounded, 'Labels', _labelsOn,
-            () => setState(() => _labelsOn = !_labelsOn)),
-        _toggleChip(accent, Icons.chat_bubble_outline_rounded, 'Explanations',
-            _explanationsOn, () => setState(() => _explanationsOn = !_explanationsOn)),
-        _toggleChip(
-            accent,
-            _stepMode ? Icons.skip_next_rounded : Icons.auto_stories_outlined,
-            'Step-by-step',
-            _stepMode,
-            () => setState(() => _stepMode = !_stepMode)),
-      ],
-    );
+          _toggleChip(
+              accent, Icons.label_outline_rounded, 'Labels', _labelsOn, () => setState(() => _labelsOn = !_labelsOn)),
+          _toggleChip(accent, Icons.chat_bubble_outline_rounded, 'Explanations', _explanationsOn,
+              () => setState(() => _explanationsOn = !_explanationsOn)),
+          _toggleChip(accent, _stepMode ? Icons.skip_next_rounded : Icons.auto_stories_outlined, 'Step-by-step',
+              _stepMode, () => setState(() => _stepMode = !_stepMode)),
+        ],
+      );
 
   Widget _roundButton(IconData idle, IconData? pressed, String tooltip, VoidCallback onTap) {
     final icon = pressed ?? idle;
@@ -534,9 +521,7 @@ class _ProcessSimulationViewerState extends State<ProcessSimulationViewer>
             color: pressed != null ? widget.accent.withValues(alpha: 0.18) : _panelColor(),
             shape: BoxShape.circle,
             border: Border.all(
-              color: pressed != null
-                  ? widget.accent.withValues(alpha: 0.5)
-                  : _borderColor(),
+              color: pressed != null ? widget.accent.withValues(alpha: 0.5) : _borderColor(),
             ),
           ),
           child: Icon(icon, size: 24, color: pressed != null ? widget.accent : _inkColor()),
@@ -545,8 +530,7 @@ class _ProcessSimulationViewerState extends State<ProcessSimulationViewer>
     );
   }
 
-  Widget _toggleChip(Color accent, IconData icon, String label, bool on, VoidCallback onTap) =>
-      Tooltip(
+  Widget _toggleChip(Color accent, IconData icon, String label, bool on, VoidCallback onTap) => Tooltip(
         message: label,
         child: GestureDetector(
           onTap: onTap,

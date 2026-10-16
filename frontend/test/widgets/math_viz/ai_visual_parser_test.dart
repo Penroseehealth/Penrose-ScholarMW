@@ -4,7 +4,8 @@ import 'package:penrose_scholar/widgets/math_viz/ai_visual_parser.dart';
 void main() {
   group('AIVisualParser.parseFromResponse', () {
     test('parses a graph visual block', () {
-      const response = 'Here is the graph:\n<!--visual:{"type":"graph","expression":"x^2","title":"Parabola","xMin":-5,"xMax":5,"yMin":-5,"yMax":5}-->';
+      const response =
+          'Here is the graph:\n<!--visual:{"type":"graph","expression":"x^2","title":"Parabola","xMin":-5,"xMax":5,"yMin":-5,"yMax":5}-->';
       final visuals = AIVisualParser.parseFromResponse(response);
       expect(visuals.length, 1);
       expect(visuals[0].type, VisualType.graph);
@@ -15,7 +16,8 @@ void main() {
     });
 
     test('parses a bar chart visual block', () {
-      const response = '<visual>{"type":"bar_chart","title":"Scores","labels":["Math","Science","English"],"values":[85,92,78]}</visual>';
+      const response =
+          '<visual>{"type":"bar_chart","title":"Scores","labels":["Math","Science","English"],"values":[85,92,78]}</visual>';
       final visuals = AIVisualParser.parseFromResponse(response);
       expect(visuals.length, 1);
       expect(visuals[0].type, VisualType.barChart);
@@ -25,7 +27,8 @@ void main() {
     });
 
     test('parses a pie chart visual block', () {
-      const response = '<visual>{"type":"pie_chart","title":"Distribution","labels":["A","B"],"values":[40,60]}</visual>';
+      const response =
+          '<visual>{"type":"pie_chart","title":"Distribution","labels":["A","B"],"values":[40,60]}</visual>';
       final visuals = AIVisualParser.parseFromResponse(response);
       expect(visuals.length, 1);
       expect(visuals[0].type, VisualType.pieChart);
@@ -40,7 +43,8 @@ void main() {
     });
 
     test('parses multiple visual blocks', () {
-      const response = 'First chart:\n<visual>{"type":"bar_chart","title":"A","values":[1,2,3]}</visual>\nSecond chart:\n<!--visual:{"type":"line_chart","title":"B","values":[4,5,6]}-->';
+      const response =
+          'First chart:\n<visual>{"type":"bar_chart","title":"A","values":[1,2,3]}</visual>\nSecond chart:\n<!--visual:{"type":"line_chart","title":"B","values":[4,5,6]}-->';
       final visuals = AIVisualParser.parseFromResponse(response);
       expect(visuals.length, 2);
       expect(visuals[0].type, VisualType.barChart);
@@ -85,7 +89,8 @@ void main() {
     });
 
     test('removes multiple visual blocks', () {
-      const response = 'Chart 1:\n<visual>{"type":"bar_chart","values":[1,2]}</visual>\nMiddle text\n<!--visual:{"type":"pie_chart","values":[3,4]}-->\nEnd';
+      const response =
+          'Chart 1:\n<visual>{"type":"bar_chart","values":[1,2]}</visual>\nMiddle text\n<!--visual:{"type":"pie_chart","values":[3,4]}-->\nEnd';
       final clean = AIVisualParser.removeVisualBlocks(response);
       expect(clean, contains('Chart 1:'));
       expect(clean, contains('Middle text'));
