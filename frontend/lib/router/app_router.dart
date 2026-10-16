@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../modules/biology_lab/screens/biology_lab_screen.dart';
 import '../modules/chemistry_lab/screens/chemistry_lab_screen.dart';
+import '../modules/mathsdrill/screens/mathsdrill_screen.dart';
 import '../providers/auth_provider.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
 import '../screens/admin/admin_syllabus_screen.dart';
@@ -24,6 +24,7 @@ import '../screens/biology/biology_past_papers.dart';
 import '../screens/biology/biology_practical_hub.dart';
 import '../screens/biology/biology_practical_studio_screen.dart';
 import '../screens/biology/biology_practice_centre.dart';
+import '../screens/biology/biology_real_lab_screen.dart';
 import '../screens/biology/biology_syllabus.dart';
 import '../screens/biology/biology_topics.dart';
 import '../screens/biology/biology_virtual_lab.dart';
@@ -167,8 +168,19 @@ class AppRouter {
       final isAuth = authProvider.isAuthenticated;
       final isAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/register';
 
-      if (!isAuth && !isAuthRoute) return '/login';
-      if (isAuth && isAuthRoute) return '/';
+      if (!isAuth && !isAuthRoute) {
+        return Uri(
+          path: '/login',
+          queryParameters: {'redirect': state.uri.toString()},
+        ).toString();
+      }
+      if (isAuth && isAuthRoute) {
+        final redirect = state.uri.queryParameters['redirect'];
+        if (redirect != null && redirect.startsWith('/') && !redirect.startsWith('//')) {
+          return redirect;
+        }
+        return '/';
+      }
       return null;
     },
     routes: [
@@ -191,6 +203,7 @@ class AppRouter {
       _route('/lecturer', (_) => const LecturerCentre()),
       _route('/lecturer/presentation-builder', (_) => const LecturePresentationBuilderScreen()),
       _route('/lecturer/examination-builder', (_) => const ExaminationBuilderScreen()),
+      _route('/bio-real-lab', (_) => const BiologyRealLabScreen()),
       ShellRoute(
         builder: (_, __, child) => _selectable(HomeShell(child: child)),
         routes: [
@@ -385,6 +398,7 @@ class AppRouter {
           _route('/stem-groups', (_) => const StemGroupsScreen()),
           _route('/mock-exam', (_) => const MockExamScreen()),
           _route('/math-tutor', (_) => const MathTutorScreen()),
+          _route('/mathsdrill', (_) => const MathsdrillScreen()),
           _route('/certificates', (_) => const CertificatesScreen()),
           _route('/exam-analytics', (_) => const ExamAnalyticsScreen()),
           _route('/study-planner', (_) => const StudyPlannerScreen()),
@@ -473,7 +487,6 @@ class AppRouter {
           ),
           _route('/bio-topics', (_) => const BiologyTopicsScreen()),
           _route('/bio-virtual-lab', (_) => const BiologyVirtualLabScreen()),
-          _route('/bio-3d-lab', (_) => const BiologyLabScreen()),
           _route('/bio-diagrams', (_) => const BiologyVisualizationScreen()),
           _route('/bio-neuron', (_) => const NeuronCommunicationScreen()),
           _route('/bio-practicals', (_) => const BiologyPracticalHubScreen()),

@@ -2,241 +2,279 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../bridge/lab_bridge.dart';
-import '../bridge/lab_bridge_factory.dart';
+import '../apparatus/apparatus_catalog.dart';
+import '../bridge/chemistry_lab_events.dart';
+import '../bridge/chemistry_lab_scene_bridge.dart';
+import '../chemistry/reagent.dart';
+import '../chemistry/reagent_registry.dart';
+import '../chemistry/titration_engine.dart';
+import '../experiments/experiment_definition.dart';
+import '../experiments/observation_log.dart';
 
-/// Lifecycle phase of the Chemistry Lab 3D engine.
-enum LabPhase {
-  /// Not started yet (no host element created).
-  idle,
+enum TitrationRunState { idle, running, paused, completed }
 
-  /// `bridge.init` in flight.
-  initialising,
-
-  /// Scene loaded, not animating.
-  ready,
-
-  /// Parameter interpolation running.
-  running,
-
-  /// Paused by the user (scene visible, frozen).
-  paused,
-
-  /// Terminal failure — the screen shows the fallback illustration.
-  error,
-}
-
-/// Selection reported by the 3D viewport (null id = nothing selected).
-class LabSelection {
-  final String? id;
-  final String? name;
-  final String? kind;
-
-  const LabSelection({this.id, this.name, this.kind});
-
-  bool get isEmpty => id == null;
-}
-
-/// Module-local state for the Chemistry Lab.
-///
-/// Owns the [LabBridge] (creates it via the conditional-import factory, or
-/// accepts a fake in tests) and translates engine events into a simple
-/// state machine the widgets can render. Deliberately NOT registered in the
-/// app-wide `main.dart` provider list: it lives and dies with the lab route.
+/// Owns the titration engine, trial records and visual-state push to Three.js.
 class ChemistryLabProvider extends ChangeNotifier {
-  ChemistryLabProvider({LabBridge? bridge}) : _bridge = bridge ?? createLabBridge() {
-    if (!_bridge.isSupported) {
-      _phase = LabPhase.error;
-      _errorCode = 'unsupported-platform';
-      _errorMessage =
-          'The 3D laboratory needs a browser with WebGL. Use the guided walkthrough and diagrams below instead.';
-    }
-    _subscription = _bridge.events.listen(_onEvent);
+  ChemistryLabProvider({required ChemistryLabSceneBridge bridge}) : _bridge = bridge {
+    _eventSub = _bridge.events.listen(_onEngineEvent);
   }
 
-  final LabBridge _bridge;
-  StreamSubscription<LabEvent>? _subscription;
+  final ChemistryLabSceneBridge _bridge;
+  final TitrationEngine _engine = TitrationEngine();
+  final ObservationLog observations = ObservationLog();
+  final TrialDataset trials = TrialDataset();
+  StreamSubscription<ChemistryLabEvent>? _eventSub;
+  Timer? _deliveryTimer;
+  bool _endpointLogged = false;
 
-  LabPhase _phase = LabPhase.idle;
-  String? _errorCode;
-  String? _errorMessage;
-  LabSelection _selection = const LabSelection();
-  double _progress = 0;
-  String? _progressMessage;
-  double _speed = 1.0;
-  bool _labelsVisible = true;
-  Map<String, dynamic>? _experimentSpec;
+  ExperimentDefinition currentExperiment = ExperimentCatalog.acidBaseTitration;
+  ApparatusItem? selectedApparatus;
+  Reagent? selectedReagent;
+  TitrationRunState runState = TitrationRunState.idle;
+  bool inventoryOpen = true;
+  bool helpOpen = false;
+  String? sceneError;
 
-  LabPhase get phase => _phase;
-  bool get isSupported => _bridge.isSupported;
-  String? get errorCode => _errorCode;
-  String? get errorMessage => _errorMessage;
-  LabSelection get selection => _selection;
-  double get progress => _progress;
-  String? get progressMessage => _progressMessage;
-  double get speed => _speed;
-  bool get labelsVisible => _labelsVisible;
-  Map<String, dynamic>? get experimentSpec => _experimentSpec;
+  /// Stopcock opening from 0 (closed) to 1 (fully open).
+  double stopcockOpening = 0;
 
-  /// True while the engine exists and accepts commands.
-  bool get engineLive => _phase == LabPhase.ready || _phase == LabPhase.running || _phase == LabPhase.paused;
+  /// Fast delivery when fully open: about 0.40 mL/s. Dropwise when barely open.
+  static const double _maxRateMlPerS = 0.40;
 
-  /// Called by [LabViewport] once the DOM host element exists.
-  Future<void> init(String hostId) async {
-    if (_phase == LabPhase.error || _phase == LabPhase.initialising) return;
-    _phase = LabPhase.initialising;
-    _errorCode = null;
-    _errorMessage = null;
-    _notify();
-    try {
-      await _bridge.init(hostId: hostId);
-      if (_phase == LabPhase.initialising) _phase = LabPhase.ready;
-    } on LabBridgeException catch (e) {
-      _fail(e.code, e.message);
-    } catch (e) {
-      _fail('init-failed', 'The 3D renderer could not start: $e');
-    }
-    _notify();
+  TitrationSnapshot get snapshot => _engine.snapshot();
+
+  List<({double volumeMl, double pH})> get curvePoints {
+    final snap = snapshot;
+    if (!snap.aliquotTransferred) return const [];
+    return TitrationEngine.curvePoints(
+      settings: snap.settings,
+      deliveredVolumeMl: snap.deliveredVolumeMl,
+      stepMl: 0.50,
+    );
   }
 
-  /// Builds the scene described by [spec] (see [LabBridge.loadExperiment]).
-  void loadExperiment(Map<String, dynamic> spec) {
-    if (!engineLive) return;
-    _experimentSpec = spec;
-    _bridge.loadExperiment(spec);
-    _phase = LabPhase.ready;
-    _notify();
-  }
-
-  void play() {
-    if (!engineLive) return;
-    _bridge.play();
-    _phase = LabPhase.running;
-    _notify();
-  }
-
-  void pause() {
-    if (_phase != LabPhase.running) return;
-    _bridge.pause();
-    _phase = LabPhase.paused;
-    _notify();
-  }
-
-  void resume() {
-    if (_phase != LabPhase.paused) return;
-    _bridge.resume();
-    _phase = LabPhase.running;
-    _notify();
-  }
-
-  void reset() {
-    if (!engineLive) return;
-    _bridge.reset();
-    _phase = LabPhase.ready;
-    _notify();
-  }
-
-  void replay() {
-    if (!engineLive) return;
-    _bridge.replay();
-    _phase = LabPhase.running;
-    _notify();
-  }
-
-  void setSpeed(double value) {
-    final clamped = value.clamp(0.25, 8.0);
-    _speed = clamped;
-    if (engineLive) _bridge.setSpeed(clamped);
-    _notify();
-  }
-
-  void setLabelsVisible(bool visible) {
-    _labelsVisible = visible;
-    if (engineLive) _bridge.setLabelsVisible(visible);
-    _notify();
-  }
-
-  void selectObject(String? id) {
-    if (!engineLive) return;
-    _bridge.selectObject(id);
-  }
-
-  /// Sends visual property targets to the engine (positions, colours, …).
-  /// Chemistry values are computed in Dart first — never in JS.
-  void updateSceneParams(Map<String, dynamic> params) {
-    if (!engineLive) return;
-    _bridge.updateParams(params);
-  }
-
-  void clearSelection() {
-    if (_selection.isEmpty) return;
-    _selection = const LabSelection();
-    if (engineLive) _bridge.selectObject(null);
-    _notify();
-  }
-
-  void _onEvent(LabEvent event) {
+  void _onEngineEvent(ChemistryLabEvent event) {
     switch (event) {
-      case LabReadyEvent():
-        if (_phase == LabPhase.initialising) _phase = LabPhase.ready;
-      case LabProgressEvent(:final value, :final message):
-        _progress = value;
-        _progressMessage = message;
-      case LabStateEvent(:final state):
-        // The engine is authoritative about its own playback state.
-        switch (state) {
-          case 'running':
-            if (engineLive || _phase == LabPhase.ready) _phase = LabPhase.running;
-          case 'paused':
-            if (engineLive) _phase = LabPhase.paused;
-          case 'ready':
-            if (engineLive) _phase = LabPhase.ready;
-          default:
-            break;
-        }
-      case LabSelectionEvent(:final id, :final name, :final kind):
-        _selection = LabSelection(id: id, name: name, kind: kind);
-      case LabErrorEvent(:final code, :final message):
-        if (_fatalCodes.contains(code)) {
-          _fail(code, message);
-        } else {
-          // Non-fatal (e.g. model-loader-unavailable): report but keep the
-          // scene alive; widgets may surface the message transiently.
-          _errorCode = code;
-          _errorMessage = message;
-        }
+      case ChemistryLabSelectionEvent(:final id, :final name):
+        selectedApparatus = id == null ? null : ApparatusCatalog.byId(id);
+        selectedApparatus ??= id == null
+            ? null
+            : ApparatusItem(id: id, name: name ?? id, category: 'Laboratory', description: name ?? id);
+        notifyListeners();
+      case ChemistryLabStopcockEvent(:final open):
+        setStopcockOpening(open ? (stopcockOpening < 0.15 ? 0.35 : stopcockOpening) : 0);
+      case ChemistryLabErrorEvent(:final message):
+        sceneError = message;
+        notifyListeners();
+      case ChemistryLabReadyEvent():
+        _pushVisual();
     }
-    _notify();
   }
 
-  /// Errors that make the 3D session unusable → fallback UI.
-  static const Set<String> _fatalCodes = {
-    'no-webgl',
-    'host-missing',
-    'renderer-failed',
-    'script-load-failed',
-    'init-timeout',
-    'context-lost',
-    'unsupported-platform',
-    'init-failed',
-  };
-
-  void _fail(String code, String message) {
-    _phase = LabPhase.error;
-    _errorCode = code;
-    _errorMessage = message;
+  void selectApparatus(String? id) {
+    selectedApparatus = id == null ? null : ApparatusCatalog.byId(id);
+    _bridge.selectObject(id);
+    notifyListeners();
   }
 
-  void _notify() {
-    if (!_disposed) notifyListeners();
+  void selectReagent(Reagent reagent) {
+    selectedReagent = reagent;
+    notifyListeners();
   }
 
-  bool _disposed = false;
+  void selectExperiment(ExperimentDefinition definition) {
+    currentExperiment = definition;
+    observations.add('Selected practical: ${definition.title}.');
+    if (definition.id == ExperimentCatalog.acidBaseTitration.id) {
+      _bridge.focusTitrationBench();
+    }
+    notifyListeners();
+  }
+
+  void applySettings(TitrationSettings settings) {
+    if (settings.acidConcentrationMolPerL < 0 || settings.baseConcentrationMolPerL < 0 || settings.acidVolumeMl < 0) {
+      observations.add('Rejected invalid settings: concentrations and volumes must not be negative.');
+      notifyListeners();
+      return;
+    }
+    _stopDelivery(pauseOnly: true);
+    _engine.applySettings(settings);
+    runState = TitrationRunState.idle;
+    stopcockOpening = 0;
+    _endpointLogged = false;
+    observations.add(
+      'Settings updated: ${settings.acidFormula} ${settings.acidConcentrationMolPerL.toStringAsFixed(3)} mol/L, '
+      '${settings.acidVolumeMl.toStringAsFixed(2)} mL; ${settings.baseFormula} '
+      '${settings.baseConcentrationMolPerL.toStringAsFixed(3)} mol/L.',
+    );
+    _pushVisual();
+    notifyListeners();
+  }
+
+  void transferAliquot() {
+    _engine.transferAliquot();
+    runState = TitrationRunState.idle;
+    _endpointLogged = false;
+    observations.add(
+      'Transferred ${snapshot.settings.acidVolumeMl.toStringAsFixed(2)} mL of '
+      '${snapshot.settings.acidName} into the conical flask. Added phenolphthalein.',
+    );
+    _pushVisual();
+    notifyListeners();
+  }
+
+  void setStopcockOpening(double value) {
+    stopcockOpening = value.clamp(0.0, 1.0);
+    if (stopcockOpening <= 0) {
+      _stopDelivery(pauseOnly: true);
+    } else if (snapshot.aliquotTransferred && runState != TitrationRunState.completed) {
+      startDelivery();
+    }
+    _pushVisual();
+    notifyListeners();
+  }
+
+  void startDelivery() {
+    if (!snapshot.aliquotTransferred) {
+      observations.add('Transfer the acid aliquot before opening the stopcock.');
+      notifyListeners();
+      return;
+    }
+    if (stopcockOpening <= 0) stopcockOpening = 0.25;
+    final alreadyRunning = runState == TitrationRunState.running && _deliveryTimer != null;
+    runState = TitrationRunState.running;
+    if (alreadyRunning) {
+      _pushVisual();
+      notifyListeners();
+      return;
+    }
+    _deliveryTimer?.cancel();
+    var last = DateTime.now();
+    _deliveryTimer = Timer.periodic(const Duration(milliseconds: 50), (_) {
+      final now = DateTime.now();
+      final dt = now.difference(last).inMilliseconds / 1000.0;
+      last = now;
+      if (runState != TitrationRunState.running || stopcockOpening <= 0) return;
+      final before = snapshot.deliveredVolumeMl;
+      _engine.addDeliveredVolumeMl(_maxRateMlPerS * stopcockOpening * dt);
+      final after = snapshot.deliveredVolumeMl;
+      if (after <= before + 1e-9 && after >= snapshot.settings.buretteCapacityMl - snapshot.settings.initialBuretteReadingMl - 1e-9) {
+        _complete('Burette emptied.');
+        return;
+      }
+      if (snapshot.endpointReached && !_endpointLogged) {
+        _endpointLogged = true;
+        observations.add(
+          'Persistent faint pink observed at ${snapshot.currentBuretteReadingMl.toStringAsFixed(2)} mL '
+          '(${snapshot.deliveredVolumeMl.toStringAsFixed(2)} mL delivered).',
+        );
+      }
+      _pushVisual();
+      notifyListeners();
+    });
+    observations.add('Stopcock opened. Titrant is being delivered.');
+    _pushVisual();
+    notifyListeners();
+  }
+
+  void pauseDelivery() {
+    _stopDelivery(pauseOnly: true);
+    if (runState == TitrationRunState.running) {
+      runState = TitrationRunState.paused;
+      observations.add('Delivery paused at ${snapshot.currentBuretteReadingMl.toStringAsFixed(2)} mL.');
+    }
+    stopcockOpening = 0;
+    _pushVisual();
+    notifyListeners();
+  }
+
+  void completeTrial() {
+    if (!snapshot.aliquotTransferred) return;
+    _complete('Trial recorded by the learner.');
+  }
+
+  void _complete(String reason) {
+    _stopDelivery(pauseOnly: true);
+    stopcockOpening = 0;
+    runState = TitrationRunState.completed;
+    final trial = TitrationTrial(
+      number: trials.trials.length + 1,
+      initialReadingMl: snapshot.settings.initialBuretteReadingMl,
+      finalReadingMl: snapshot.currentBuretteReadingMl,
+    );
+    trials.add(trial);
+    observations.add(
+      '$reason Trial ${trial.number}: initial ${trial.initialReadingMl.toStringAsFixed(2)} mL, '
+      'final ${trial.finalReadingMl.toStringAsFixed(2)} mL, titre ${trial.titreMl.toStringAsFixed(2)} mL.',
+    );
+    _pushVisual();
+    notifyListeners();
+  }
+
+  void resetRun() {
+    _stopDelivery(pauseOnly: true);
+    _engine.resetRun();
+    runState = TitrationRunState.idle;
+    stopcockOpening = 0;
+    _endpointLogged = false;
+    selectedApparatus = null;
+    observations.add('Run reset. Flask emptied. Burette restored to the initial reading. Trial records kept.');
+    _pushVisual();
+    notifyListeners();
+  }
+
+  void clearTrials() {
+    trials.clear();
+    observations.add('Trial dataset cleared.');
+    notifyListeners();
+  }
+
+  void toggleTrial(int index, bool included) {
+    if (index < 0 || index >= trials.trials.length) return;
+    trials.trials[index].includedInMean = included;
+    notifyListeners();
+  }
+
+  void toggleInventory() {
+    inventoryOpen = !inventoryOpen;
+    notifyListeners();
+  }
+
+  void resetCamera() => _bridge.resetCamera();
+
+  void focusTitration() => _bridge.focusTitrationBench();
+
+  void _stopDelivery({required bool pauseOnly}) {
+    _deliveryTimer?.cancel();
+    _deliveryTimer = null;
+    if (!pauseOnly) runState = TitrationRunState.idle;
+  }
+
+  void _pushVisual() {
+    final snap = snapshot;
+    try {
+      _bridge.setVisualState({
+        'buretteFill01': snap.buretteFill01,
+        'buretteReadingMl': snap.currentBuretteReadingMl,
+        'flaskFill01': snap.aliquotTransferred ? snap.flaskFill01 : 0.0,
+        'flaskRgb': snap.flaskRgb,
+        'flaskOpacity': snap.flaskOpacity,
+        'dripping': runState == TitrationRunState.running && stopcockOpening > 0,
+        'stopcockOpening': stopcockOpening,
+        'swirl': runState == TitrationRunState.running ? 1.0 : 0.0,
+        'selectedId': selectedApparatus?.id,
+      });
+    } catch (_) {
+      // Visual push is best-effort when the 3D engine is not running.
+    }
+  }
+
+  List<Reagent> get reagents => ReagentRegistry.all;
 
   @override
   void dispose() {
-    _disposed = true;
-    _subscription?.cancel();
+    _deliveryTimer?.cancel();
+    _eventSub?.cancel();
     _bridge.dispose();
     super.dispose();
   }

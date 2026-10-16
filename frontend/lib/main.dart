@@ -23,9 +23,23 @@ void main() async {
     unawaited(reportClientError('async', error, stack));
     return true;
   };
-  await DataSaverService().init();
-  await OfflineCacheService().init();
   runApp(const PenroseScholarApp());
+  unawaited(_initializeStartupServices());
+}
+
+Future<void> _initializeStartupServices() async {
+  await Future.wait([
+    _initializeStartupService('data-saver', DataSaverService().init),
+    _initializeStartupService('offline-cache', OfflineCacheService().init),
+  ]);
+}
+
+Future<void> _initializeStartupService(String name, Future<void> Function() initialize) async {
+  try {
+    await initialize();
+  } catch (error, stack) {
+    await reportClientError('startup-$name', error, stack);
+  }
 }
 
 class PenroseScholarApp extends StatefulWidget {

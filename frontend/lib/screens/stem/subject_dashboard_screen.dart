@@ -532,7 +532,19 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
     final modules = <_ModuleItem>[
       _ModuleItem(Icons.book_rounded, 'Syllabus', 'Official MSCE syllabus', syllabusRoute),
       if (slug == 'chemistry')
-        const _ModuleItem(Icons.view_in_ar_outlined, '3D Lab', 'Virtual chemistry laboratory', '/chem-lab'),
+        const _ModuleItem(
+          Icons.view_in_ar_outlined,
+          'Chemistry Laboratory. Photo Match',
+          'Interactive photo-match 3D laboratory',
+          '/chem-lab',
+        ),
+      if (slug == 'mathematics')
+        const _ModuleItem(
+          Icons.calculate_rounded,
+          'Mathsdrill',
+          'Interactive practice & past papers',
+          '/mathsdrill',
+        ),
       _ModuleItem(Icons.psychology_outlined, 'AI Tutor', 'AI-powered assistant', '/stem-tutor'),
       _ModuleItem(Icons.quiz_rounded, 'Practice', 'MCQ & exercises', '/stem-mastery'),
       _ModuleItem(Icons.description_rounded, 'Past Papers', 'MSCE past exams', '/mock-exam'),
