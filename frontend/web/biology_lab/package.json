@@ -1,0 +1,13 @@
+{
+  "name": "biology-lab",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Standalone 3D biology laboratory environment (Three.js), embeddable in Penrose.",
+  "scripts": {
+    "serve": "node serve.mjs",
+    "test": "node scripts/themes_test.mjs && node scripts/smoke.mjs",
+    "test:themes": "node scripts/themes_test.mjs",
+    "test:smoke": "node scripts/smoke.mjs"
+  }
+}

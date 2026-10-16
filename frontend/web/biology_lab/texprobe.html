@@ -1,0 +1,10 @@
+<!DOCTYPE html><html><head><title>P0</title></head><body>
+<script>
+document.title='P0';
+var img=new Image();
+img.onload=function(){document.title='TEXOK';};
+img.onerror=function(){document.title='TEXERR';};
+setTimeout(function(){if(document.title==='P0')document.title='TIMEOUT';},5000);
+img.src='./assets/biology-teacher.png?cb='+Date.now();
+</script>
+</body></html>
