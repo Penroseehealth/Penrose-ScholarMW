@@ -18,7 +18,6 @@
 <link rel="modulepreload" href="./vendor/three.module.js">
 <link rel="preload" href="./assets/teacher.glb" as="fetch" crossorigin>
 <link rel="preload" href="./assets/teacher-anim.json" as="fetch" crossorigin>
-<link rel="preload" href="./assets/teachmi.glb" as="fetch" crossorigin>
 <style>
 :root{
   --ink:#17322f; --paper:#e2ebe5; --bar:rgba(244,242,234,.92); --line:rgba(23,50,47,.28);
@@ -189,6 +188,8 @@ import { createBiology } from './js/biology_assets.js';
 import { createSafety } from './js/safety.js';
 import { createCameraRig } from './js/camera.js';
 import { createPerf } from './js/perf.js';
+import { createModelCatalogue } from './js/model_catalogue.js';
+import { createModelLoader } from './js/model_loader.js';
 THREE.ColorManagement.enabled=false;
 (function(){
 'use strict';
@@ -204,6 +205,7 @@ var MOVTEST=/[?&]movtest=1/.test(location.search);
 var EVTEST=/[?&]evtest=1/.test(location.search);
 var MICROTEST=/[?&]microtest=1/.test(location.search);
 var CONSISTTEST=/[?&]consisttest=1/.test(location.search);
+var MODELTEST=/[?&]modeltest=1/.test(location.search);
 /* Phase 4: scientific simulation layer - pure rules, separate from rendering */
 var science=createScience();window.BioLabScience=science;
 var ERRLOG=[];
@@ -233,13 +235,13 @@ var CONFIG={
   teacherWalk:false,             /* the teacher stands in front of the biosafety cabinet */
   teacherControl:true,           /* Phase 1: teacher rig driven by js/teacher_controller.js */
   teacherBehaviour:true,         /* Phase 2: task/behaviour layer above the controller */
-  teacherStand:[4.6,3.72],       /* world x,z — just in front of the BSC on the back wall */
+  teacherStand:[-0.33,3.72],       /* world x,z — just in front of the BSC on the back wall */
   teacherSpeed:1.05,          /* metres/sec along the patrol route */
   teacherFacing:0,            /* extra yaw if the avatar walks backwards */
   /* closed patrol loop (world x,z), an aisle circuit around the central bench island */
   teacherPath:[[-4.6,-2.8],[4.6,-2.8],[4.6,3.9],[-4.6,3.9]],
   bsc:true,                   /* Class II biosafety cabinet against the back wall */
-  bscX:4.6,
+  bscX:-0.33,
   bscZ:4.44,
   runningTaps:'alternate',
   waterSplash:true,
@@ -1098,9 +1100,8 @@ makeAirconUnit(pickRoot,-HX+.15,2.3,0,Math.PI/2);
 makeAirconUnit(pickRoot,-HX+.15,2.3,2.0,Math.PI/2);
 /* on right wall (away from fan wall) */
 makeAirconUnit(pickRoot,HX-.15,2.3,-2.0,-Math.PI/2);
-/* on back wall far ends */
-makeAirconUnit(pickRoot,-3.5,2.3,HZ-.15,0);
-makeAirconUnit(pickRoot,3.5,2.3,HZ-.15,0);
+  /* no units on the back wall: shelving owns the left span and the entrance
+     door/window own the right (a unit here collided with jars and the pane) */
 
 /* ---------- framed wall picture (user-provided image) ---------- */
 (function(){
@@ -1164,13 +1165,54 @@ var whiteboardMat=new THREE.MeshBasicMaterial({map:wbTex});
 whiteboard.add(plane(WB_W,WB_H,whiteboardMat,0,WB_CY,WBZ+.02,0));
 function wbBump(p,c,w){var d=p-c;if(d>.5)d-=1;if(d<-.5)d+=1;return Math.exp(-(d*d)/(2*w*w));}
 function wbEcg(p){return .16*wbBump(p,.16,.022)-.12*wbBump(p,.275,.006)+1*wbBump(p,.29,.0045)-.26*wbBump(p,.305,.007)+.32*wbBump(p,.45,.028);}
-/* static board texture: the animated ECG trace and pulsing heart were removed */
+/* static board texture: the animated ECG trace and pulsing heart were removed.
+   During a running lesson the teacher's whiteboard work appends a practical
+   block at the bottom, revealed line-by-line while she is at the board. */
 var wbStaticDone=false;
+var wbLessonChars=0,wbLessonDrawn=-1,wbLessonAcc=0;
+var wbLessonLines=['Practical: Osmosis in potato tissue',
+  'Weigh discs, soak 30 min, then re-weigh',
+  'Plot % mass change vs sucrose molarity'];
+function wbLessonReset(){wbLessonChars=0;wbLessonDrawn=-1;wbLessonAcc=0;}
+function wbLessonTick(dt){
+  try{
+    if(!phase6||!phase6.status)return;
+    var st=phase6.status();
+    if(!st.running||st.phase==='done')return;
+    if(!teacher||!teacher.position)return;
+    var p=teacher.position;
+    if(!(Math.abs(p.x)<1.9&&p.z<-1.6&&p.z>-4.5))return;   /* only while she is at the front / whiteboard */
+    wbLessonAcc+=Math.min(dt||0,.1);
+    var total=0;for(var i=0;i<wbLessonLines.length;i++)total+=wbLessonLines[i].length;
+    var ch=Math.min(total,Math.floor(wbLessonAcc*total/55));
+    if(ch>wbLessonChars)wbLessonChars=ch;
+  }catch(e){}
+}
 function drawBoardAnim(t){
-  if(wbStaticDone)return;wbStaticDone=true;
+  if(!wbStaticDone){wbStaticDone=true;}
+  else if(wbLessonChars===wbLessonDrawn)return;
   wbCtx.clearRect(0,0,1024,410);
   wbCtx.drawImage(wbBase,0,0);
+  if(wbLessonChars>0){
+    wbCtx.save();
+    wbCtx.strokeStyle='#9db8cc';wbCtx.lineWidth=2;
+    wbCtx.beginPath();wbCtx.moveTo(52,314);wbCtx.lineTo(972,314);wbCtx.stroke();
+    var n=wbLessonChars,used=0;
+    var ys=[334,361,388];
+    for(var i=0;i<wbLessonLines.length;i++){
+      var s=wbLessonLines[i];
+      if(used>=n)break;
+      var take=Math.min(s.length,n-used);
+      wbCtx.textAlign='left';wbCtx.textBaseline='alphabetic';
+      wbCtx.font=(i===0?'bold 24px ':'21px ')+'"Segoe UI",Arial,sans-serif';
+      wbCtx.fillStyle=(i===0?'#155e9c':'#1d4f7a');
+      wbCtx.fillText(s.slice(0,take),52,ys[i]);
+      used+=s.length;
+    }
+    wbCtx.restore();
+  }
   wbTex.needsUpdate=true;
+  wbLessonDrawn=wbLessonChars;
 }
 drawBoardAnim(0);
 /* ridge / pen tray below the board */
@@ -1322,10 +1364,12 @@ var fillMats=[];   /* module scope: theme engine tints these specimen-jar fills 
 })();
 
 /* ---------- Class II biosafety cabinet (back wall) ----------
-   Full-size cabinet: 1.55 m wide x 0.85 m deep x ~1.42 m tall, photo
-   (assets/biosafety-cabinet.png, 1312x1199) undistorted as the front face.
-   High-contrast canvas labels (biohazard band, equipment plate, downflow strip)
-   sit proud of the photo so markings stay readable at gameplay distance. */
+   Full-size cabinet: 1.55 m wide x 0.80 m deep x ~1.75 m tall (0.40 m legs).
+   The photo (assets/biosafety-cabinet.png, 1312x1199) is cropped to the cabinet
+   itself (PXL/PXW/PXB) so its room background - wall, window, floor, stool and
+   bin - never reaches the front face; 3D legs and stretchers carry it to the
+   floor. High-contrast canvas labels (biohazard band, equipment plate, downflow
+   strip) sit proud of the photo so markings stay readable at gameplay distance. */
 var biosafetyCabs=[],bscInfo=null;
 function bscFitText(x,txt,maxW,px,family){
   x.font='bold '+px+'px '+family;
@@ -1405,15 +1449,39 @@ function bscHazardSquareTex(){
 }
 if(CONFIG.bsc){
   texPending++;
-  var bscTex=new THREE.TextureLoader().load('./assets/biosafety-cabinet.png',function(){texPending--;},undefined,function(){texPending--;});
+  /* crop window: cabinet only (wall, window, floor, stool and bin trimmed away) */
+  var BW=1.55,BD=.80,BL=.40,PXL=72,PXW=890,PXB=775,IMW=1312,IMH=1199;
+  var bscTex=new THREE.TextureLoader().load('./assets/biosafety-cabinet.png',function(t){
+    texPending--;
+    try{
+      var im=t.image,c=document.createElement('canvas');
+      c.width=im.width;c.height=im.height;
+      var g=c.getContext('2d');
+      g.drawImage(im,0,0);
+      g.drawImage(c,280,678,150,99,438,678,292,99);   /* stool seat band -> stretched clean panel */
+      t.image=c;t.needsUpdate=true;
+    }catch(e){}
+  },undefined,function(){texPending--;});
   bscTex.colorSpace=THREE.SRGBColorSpace;
   bscTex.anisotropy=16;
-  var BW=1.55,BH=BW*(1199/1312),BD=.80;           /* photo aspect keeps the image undistorted */
+  bscTex.offset.set(PXL/IMW,1-PXB/IMH);
+  bscTex.repeat.set(PXW/IMW,PXB/IMH);
+  var BH=BW*PXB/PXW;                                 /* crop keeps the photo undistorted */
   var bscBody=new THREE.MeshStandardMaterial({color:0xf2f3f4,roughness:.5,metalness:.05});
   var bscGroup=new THREE.Group();
   bscGroup.position.set(CONFIG.bscX,0,CONFIG.bscZ);
-  box(BW,BH,BD,bscBody,0,BH/2,0,bscGroup,true);
-  bscGroup.add(plane(BW,BH,new THREE.MeshStandardMaterial({map:bscTex,roughness:.8,metalness:0}),
+  /* legs, foot pads and stretchers replace the photo legs (cropped with the floor) */
+  [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(function(s){
+    var lx=s[0]*(BW/2-.13),lz=s[1]*(BD/2-.11);
+    box(.075,BL-.03,.075,bscBody,lx,(BL+.03)/2,lz,bscGroup,true);
+    box(.11,.03,.11,M.dark,lx,.015,lz,bscGroup,true);
+  });
+  box(BW-.145,.065,.055,bscBody,0,.19,-(BD/2-.11),bscGroup,true);
+  box(.055,.065,BD-.16,bscBody,-(BW/2-.13),.19,0,bscGroup,true);
+  box(.055,.065,BD-.16,bscBody,(BW/2-.13),.19,0,bscGroup,true);
+  var bscBodyG=new THREE.Group();bscBodyG.position.y=BL;bscGroup.add(bscBodyG);
+  box(BW,BH,BD,bscBody,0,BH/2,0,bscBodyG,true);
+  bscBodyG.add(plane(BW,BH,new THREE.MeshStandardMaterial({map:bscTex,roughness:.8,metalness:0}),
     0,BH/2,-(BD/2+.005),Math.PI));
   /* label planes sit 9 mm proud of the photo (no z-fighting), lighting-matched;
      default ry=π so front labels face the room exactly like the photo plane */
@@ -1423,14 +1491,14 @@ if(CONFIG.bsc){
     return m;
   }
   var bscFZ=-(BD/2+.014);
-  bscGroup.add(bscLabel(.46,.115,bscHazardBandTex(),-BW/2+.30,BH-.145,bscFZ));
-  bscGroup.add(bscLabel(.86,.215,bscNameplateTex(),BW/2-.50,BH-.15,bscFZ));
-  bscGroup.add(bscLabel(.54,.135,bscAirflowTex(),BW/2-.46,BH-.375,bscFZ));
-  bscGroup.add(bscLabel(.30,.30,bscHazardSquareTex(),-BW/2-.013,BH-.25,-BD/2+.30,-Math.PI/2));
+  bscBodyG.add(bscLabel(.46,.115,bscHazardBandTex(),-BW/2+.30,BH-.145,bscFZ));
+  bscBodyG.add(bscLabel(.86,.215,bscNameplateTex(),BW/2-.50,BH-.15,bscFZ));
+  bscBodyG.add(bscLabel(.54,.135,bscAirflowTex(),BW/2-.46,BH-.375,bscFZ));
+  bscBodyG.add(bscLabel(.30,.30,bscHazardSquareTex(),-BW/2-.013,BH-.25,-BD/2+.30,-Math.PI/2));
   pickRoot.add(bscGroup);
   biosafetyCabs.push(bscGroup);
   contactShadow(pickRoot,CONFIG.bscX,.004,CONFIG.bscZ,1.9,1.25);
-  bscInfo={present:true,x:CONFIG.bscX,z:CONFIG.bscZ,frontZ:+(CONFIG.bscZ-BD/2).toFixed(3),w:BW,d:BD,h:+BH.toFixed(3)};
+  bscInfo={present:true,x:CONFIG.bscX,z:CONFIG.bscZ,frontZ:+(CONFIG.bscZ-BD/2).toFixed(3),w:BW,d:BD,h:+(BH+BL).toFixed(3)};
 }
 
 /* ---------- CO2 incubator with red + green digital displays ---------- */
@@ -1749,14 +1817,15 @@ function requestRenderedMicroscope(bench,lx,ly,lz,yaw){
 })();
 
 /* ---------- teacher (realistic rigged avatar that walks the lab) ----------
-   assets/teacher.glb is a Ready Player Me avatar (borrowed from the three.js
-   examples' readyplayer.me.glb, free to use): a fully textured, 67-bone Mixamo
-   rig. It ships with no animation, so the walk/idle cycles in
+   assets/teacher.glb is ONE unified teacher: the textured MakeHuman body
+   (1.70 m, female_elegantsuit) skinned onto the Ready Player Me 67-bone
+   Mixamo rig (see tools/teacher/unify build: auto-weighted, arms baked to
+   the rig rest pose). It ships with no animation, so the walk/idle cycles in
    assets/teacher-anim.json are retargeted from the three.js Xbot Mixamo rig
    (see tools/teacher/build_teacher_anim.py, world-space-delta FK bake).
-   The cowboy headwear is hidden; the avatar stands at the biosafety cabinet
-   (or patrols the aisle circuit when CONFIG.teacherWalk is on). */
-var teacher=null,teacherMixer=null,teacherWalk=null,teacherIdle=null,teacherVis=null;
+   The avatar stands at the biosafety cabinet (or patrols the aisle circuit
+   when CONFIG.teacherWalk is on). */
+var teacher=null,teacherMixer=null,teacherWalk=null,teacherIdle=null;
 var teacherClipDoc=null,teacherDiag={};
 var teacherPath=null,teacherPathLen=1,teacherDist=0,teacherYaw=0,teacherTravel=[0,1];
 var teacherLift=null;   /* per-phase body drop that keeps the planted foot on the floor */
@@ -1837,25 +1906,7 @@ function teacherSole(root){
     if(CONFIG.teacherScale!==1)g.scale.setScalar(CONFIG.teacherScale);
     g.add(model);
     pickRoot.add(g);
-    g.visible=false;
     teacher=g;
-    /* visual stand-in: teachmi.glb (static MakeHuman mesh) follows the hidden rig */
-    texPending++;
-    new GLTFLoader().load('./assets/teachmi.glb',function(gltfV){
-      var v=gltfV.scene;
-      v.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.frustumCulled=false;
-        var ms=Array.isArray(o.material)?o.material:[o.material];
-        ms.forEach(function(m){if(!m)return;if(m.map)m.map.anisotropy=8;});}});
-      v.position.copy(teacher.position);v.rotation.y=teacher.rotation.y;
-      if(CONFIG.teacherScale!==1)v.scale.setScalar(CONFIG.teacherScale);
-      pickRoot.add(v);
-      teacherVis=v;
-      texPending--;
-      trace('teacher:visual');
-    },undefined,function(err){
-      ERRLOG.push('GLB teachmi: '+String((err&&err.message)||err));
-      texPending--;
-    });
     if(CONFIG.teacherWalk&&teacherPath){
       /* place at the patrol start and face along the route */
       teacherDist=0;
@@ -1927,7 +1978,6 @@ function teacherSole(root){
       teacherCtl=createTeacherController(labNav,ctlRig,{speed:CONFIG.teacherSpeed});
       teacherDiag.control=true;
       window.BioLab={nav:labNav,ctl:teacherCtl,teacher:teacher,
-        get teacherVis(){return teacherVis;},
         goto:function(x,z,opts){return teacherCtl.goto(x,z,opts);},ready:true};
       if(CONFIG.teacherBehaviour&&phase2){
         phase2.attachTeacher(model,ctlRig,teacherCtl,labNav);
@@ -1951,6 +2001,7 @@ function teacherSole(root){
     if(EVTEST)runEvTest();
     if(MICROTEST)runMicroTest();
     if(CONSISTTEST)runConsistTest();
+    if(MODELTEST)runModelTest();
   };
   var fail=function(err){
     ERRLOG.push('GLB teacher: '+String((err&&err.message)||err));
@@ -1964,6 +2015,7 @@ function teacherSole(root){
     if(EVTEST)runEvTest();
     if(MICROTEST)runMicroTest();
     if(CONSISTTEST)runConsistTest();
+    if(MODELTEST)runModelTest();
     if(shotMode&&window.__doShotCapture)window.__doShotCapture();
   };
   /* fetch the rig and its baked clips in parallel (was serial: json waited on glb) */
@@ -2033,7 +2085,6 @@ function teacherStep(dt){
      palms up). Re-aim the upper arms to hang naturally AFTER the mixer runs;
      fades out as locomotion (and its own arm swing) takes over. */
   teacherArmFix(1-Math.min(1,teacherLoco*1.5));
-  if(teacherVis){teacherVis.position.copy(teacher.position);teacherVis.quaternion.copy(teacher.quaternion);}
   if(teacherWorld)teacherWorld.tick(dt);
   /* Phase 2: the behaviour layer owns the Phase-1 controller when attached */
   if(teacherBehav)teacherBehav.update(dt);
@@ -2700,9 +2751,24 @@ makeAutoclave(pickRoot,5.05,-4.55,-Math.PI*0.12);
       {op:'release',obj:'item.jar',at:pt('bench.place','target')},
       {op:'set',id:'item.jar',patch:{loc:'bench.place'}},
       {op:'verify',expect:{'item.jar.state.loc':'bench.place','cabFR.slides.state.open':false}},
+    ];},teach:function(){return [
+      {op:'plan',dur:.35},
+      {op:'align',face:{x:0,z:-4.7}},
+      {op:'goto',to:{x:0,z:-2.05},standOff:.05,face:{x:0,z:-4.7}},
+      {op:'reach',hand:'R',to:{x:.5,y:1.9,z:-4.7},dur:.6},
+      {op:'teach',dur:2.4,look:{x:.5,y:1.9,z:-4.7}},
+      {op:'reach',hand:'R',to:{x:-.35,y:1.65,z:-4.7},dur:.6},
+      {op:'teach',dur:2.2,look:{x:-.35,y:1.65,z:-4.7}},
+      {op:'manipulate',dur:1.5,look:{x:0,y:1.5,z:-4.7},lean:.25},
+      {op:'reach',hand:'R',to:{x:.3,y:1.4,z:-4.7},dur:.6},
+      {op:'teach',dur:2.6,look:{x:.3,y:1.4,z:-4.7}},
+    ];},returnStand:function(){return [
+      {op:'plan',dur:.3},
+      {op:'goto',to:{x:CONFIG.teacherStand[0],z:CONFIG.teacherStand[1]},standOff:0,
+       faceX:CONFIG.bscX,faceZ:CONFIG.bscZ},
     ];}
   };
-  P2.priorities={window:5,phone:8,drawer:7};
+  P2.priorities={window:5,phone:8,drawer:7,teach:2,returnStand:1};
   P2.trigger=function(name){
     if(!teacherBehav||!P2.scenarios[name])return null;
     return teacherBehav.submit({label:'scen-'+name,priority:P2.priorities[name]||4,
@@ -3254,7 +3320,7 @@ var VIEWS={
   board:{t:[0,1.5,-4.4],theta:0,phi:1.5,r:4.2},
   back:{t:[0,1.15,-2.6],theta:0,phi:1.42,r:7.2},
   cabinet:{t:[2.75,.48,-3.95],theta:0,phi:.95,r:1.4},
-  bsc:{t:[4.4,1.15,4.1],theta:Math.PI,phi:1.45,r:3.4},
+    bsc:{t:[-0.53,1.15,4.1],theta:Math.PI,phi:1.45,r:3.4},
   cutaway:{t:[0,.9,0],theta:.6,phi:.95,r:15},
   exterior:{t:[-1,1.5,0],theta:-1.15,phi:1.42,r:19},
   site:{t:[0,1.3,-1.4],theta:Math.PI,phi:1.12,r:24}
@@ -3756,8 +3822,42 @@ if(lessonBtn)lessonBtn.addEventListener('click',function(){
   else if(s.act==='resume')phase6.resume();
   else if(s.act==='pause')phase6.pause();
   syncLessonBtn();
+  lessonTeacherSync();
 });
 syncLessonBtn();
+/* lesson -> teacher: a started practical sends her to the whiteboard; done sends her back */
+var lessonT={was:false,lastRt:null,fails:0};
+function lessonTeacherSync(){
+  try{
+    wbLessonExpose();   /* bridge comes up async with the teacher GLB; attach QA surface when it exists */
+    if(!phase6||!phase6.status)return;
+    if(!teacherBehav||!phase2||!phase2.scenarios)return;
+    var st=phase6.status();
+    var running=!!st.running&&st.phase!=='done';
+    if(running&&!lessonT.was){
+      wbLessonReset();lessonT.fails=0;
+      teacherBehav.submit({label:'scen-teach',priority:2,steps:phase2.scenarios.teach()});
+    }else if(!running&&lessonT.was){
+      teacherBehav.submit({label:'scen-returnStand',priority:1,steps:phase2.scenarios.returnStand()});
+    }
+    lessonT.was=running;
+    if(running&&teacherBehav.lastResult&&teacherBehav.lastResult.label==='scen-teach'
+       &&teacherBehav.lastResult.t!==lessonT.lastRt){
+      lessonT.lastRt=teacherBehav.lastResult.t;
+      if(teacherBehav.lastResult.status==='completed')lessonT.fails=0;
+      else lessonT.fails++;
+      if(lessonT.fails<3)
+        teacherBehav.submit({label:'scen-teach',priority:2,steps:phase2.scenarios.teach()});
+    }
+  }catch(e){}
+}
+function wbLessonExpose(){
+  if(window.BioLab&&!window.BioLab.wbLesson)window.BioLab.wbLesson={
+    chars:function(){return wbLessonChars;},
+    reset:wbLessonReset,
+    force:function(n){wbLessonChars=Math.max(0,Math.min(n|0,999));wbLessonDrawn=-1;}
+  };
+}
 /* settings panel */
 (function(){
   var sb=document.getElementById('settingsBtn');
@@ -4561,7 +4661,8 @@ function frame(){
   if(phase3&&phase3.frame&&(!slowTier||phase8.perf.shouldRun('behaviour',time)))phase3.frame(dt);
   if(phase5&&phase5.frame&&(!slowTier||phase8.perf.shouldRun('students',time)))phase5.frame(dt);
   if(phase6&&phase6.frame)phase6.frame(dt);
-  if((frames%10)===0)syncLessonBtn();   /* keep the bar button in step with the lesson (cheap, throttled) */
+  if((frames%10)===0){syncLessonBtn();lessonTeacherSync();}   /* lesson UI + teacher, throttled */
+  wbLessonTick(dt);
   if(phase7&&phase7.frame&&(!slowTier||phase8.perf.shouldRun('env',time)))phase7.frame(dt);
   taps.forEach(function(t){
     t.t+=(t.target-t.t)*Math.min(1,dt*7);
@@ -5811,6 +5912,57 @@ function runConsistTest(){
   var el=document.createElement('pre');el.id='__consisttest';el.style.display='none';
   el.textContent=JSON.stringify(out);document.body.appendChild(el);
   document.title='CONSISTTESTREADY';
+}
+/* ---------- ?modeltest=1: Grab3D catalogue + GLB loader acceptance (Stage 2) ---------- */
+function runModelTest(){
+  var out={checks:[],fails:0,errors:[],evidence:{progress:[]}};
+  function ck(n,ok,detail){out.checks.push({name:n,ok:ok===true,detail:detail==null?'':String(detail)});if(ok!==true)out.fails++;}
+  window.addEventListener('error',function(ev){out.errors.push(String(ev.message||ev.error));});
+  window.addEventListener('unhandledrejection',function(ev){out.errors.push('REJECT:'+String((ev.reason&&ev.reason.message)||ev.reason));});
+  var cat=createModelCatalogue();
+  var loader=createModelLoader();
+  window.BioLabModel={catalogue:cat,loader:loader};
+  ck('modeltest: services created',!!cat&&!!loader);
+  var finish=function(){
+    try{ck('modeltest: no page errors',out.errors.length===0,out.errors.slice(0,3).join(' | '));}catch(e){}
+    var el=document.createElement('pre');el.id='__modeltest';el.style.display='none';
+    el.textContent=JSON.stringify(out);document.body.appendChild(el);
+    document.title='MODELTESTREADY';
+  };
+  cat.load().then(function(info){
+    out.evidence.catalogue=info;
+    ck('catalogue loads via same-origin relay',info.count>0,'count='+info.count+' source='+info.source);
+    ck('catalogue declares CC0 licence',!!info.meta&&info.meta.license==='CC0-1.0',info.meta&&info.meta.license);
+    var hits=cat.search('kidney',{format:'glb',limit:5});
+    var found=hits.some(function(h){return h.slug==='human-kidney';});
+    ck("search 'kidney' finds human-kidney",found,hits.map(function(h){return h.slug;}).join(','));
+    var m=cat.get('human-kidney');
+    ck('human-kidney exposes light+full glb',!!(m&&m.glb.light&&m.glb.full),m?Object.keys(m.glb).join(','):'null');
+    ck('human-kidney has licence + AI disclosure',!!(m&&m.license==='CC0-1.0'&&m.origin&&m.origin.licenseUrl),m&&m.origin&&m.origin.licenseUrl);
+    var file=m&&m.glb&&(m.glb.light||m.glb.full);
+    var v=loader.validate(file);
+    ck('glb file validates',v.ok,v.ok?(file.url+' '+Math.round(file.bytes/1048576)+'MB'):v.reason);
+    if(!v.ok)throw new Error('validate: '+v.reason);
+    return loader.load(file.url,{onProgress:function(p){if(p.total&&out.evidence.progress.length<40)out.evidence.progress.push(Math.round(p.loaded/p.total*100));},timeoutMs:180000}).then(function(res){
+      var d=loader.describe(res.gltf);
+      out.evidence.model=d;out.evidence.loadMs=res.ms;out.evidence.segmented=d.meshes>1;
+      ck('glb parses with the existing r172 GLTFLoader',d.meshes>=1&&d.triangles>0,JSON.stringify(d)+' in '+res.ms+'ms');
+      var stage=new THREE.Scene();
+      stage.add(res.gltf.scene);
+      ck('staging scene holds the model (lab untouched)',stage.children.length===1,'staging children='+stage.children.length);
+      var freed=loader.dispose(res.gltf);
+      stage.remove(res.gltf.scene);
+      var leftover=loader.describe(stage);
+      ck('dispose frees geometry/materials',freed>0&&leftover.meshes===0,'freed='+freed);
+      return loader.load(file.url,{timeoutMs:180000}).then(function(res2){
+        var d2=loader.describe(res2.gltf);
+        loader.dispose(res2.gltf);
+        ck('second load succeeds (repeatable, cache reuse)',d2.triangles===d.triangles,'tris='+d2.triangles);
+      });
+    });
+  }).catch(function(err){
+    ck('modeltest pipeline',false,String((err&&err.message)||err));
+  }).then(finish,finish);
 }
 })();
 </script>

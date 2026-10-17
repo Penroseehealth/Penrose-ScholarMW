@@ -159,19 +159,30 @@ export function createNav() {
 
     function lineOfSight(ax, az, bx, bz) {
       if (!grid) return false;
-      var dx = bx - ax,
-        dz = bz - az;
-      var dist = Math.hypot(dx, dz);
-      /* Sample at quarter-cell steps: half-cell steps can straddle the thin
-         (~1 cell) blocked sliver where a diagonal segment clips the corner of
-         an inflated obstacle, letting string-pull keep a segment the walker
-         then trips over mid-step. */
-      var steps = Math.max(1, Math.ceil(dist / (grid.cell * 0.25)));
-      for (var i = 0; i <= steps; i++) {
-        var t = i / steps;
-        if (!isWalkable(ax + dx * t, az + dz * t)) return false;
+      var b = grid.bounds, c = grid.cell;
+      if (!isWalkable(ax, az) || !isWalkable(bx, bz)) return false;
+      var dx = bx - ax, dz = bz - az;
+      if (dx === 0 && dz === 0) return true;
+      /* Supercover (DDA over the cell lattice): every cell the segment touches
+         must be walkable. Fixed-step sampling is not enough — a leg that starts
+         beside a cell corner can clip a blocked cell for a sliver thinner than
+         the sample spacing, and string-pull would then hand the walker a route
+         its first step trips over (recover loop → unreachable). */
+      var ix = Math.floor((ax - b.x0) / c), iz = Math.floor((az - b.z0) / c);
+      var tx = Math.floor((bx - b.x0) / c), tz = Math.floor((bz - b.z0) / c);
+      var stepX = dx > 0 ? 1 : -1, stepZ = dz > 0 ? 1 : -1;
+      var tMaxX = dx !== 0 ? ((b.x0 + (dx > 0 ? ix + 1 : ix) * c) - ax) / dx : Infinity;
+      var tMaxZ = dz !== 0 ? ((b.z0 + (dz > 0 ? iz + 1 : iz) * c) - az) / dz : Infinity;
+      var tDeltaX = dx !== 0 ? c / Math.abs(dx) : Infinity;
+      var tDeltaZ = dz !== 0 ? c / Math.abs(dz) : Infinity;
+      var guard = grid.nx + grid.nz + 4;
+      while ((ix !== tx || iz !== tz) && guard-- > 0) {
+        if (tMaxX < tMaxZ) { tMaxX += tDeltaX; ix += stepX; }
+        else { tMaxZ += tDeltaZ; iz += stepZ; }
+        if (ix < 0 || iz < 0 || ix >= grid.nx || iz >= grid.nz) return false;
+        if (grid.walk[iz * grid.nx + ix] !== 1) return false;
       }
-      return true;
+      return ix === tx && iz === tz;
     }
 
     /* binary min-heap over parallel arrays (f = f-scores) */

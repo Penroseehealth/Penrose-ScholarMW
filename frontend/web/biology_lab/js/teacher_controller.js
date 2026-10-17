@@ -344,6 +344,18 @@ var STATES = {
           return;
         }
         ctl.pathIdx++;
+        /* Corner legs: turn in place before starting the next segment. Walking
+           the turn at speed swings the body off the LOS-verified polyline
+           (yaw lags the heading), and in one-cell corridors (island/cabinet
+           gaps, stool belts) that chord clips furniture and the recover loop
+           never escapes. Same 0.35 rad threshold as align-start. */
+        var pv = ctl.path[ctl.pathIdx - 1];
+        var nv = ctl.path[ctl.pathIdx];
+        var legYaw = Math.atan2(nv.x - pv.x, nv.z - pv.z);
+        if (Math.abs(angDelta(rig.getYaw(), legYaw)) > 0.35) {
+          task.turnTo = legYaw;
+          setState(STATES.TURN, "align-corner");
+        }
         return;
       }
 
