@@ -5922,6 +5922,7 @@ function runModelTest(){
   var cat=createModelCatalogue();
   var loader=createModelLoader();
   window.BioLabModel={catalogue:cat,loader:loader};
+  document.title='MTA-services';
   ck('modeltest: services created',!!cat&&!!loader);
   var finish=function(){
     try{ck('modeltest: no page errors',out.errors.length===0,out.errors.slice(0,3).join(' | '));}catch(e){}
@@ -5930,6 +5931,7 @@ function runModelTest(){
     document.title='MODELTESTREADY';
   };
   cat.load().then(function(info){
+    document.title='MTB-catalogue';
     out.evidence.catalogue=info;
     ck('catalogue loads via same-origin relay',info.count>0,'count='+info.count+' source='+info.source);
     ck('catalogue declares CC0 licence',!!info.meta&&info.meta.license==='CC0-1.0',info.meta&&info.meta.license);
@@ -5943,7 +5945,9 @@ function runModelTest(){
     var v=loader.validate(file);
     ck('glb file validates',v.ok,v.ok?(file.url+' '+Math.round(file.bytes/1048576)+'MB'):v.reason);
     if(!v.ok)throw new Error('validate: '+v.reason);
+    document.title='MTC-validated';
     return loader.load(file.url,{onProgress:function(p){if(p.total&&out.evidence.progress.length<40)out.evidence.progress.push(Math.round(p.loaded/p.total*100));},timeoutMs:180000}).then(function(res){
+      document.title='MTD-loaded';
       var d=loader.describe(res.gltf);
       out.evidence.model=d;out.evidence.loadMs=res.ms;out.evidence.segmented=d.meshes>1;
       ck('glb parses with the existing r172 GLTFLoader',d.meshes>=1&&d.triangles>0,JSON.stringify(d)+' in '+res.ms+'ms');
@@ -5954,10 +5958,12 @@ function runModelTest(){
       stage.remove(res.gltf.scene);
       var leftover=loader.describe(stage);
       ck('dispose frees geometry/materials',freed>0&&leftover.meshes===0,'freed='+freed);
+      document.title='MTE-disposed';
       return loader.load(file.url,{timeoutMs:180000}).then(function(res2){
         var d2=loader.describe(res2.gltf);
         loader.dispose(res2.gltf);
         ck('second load succeeds (repeatable, cache reuse)',d2.triangles===d.triangles,'tris='+d2.triangles);
+        document.title='MTF-second';
       });
     });
   }).catch(function(err){

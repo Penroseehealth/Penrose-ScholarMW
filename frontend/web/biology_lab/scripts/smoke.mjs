@@ -29,6 +29,7 @@ const MOVTEST_URL = `http://127.0.0.1:${PORT}/?movtest=1`;
 const EVTEST_URL = `http://127.0.0.1:${PORT}/?evtest=1`;
 const MICROTEST_URL = `http://127.0.0.1:${PORT}/?microtest=1`;
 const CONSISTTEST_URL = `http://127.0.0.1:${PORT}/?consisttest=1`;
+const MODELTEST_URL = `http://127.0.0.1:${PORT}/?modeltest=1`;
 const VIRTUAL_TIME_BUDGET = process.env.SMOKE_VTIME ?? "300000";
 const NAVTEST_VTIME_BUDGET = process.env.SMOKE_NAVTEST_VTIME ?? "600000";
 const BEHAVTEST_VTIME_BUDGET = process.env.SMOKE_BEHAVTEST_VTIME ?? "900000";
@@ -40,6 +41,7 @@ const MOVTEST_VTIME_BUDGET = process.env.SMOKE_MOVTEST_VTIME ?? "600000";
 const EVTEST_VTIME_BUDGET = process.env.SMOKE_EVTEST_VTIME ?? "900000";
 const MICROTEST_VTIME_BUDGET = process.env.SMOKE_MICROTEST_VTIME ?? "600000";
 const CONSISTTEST_VTIME_BUDGET = process.env.SMOKE_CONSISTTEST_VTIME ?? "300000";
+const MODELTEST_VTIME_BUDGET = process.env.SMOKE_MODELTEST_VTIME ?? "600000";
 
 function findBrowser() {
   const candidates = [
@@ -593,6 +595,29 @@ async function main() {
         check(`consisttest: ${item.name}`, item.ok === true, item.detail);
       }
       check("consisttest: zero failures", (consistReport.fails ?? 1) === 0);
+    }
+
+    /* ---------- Grab3D modeltest pass (?modeltest=1) — needs internet for upstream ---------- */
+    console.log("smoke: modeltest pass");
+    const modelDom = await dumpDom(browser, MODELTEST_URL, MODELTEST_VTIME_BUDGET, "biolab-modeltest-", /MODELTESTREADY/, "modeltest");
+    const modelTitle = (modelDom.match(/<title[^>]*>([^<]*)<\/title>/) || [])[1] || "";
+    check("modeltest ran (MODELTESTREADY)", /MODELTESTREADY/.test(modelTitle));
+    let modelReport = null;
+    const mdm = modelDom.match(/<pre id="__modeltest"[^>]*>([\s\S]*?)<\/pre>/);
+    if (mdm) {
+      try {
+        modelReport = JSON.parse(decodeEntities(mdm[1]));
+      } catch (error) {
+        console.error("smoke: could not parse modeltest JSON:", error.message);
+      }
+    }
+    check("modeltest report emitted", modelReport !== null);
+    if (modelReport) {
+      for (const item of modelReport.checks || []) {
+        check(`modeltest: ${item.name}`, item.ok === true, item.detail);
+      }
+      check("modeltest: zero failures", (modelReport.fails ?? 1) === 0);
+      check("modeltest: no page errors", (modelReport.errors ?? []).length === 0);
     }
   } finally {
     if (server && !server.killed) server.kill();
