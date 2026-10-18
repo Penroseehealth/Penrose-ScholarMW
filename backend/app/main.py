@@ -398,4 +398,10 @@ if WEB_DIR.is_dir():
                 str(file_path),
                 headers=_no_cache_headers,
             )
+        dir_index = file_path / "index.html"
+        if file_path.is_dir() and dir_index.is_file():
+            return FileResponse(
+                str(dir_index),
+                headers=_no_cache_headers,
+            )
         return HTMLResponse(_render_index_html(), headers=_no_cache_headers)

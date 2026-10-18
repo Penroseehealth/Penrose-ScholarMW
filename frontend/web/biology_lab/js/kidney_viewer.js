@@ -10,6 +10,7 @@ export function createKidneyViewer(options) {
   const container = opts.container || document.body;
   const catalogue = opts.catalogue || null;
   const loader = opts.loader || null;
+  const initialView = opts.initialView === "real" ? "model" : "half";
 
   const wrapper = document.createElement("div");
   wrapper.className = "kidney-viewer";
@@ -86,7 +87,7 @@ export function createKidneyViewer(options) {
     return { label: l, el: el };
   });
 
-  const cam = { az: 0.62, pol: 1.32, r: 6.4, tx: 0, ty: 0, tz: -0.25 };
+  const cam = { az: 0.40, pol: 1.32, r: 6.4, tx: 0, ty: 0, tz: -0.25 };
   function applyCamera() {
     cam.pol = Math.min(Math.PI - 0.15, Math.max(0.15, cam.pol));
     cam.r = Math.min(14, Math.max(3.2, cam.r));
@@ -102,6 +103,7 @@ export function createKidneyViewer(options) {
 
   let view = "half";
   let highlighted = null;
+  let labelsOn = true;
   let disposed = false;
   let raf = 0;
   const raycaster = new THREE.Raycaster();
@@ -110,7 +112,7 @@ export function createKidneyViewer(options) {
     return new THREE.Vector3(l.anchor[0], l.anchor[1], l.anchor[2]);
   }
   function updateLabels() {
-    const show = view === "half";
+    const show = view === "half" && labelsOn;
     labelLayer.style.display = show ? "" : "none";
     if (!show) return;
     camera.updateMatrixWorld(true);
@@ -250,8 +252,43 @@ export function createKidneyViewer(options) {
   }
   btnHalf.addEventListener("click", function () { setView("half"); });
   btnModel.addEventListener("click", function () { status.textContent = "loading Grab3D model..."; setView("model").then(function () { status.textContent = "drag to orbit - click a part"; }); });
-  btnReset.addEventListener("click", function () { cam.az = 0.62; cam.pol = 1.32; cam.r = 6.4; applyCamera(); });
-  setView("half");
+  btnReset.addEventListener("click", function () { resetView(); });
+  if (initialView === "model") {
+    view = "model";
+    model.root.visible = false;
+    labelLayer.style.display = "none";
+    btnModel.style.background = "#24384f";
+    status.textContent = "loading Grab3D kidney...";
+    setView("model").then(function () {
+      status.textContent = "drag to orbit - click a part";
+    }, function (err) {
+      status.textContent = "real model unavailable: " + ((err && err.message) || err);
+      return setView("half");
+    });
+  } else {
+    setView("half");
+  }
+
+  function resetView() { cam.az = 0.40; cam.pol = 1.32; cam.r = 6.4; applyCamera(); }
+  function setPartVisible(partId, on) {
+    let n = 0;
+    model.root.traverse(function (o) {
+      if (o.isMesh && o.userData.partId === partId) { o.visible = !!on; n++; }
+    });
+    return n > 0;
+  }
+  function isPartVisible(partId) {
+    let seen = false, visible = false;
+    model.root.traverse(function (o) {
+      if (o.isMesh && o.userData.partId === partId) { seen = true; if (o.visible) visible = true; }
+    });
+    return seen ? visible : null;
+  }
+  function showAllParts() {
+    model.root.traverse(function (o) { if (o.isMesh) o.visible = true; });
+    setHighlight(null);
+    return true;
+  }
 
   function dispose() {
     if (disposed) return 0;
@@ -284,6 +321,12 @@ export function createKidneyViewer(options) {
     pickAt: pickAt,
     highlight: setHighlight,
     getHighlight: function () { return highlighted; },
+    setPartVisible: setPartVisible,
+    isPartVisible: isPartVisible,
+    showAllParts: showAllParts,
+    resetView: resetView,
+    setLabelsVisible: function (on) { labelsOn = !!on; updateLabels(); return labelsOn; },
+    getLabelsVisible: function () { return labelsOn; },
     projectAnchor: projectAnchor,
     renderOnce: function () { updateLabels(); renderer.render(scene, camera); },
     getLabels: function () { return model.labels.map(function (l) { return { id: l.id, name: l.name, partId: l.partId, anchor: l.anchor.slice() }; }); },

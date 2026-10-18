@@ -9,9 +9,9 @@ export const KIDNEY_VERIFIED_LABELS = ["Cortex", "Renal pyramids", "Renal pelvis
 
 export function createKidneyModel(options) {
   const opts = options || {};
-  const A = opts.a || 1.15;          // outline half-width
+  const A = opts.a || 1.02;          // outline half-width
   const B = opts.b || 1.75;          // outline half-height
-  const DIP = 0.42;                  // hilum notch depth (fraction of radius)
+  const DIP = 0.52;                  // hilum notch depth (fraction of radius)
   const SIG = 0.45;                  // notch angular width (rad)
   const SEG = opts.samples || 160;   // outline samples
   const SHELL_D = 1.30;              // outer-half depth behind the cut face
@@ -67,7 +67,7 @@ export function createKidneyModel(options) {
     const shellPts = [];
     for (let i = 0; i < SEG; i++) shellPts.push(outerPt((Math.PI * 2 * i) / SEG));
     const shellGeo = extrude(shapeFrom(shellPts), SHELL_D);
-    const shellMats = [mat(0xf2e3d0, 0.7), mat(0xc9a487, 0.6)];
+    const shellMats = [mat(0xf2e3d0, 0.7), mat(0xa5765b, 0.6)];
     const shell = new THREE.Mesh(shellGeo, shellMats);
     shell.position.z = -SHELL_D;
     shell.userData.partId = "shell";
@@ -107,14 +107,14 @@ export function createKidneyModel(options) {
     const pelvisPts = [
       new THREE.Vector2(-0.26, 0.72), new THREE.Vector2(0.12, 0.44),
       new THREE.Vector2(0.30, 0.02), new THREE.Vector2(0.12, -0.44),
-      new THREE.Vector2(-0.26, -0.72), new THREE.Vector2(-0.62, -0.16),
-      new THREE.Vector2(-0.60, 0.16)
+      new THREE.Vector2(-0.26, -0.72), new THREE.Vector2(-0.54, -0.15),
+      new THREE.Vector2(-0.52, 0.15)
     ];
     addPart("pelvis", "Renal pelvis", extrude(shapeFrom(pelvisPts), FACE_D + 0.06), mat(0xf0e0b0, 0.5), FACE_Z + FACE_D);
 
     // ureter: exits the pelvis mouth and drops below the lower pole
     addPart("ureter", "Ureter", tube([
-      [-0.56, -0.10, 0.14], [-0.74, -0.55, 0.14], [-0.66, -1.15, 0.12], [-0.52, -1.90, 0.10]
+      [-0.51, -0.12, 0.14], [-0.72, -0.55, 0.14], [-0.66, -1.15, 0.12], [-0.52, -1.90, 0.10]
     ], 0.09), mat(0xe8cf7a, 0.45));
 
     // renal artery (red) and vein (blue) cross the cortex gap at the hilum
@@ -126,12 +126,12 @@ export function createKidneyModel(options) {
     ], 0.10), mat(0x3f7fbf, 0.4));
 
     const anchors = {
-      "Cortex": [0.75, 1.02, 0.12],
-      "Renal pyramids": [0.0, -0.95, 0.10],
-      "Renal pelvis": [0.0, 0.0, 0.24],
+      "Cortex": [0.60, 1.00, 0.12],
+      "Renal pyramids": [0.12, -1.00, 0.10],
+      "Renal pelvis": [-0.18, 0.06, 0.26],
       "Ureter": [-0.72, -0.90, 0.16],
-      "Renal artery": [-0.10, 0.26, 0.42],
-      "Renal vein": [0.10, -0.08, 0.54]
+      "Renal artery": [-0.35, 0.26, 0.40],
+      "Renal vein": [0.31, -0.24, 0.54]
     };
     for (const name of KIDNEY_VERIFIED_LABELS) {
       const part = parts.find(function (p) { return p.name === name; });
