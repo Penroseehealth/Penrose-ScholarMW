@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import logging
 
+from sqlalchemy import inspect as sa_inspect
+
 log = logging.getLogger(__name__)
 
 # (table, column, ddl_fragment) applied via raw ALTER TABLE when the column
@@ -29,20 +31,23 @@ async def run_meta_migrations(conn) -> None:
         if exists:
             continue
         try:
-            await conn.exec_driver_sql(f"ALTER TABLE {table} ADD COLUMN {column} {ddl}")
+            async with conn.begin_nested():
+                await conn.exec_driver_sql(
+                    f"ALTER TABLE {table} ADD COLUMN {column} {ddl}"
+                )
             log.info("Added column %s.%s", table, column)
         except Exception as e:  # pragma: no cover - depends on DB dialect
             log.warning("Could not add column %s.%s: %s", table, column, e)
 
 
 async def _column_exists(conn, table: str, column: str) -> bool:
+    def _sync(sync_conn):
+        inspector = sa_inspect(sync_conn)
+        if not inspector.has_table(table):
+            return False
+        return column in {c["name"] for c in inspector.get_columns(table)}
+
     try:
-        # SQLite stores columns in PRAGMA table_info; other backends can be
-        # expanded as needed. This workspace runs SQLite in development.
-        rows = await conn.exec_driver_sql(
-            "SELECT name FROM pragma_table_info(?)", (table,)
-        )
-        names = [r[0] for r in rows]
-        return column in names
+        return await conn.run_sync(_sync)
     except Exception:
         return False
