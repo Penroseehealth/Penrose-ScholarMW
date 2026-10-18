@@ -1,16 +1,36 @@
-# The Flutter SDK image is a build arg so the base can be swapped without
-# editing the rest of this file. `stable` tracks the channel used in local dev;
-# the SDK version is pinned by the `flutter` directive in frontend/pubspec.yaml.
-ARG FLUTTER_IMAGE=ghcr.io/cirruslabs/flutter:stable
-
-# ---------------------------------------------------------------------------
-# Stage 1: compile the Flutter web bundle.
-# ---------------------------------------------------------------------------
-FROM ${FLUTTER_IMAGE} AS web
+# No suitable prebuilt Flutter image exists for the SDK this app pins (the
+# lockfile requires Dart >=3.13 / Flutter >=3.44; ghcr.io/cirruslabs/flutter
+# stopped publishing at 3.44.0 and ghcr.io/flutter/flutter is private), so
+# install the exact SDK from Google's release storage. Render builds run on
+# GCP, so the download is fast.
+FROM python:3.12-slim AS web
 
 # Some Flutter base images default to an unprivileged user, which cannot write
 # to the pub cache. Build as root inside the image.
 USER root
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates curl git xz-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+ARG FLUTTER_VERSION=3.47.2
+RUN curl -fSL "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz" -o /tmp/flutter.tar.xz \
+    && mkdir -p /opt \
+    && tar -xJf /tmp/flutter.tar.xz -C /opt \
+    && rm /tmp/flutter.tar.xz
+
+ENV PATH="/opt/flutter/bin:/opt/flutter/bin/cache/dart-sdk/bin:${PATH}" \
+    PUB_HOSTED_URL=https://pub.dev \
+    FLUTTER_STORAGE_BASE_URL=https://storage.googleapis.com
+
+# The committed lockfile records a regional pub mirror (pub.flutter-io.cn) from
+# local dev; PUB_HOSTED_URL above makes pub re-resolve against pub.dev, which
+# is reachable from CI, while keeping the locked versions.
+RUN git config --global --add safe.directory /opt/flutter \
+    && flutter --version \
+    && flutter config --no-analytics \
+    && flutter precache --web
+
 WORKDIR /build
 
 # Resolve dependencies against the lockfile on its own layer, so it stays cached
