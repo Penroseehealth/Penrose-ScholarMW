@@ -3,7 +3,6 @@ services:
     name: penrose-scholar
     runtime: docker
     plan: free
-    region: ohio
     dockerfilePath: Dockerfile
     healthCheckPath: /health
     envVars:
