@@ -2,7 +2,7 @@ services:
   - type: web
     name: penrose-scholar
     runtime: docker
-    plan: starter
+    plan: free
     dockerfilePath: Dockerfile
     healthCheckPath: /health
     envVars:
@@ -25,6 +25,6 @@ services:
 
 databases:
   - name: penrose-scholar-db
-    plan: starter
+    plan: free
     databaseName: penrose_scholar
     ipAllowList: []
