@@ -28,7 +28,6 @@ ENV PATH="/opt/flutter/bin:/opt/flutter/bin/cache/dart-sdk/bin:${PATH}" \
 # is reachable from CI, while keeping the locked versions.
 RUN git config --global --add safe.directory /opt/flutter \
     && flutter --version \
-    && flutter config --no-analytics \
     && flutter precache --web
 
 WORKDIR /build
