@@ -148,6 +148,8 @@ createServer(async (req, res) => {
     let path = decodeURIComponent(url.pathname);
     if (path === "/") path = "/index.html";
     console.log(new Date().toISOString(), req.method, path);
+    res.on("finish", () => console.log("  done", req.method, path));
+    res.on("close", () => { if (!res.writableFinished) console.log("  aborted", path); });
     if (path.startsWith("/grab3d/")) {
       await grabRelay(req, res, path);
       return;

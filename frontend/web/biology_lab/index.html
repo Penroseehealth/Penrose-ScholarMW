@@ -190,6 +190,7 @@ import { createCameraRig } from './js/camera.js';
 import { createPerf } from './js/perf.js';
 import { createModelCatalogue } from './js/model_catalogue.js';
 import { createModelLoader } from './js/model_loader.js';
+import { createKidneyViewer } from './js/kidney_viewer.js';
 THREE.ColorManagement.enabled=false;
 (function(){
 'use strict';
@@ -206,6 +207,10 @@ var EVTEST=/[?&]evtest=1/.test(location.search);
 var MICROTEST=/[?&]microtest=1/.test(location.search);
 var CONSISTTEST=/[?&]consisttest=1/.test(location.search);
 var MODELTEST=/[?&]modeltest=1/.test(location.search);
+var KIDNEY=/[?&]kidney=1/.test(location.search);
+var KIDNEYTEST=/[?&]kidneytest=1/.test(location.search);
+if(KIDNEY)startKidneyViewer();   /* standalone overlay: no teacher-load dependency */
+if(KIDNEYTEST)runKidneyTest();
 /* Phase 4: scientific simulation layer - pure rules, separate from rendering */
 var science=createScience();window.BioLabScience=science;
 var ERRLOG=[];
@@ -1790,7 +1795,7 @@ function requestRenderedMicroscope(bench,lx,ly,lz,yaw){
   renderedQueue.push({bench:bench,x:lx,y:ly,z:lz,yaw:yaw||0});
 }
 (function loadRenderedMicroscope(){
-  if(!CONFIG.renderedMicroscope)return;
+  if(!CONFIG.renderedMicroscope||KIDNEY||KIDNEYTEST)return;
   trace('micro:start');
   new GLTFLoader().load('./assets/microscope.glb',function(gltf){
     var model=gltf.scene;
@@ -1872,7 +1877,7 @@ function teacherSole(root){
   return isFinite(min)?+min.toFixed(4):null;
 }
 (function loadTeacher(){
-  if(!CONFIG.teacher)return;
+  if(!CONFIG.teacher||KIDNEY||KIDNEYTEST)return;
   trace('teacher:start');
   teacherPath=new THREE.CatmullRomCurve3(CONFIG.teacherPath.map(function(p){
     return new THREE.Vector3(p[0],0,p[1]);
@@ -2132,7 +2137,7 @@ function teacherStep(dt){
 var heartModel=null;
 var HEART_COLORS={ZaHeart_Artery:0xb01c1c,ZaHeart_Vein:0x2a52bd,ZaHeart_Muscle:0x9e2e33,ZaHeart_Valve:0xeee0c2};
 (function loadHeartModel(){
-  if(!CONFIG.heartModel)return;
+  if(!CONFIG.heartModel||KIDNEY||KIDNEYTEST)return;
   trace('heart:start');
   var cache={};
   function matFor(name){
@@ -4812,7 +4817,7 @@ if(shotMode){
     if(texPending>0)return;
     clearInterval(shotPoll);doShotCapture();
   },40);
-}else if(!NAVTEST&&!BEHAVTEST&&!STUDENTTEST&&!LESSONTEST&&!ENVTEST&&!CAMTEST&&!MOVTEST&&!EVTEST&&!MICROTEST&&!CONSISTTEST){
+}else if(!NAVTEST&&!BEHAVTEST&&!STUDENTTEST&&!LESSONTEST&&!ENVTEST&&!CAMTEST&&!MOVTEST&&!EVTEST&&!MICROTEST&&!CONSISTTEST&&!KIDNEY&&!KIDNEYTEST){
   frame();
 }
 
@@ -5969,6 +5974,104 @@ function runModelTest(){
   }).catch(function(err){
     ck('modeltest pipeline',false,String((err&&err.message)||err));
   }).then(finish,finish);
+}
+/* ---------- ?kidney=1: interactive half-section viewer (Stage 3) ---------- */
+function startKidneyViewer(){
+  try{
+    var cat=createModelCatalogue();
+    var loader=createModelLoader();
+    var viewer=createKidneyViewer({container:document.body,catalogue:cat,loader:loader});
+    window.BioLabKidney={viewer:viewer,catalogue:cat,loader:loader};
+  }catch(e){ERRLOG.push('kidney viewer: '+String((e&&e.message)||e));}
+}
+/* ---------- ?kidneytest=1: segmented kidney + verified labels acceptance ---------- */
+function runKidneyTest(){
+  var out={checks:[],fails:0,errors:[],evidence:{}};
+  function ck(n,ok,detail){out.checks.push({name:n,ok:ok===true,detail:detail==null?'':String(detail)});if(ok!==true)out.fails++;}
+  window.addEventListener('error',function(ev){out.errors.push(String(ev.message||ev.error));});
+  window.addEventListener('unhandledrejection',function(ev){out.errors.push('REJECT:'+String((ev.reason&&ev.reason.message)||ev.reason));});
+  document.title='KTA-start';
+  var cat=createModelCatalogue();
+  var loader=createModelLoader();
+  var holder=document.createElement('div');
+  holder.style.cssText='position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:55;';
+  document.body.appendChild(holder);
+  var viewer=null;
+  var finish=function(){
+    try{ck('kidneytest: no page errors',out.errors.length===0,out.errors.slice(0,3).join(' | '));}catch(e){}
+    var el=document.createElement('pre');el.id='__kidneytest';el.style.display='none';
+    el.textContent=JSON.stringify(out);document.body.appendChild(el);
+    document.title='KIDNEYTESTREADY';
+  };
+  var disposeAll=function(){
+    try{
+      if(viewer){var freed=viewer.dispose();viewer=null;out.evidence.freed=freed;}
+      if(holder.parentNode)holder.parentNode.removeChild(holder);
+      out.evidence.holderRemoved=!holder.parentNode;
+    }catch(e){ck('kidneytest cleanup',false,String((e&&e.message)||e));}
+  };
+  try{
+    viewer=createKidneyViewer({container:holder,catalogue:cat,loader:loader,zIndex:56});
+    window.BioLabKidneyTest=viewer;
+    out.evidence.viewer=!!viewer.wrapper;
+    ck('kidneytest: viewer created',!!viewer&&!!viewer.wrapper&&!!viewer.canvas);
+    var stats=viewer.getModelStats();
+    out.evidence.stats=stats;
+    document.title='KTB-built';
+    var core=['cortex','pyramids','pelvis','ureter','artery','vein'];
+    var missing=core.filter(function(id){return stats.parts.indexOf(id)<0;});
+    ck('segmented model built with 6 core parts',missing.length===0,'parts='+stats.parts.join(',')+(missing.length?' missing='+missing.join(','):''));
+    ck('every part has geometry + material',stats.triangles>1000,'triangles='+stats.triangles);
+    var names=viewer.getLabels().map(function(l){return l.name;});
+    out.evidence.labels=names;
+    ck('labels match the verified list',names.join('|')===viewer.verifiedLabels.join('|'),names.join(','));
+    var anchorsOk=viewer.getLabels().every(function(l){
+      return l.anchor.every(function(v){return typeof v==='number'&&isFinite(v);})&&!!l.partId;
+    });
+    ck('label anchors are finite and bound to parts',anchorsOk,viewer.getLabels().map(function(l){return l.name+'->'+l.partId;}).join(' | '));
+    ck('half-section: shell depth vs cut-face depth',stats.halfSection===true&&stats.shellDepth>1&&stats.faceDepth<=0.6&&stats.shellDepth>stats.faceDepth*2,'shell='+stats.shellDepth+' face='+stats.faceDepth);
+    viewer.renderOnce();
+    var domLabels=viewer.dom.labels;
+    var shown=domLabels.filter(function(el){return el.style.display!=='none'&&el.textContent;});
+    ck('label overlay shows all six labels',shown.length===6&&domLabels.map(function(el){return el.textContent;}).join('|')===viewer.verifiedLabels.join('|'),shown.map(function(el){return el.textContent;}).join(','));
+    document.title='KTC-labels';
+    var proj=viewer.projectAnchor('Cortex');
+    var hit=proj&&viewer.pickNdc(proj.x,proj.y);
+    out.evidence.pickCortex=hit?{partId:hit.partId,ndc:[proj.x,proj.y]}:null;
+    ck('pick: cortex anchor ray hits cortex',!!hit&&hit.partId==='cortex',hit?hit.partId:'no hit');
+    var miss=viewer.pickNdc(2,2);
+    ck('pick: empty space returns no part',miss===null,miss?miss.partId:'null');
+    var hl=viewer.highlight('artery');
+    ck('highlight toggles selected part',hl==='artery'&&viewer.getHighlight()==='artery','highlight='+hl);
+    document.title='KTD-pick';
+    var s0=viewer.getCameraState();
+    viewer.orbitBy(0.5,0.12);viewer.zoomBy(0.85);
+    var s1=viewer.getCameraState();
+    out.evidence.camera={before:s0,after:s1};
+    ck('orbit + zoom move the camera',Math.abs(s1.az-s0.az)>0.4&&Math.abs(s1.r-s0.r)>0.5&&s1.pol!==s0.pol,'az '+s0.az.toFixed(2)+'->'+s1.az.toFixed(2)+' r '+s0.r.toFixed(2)+'->'+s1.r.toFixed(2));
+    viewer.highlight(null);
+    viewer.setView('model').then(function(real){
+      document.title='KTE-view';
+      out.evidence.real=real;
+      ck('real Grab3D model view loads',!!real&&real.meshes>=1&&real.triangles>0,real?('meshes='+real.meshes+' tris='+real.triangles):'no stats');
+      ck('real view switches from half-section',viewer.getView()==='model','view='+viewer.getView());
+      viewer.renderOnce();
+      viewer.setView('half');
+      ck('returns to half-section view',viewer.getView()==='half'&&viewer.getLabels().length===6,'view='+viewer.getView());
+    }).catch(function(err){
+      ck('real Grab3D model view loads',false,String((err&&err.message)||err));
+      try{viewer.setView('half');}catch(e){}
+    }).then(function(){
+      disposeAll();
+      document.title='KTF-disposed';
+      ck('dispose frees the viewer',!holder.parentNode&&viewer===null&&out.evidence.freed>0,'freed='+out.evidence.freed);
+      finish();
+    });
+  }catch(err){
+    ck('kidneytest pipeline',false,String((err&&err.message)||err));
+    disposeAll();
+    finish();
+  }
 }
 })();
 </script>

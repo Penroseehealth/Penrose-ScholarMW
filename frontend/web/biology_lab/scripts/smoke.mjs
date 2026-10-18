@@ -42,6 +42,8 @@ const EVTEST_VTIME_BUDGET = process.env.SMOKE_EVTEST_VTIME ?? "900000";
 const MICROTEST_VTIME_BUDGET = process.env.SMOKE_MICROTEST_VTIME ?? "600000";
 const CONSISTTEST_VTIME_BUDGET = process.env.SMOKE_CONSISTTEST_VTIME ?? "300000";
 const MODELTEST_VTIME_BUDGET = process.env.SMOKE_MODELTEST_VTIME ?? "600000";
+const KIDNEYTEST_URL = `http://127.0.0.1:${PORT}/?kidneytest=1`;
+const KIDNEYTEST_VTIME_BUDGET = process.env.SMOKE_KIDNEYTEST_VTIME ?? "600000";
 
 function findBrowser() {
   const candidates = [
@@ -74,13 +76,32 @@ async function waitForServer(url, timeoutMs = 10000) {
   return false;
 }
 
+const RUN_TIMEOUT_MS = Number(process.env.SMOKE_ATTEMPT_TIMEOUT ?? 420000);
+
 function run(command, args, options = {}) {
   return new Promise((resolve) => {
     const child = spawn(command, args, { stdio: ["ignore", "pipe", "ignore"], ...options });
     let stdout = "";
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      try { child.kill(); } catch { /* already gone */ }
+      resolve({ code: "timeout", stdout: "" });
+    }, RUN_TIMEOUT_MS);
     child.stdout.on("data", (chunk) => (stdout += chunk.toString()));
-    child.on("error", () => resolve({ code: -1, stdout: "" }));
-    child.on("close", (code) => resolve({ code, stdout }));
+    child.on("error", (error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve({ code: -1, stdout: "", error: String(error && error.message) });
+    });
+    child.on("close", (code) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve({ code, stdout });
+    });
   });
 }
 
@@ -618,6 +639,29 @@ async function main() {
       }
       check("modeltest: zero failures", (modelReport.fails ?? 1) === 0);
       check("modeltest: no page errors", (modelReport.errors ?? []).length === 0);
+    }
+
+    /* ---------- kidneytest pass (?kidneytest=1) — Stage 3 segmented kidney ---------- */
+    console.log("smoke: kidneytest pass");
+    const kidneyDom = await dumpDom(browser, KIDNEYTEST_URL, KIDNEYTEST_VTIME_BUDGET, "biolab-kidneytest-", /KIDNEYTESTREADY/, "kidneytest");
+    const kidneyTitle = (kidneyDom.match(/<title[^>]*>([^<]*)<\/title>/) || [])[1] || "";
+    check("kidneytest ran (KIDNEYTESTREADY)", /KIDNEYTESTREADY/.test(kidneyTitle));
+    let kidneyReport = null;
+    const kdm = kidneyDom.match(/<pre id="__kidneytest"[^>]*>([\s\S]*?)<\/pre>/);
+    if (kdm) {
+      try {
+        kidneyReport = JSON.parse(decodeEntities(kdm[1]));
+      } catch (error) {
+        console.error("smoke: could not parse kidneytest JSON:", error.message);
+      }
+    }
+    check("kidneytest report emitted", kidneyReport !== null);
+    if (kidneyReport) {
+      for (const item of kidneyReport.checks || []) {
+        check(`kidneytest: ${item.name}`, item.ok === true, item.detail);
+      }
+      check("kidneytest: zero failures", (kidneyReport.fails ?? 1) === 0);
+      check("kidneytest: no page errors", (kidneyReport.errors ?? []).length === 0);
     }
   } finally {
     if (server && !server.killed) server.kill();
