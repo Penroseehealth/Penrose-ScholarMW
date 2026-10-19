@@ -16,8 +16,24 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
+import math
+import re
+import sympy
+
+from app.database.engine import get_db
+from app.models.stem import (
+    SyllabusCoreElement,
+    SyllabusLearningObjective,
+    SyllabusSubject,
+    SyllabusSubtopic,
+    SyllabusTopic,
+    SyllabusVersion,
+)
 
 from app.config.ai_client import AIProviderError, call_ai_json
 from app.dependencies.auth import get_current_user
@@ -261,3 +277,307 @@ async def explain_step(
         step_ref = raw_ref if 1 <= raw_ref <= max(count, 1) else None
 
     return ExplainResponse(reply=reply, step_ref=step_ref, source="ai")
+
+    raw_ref = parsed.get("step_ref")
+    step_ref: int | None = None
+    if isinstance(raw_ref, int):
+        count = len((payload.solution or {}).get("steps") or [])
+        step_ref = raw_ref if 1 <= raw_ref <= max(count, 1) else None
+
+    return ExplainResponse(reply=reply, step_ref=step_ref, source="ai")
+
+
+# ---------------------------------------------------------------------------
+# Syllabus-grounded example problems + verified answer checking
+#
+# Grounding contract: the model is shown ONLY the topic/subtopic titles and
+# learning-objective texts from the MoEST syllabus tables. It may never
+# surface syllabus metadata (forms, themes, assessment standards, subject
+# codes) in its output. The problem it authors is then solved by the
+# deterministic SymPy engine, so every number in the reply is independently
+# verified - the model cannot invent an answer.
+# ---------------------------------------------------------------------------
+
+
+class ExampleRequest(BaseModel):
+    form: int = Field(ge=1, le=4)
+    topic: str = Field(min_length=1, max_length=255)
+    subtopic: str | None = Field(default=None, max_length=255)
+    question: str | None = Field(default=None, max_length=1000)
+
+
+class ExampleResponse(BaseModel):
+    problem: str
+    topic: str
+    subtopic: str | None = None
+    steps: list[dict[str, Any]]
+    final_answer_text: str
+    verification_status: str
+    source: str
+
+
+class VerifyRequest(BaseModel):
+    problem: str = Field(min_length=1, max_length=500)
+    answer: str = Field(min_length=1, max_length=300)
+
+
+class VerifyResponse(BaseModel):
+    correct: bool
+    expected_answer: str
+    verification: str  # "numeric" | "exact" | "unchecked"
+    detail: str
+
+
+_EXAMPLE_SYSTEM = """You author practice problems for a secondary mathematics student.
+
+You are given a topic and the exact skills (learning objectives) the student must \
+practice, taken from their official syllabus.
+
+ABSOLUTE RULES
+1. The problem you author must exercise ONLY those listed skills. Use no content \
+from any other topic or form level.
+2. Never mention, hint at, or allude to the syllabus itself: no form numbers, no \
+theme names, no subject names, no assessment standards, no exam boards. The \
+student must only ever see an ordinary mathematics problem, as if a teacher \
+wrote it on the board.
+3. The problem must have a single unambiguous final answer that a symbolic \
+mathematics engine can verify (an exact value, expression, or ordered pair).
+4. Keep numbers reasonable (no messy decimals unless the skill demands them) and \
+the wording short, plain and self-contained. Define every symbol you use.
+5. If the student asked for something specific (harder, easier, word problem, \
+with fractions), honour it while staying inside the listed skills.
+
+Respond with JSON only:
+{"problem": "..."}
+"""
+
+
+async def _grounding_block(
+    db: AsyncSession, form: int, topic_title: str, subtopic_title: str | None
+) -> tuple[str, str, str | None]:
+    """Return (grounding_text, canonical_topic_title, matched_subtopic_title).
+
+    Raises HTTPException 404 when the topic is not in this form of the
+    Mathematics syllabus. The grounding text contains only titles and
+    objective wording - never form/theme metadata.
+    """
+    result = await db.execute(select(SyllabusSubject).where(SyllabusSubject.slug == "mathematics"))
+    subject = result.scalar_one_or_none()
+    if not subject:
+        raise HTTPException(status_code=404, detail="Mathematics syllabus not found")
+
+    ver_result = await db.execute(
+        select(SyllabusVersion).where(
+            SyllabusVersion.subject_id == subject.id, SyllabusVersion.is_current == True  # noqa: E712
+        )
+    )
+    version = ver_result.scalar_one_or_none()
+    if not version:
+        raise HTTPException(status_code=404, detail="No current Mathematics syllabus version")
+
+    ce_result = await db.execute(
+        select(SyllabusCoreElement)
+        .where(SyllabusCoreElement.version_id == version.id)
+        .options(
+            joinedload(SyllabusCoreElement.topics).joinedload(SyllabusTopic.subtopics),
+        )
+    )
+    elements = ce_result.unique().scalars().all()
+
+    wanted = topic_title.strip().lower()
+    matched: SyllabusTopic | None = None
+    for ce in elements:
+        for tp in ce.topics:
+            if tp.year_level == form and tp.title.strip().lower() == wanted:
+                matched = tp
+                break
+        if matched:
+            break
+    if matched is None:
+        # tolerate partial matches so students can type shorter titles
+        for ce in elements:
+            for tp in ce.topics:
+                if tp.year_level == form and wanted in tp.title.strip().lower():
+                    matched = tp
+                    break
+            if matched:
+                break
+    if matched is None:
+        raise HTTPException(
+            status_code=404,
+            detail="That topic is not part of the syllabus for this form",
+        )
+
+    lines = [f"TOPIC: {matched.title}"]
+    chosen_subtopic: str | None = None
+    if subtopic_title:
+        want_sub = subtopic_title.strip().lower()
+        for sub in matched.subtopics:
+            if want_sub in sub.title.strip().lower():
+                chosen_subtopic = sub.title
+                break
+        if chosen_subtopic is None:
+            raise HTTPException(status_code=404, detail="Subtopic not found under this topic")
+
+    for sub in matched.subtopics:
+        if chosen_subtopic and sub.title != chosen_subtopic:
+            continue
+        obj_result = await db.execute(
+            select(SyllabusLearningObjective)
+            .where(SyllabusLearningObjective.subtopic_id == sub.id)
+            .order_by(SyllabusLearningObjective.order_index)
+        )
+        objectives = [o.objective for o in obj_result.scalars().all()]
+        if objectives:
+            lines.append(f"SKILL: {sub.title} - " + "; ".join(objectives))
+        else:
+            lines.append(f"SKILL: {sub.title}")
+    return "\n".join(lines), matched.title, chosen_subtopic
+
+
+def _student_number(text: str) -> float | None:
+    """Extract a plain number from a student answer, tolerating units/percent."""
+    cleaned = text.strip()
+    cleaned = re.sub(r"^[a-zA-Z]\s*[=:]\s*", "", cleaned)  # x = ..., A = ...
+    cleaned = cleaned.replace(",", "")
+    cleaned = re.sub(r"(°|degrees?|\bdeg\b)", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(
+        r"\b(cm|mm|m|km|in|ft|s|sec|mins?|hrs?|units?|square|cube|sq|cubed?)\b",
+        "",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = cleaned.rstrip("%").strip()
+    if not cleaned:
+        return None
+    try:
+        value = sympy.sympify(cleaned, rational=True)
+    except Exception:  # noqa: BLE001 - any parse failure means "not a number"
+        return None
+    try:
+        value_f = float(value)
+    except (TypeError, ValueError):
+        return None
+    return value_f
+
+
+def _normalised_text(text: str) -> str:
+    stripped = re.sub(r"[\s$\\(){}]", "", text)
+    return stripped.lower()
+
+
+@router.post("/example", response_model=ExampleResponse)
+async def generate_example(
+    payload: ExampleRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ExampleResponse:
+    """Author a syllabus-grounded example problem and solve it deterministically.
+
+    The AI sees only the topic's skills; the answer comes from SymPy, so the
+    reply the student sees carries verified numbers and no syllabus metadata.
+    """
+    grounding, canonical_topic, canonical_sub = await _grounding_block(
+        db, payload.form, payload.topic, payload.subtopic
+    )
+    user_prompt = grounding
+    if payload.question:
+        user_prompt += "\n\nSTUDENT REQUEST: " + payload.question
+
+    messages = [
+        {"role": "system", "content": _EXAMPLE_SYSTEM},
+        {"role": "user", "content": user_prompt},
+    ]
+    try:
+        parsed = await call_ai_json(messages, max_tokens=500, temperature=0.6)
+    except (AIProviderError, RuntimeError, ValueError, TimeoutError, OSError) as exc:
+        log.warning("Example authoring failed: %s", exc)
+        raise HTTPException(
+            status_code=503,
+            detail="The AI author is unavailable right now. Please try again shortly.",
+        ) from exc
+
+    problem = str((parsed or {}).get("problem") or "").strip()
+    if not problem:
+        raise HTTPException(status_code=502, detail="The AI returned no problem.")
+
+    try:
+        solution: TutorSolution = solve(problem)
+    except Exception as exc:  # noqa: BLE001 - unparseable/solvable problem
+        log.warning("Authored problem failed to solve (%r): %s", problem, exc)
+        raise HTTPException(
+            status_code=502,
+            detail="The authored problem could not be verified; please try again.",
+        ) from exc
+
+    data = solution.to_dict()
+    return ExampleResponse(
+        problem=problem,
+        topic=canonical_topic,
+        subtopic=canonical_sub,
+        steps=data.get("steps", []),
+        final_answer_text=data.get("final_answer_text") or data.get("final_answer_latex", ""),
+        verification_status=data.get("verification_status", "unverified"),
+        source="syllabus+ai+sympy",
+    )
+
+
+@router.post("/verify", response_model=VerifyResponse)
+async def verify_answer(
+    payload: VerifyRequest, user: User = Depends(get_current_user)
+) -> VerifyResponse:
+    """Check a student's submitted answer with a real calculation.
+
+    The student's answer is never judged by the language model: it is parsed
+    and compared against the deterministic SymPy solution of the problem.
+    """
+    try:
+        solution: TutorSolution = solve(payload.problem)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Verify could not solve problem: %s", exc)
+        raise HTTPException(
+            status_code=422,
+            detail="This problem could not be solved by the verification engine.",
+        ) from exc
+
+    data = solution.to_dict()
+    expected = (data.get("final_answer_text") or data.get("final_answer_latex") or "").strip()
+    if not expected:
+        return VerifyResponse(
+            correct=False,
+            expected_answer="",
+            verification="unchecked",
+            detail="The engine produced no final answer to compare against.",
+        )
+
+    expected_num = _student_number(expected)
+    student_num = _student_number(payload.answer)
+    if expected_num is not None and student_num is not None:
+        close = math.isclose(student_num, expected_num, rel_tol=1e-6, abs_tol=1e-9)
+        return VerifyResponse(
+            correct=close,
+            expected_answer=expected,
+            verification="numeric",
+            detail=(
+                "Compared numerically: student "
+                f"{student_num} vs verified {expected_num}."
+            ),
+        )
+
+    if _normalised_text(payload.answer) == _normalised_text(expected):
+        return VerifyResponse(
+            correct=True,
+            expected_answer=expected,
+            verification="exact",
+            detail="Matched the verified answer exactly.",
+        )
+
+    return VerifyResponse(
+        correct=False,
+        expected_answer=expected,
+        verification="unchecked",
+        detail=(
+            "The answer could not be compared numerically; the verified "
+            "answer is returned for the tutor to explain."
+        ),
+    )
