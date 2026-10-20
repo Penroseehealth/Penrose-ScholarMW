@@ -1,23 +1,58 @@
 #!/usr/bin/env bash
 # One-shot setup for the OpenVoice v2 sidecar (run inside WSL2 Ubuntu).
 #
-# It creates a Python 3.9 virtualenv, installs OpenVoice v2 + MeloTTS, downloads
+# It creates a Python virtualenv, installs OpenVoice v2 + MeloTTS, downloads
 # the OpenVoiceV2 checkpoints, and pulls the `unidic` dictionary MeloTTS needs.
 # Idempotent: safe to re-run.
+#
+# OpenVoice officially targets Python 3.9 and runs on 3.10-3.12. It does not
+# work on 3.13+ (no compatible torch wheels, MeloTTS build fails). We
+# auto-select the newest available 3.9-3.11, warn on 3.12, and refuse beyond.
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$HERE"
 
-PYTHON_BIN="${PYTHON_BIN:-python3.9}"
 VENV_DIR="${VENV_DIR:-.venv}"
 CHECKPOINTS="${OPENVOICE_CHECKPOINTS:-$HERE/checkpoints_v2}"
 
-echo "==> Using interpreter: $($PYTHON_BIN --version)"
+# Pick an interpreter: explicit PYTHON_BIN wins, else prefer 3.11, 3.10, 3.9,
+# then fall back to plain `python3` (validated below).
+if [ -n "${PYTHON_BIN:-}" ]; then
+  :
+else
+  for candidate in python3.11 python3.10 python3.9 python3; do
+    if command -v "$candidate" >/dev/null 2>&1; then
+      PYTHON_BIN="$candidate"
+      break
+    fi
+  done
+fi
 
-if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
-  echo "Python 3.9 not found. Install it first:" >&2
-  echo "  sudo apt update && sudo apt install -y python3.9 python3.9-venv python3.9-dev" >&2
+if [ -z "${PYTHON_BIN:-}" ] || ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
+  echo "No suitable Python found. Install one first:" >&2
+  echo "  sudo apt update && sudo apt install -y python3 python3-venv python3-dev" >&2
+  exit 1
+fi
+
+PY_VER="$($PYTHON_BIN -c 'import sys; print("%d.%d" % sys.version_info[:2])')"
+echo "==> Using interpreter: $($PYTHON_BIN --version)"
+case "$PY_VER" in
+  3.9|3.10|3.11) ;;
+  3.12)
+    echo "WARNING: OpenVoice targets 3.9-3.11; 3.12 usually works but is untested." >&2
+    ;;
+  *)
+    echo "ERROR: Python $PY_VER is not supported by OpenVoice (needs 3.9-3.12)." >&2
+    echo "       Ubuntu 24.04 (Python 3.12) or 22.04 (3.10) are recommended." >&2
+    exit 1
+    ;;
+esac
+
+# venv is a separate package on Debian/Ubuntu.
+if ! "$PYTHON_BIN" -m venv --help >/dev/null 2>&1; then
+  echo "The venv module is missing for $PYTHON_BIN. Install it:" >&2
+  echo "  sudo apt install -y python3-venv python3-dev" >&2
   exit 1
 fi
 
