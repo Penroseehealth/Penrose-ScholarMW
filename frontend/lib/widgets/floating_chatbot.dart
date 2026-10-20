@@ -17,10 +17,19 @@ class FloatingChatbot extends StatefulWidget {
   const FloatingChatbot({super.key});
 
   /// Wrap [child] with the floating button + chat panel overlay.
+  ///
+  /// The overlay is a direct [Positioned] child of the [Stack] so Flutter
+  /// honours the positioning (a `Positioned` returned by a nested widget's
+  /// `build` is treated as a plain, unpositioned Stack child).
   static Widget wrap(BuildContext context, Widget? child) => Stack(
+        textDirection: TextDirection.ltr,
         children: [
           if (child != null) child,
-          const FloatingChatbot(),
+          const Positioned(
+            right: 20,
+            bottom: 20,
+            child: FloatingChatbot(),
+          ),
         ],
       );
 
@@ -119,22 +128,16 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
   }
 
   @override
-  Widget build(BuildContext context) => Align(
-        alignment: Alignment.bottomRight,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if (_open) ...[
-                _buildPanel(context),
-                const SizedBox(height: 12),
-              ],
-              _buildButton(context),
-            ],
-          ),
-        ),
+  Widget build(BuildContext context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (_open) ...[
+            _buildPanel(context),
+            const SizedBox(height: 12),
+          ],
+          _buildButton(context),
+        ],
       );
 
   Widget _buildButton(BuildContext context) => Semantics(
