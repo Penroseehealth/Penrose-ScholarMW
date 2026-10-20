@@ -18,18 +18,32 @@ class FloatingChatbot extends StatefulWidget {
 
   /// Wrap [child] with the floating button + chat panel overlay.
   ///
-  /// The overlay is a direct [Positioned] child of the [Stack] so Flutter
-  /// honours the positioning (a `Positioned` returned by a nested widget's
-  /// `build` is treated as a plain, unpositioned Stack child).
-  static Widget wrap(BuildContext context, Widget? child) => Stack(
-        fit: StackFit.expand,
-        textDirection: TextDirection.ltr,
-        children: [
-          if (child != null) child,
-          const Positioned(
-            right: 20,
-            bottom: 20,
-            child: FloatingChatbot(),
+  /// Mounted from [MaterialApp.router]'s `builder`, which sits *above* the
+  /// router's [Navigator]. The panel contains a `TextField` and `SelectableText`
+  /// that resolve selection handles/toolbars through the root [Overlay]
+  /// (`Overlay.of(context, rootOverlay: true)`), so an [Overlay] MUST exist
+  /// above this widget or those lookups return null and throw at runtime
+  /// (the release build has no asserts to catch it). We therefore provide our
+  /// own [Overlay] here rather than relying on the one inside the router.
+  ///
+  /// The button is a direct [Positioned] child of the [Stack] so Flutter honours
+  /// the positioning (a `Positioned` returned by a nested widget's `build` is
+  /// treated as a plain, unpositioned Stack child).
+  static Widget wrap(BuildContext context, Widget? child) => Overlay(
+        initialEntries: <OverlayEntry>[
+          OverlayEntry(
+            builder: (context) => Stack(
+              fit: StackFit.expand,
+              textDirection: TextDirection.ltr,
+              children: [
+                if (child != null) child,
+                const Positioned(
+                  right: 20,
+                  bottom: 20,
+                  child: FloatingChatbot(),
+                ),
+              ],
+            ),
           ),
         ],
       );
