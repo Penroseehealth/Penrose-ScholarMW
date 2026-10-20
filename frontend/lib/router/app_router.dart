@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../modules/chemistry_lab/screens/chemistry_lab_screen.dart';
+import '../modules/mathsdrill/screens/mathsdrill_progress_screen.dart';
 import '../modules/mathsdrill/screens/mathsdrill_screen.dart';
 import '../providers/auth_provider.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
@@ -203,7 +204,7 @@ class AppRouter {
       _route('/lecturer', (_) => const LecturerCentre()),
       _route('/lecturer/presentation-builder', (_) => const LecturePresentationBuilderScreen()),
       _route('/lecturer/examination-builder', (_) => const ExaminationBuilderScreen()),
-      _route('/bio-real-lab', (_) => const BiologyRealLabScreen()),
+      _route('/bio-real-lab', (state) => BiologyRealLabScreen(experimentId: state.uri.queryParameters['experiment'])),
       ShellRoute(
         builder: (_, __, child) => _selectable(HomeShell(child: child)),
         routes: [
@@ -399,6 +400,7 @@ class AppRouter {
           _route('/mock-exam', (_) => const MockExamScreen()),
           _route('/math-tutor', (_) => const MathTutorScreen()),
           _route('/mathsdrill', (_) => const MathsdrillScreen()),
+          _route('/mathsdrill/progress', (_) => const MathsdrillProgressScreen()),
           _route('/certificates', (_) => const CertificatesScreen()),
           _route('/exam-analytics', (_) => const ExamAnalyticsScreen()),
           _route('/study-planner', (_) => const StudyPlannerScreen()),

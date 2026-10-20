@@ -143,7 +143,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:
 /* harness and screenshot modes never show the splash: headless dumps and pixel
    checks must see the raw page (mirrors the foliage HARNESS guard in the module).
    This classic script runs during parse, well before the deferred module. */
-if(/[?&](diag|navtest|behavtest|studenttest|lessontest|envtest|camtest|movtest|evtest|microtest|consisttest|modeltest|kidney|kidneytest|boardtest|labfix|shot)=1/.test(location.search)){
+if(/[?&](diag|navtest|behavtest|studenttest|lessontest|envtest|camtest|movtest|evtest|microtest|consisttest|modeltest|kidney|kidneytest|boardtest|labfix|shot|neuron|neutrontest)=1/.test(location.search)){
   var bootEl=document.getElementById('boot');if(bootEl&&bootEl.parentNode)bootEl.parentNode.removeChild(bootEl);
 }
 window.addEventListener('error',function(ev){
@@ -233,6 +233,7 @@ import { createModelCatalogue } from './js/model_catalogue.js';
 import { createModelLoader } from './js/model_loader.js';
 import { createKidneyViewer } from './js/kidney_viewer.js';
 import { createKidneyBoard } from './js/kidney_board.js';
+import { createNeuronViewer } from './js/neuron_viewer.js';
 THREE.ColorManagement.enabled=false;
 (function(){
 'use strict';
@@ -284,11 +285,15 @@ var CAMTEST=/[?&]camtest=1/.test(location.search);
 var MODELTEST=/[?&]modeltest=1/.test(location.search);
 var KIDNEY=/[?&]kidney=1/.test(location.search);
 var KIDNEYTEST=/[?&]kidneytest=1/.test(location.search);
+var NEURON=/[?&]neuron=1/.test(location.search);
+var NEURONTEST=/[?&]neutrontest=1/.test(location.search);
 var BOARDTEST=/[?&]boardtest=1/.test(location.search);
 var LABFIX=/[?&]labfix=1/.test(location.search);
 var kidneyBoard=null,kidneyBoardActive=false;   /* whiteboard stage (frame hook reads these) */
 if(KIDNEY)startKidneyViewer();   /* standalone overlay: no teacher-load dependency */
 if(KIDNEYTEST)runKidneyTest();
+if(NEURON)startNeuronViewer();   /* standalone overlay: no teacher-load dependency */
+if(NEURONTEST)runNeuronTest();
 if(BOARDTEST)runBoardTest();
 /* Phase 4: scientific simulation layer - pure rules, separate from rendering */
 var science=createScience();window.BioLabScience=science;
@@ -2745,7 +2750,7 @@ var cabMicro=makeStorageCabinet(-4.28,0,-4.55,0,true);pickRoot.add(cabMicro);
     'font:600 15px "Segoe UI",Arial,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.35);display:flex;gap:10px;align-items:center';
   var microTipTxt=document.createElement('span');
   microTipTxt.id='microInstructionText';
-  microTipTxt.textContent='Take out the microscope carefully.';
+  microTipTxt.textContent='Take out the kidney carefully.';
   microTipEl.appendChild(microTipTxt);
   document.body.appendChild(microTipEl);
 
@@ -4675,6 +4680,27 @@ applyCam();
     applyCam();
   }
 })();
+/* optional ?experiment=<id> deep-link from the app's Virtual Biology Lab:
+   jumps the camera to the board and starts the matching practical right away.
+   Accepted ids are the science-module ids (osmosis, enzyme, photosynthesis,
+   germination, respiration, ...). Unknown ids are ignored so the plain lab
+   still loads. */
+(function(){
+  var em=/[?&]experiment=([A-Za-z]+)/.exec(location.search);
+  if(!em)return;
+  var id=em[1];
+  if(!science||!science.experiment(id))return;
+  if(VIEWS.board){
+    var v=VIEWS.board;
+    goal.target.set(v.t[0],v.t[1],v.t[2]);goal.theta=v.theta;goal.phi=v.phi;goal.r=v.r;
+    cam.target.copy(goal.target);cam.theta=goal.theta;cam.phi=goal.phi;cam.r=goal.r;
+    applyCam();
+  }
+  if(phase6&&phase6.start){
+    phase6.start(id,id,{});
+    if(syncLessonBtn)syncLessonBtn();
+  }
+})();
 /* optional ?drawers=open to present all pull-out drawers opened;
    ?drawers=slides opens only the front-right cabinet "Slides" drawer */
 if(/[?&]drawers=open/.test(location.search)){
@@ -5182,6 +5208,57 @@ function startKidneyViewer(){
     window.BioLabKidney={viewer:viewer,catalogue:cat,loader:loader};
   }catch(e){ERRLOG.push('kidney viewer: '+String((e&&e.message)||e));}
 }
+/* ---------- ?neuron=1: interactive 3D neurone viewer (Phase 9) ---------- */
+function startNeuronViewer(){
+  try{
+    var viewer=createNeuronViewer({container:document.body});
+    window.BioLabNeuron={viewer:viewer};
+    document.title='NEURONREADY';
+  }catch(e){ERRLOG.push('neuron viewer: '+String((e&&e.message)||e));}
+}
+/* ---------- ?neutrontest=1: 3D neurone viewer acceptance (Phase 9) ---------- */
+function runNeuronTest(){
+  var out={checks:[],fails:0,errors:[],evidence:{}};
+  function ck(n,ok,detail){out.checks.push({name:n,ok:ok===true,detail:detail==null?'':String(detail)});if(ok!==true)out.fails++;}
+  window.addEventListener('error',function(ev){out.errors.push(String(ev.message||ev.error));});
+  window.addEventListener('unhandledrejection',function(ev){out.errors.push('REJECT:'+String((ev.reason&&ev.reason.message)||ev.reason));});
+  document.title='NTA-start';
+  var holder=document.createElement('div');
+  holder.style.cssText='position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:59;';
+  document.body.appendChild(holder);
+  var viewer=null;
+  var finish=function(){
+    try{ck('neutrontest: no page errors',out.errors.length===0,out.errors.slice(0,3).join(' | '));}catch(e){}
+    var el=document.createElement('pre');el.id='__neutrontest';el.style.display='none';
+    el.textContent=JSON.stringify(out);document.body.appendChild(el);
+    document.title='NEURONTESTREADY';
+  };
+  try{
+    viewer=createNeuronViewer({container:holder,zIndex:59,static:true});
+    window.BioLabNeuronTest=viewer;
+    document.title='NTB-built';
+    ck('neutrontest: viewer created',!!viewer&&!!viewer.wrapper&&!!viewer.canvas);
+    var stats=viewer.getStats();
+    out.evidence.stats=stats;
+    ck('neutrontest: mesh counts match the geometry spec',stats.mismatches.length===0,stats.mismatches.join(','));
+    ck('neutrontest: soma/nucleus/hillock built',stats.byStructure.soma===1&&stats.byStructure.nucleus===1&&stats.byStructure.axon_hillock===1);
+    ck('neutrontest: dendrites built',stats.byStructure.dendrites===stats.dendrites&&stats.dendrites>0,'x'+stats.dendrites);
+    ck('neutrontest: myelin + nodes built',stats.byStructure.myelin===stats.internodes&&stats.byStructure.node_of_ranvier===stats.nodes,
+      'sleeves='+stats.internodes+' nodes='+stats.nodes);
+    ck('neutrontest: synapse parts built',stats.byStructure.vesicles===stats.vesicles&&stats.byStructure.receptors===stats.receptors,
+      'v='+stats.byStructure.vesicles+' r='+stats.byStructure.receptors);
+    ck('neutrontest: three teaching modes',stats.modes.join(',')==='full,A,B',stats.modes.join(','));
+    ck('neutrontest: 13 labels',stats.labels===13,'labels='+stats.labels);
+    var picked=viewer.pick('receptors');
+    ck('neutrontest: pick highlights receptors',picked>0,'selected='+picked);
+    viewer.setMode('B');
+    viewer.setStage(8);
+    document.title='NTC-staged';
+  }catch(e){
+    ck('neutrontest pipeline',false,String((e&&e.message)||e));
+  }
+  finish();
+}
 /* ---------- ?kidneytest=1: segmented kidney + verified labels acceptance ---------- */
 function runKidneyTest(){
   var out={checks:[],fails:0,errors:[],evidence:{}};
@@ -5441,7 +5518,7 @@ function runLabFixTest(){
     card=document.getElementById('microInstruction');
     cardTxt=document.getElementById('microInstructionText');
     ck('instruction card shows the exact text',
-      !!card&&!!cardTxt&&cardTxt.textContent==='Take out the microscope carefully.',
+      !!card&&!!cardTxt&&cardTxt.textContent==='Take out the kidney carefully.',
       cardTxt?cardTxt.textContent:'missing');
     document.title='LFC-board';
     function boardPx(){var d=wbBase.getContext('2d').getImageData(4,4,1,1).data;return [d[0],d[1],d[2]];}

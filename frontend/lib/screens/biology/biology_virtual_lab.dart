@@ -40,6 +40,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
       },
       'Higher salt concentration causes more water to leave potato cells by osmosis, resulting in greater mass loss.',
       'Osmosis',
+      'osmosis',
     ),
     const _VirtualLab(
       'Photosynthesis — Light Intensity',
@@ -61,6 +62,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
       },
       'Rate of photosynthesis increases with light intensity. Doubling light intensity approximately doubles the rate.',
       'Photosynthesis',
+      'photosynthesis',
     ),
     const _VirtualLab(
       'Enzyme Activity — Temperature',
@@ -91,6 +93,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
       },
       'Enzyme activity increases with temperature up to an optimum, then rapidly decreases as enzymes denature.',
       'Enzymes',
+      'enzyme',
     ),
     const _VirtualLab(
       'Virtual Microscope — Cell Observation',
@@ -152,6 +155,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
       },
       'Germinating seeds respire actively, releasing CO₂. Dry seeds respire very slowly because they are dormant.',
       'Respiration',
+      'respiration',
     ),
   ];
 
@@ -375,7 +379,9 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () => context.go(
+                  lab.labId == null ? '/bio-real-lab' : '/bio-real-lab?experiment=${lab.labId}',
+                ),
                 icon: const Icon(Icons.play_arrow_rounded, size: 20),
                 label: const Text('Start Simulation'),
                 style: ElevatedButton.styleFrom(
@@ -468,6 +474,13 @@ class _VirtualLab {
   final Map<String, String> results;
   final String observations;
   final String topic;
+
+  /// Science-module id in the 3D lab (`osmosis`, `enzyme`, `photosynthesis`,
+  /// `germination`, `respiration`, ...). Null when the lab has no matching
+  /// module — "Start Simulation" then opens the lab in free-roam.
+  final String? labId;
+
   const _VirtualLab(
-      this.title, this.subtitle, this.icon, this.apparatus, this.method, this.results, this.observations, this.topic);
+      this.title, this.subtitle, this.icon, this.apparatus, this.method, this.results, this.observations, this.topic,
+      [this.labId]);
 }

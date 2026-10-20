@@ -24,7 +24,12 @@ const String kBioLabUrl = String.fromEnvironment(
 /// is the exit button rendered inside the lab page itself (bottom-left of the
 /// scene), which posts a message that [_BiologyRealLabScreenState] handles.
 class BiologyRealLabScreen extends StatefulWidget {
-  const BiologyRealLabScreen({super.key});
+  /// Science-module id of the practical to start on load (e.g. `osmosis`,
+  /// `enzyme`, `photosynthesis`). Null opens the lab in its default free-roam
+  /// state. Passed by the Virtual Biology Lab's "Start Simulation" button.
+  final String? experimentId;
+
+  const BiologyRealLabScreen({super.key, this.experimentId});
 
   @override
   State<BiologyRealLabScreen> createState() => _BiologyRealLabScreenState();
@@ -32,6 +37,14 @@ class BiologyRealLabScreen extends StatefulWidget {
 
 class _BiologyRealLabScreenState extends State<BiologyRealLabScreen> {
   void Function() _removeExitListener = () {};
+
+  /// The lab URL with the optional `?experiment=<id>` deep-link appended.
+  String get _labUrl {
+    final id = widget.experimentId;
+    if (id == null || id.isEmpty) return kBioLabUrl;
+    final sep = kBioLabUrl.contains('?') ? '&' : '?';
+    return '$kBioLabUrl${sep}experiment=$id';
+  }
 
   @override
   void initState() {
@@ -54,10 +67,10 @@ class _BiologyRealLabScreenState extends State<BiologyRealLabScreen> {
         backgroundColor: const Color(0xFF0B0F14),
         body: Stack(
           children: [
-            const Positioned.fill(
+            Positioned.fill(
               child: BiologyLabEmbedViewport(
-                url: kBioLabUrl,
-                fallback: _BioLabFallback(),
+                url: _labUrl,
+                fallback: const _BioLabFallback(),
               ),
             ),
             Positioned(
