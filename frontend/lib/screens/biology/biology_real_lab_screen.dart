@@ -53,7 +53,7 @@ class _BiologyRealLabScreenState extends State<BiologyRealLabScreen> {
   }
 
   void _exitLab() {
-    if (mounted) context.go('/stem-subject/biology');
+    if (mounted) context.go('/dashboard');
   }
 
   @override
