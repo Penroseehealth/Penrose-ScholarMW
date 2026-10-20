@@ -51,6 +51,17 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str = ""
     GROQ_MODEL: str = "llama-3.3-70b-versatile"
 
+    # --- Educational retrieval (grounding) --------------------------------
+    # Live, keyless academic/open-knowledge sources used to ground answers.
+    RETRIEVAL_ENABLED: bool = True
+    RETRIEVAL_TIMEOUT_SECONDS: float = 8.0
+    RETRIEVAL_MAX_RESULTS_PER_PROVIDER: int = 5
+    RETRIEVAL_MAX_SNIPPETS: int = 8
+    # A polite identifier for open APIs (OpenAlex/Crossref request this).
+    RETRIEVAL_CONTACT_EMAIL: str = "scholarai@penrose.local"
+    # Wikipedia/Wikidata language edition.
+    RETRIEVAL_WIKI_LANG: str = "en"
+
     # ElevenLabs (cloud TTS + STT, free renewable tier)
     ELEVENLABS_API_KEY: str = ""
     ELEVENLABS_VOICE_ID: str = "JBFqnCBsd6RMkjVDRZzb"
@@ -68,6 +79,30 @@ class Settings(BaseSettings):
     LIVEKIT_URL: str = ""
     LIVEKIT_API_KEY: str = ""
     LIVEKIT_API_SECRET: str = ""
+
+    # --- Speech / Voice Training Center (TTS, STT, voice cloning) ---------
+    ENABLE_SPEECH: bool = True
+    SPEECH_UPLOAD_DIR: str = str(_BACKEND_DIR / "storage" / "uploads")
+    STT_PROVIDER: str = ""  # e.g. "groq" when GROQ_API_KEY is set
+    TTS_VOICE: str = "hannah"
+    TTS_SPEED: float = 1.0
+    TTS_PROVIDER_FALLBACK_ORDER: list[str] = ["groq", "freeai"]
+    GROQ_BASE_URL: str = "https://api.groq.com/openai/v1"
+    GROQ_STT_MODEL: str = "whisper-large-v3-turbo"
+    GROQ_TTS_MODEL: str = "canopylabs/orpheus-v1-english"
+    FREEAI_API_KEY: str = ""
+    FREEAI_BASE_URL: str = "https://api.freeai.com/v1"
+    FREEAI_TTS_MODEL: str = "tts-1"
+    # Voice cloning providers: "openvoice" (local sidecar, no key) or
+    # "elevenlabs" (hosted, paid key). Empty = cloning disabled.
+    CLONE_PROVIDER: str = ""
+    ELEVENLABS_BASE_URL: str = "https://api.elevenlabs.io/v1"
+    ELEVENLABS_CLONE_MODE: str = "instant"
+    ELEVENLABS_DEFAULT_VOICE_ID: str = ""
+    OPENVOICE_SIDECAR_URL: str = "http://127.0.0.1:8011"
+    OPENVOICE_BASE_SPEAKER: str = "EN-US"
+    OPENVOICE_HEALTH_TIMEOUT_S: float = 3.0
+    OPENVOICE_SYNTHESIZE_TIMEOUT_S: float = 900.0
 
     @property
     def livekit_configured(self) -> bool:

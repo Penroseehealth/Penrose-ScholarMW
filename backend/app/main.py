@@ -39,6 +39,7 @@ from app.physics.router import router as phys_syllabus_router
 from app.practical.router import router as practical_router
 from app.presentation.router import router as presentation_router
 from app.research.router import router as research_router
+from app.retrieval.router import router as retrieval_router
 from app.smart_notifications.router import router as smart_notifications_router
 from app.stem.adaptive_learning_router import router as adaptive_router
 from app.stem.ai_stem_tutor_router import router as stem_tutor_router
@@ -245,6 +246,7 @@ app.include_router(sync_engine_router, prefix="/api/v1")
 app.include_router(ai_orchestrator_router, prefix="/api/v1")
 app.include_router(context_engine_router, prefix="/api/v1")
 app.include_router(global_search_router, prefix="/api/v1")
+app.include_router(retrieval_router, prefix="/api/v1")
 app.include_router(gamification_router, prefix="/api/v1")
 app.include_router(smart_notifications_router, prefix="/api/v1")
 app.include_router(institutions_router, prefix="/api/v1")

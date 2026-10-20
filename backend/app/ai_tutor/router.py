@@ -63,6 +63,48 @@ def _extract_sources(text: str) -> tuple[str, str | None]:
     return content, json.dumps(source_lines)
 
 
+async def _retrieve_grounding(message: str) -> str:
+    """Fetch live educational sources and return the prompt block (or '').
+
+    Best-effort: any failure yields an empty string so the tutor still answers
+    from its own knowledge.
+    """
+    try:
+        from app.retrieval.orchestrator import search
+
+        result = await search(message)
+        if not result.has_results:
+            return ""
+        return result.grounding_prompt_block()
+    except Exception as exc:  # noqa: BLE001 - retrieval must never break chat
+        import logging
+
+        logging.getLogger(__name__).info("Retrieval grounding skipped: %s", exc)
+        return ""
+
+
+def _merge_live_sources(sources_json: str | None, grounding_block: str) -> str | None:
+    """Append the retrieved source citations to the stored sources list."""
+    import logging
+
+    if not grounding_block:
+        return sources_json
+    try:
+        import re as _re
+
+        urls = _re.findall(r"^Source: .*?— (\S+)$", grounding_block, _re.MULTILINE)
+        titles = _re.findall(r"^\[\d+\] (.+)$", grounding_block, _re.MULTILINE)
+        live = [f"{t} — {u}" if u else t for t, u in zip(titles, urls, strict=False)]
+        if not live:
+            return sources_json
+        existing = json.loads(sources_json) if sources_json else []
+        merged = existing + [s for s in live if s not in existing]
+        return json.dumps(merged)
+    except Exception as exc:  # noqa: BLE001
+        logging.getLogger(__name__).info("Source merge skipped: %s", exc)
+        return sources_json
+
+
 def _build_system_prompt(agent_type: str) -> str:
     prompts = {
         "tutor": (
@@ -240,6 +282,11 @@ async def _chat_impl(
     system_prompt += ctx.to_prompt_block()
     system_prompt += ResponseModeRouter.get_system_prompt_addition(ctx, intent)
 
+    # --- Ground the answer in live educational sources --------------------
+    grounding_block = await _retrieve_grounding(body.message)
+    if grounding_block:
+        system_prompt += grounding_block
+
     if body.file_ids:
         from app.stem.multimodal_router import _file_store
 
@@ -264,6 +311,7 @@ async def _chat_impl(
     ai_response = await _call_llm(system_prompt, history)
 
     content, sources = _extract_sources(ai_response)
+    sources = _merge_live_sources(sources, grounding_block)
 
     ai_msg = ChatMessage(
         session_id=session_id,
@@ -634,6 +682,10 @@ async def _chat_stream_impl(
     system_prompt += ctx.to_prompt_block()
     system_prompt += ResponseModeRouter.get_system_prompt_addition(ctx, intent)
 
+    grounding_block = await _retrieve_grounding(body.message)
+    if grounding_block:
+        system_prompt += grounding_block
+
     if body.file_ids:
         from app.stem.multimodal_router import _file_store
 
@@ -673,6 +725,7 @@ async def _chat_stream_impl(
         # Save the complete response to DB
         complete_response = "".join(collected)
         content, sources = _extract_sources(complete_response)
+        sources = _merge_live_sources(sources, grounding_block)
 
         ai_msg = ChatMessage(
             session_id=session_id,
