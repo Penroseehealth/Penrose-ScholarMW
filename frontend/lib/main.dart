@@ -16,6 +16,7 @@ import 'services/connectivity_manager.dart';
 import 'services/data_saver_service.dart';
 import 'services/offline_cache_service.dart';
 import 'widgets/error_boundary.dart';
+import 'widgets/floating_chatbot.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -80,6 +81,7 @@ class _PenroseScholarAppState extends State<PenroseScholarApp> {
                   GlobalCupertinoLocalizations.delegate,
                 ],
                 routerConfig: _appRouter!.router,
+                builder: (context, child) => FloatingChatbot.wrap(context, child),
               ),
             );
           },

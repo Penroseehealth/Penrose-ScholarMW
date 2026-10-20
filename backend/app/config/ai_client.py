@@ -43,42 +43,14 @@ def _build_providers() -> list[tuple[str, AsyncOpenAI, str]]:
     """Return ordered list of (name, client, model) for available providers.
 
     Provider priority:
-    1. HuggingFace ScholarAI (primary)
-    2. Groq (fallback)
-    3. Cloudflare Workers AI (if configured, kept for backward compat)
+    1. Cloudflare Workers AI (primary — reliable, key already provisioned)
+    2. HuggingFace (fallback — needs credits/PRO on the account)
+    3. Groq (fallback)
     """
     s = get_settings()
     providers: list[tuple[str, AsyncOpenAI, str]] = []
 
-    # 1. HuggingFace — PRIMARY
-    if s.HUGGINGFACE_API_TOKEN:
-        providers.append(
-            (
-                "huggingface",
-                AsyncOpenAI(
-                    api_key=s.HUGGINGFACE_API_TOKEN,
-                    base_url="https://router.huggingface.co/v1",
-                    timeout=60.0,
-                ),
-                s.HUGGINGFACE_MODEL,
-            )
-        )
-
-    # 2. Groq — FALLBACK
-    if s.GROQ_API_KEY:
-        providers.append(
-            (
-                "groq",
-                AsyncOpenAI(
-                    api_key=s.GROQ_API_KEY,
-                    base_url="https://api.groq.com/openai/v1",
-                    timeout=60.0,
-                ),
-                s.GROQ_MODEL,
-            )
-        )
-
-    # 3. Cloudflare Workers AI — optional extra
+    # 1. Cloudflare Workers AI — PRIMARY
     if s.CLOUDFLARE_ACCOUNT_ID and s.CLOUDFLARE_API_TOKEN:
         base_url = (
             f"https://api.cloudflare.com/client/v4/accounts/"
@@ -93,6 +65,34 @@ def _build_providers() -> list[tuple[str, AsyncOpenAI, str]]:
                     timeout=60.0,
                 ),
                 s.CLOUDFLARE_AI_MODEL,
+            )
+        )
+
+    # 2. HuggingFace — FALLBACK
+    if s.HUGGINGFACE_API_TOKEN:
+        providers.append(
+            (
+                "huggingface",
+                AsyncOpenAI(
+                    api_key=s.HUGGINGFACE_API_TOKEN,
+                    base_url="https://router.huggingface.co/v1",
+                    timeout=60.0,
+                ),
+                s.HUGGINGFACE_MODEL,
+            )
+        )
+
+    # 3. Groq — FALLBACK
+    if s.GROQ_API_KEY:
+        providers.append(
+            (
+                "groq",
+                AsyncOpenAI(
+                    api_key=s.GROQ_API_KEY,
+                    base_url="https://api.groq.com/openai/v1",
+                    timeout=60.0,
+                ),
+                s.GROQ_MODEL,
             )
         )
 

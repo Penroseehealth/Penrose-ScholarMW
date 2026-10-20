@@ -14,31 +14,30 @@ Two endpoints:
 from __future__ import annotations
 
 import logging
+import math
+import re
 from typing import Any
 
+import sympy
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
-import math
-import re
-import sympy
 
+from app.config.ai_client import AIProviderError, call_ai_json
 from app.database.engine import get_db
+from app.dependencies.auth import get_current_user
+from app.mathematics.solution_types import TutorStep
+from app.mathematics.tutor import TutorSolution, check_working, solve
+from app.models.models import User
 from app.models.stem import (
     SyllabusCoreElement,
     SyllabusLearningObjective,
     SyllabusSubject,
-    SyllabusSubtopic,
     SyllabusTopic,
     SyllabusVersion,
 )
-
-from app.config.ai_client import AIProviderError, call_ai_json
-from app.dependencies.auth import get_current_user
-from app.mathematics.tutor import TutorSolution, check_working, solve
-from app.models.models import User
 
 log = logging.getLogger(__name__)
 
@@ -110,10 +109,118 @@ class CheckResponse(BaseModel):
 async def solve_problem(
     payload: SolveRequest, user: User = Depends(get_current_user)
 ) -> SolveResponse:
-    """Solve a problem deterministically and return verified, structured steps."""
+    """Solve a problem deterministically and return verified, structured steps.
+
+    When the symbolic engine cannot turn the question into a calculation it
+    returns a clarification. In that case we fall back to the AI chain (Cloudflare
+    Workers AI -> HuggingFace -> Groq) so an unusual but valid problem still gets
+    a worked solution instead of a bare "please rephrase".
+    """
     solution: TutorSolution = solve(payload.problem)
+    if _is_clarification(solution):
+        ai_solution = await _ai_solve(payload.problem)
+        if ai_solution is not None:
+            solution = ai_solution
     data = solution.to_dict()
     return SolveResponse(**data)
+
+
+def _is_clarification(solution: TutorSolution) -> bool:
+    """True when the deterministic solver could not turn the input into maths."""
+    return (
+        solution.subject == "clarification"
+        or solution.topic == "needs_more_information"
+    )
+
+
+_AI_SOLVE_SYSTEM = """You are a meticulous mathematics teacher producing a \
+step-by-step worked solution for a student.
+
+ABSOLUTE RULES
+1. Work the mathematics out yourself and double-check every line. Do not skip \
+algebra that the student would need to follow.
+2. Never output raw LaTeX with \\( or \\[ - provide the plain text of each line of \
+working in "work" and the final answer in "answer_text". If you give LaTeX at all, \
+put it only in "answer_latex" and keep it valid KaTeX.
+3. Keep each step short and concrete, one operation per step.
+4. If the problem genuinely cannot be solved without more information, set \
+"needs_more_information" to true and explain what is missing in "answer_text".
+
+Respond with JSON only, exactly this shape:
+{
+  "topic": "short topic label",
+  "steps": [
+    {"title": "short step title", "work": "the equation or expression for this line", "explanation": "what we did and why"}
+  ],
+  "answer_text": "the final answer in words",
+  "answer_latex": "the final answer in KaTeX (may be empty)",
+  "needs_more_information": false
+}
+"""
+
+
+async def _ai_solve(problem: str) -> TutorSolution | None:
+    """Ask the AI chain for a worked solution when SymPy cannot handle it.
+
+    Returns None (so the caller keeps the deterministic clarification) if no
+    provider is configured, all providers fail, or the model output cannot be
+    turned into a usable solution.
+    """
+    messages = [
+        {"role": "system", "content": _AI_SOLVE_SYSTEM},
+        {"role": "user", "content": f"Problem: {problem}"},
+    ]
+    try:
+        parsed = await call_ai_json(messages, max_tokens=1200, temperature=0.2)
+    except Exception as exc:  # noqa: BLE001 - any provider failure must fall back
+        log.warning("AI solve fallback failed: %s", exc)
+        return None
+
+    if not isinstance(parsed, dict):
+        return None
+
+    raw_steps = parsed.get("steps")
+    if not isinstance(raw_steps, list) or not raw_steps:
+        return None
+
+    steps: list[TutorStep] = []
+    for index, raw in enumerate(raw_steps, start=1):
+        if not isinstance(raw, dict):
+            continue
+        work = str(raw.get("work", "")).strip()
+        title = str(raw.get("title", "")).strip() or f"Step {index}"
+        explanation = str(raw.get("explanation", "")).strip()
+        narration = explanation or work or title
+        steps.append(
+            TutorStep(
+                id=index,
+                title=title,
+                explanation=explanation or work,
+                narration=narration,
+                latex_lines=[work] if work else [],
+            )
+        )
+    if not steps:
+        return None
+
+    answer_text = str(parsed.get("answer_text", "")).strip()
+    answer_latex = str(parsed.get("answer_latex", "")).strip()
+    needs_more = bool(parsed.get("needs_more_information"))
+
+    return TutorSolution(
+        problem=problem,
+        subject=str(parsed.get("topic", "mathematics")).strip() or "mathematics",
+        topic=str(parsed.get("topic", "ai_solution")).strip() or "ai_solution",
+        steps=steps,
+        final_answer_latex=answer_latex,
+        final_answer_text=answer_text,
+        verification_status="ai_unverified",
+        verification_detail=(
+            "Solved by the AI tutor and not checked by the symbolic engine."
+            if not needs_more
+            else "The AI tutor needs more information to finish this problem."
+        ),
+    )
 
 
 _EXPLAIN_SYSTEM = """You are a university-level mathematics tutor speaking with a \
@@ -361,19 +468,24 @@ async def _grounding_block(
     Mathematics syllabus. The grounding text contains only titles and
     objective wording - never form/theme metadata.
     """
-    result = await db.execute(select(SyllabusSubject).where(SyllabusSubject.slug == "mathematics"))
+    result = await db.execute(
+        select(SyllabusSubject).where(SyllabusSubject.slug == "mathematics")
+    )
     subject = result.scalar_one_or_none()
     if not subject:
         raise HTTPException(status_code=404, detail="Mathematics syllabus not found")
 
     ver_result = await db.execute(
         select(SyllabusVersion).where(
-            SyllabusVersion.subject_id == subject.id, SyllabusVersion.is_current == True  # noqa: E712
+            SyllabusVersion.subject_id == subject.id,
+            SyllabusVersion.is_current == True,  # noqa: E712
         )
     )
     version = ver_result.scalar_one_or_none()
     if not version:
-        raise HTTPException(status_code=404, detail="No current Mathematics syllabus version")
+        raise HTTPException(
+            status_code=404, detail="No current Mathematics syllabus version"
+        )
 
     ce_result = await db.execute(
         select(SyllabusCoreElement)
@@ -417,7 +529,9 @@ async def _grounding_block(
                 chosen_subtopic = sub.title
                 break
         if chosen_subtopic is None:
-            raise HTTPException(status_code=404, detail="Subtopic not found under this topic")
+            raise HTTPException(
+                status_code=404, detail="Subtopic not found under this topic"
+            )
 
     for sub in matched.subtopics:
         if chosen_subtopic and sub.title != chosen_subtopic:
@@ -516,7 +630,8 @@ async def generate_example(
         topic=canonical_topic,
         subtopic=canonical_sub,
         steps=data.get("steps", []),
-        final_answer_text=data.get("final_answer_text") or data.get("final_answer_latex", ""),
+        final_answer_text=data.get("final_answer_text")
+        or data.get("final_answer_latex", ""),
         verification_status=data.get("verification_status", "unverified"),
         source="syllabus+ai+sympy",
     )
@@ -541,7 +656,9 @@ async def verify_answer(
         ) from exc
 
     data = solution.to_dict()
-    expected = (data.get("final_answer_text") or data.get("final_answer_latex") or "").strip()
+    expected = (
+        data.get("final_answer_text") or data.get("final_answer_latex") or ""
+    ).strip()
     if not expected:
         return VerifyResponse(
             correct=False,

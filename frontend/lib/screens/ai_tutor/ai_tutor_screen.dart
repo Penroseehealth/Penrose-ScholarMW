@@ -612,7 +612,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
   Widget _buildChatArea() => ListView.builder(
         controller: _scrollCtrl,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        itemCount: _messages.length + (_isLoading ? 1 : 0),
+        itemCount: _messages.length + ((_isLoading && !_isStreaming) ? 1 : 0),
         itemBuilder: (ctx, i) {
           if (i == _messages.length) {
             return Align(
@@ -1089,7 +1089,6 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
         _isStreaming = true;
         _streamedContent = '';
         _streamedMessageIndex = msgIndex;
-        _messages.add({'role': 'assistant', 'content': '', 'is_streaming': true});
       });
       _scrollToBottom();
 
@@ -1103,7 +1102,13 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
         if (chunk.type == 'chunk') {
           setState(() {
             _streamedContent += chunk.content;
-            _messages[msgIndex] = {'role': 'assistant', 'content': _streamedContent, 'is_streaming': true};
+            if (usedStreaming) {
+              _messages[msgIndex] = {'role': 'assistant', 'content': _streamedContent, 'is_streaming': true};
+            } else {
+              // First chunk: create the assistant bubble now (avoids an empty
+              // speech bubble sitting on screen while the reply is generated).
+              _messages.add({'role': 'assistant', 'content': _streamedContent, 'is_streaming': true});
+            }
           });
           _scrollToBottom();
           usedStreaming = true;
@@ -1114,11 +1119,13 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
               'content': _streamedContent,
               'sources': chunk.sources,
             };
-            _typewriterMessageIndex = msgIndex;
+            // The text was already shown live while streaming; replaying it with
+            // the typewriter would display the whole answer a second time.
+            _typewriterMessageIndex = null;
           });
         } else if (chunk.type == 'error') {
           setState(() {
-            _messages.removeAt(msgIndex);
+            if (usedStreaming && msgIndex < _messages.length) _messages.removeAt(msgIndex);
             _isStreaming = false;
             _streamedContent = '';
             _streamedMessageIndex = null;
@@ -1135,7 +1142,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
       if (_isStreaming && _streamedMessageIndex != null) {
         setState(() {
           final idx = _streamedMessageIndex!;
-          if (idx < _messages.length && _messages[idx]['is_streaming'] == true) {
+          if (usedStreaming && idx < _messages.length && _messages[idx]['is_streaming'] == true) {
             _messages.removeAt(idx);
           }
           _isStreaming = false;
