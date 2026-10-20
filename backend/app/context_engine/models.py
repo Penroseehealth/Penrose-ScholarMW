@@ -98,6 +98,7 @@ class ConversationContext(BaseModel):
     current_objective: str = ""
     active_lesson: str = ""
     current_learning_material: str = ""
+    current_page: str = ""
 
     # Active items
     current_question: str = ""
@@ -141,6 +142,8 @@ class ConversationContext(BaseModel):
             parts.append(f"Active Lesson: {self.active_lesson}")
         if self.current_learning_material:
             parts.append(f"Current Learning Material: {self.current_learning_material}")
+        if self.current_page:
+            parts.append(f"Current Page: {self.current_page}")
         if self.current_question:
             parts.append(f"Current Question Being Answered: {self.current_question}")
         if self.selected_text:
