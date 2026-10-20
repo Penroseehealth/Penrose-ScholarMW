@@ -165,7 +165,7 @@ window.addEventListener('error',function(ev){
 
 <div class="bottom">
   <p class="hint" id="hint">Drag to look around. Pinch or scroll to zoom. Select a tap to run the water, or a door to open it.</p>
-  <button id="lessonBtn" class="lesson" title="Start the osmosis practical">Start lesson</button>
+  <button id="lessonBtn" class="lesson" title="Call the tutor to start the practical">Teach Me</button>
   <button id="kidneyBtn" class="lesson" title="Show the 3D kidney on the whiteboard">3D kidney</button>
   <nav class="bar" aria-label="Views and controls">
     <button data-view="overview" class="on">Overview</button>
@@ -219,6 +219,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from './vendor/libs/meshopt_decoder.module.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 import { createNav } from './js/nav.js';
 import { createWorld } from './js/objects.js';
@@ -293,6 +294,11 @@ var NEURON=/[?&]neuron=1/.test(location.search);
 var NEURONTEST=/[?&]neutrontest=1/.test(location.search);
 var BOARDTEST=/[?&]boardtest=1/.test(location.search);
 var LABFIX=/[?&]labfix=1/.test(location.search);
+var FIGHTER=/[?&]fighter=1/.test(location.search);
+/* combined harness flag for the tutor loader: every headless/test mode skips the
+   27 MB rig unless a capture (?shot=1) or an explicit ?fighter=1 asks for it. */
+var SKYHARNESS=DIAG||STUDENTTEST||LESSONTEST||ENVTEST||CAMTEST||MODELTEST||
+  KIDNEY||KIDNEYTEST||NEURON||NEURONTEST||BOARDTEST||LABFIX||SHOT;
 var kidneyBoard=null,kidneyBoardActive=false;   /* whiteboard stage (frame hook reads these) */
 if(KIDNEY)startKidneyViewer();   /* standalone overlay: no teacher-load dependency */
 if(KIDNEYTEST)runKidneyTest();
@@ -330,7 +336,37 @@ var CONFIG={
   heartScale:0.30,
   heartX:3.95,
   heartZ:-4.25,
-  heartYaw:0
+  heartYaw:0,
+  fighter:true,                  /* rigged Mixamo figure (assets/fighter.fbx) */
+  fighterHeight:1.72,            /* metres; model normalised to this height */
+  fighterX:-1.30,                /* standing spot on the podium, left of centre */
+  fighterZ:-4.34,                /* on the raised deck (z -4.92..-3.77) */
+  fighterYaw:0,                  /* face the class, out over the room (+z) */
+  fighterStandY:0.45,            /* podium platform top: feet rest on the deck */
+  fighterShirt:0xf7f7f4,         /* white teaching shirt */
+  fighterHomeX:0.00,             /* start: top of the centre aisle, facing the class */
+  fighterHomeZ:3.20,
+  fighterHomeYaw:Math.PI,        /* face down the aisle toward the podium (-z) */
+  fighterWalkSpeed:1.15,         /* m/s; matched to the Walking clip stride */
+  /* waypoints walked once the walk is triggered: down the centre aisle, skirt the
+     front bench on its open right side, stand in the clear gap in front of the
+     platform, then climb three 150 mm risers onto the deck (the step legs sum to
+     the 450 mm platform). The bench rows span x 0.9..3.9 and the front bench spans
+     x -1.5..1.5, so the aisle run sits at x=0 and the front-bench bypass sits at
+     x=1.8 (clear of both). */
+  fighterPath:[
+    {x:0.00,z:2.20,step:false},   /* enter the centre aisle */
+    {x:0.00,z:-1.00,step:false},  /* walk the aisle down to the front bench */
+    {x:1.80,z:-1.00,step:false},  /* sidestep around the front bench */
+    {x:1.80,z:-3.40,step:false},  /* pass it on its open right side */
+    {x:0.00,z:-3.40,step:false},  /* stand in front of the platform */
+    {x:0.00,z:-3.55,step:true},   /* riser 1 */
+    {x:0.00,z:-3.68,step:true},   /* riser 2 */
+    {x:0.00,z:-3.82,step:true},   /* riser 3 */
+    {x:-1.30,z:-4.34,step:false}  /* onto the deck: the standing spot */
+  ],
+  fighterBookColor:0x1f7a3d,     /* green "Biology Practicals" book */
+  fighterBookTitle:'Biology Practicals'
 };
 /* three r172 dropped legacy (non-physical) lighting; scale intensities to keep the tuned r128 look */
 var LIGHT_BOOST=Math.PI*1.18;
@@ -1855,65 +1891,6 @@ function makeStorageCabinet(px,py,pz,ry,single){
   pl.position.set(0,.02,0);pl.receiveShadow=true;g.add(pl);
   var drawerH1=.32,drawerH2=.6,th=.01;
   function makeDrawer(height,label){
-
-function fighterWalkStart(){
-  if(!fighter||fighter.walk)return false;
-  var h=fighter.holder;
-  fighter.walk={i:0,t:0,turn:0,done:false};
-  fighter.state='walk';
-  /* start the path from wherever he is standing (the door) */
-  h.position.set(CONFIG.fighterHomeX,fighter.footOffset,CONFIG.fighterHomeZ);
-  h.rotation.y=CONFIG.fighterHomeYaw;
-  if(window.__fighterCrossFade)window.__fighterCrossFade('walk',0.4);
-  return true;
-}
-function fighterWalkActive(){ return !!(fighter&&fighter.walk&&!fighter.walk.done); }
-function fighterWalkTick(dt){
-  if(!fighter||!fighter.walk)return;
-  var w=fighter.walk;if(w.done)return;
-  var path=CONFIG.fighterPath,pos=fighter.holder.position;
-  if(w.i>=path.length){w.done=true;fighter.state='idle';
-    fighter.holder.rotation.y=CONFIG.fighterYaw;   /* square up to the class */
-    if(window.__fighterCrossFade)window.__fighterCrossFade('idle',0.6);
-    if(typeof beginPractical==='function'&&!window.__tutorArrived)beginPractical();
-    return;}
-  var wp=path[w.i];
-  var dx=wp.x-pos.x,dz=wp.z-pos.z,dist=Math.sqrt(dx*dx+dz*dz);
-  /* face the travel direction smoothly */
-  var wantYaw=(dist>1e-4)?Math.atan2(dx,dz):fighter.holder.rotation.y;
-  var dyaw=((wantYaw-fighter.holder.rotation.y+Math.PI*3)%(Math.PI*2))-Math.PI;
-  fighter.holder.rotation.y+=dyaw*Math.min(1,dt*6);
-  var step=CONFIG.fighterWalkSpeed*dt;
-  if(dist<=step){
-    pos.x=wp.x;pos.z=wp.z;
-    if(wp.step)w.stepCount=(w.stepCount||0)+1;   /* reached the next riser top */
-    w.i++;
-  }else{
-    pos.x+=dx/dist*step;pos.z+=dz/dist*step;
-  }
-  /* target foot height: floor plus 150 mm per riser already climbed. The climb
-     count only advances on `step:true` legs, so ground legs stay at floor level;
-     the final ground leg onto the deck eases him up to the accumulated height.
-     Eased so the climb reads as steps, not a lift. */
-  var targetY=fighter.footOffset+FIGHTER_STEP_H*(w.stepCount||0);
-  pos.y+=(targetY-pos.y)*Math.min(1,dt*8);
-}
-function fighterStand(){ return !!(fighter&&fighter.holder); }
-window.__fighterStand=fighterStand;
-window.__fighterWalkStart=fighterWalkStart;
-window.__fighterWalkActive=fighterWalkActive;
-window.__fighterState=function(){
-  if(!fighter)return null;
-  return{phase:fighter.walk?(fighter.walk.done?'stand':'walk'):'idle',playing:fighter.playing,
-    arrived:!!window.__tutorArrived,
-    pos:[+fighter.holder.position.x.toFixed(3),+fighter.holder.position.y.toFixed(3),+fighter.holder.position.z.toFixed(3)],
-    booked:!!fighter.book,clips:Object.keys(fighter.clips)};
-};
-
-/* ---------- benches, sinks and taps ---------- */
-var SW=.5,SD=.4,BD=.2,H=.9,TT=.045,TAPL=.415;
-
-
     var dg=new THREE.Group();
     var frontMat=M.door.clone();
     /* sliding gate (pocket-door): a fixed left leaf + a right leaf that slides
@@ -2257,6 +2234,264 @@ var HEART_COLORS={ZaHeart_Artery:0xb01c1c,ZaHeart_Vein:0x2a52bd,ZaHeart_Muscle:0
   });
 })();
 
+/* ---------- tutor actor (Mixamo fighter): loader, practical book, walk API ----------
+   Ported from the standalone biology-lab build. The rigged figure (assets/fighter.fbx)
+   loads into the centre-aisle doorway holding a green "Biology Practicals" book and holds
+   a calm idle; the walk API moves him to the podium via CONFIG.fighterPath. The rig is
+   skipped under every headless harness (SKYHARNESS) unless ?shot=1 or ?fighter=1 asks for
+   it, so the test harnesses stay deterministic. */
+var fighterModel=null,fighterMixer=null,fighterDone=false,fighterInfo={present:false};
+/* the tutor starts at the back door holding a book, then walks to the podium on
+   "Teach Me"; the loader places and dresses him, the actor walks him in. */
+var fighter=null;
+/* ---------- practical book held by the tutor ----------
+   A slim green hardback with the course title on the cover, rendered to a canvas
+   texture so the lettering stays crisp at any zoom. Parented to the right hand
+   (or the left, or the rig root as a fallback), so it travels with him as he
+   walks and stands. */
+function makePracticalBook(handBone,holder){
+  var W=.16,H=.225,D=.028,sec=.03;
+  var cover=new THREE.MeshStandardMaterial({color:CONFIG.fighterBookColor,roughness:.55,metalness:.02});
+  var pages=new THREE.MeshStandardMaterial({color:0xf2ece0,roughness:.85});
+  var bk=new THREE.Group();
+  box(W,H,D,cover,0,0,0,bk,true);
+  box(W-.02,H-.02,D+.004,pages,.006,0,0,bk,true);   /* page block peeking out */
+  /* spine highlight */
+  box(.012,H,D+.006,cover,-W/2+.006,0,0,bk,true);
+  /* cover title: canvas texture on the front face */
+  try{
+    var cw=512,ch=720;
+    var cc=document.createElement('canvas');cc.width=cw;cc.height=ch;
+    var c2=cc.getContext('2d');
+    c2.fillStyle='#1f7a3d';c2.fillRect(0,0,cw,ch);
+    c2.strokeStyle='rgba(255,255,255,.85)';c2.lineWidth=6;
+    c2.strokeRect(28,28,cw-56,ch-56);
+    c2.fillStyle='#ffffff';c2.textAlign='center';c2.textBaseline='middle';
+    c2.font='bold 62px "Segoe UI",Arial,sans-serif';
+    c2.fillText('Biology',cw/2,ch*0.33);
+    c2.fillText('Practicals',cw/2,ch*0.44);
+    c2.font='26px "Segoe UI",Arial,sans-serif';
+    c2.fillStyle='rgba(255,255,255,.82)';
+    c2.fillText('Osmosis in potato tissue',cw/2,ch*0.60);
+    c2.beginPath();c2.arc(cw/2,ch*0.78,54,0,Math.PI*2);
+    c2.lineWidth=5;c2.strokeStyle='rgba(255,255,255,.7)';c2.stroke();
+    c2.font='bold 40px "Segoe UI",Arial,sans-serif';c2.fillStyle='#ffffff';
+    c2.fillText('BIOL',cw/2,ch*0.78);
+    var tex=new THREE.CanvasTexture(cc);
+    tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=8;
+    var face=new THREE.Mesh(new THREE.PlaneGeometry(W-.012,H-.012),
+      new THREE.MeshStandardMaterial({map:tex,roughness:.6}));
+    face.position.z=D/2+.002;bk.add(face);
+  }catch(e){}
+  /* hold: tucked in hand, angled like a carried textbook */
+  bk.rotation.set(-0.35,0.25,0.9);
+  bk.position.set(.02,-.06,.05);
+  if(handBone)handBone.add(bk);else holder.add(bk);
+  return bk;
+}
+(function loadFighter(){
+  if(!CONFIG.fighter||(SKYHARNESS&&!SHOT&&!FIGHTER)){fighterDone=true;return;}
+  trace('fighter:start');
+  var ANIM_BASE='./assets/anims/';
+  /* only the two clips the tutor uses are streamed (idle stance + walk-in), so
+     the low-end target does not pay for the unused locomotion clips at boot */
+  var ANIM_FILES={idle:'Standing_Idle.fbx',walk:'Walking.fbx'};
+  new FBXLoader().load('./assets/fighter.fbx',function(obj){
+    var parts=0,verts=0;
+    obj.traverse(function(o){
+      if(o.isMesh||o.isSkinnedMesh){
+        parts++;verts+=(o.geometry&&o.geometry.attributes.position)?o.geometry.attributes.position.count:0;
+        o.castShadow=true;o.receiveShadow=true;
+        /* skinned meshes are deformed each frame, so per-object culling would
+           pop them out of view; keep them always drawn like the heart meshes */
+        o.frustumCulled=false;
+        if(o.material){
+          (Array.isArray(o.material)?o.material:[o.material]).forEach(function(m){
+            if(m&&m.map){m.map.colorSpace=THREE.SRGBColorSpace;m.map.anisotropy=8;}
+            /* NOTE: recolouring to a white shirt is deferred for now; it would
+               need to whiten the cloth materials only (dropping their texture),
+               otherwise the Mixamo skin goes white too. Left on its original
+               wardrobe texture. */
+          });
+        }
+      }
+    });
+    /* normalise: scale so the figure is CONFIG.fighterHeight tall, then recentre
+       it on the origin (x/z) and drop its feet to the floor (y=0). */
+    var bb=new THREE.Box3().setFromObject(obj);
+    var sz=bb.getSize(new THREE.Vector3());
+    var s=CONFIG.fighterHeight/Math.max(sz.y,1e-4);
+    var holder=new THREE.Group();
+    holder.scale.setScalar(s);
+    holder.add(obj);
+    var bb2=new THREE.Box3().setFromObject(holder);
+    var ctr2=bb2.getCenter(new THREE.Vector3());
+    obj.position.x-=ctr2.x/s;obj.position.z-=ctr2.z/s;
+    /* stand on the floor at the back door; feet offset lets the walk raise him
+       onto the podium deck (y=0.45) as the last path legs climb the steps. */
+    var footOffset=-bb2.min.y;
+    holder.position.set(CONFIG.fighterHomeX,footOffset,CONFIG.fighterHomeZ);
+    holder.rotation.y=CONFIG.fighterHomeYaw;
+    pickRoot.add(holder);
+
+    /* find the right hand bone so he can carry the practical book, and the
+       left hand too (fallbacks keep the prop visible if a bone name shifts). */
+    var handBone=null,handBoneL=null;
+    obj.traverse(function(o){
+      if(!o.isBone)return;
+      if(/RightHand$/i.test(o.name)&&!handBone)handBone=o;
+      else if(/LeftHand$/i.test(o.name)&&!handBoneL)handBoneL=o;
+    });
+
+    fighterMixer=new THREE.AnimationMixer(obj);
+    var baseClip=null;
+    if(obj.animations&&obj.animations.length){
+      obj.animations.forEach(function(c){if(!baseClip||c.duration>baseClip.duration)baseClip=c;});
+    }
+    fighter={rig:obj,holder:holder,mixer:fighterMixer,scale:s,footOffset:footOffset,
+      handBone:handBone,handBoneL:handBoneL,book:null,clips:{},actions:{},baseClip:baseClip,
+      state:'idle',t:0,walk:null,want:'idle',clipNames:[],playing:null};
+    fighterModel=holder;fighterDone=true;
+    fighter.book=makePracticalBook(handBone||handBoneL,holder);
+
+    var fb=new THREE.Box3().setFromObject(holder),fsz=fb.getSize(new THREE.Vector3());
+    fighterInfo={present:true,parts:parts,vertices:verts,clips:obj.animations?obj.animations.length:0,
+      clipNames:baseClip?[baseClip.name+'/'+baseClip.duration.toFixed(2)]:[],playing:null,
+      grip:!!handBone,book:!!fighter.book,
+      pos:[+holder.position.x.toFixed(3),+holder.position.y.toFixed(3),+holder.position.z.toFixed(3)],
+      size:[+fsz.x.toFixed(3),+fsz.y.toFixed(3),+fsz.z.toFixed(3)],
+      bbox:{min:[+fb.min.x.toFixed(3),+fb.min.y.toFixed(3),+fb.min.z.toFixed(3)],
+            max:[+fb.max.x.toFixed(3),+fb.max.y.toFixed(3),+fb.max.z.toFixed(3)]}};
+    trace('fighter:loaded');
+
+    /* NB: the rig's own baked take is a punch combo, so it is NOT played; the
+       figure holds the bind pose only until Standing_Idle streams in (it plays
+       automatically below once loaded). */
+    loadFighterClips(ANIM_BASE,ANIM_FILES);
+
+    if(DIAG)dumpDiag();
+    if(shotMode&&window.__doShotCapture)window.__doShotCapture();
+  },undefined,function(err){
+    ERRLOG.push('FBX fighter: '+String((err&&err.message)||err));
+    fighterDone=true;
+    if(shotMode&&window.__doShotCapture)window.__doShotCapture();
+  });
+
+  /* stream each animation FBX (skeleton-only, ~0.4 MB each). Track names use the
+     same mixamorig:* bones as the fighter, so each clip binds to the fighter's
+     own skeleton by name - no retargeting. */
+  function loadFighterClips(base,files){
+    var loader=new FBXLoader();
+    Object.keys(files).forEach(function(key){
+      loader.load(base+files[key],function(animObj){
+        if(!animObj.animations||!animObj.animations.length)return;
+        var clip=null;
+        animObj.animations.forEach(function(c){if(!clip||c.duration>clip.duration)clip=c;});
+        /* strip the FBX root translation tracks that would fight our root motion,
+           keeping only the pose channels; the actor drives position itself. */
+        clip.tracks=clip.tracks.filter(function(tr){return !/^mixamorig:Hips\.position$/.test(tr.name);});
+        if(!fighter)return;
+        fighter.clips[key]=clip;fighter.clipNames.push(key+':'+clip.name+'/'+clip.duration.toFixed(2));
+        var act=fighter.mixer.clipAction(clip);
+        fighter.actions[key]=act;
+        /* play the desired clip if it arrived after it was asked for (idle stance
+           at boot, or walk if "Teach Me" was pressed before the clip streamed) */
+        if(fighter.want===key||(key==='idle'&&fighter.state==='idle')){crossFadeTo(key,0.5);}
+        if(DIAG&&key==='idle')dumpDiag();   /* snapshot again with the idle clip live */
+      },undefined,function(err2){
+        ERRLOG.push('FBX anim '+key+': '+String((err2&&err2.message)||err2));
+      });
+    });
+  }
+
+  /* crossfade the actor to a clip: previous fades out over `dur` seconds */
+  function crossFadeTo(key,dur){
+    if(!fighter)return false;
+    fighter.want=key;                         /* remember even if the clip is not loaded yet */
+    if(!fighter.actions[key])return false;
+    if(fighter.playing===key)return true;
+    var next=fighter.actions[key];
+    next.reset();next.enabled=true;next.setEffectiveWeight(1);
+    next.setLoop(THREE.LoopRepeat,Infinity);   /* both clips loop (idle/walk) */
+    next.clampWhenFinished=false;
+    var prev=fighter.playing&&fighter.actions[fighter.playing];
+    next.play();
+    if(prev&&prev!==next)prev.crossFadeTo(next,dur||0.35,false);
+    fighter.playing=key;
+    trace('fighter:crossfade:'+key);
+    return true;
+  }
+  window.__fighterCrossFade=crossFadeTo;
+})();
+
+/* ---------- tutor actor: walk in from the door, stand on the podium ----------
+   The rigged Mixamo figure starts at the back entrance holding his green
+   "Biology Practicals" book. When the user presses "Teach Me" he walks the
+   configured waypoints - up the centre aisle, around the benches, to the podium
+   staircase - then climbs onto the deck and stands in a calm idle. The root is
+   advanced here each frame at CONFIG.fighterWalkSpeed (the Walking clip supplies
+   the leg motion), turning to face the travel direction; the last path legs
+   raise him 150 mm per step onto the deck. The whole actor is inert under
+   harness/headless modes (the fighter is not loaded there), so the gates stay
+   deterministic. */
+var FIGHTER_STEP_H=0.15;           /* riser height per podium step */
+function fighterWalkStart(){
+  if(!fighter||fighter.walk)return false;
+  var h=fighter.holder;
+  fighter.walk={i:0,t:0,turn:0,done:false};
+  fighter.state='walk';
+  /* start the path from wherever he is standing (the door) */
+  h.position.set(CONFIG.fighterHomeX,fighter.footOffset,CONFIG.fighterHomeZ);
+  h.rotation.y=CONFIG.fighterHomeYaw;
+  if(window.__fighterCrossFade)window.__fighterCrossFade('walk',0.4);
+  return true;
+}
+function fighterWalkActive(){ return !!(fighter&&fighter.walk&&!fighter.walk.done); }
+function fighterWalkTick(dt){
+  if(!fighter||!fighter.walk)return;
+  var w=fighter.walk;if(w.done)return;
+  var path=CONFIG.fighterPath,pos=fighter.holder.position;
+  if(w.i>=path.length){w.done=true;fighter.state='idle';
+    fighter.holder.rotation.y=CONFIG.fighterYaw;   /* square up to the class */
+    if(window.__fighterCrossFade)window.__fighterCrossFade('idle',0.6);
+    if(typeof beginPractical==='function'&&!window.__tutorArrived)beginPractical();
+    return;}
+  var wp=path[w.i];
+  var dx=wp.x-pos.x,dz=wp.z-pos.z,dist=Math.sqrt(dx*dx+dz*dz);
+  /* face the travel direction smoothly */
+  var wantYaw=(dist>1e-4)?Math.atan2(dx,dz):fighter.holder.rotation.y;
+  var dyaw=((wantYaw-fighter.holder.rotation.y+Math.PI*3)%(Math.PI*2))-Math.PI;
+  fighter.holder.rotation.y+=dyaw*Math.min(1,dt*6);
+  var step=CONFIG.fighterWalkSpeed*dt;
+  if(dist<=step){
+    pos.x=wp.x;pos.z=wp.z;
+    if(wp.step)w.stepCount=(w.stepCount||0)+1;   /* reached the next riser top */
+    w.i++;
+  }else{
+    pos.x+=dx/dist*step;pos.z+=dz/dist*step;
+  }
+  /* target foot height: floor plus 150 mm per riser already climbed. The climb
+     count only advances on `step:true` legs, so ground legs stay at floor level;
+     the final ground leg onto the deck eases him up to the accumulated height.
+     Eased so the climb reads as steps, not a lift. */
+  var targetY=fighter.footOffset+FIGHTER_STEP_H*(w.stepCount||0);
+  pos.y+=(targetY-pos.y)*Math.min(1,dt*8);
+}
+function fighterStand(){ return !!(fighter&&fighter.holder); }
+window.__fighterStand=fighterStand;
+window.__fighterWalkStart=fighterWalkStart;
+window.__fighterWalkActive=fighterWalkActive;
+window.__fighterWalkTick=fighterWalkTick;   /* harnesses advance the walk deterministically */
+window.__fighterState=function(){
+  if(!fighter)return null;
+  return{phase:fighter.walk?(fighter.walk.done?'stand':'walk'):'idle',playing:fighter.playing,
+    arrived:!!window.__tutorArrived,
+    pos:[+fighter.holder.position.x.toFixed(3),+fighter.holder.position.y.toFixed(3),+fighter.holder.position.z.toFixed(3)],
+    booked:!!fighter.book,clips:Object.keys(fighter.clips)};
+};
+/* arrival flag: the standalone sets it in beginPractical() when the walk finishes.
+   Penrose starts phase6 straight from its lesson button, so nothing reads it yet. */
+window.__tutorArrived=false;
 /* ---------- benches, sinks and taps ---------- */
 var SW=.5,SD=.4,BD=.2,H=.9,TT=.045,TAPL=.415;
 
@@ -2507,7 +2742,7 @@ function benchLabel(text){
   },true);
   return new THREE.Mesh(new THREE.PlaneGeometry(.15,.047),new THREE.MeshBasicMaterial({map:lm,transparent:true}));
 }
-function makeBench(w,d,holes,alternate){
+function makeBench(w,d,holes,alternate,dropCentre){
   var g=new THREE.Group();
   g.name='labBench';
   var pl=.1,pt=.03,ph=H-TT-pl,py=pl+ph/2,dw=w-.08,dd=d-.1;
@@ -2527,10 +2762,14 @@ function makeBench(w,d,holes,alternate){
      over a deeper lower drawer for lab items (distilled water, glassware); the
      remaining bays keep a single full-height drawer */
   var secGap=.01,secTot=ph-.04,secUp=.30,secLow=secTot-secGap-secUp;
+  /* island benches only (dropCentre): the centre bay carries no pull-out drawers,
+     so each face keeps two drawer units instead of three. Wall benches keep all
+     three - they read as storage, not clutter, from the room edges */
+  var mid=(dropCentre&&(n%2))?(n>>1):-1;
   [-1,1].forEach(function(s){
     for(var i=0;i<n;i++){
       var cx=-dw/2+dwid*(i+.5),dz=s*(dd/2+.008);
-      if(i%2===0){
+      if(i%2===0&&i!==mid){
         var du=makeDrawerFace(g,dwid-.012,secUp,cx,py+secTot/2-secUp/2,dz,s,M.door,.22);
         var lu=benchLabel('Stationery');lu.position.set(0,-secUp/2+.058,s*.0095);du.add(lu);lu.userData.drawerRef=du;
         var dl=makeDrawerFace(g,dwid-.012,secLow,cx,py-secTot/2+secLow/2,dz,s,M.door,.22);
@@ -2611,13 +2850,13 @@ function breakBeaker(ref){
   playGlassBreak(!!ref.water);
 }
 var stoolSeatGeo=new THREE.CylinderGeometry(.15,.15,.05,20);
-var stoolPoleGeo=new THREE.CylinderGeometry(.018,.018,.56,8);
+var stoolPoleGeo=new THREE.CylinderGeometry(.018,.018,.59,8);
 var stoolBaseGeo=new THREE.CylinderGeometry(.13,.15,.025,16);
 var stoolRingGeo=new THREE.TorusGeometry(.1,.007,6,16);
 function makeStool(x,z){
   var g=new THREE.Group();g.name='labStool';g.position.set(x,0,z);
   var seat=new THREE.Mesh(stoolSeatGeo,M.stool);seat.position.y=.64;seat.castShadow=true;g.add(seat);
-  var pole=new THREE.Mesh(stoolPoleGeo,M.stool);pole.position.y=.33;pole.castShadow=true;g.add(pole);
+  var pole=new THREE.Mesh(stoolPoleGeo,M.stool);pole.position.y=.32;pole.castShadow=true;g.add(pole);
   var base=new THREE.Mesh(stoolBaseGeo,M.stool);base.position.y=.013;base.castShadow=true;g.add(base);
   var ring=new THREE.Mesh(stoolRingGeo,M.stool);ring.rotation.x=Math.PI/2;ring.position.y=.26;ring.castShadow=true;g.add(ring);
   contactShadow(g,0,.0025,0,.36,.36);
@@ -2633,7 +2872,7 @@ var slidePlan=[
 function nextSlides(n){var a=[];for(var i=0;i<n;i++)a.push(slidePlan[sp++%slidePlan.length]);return a;}
 [-2.4,2.4].forEach(function(bx){
   [-1.5,.7,2.9].forEach(function(bz){
-    var b=makeBench(3.0,1.2,[-1.0,1.0],true);
+    var b=makeBench(3.0,1.2,[-1.0,1.0],true,true);
     b.position.set(bx,0,bz);pickRoot.add(b);
     gasTap(b,0,.35);gasTap(b,0,-.35);
     beaker(b,-1.42,-.42,beakerCols[bi++%3]);beaker(b,1.42,.42,beakerCols[bi++%3]);
@@ -3804,11 +4043,13 @@ document.getElementById('bright').addEventListener('input',function(e){
 });
 /* lesson control: one button drives the whole practical from the bottom bar */
 var lessonBtn=document.getElementById('lessonBtn');
+function tutorWalking(){return typeof fighterWalkActive==='function'&&fighterWalkActive();}
 function lessonBtnState(){
-  if(!phase6||!phase6.status)return{label:'Start lesson',act:'start',on:false,phase:'idle'};
+  if(tutorWalking())return{label:'Teaching...',act:'walking',on:true,phase:'walk'};
+  if(!phase6||!phase6.status)return{label:'Teach Me',act:'teach',on:false,phase:'idle'};
   var st=phase6.status();
   if(!st.running||st.phase==='done')
-    return{label:'Start lesson',act:'start',on:false,phase:st.phase};
+    return{label:'Teach Me',act:'teach',on:false,phase:st.phase};
   if(st.phase==='safety')
     return{label:'Acknowledge safety',act:'ack',on:true,phase:st.phase};
   if(st.paused)
@@ -3823,16 +4064,30 @@ function syncLessonBtn(){
   if(lessonBtn.title!==t)lessonBtn.title=t;
   lessonBtn.classList.toggle('on',s.on);
 }
+/* "Teach Me": the tutor walks from the back door up to the podium, then the
+   practical begins when he has arrived (calm, real-scenario flow). If the rig
+   is not ready yet (still loading, harness mode, or he is already in), the
+   practical starts immediately so the button always does something. */
+function beginPractical(){
+  window.__tutorArrived=true;
+  if(SKYHARNESS)return;   /* harnesses skip lesson side-effects */
+  if(typeof phase6==='undefined'||!phase6||!phase6.start)return;
+  phase6.start('osmosis','osmosis',{concentrationM:0});
+}
 if(lessonBtn)lessonBtn.addEventListener('click',function(){
   var s=lessonBtnState();
-  if(s.act==='start')phase6.start('osmosis','osmosis',{concentrationM:0});
+  if(s.act==='teach'){
+    var started=(typeof fighterWalkStart==='function'&&!window.__tutorArrived&&!tutorWalking())
+      ? fighterWalkStart() : false;   /* walk in; beginPractical runs on arrival */
+    if(!started)beginPractical();
+  }
   else if(s.act==='ack')phase6.safetyAck();
   else if(s.act==='resume')phase6.resume();
   else if(s.act==='pause')phase6.pause();
   syncLessonBtn();
 });
 syncLessonBtn();
-/* 3D kidney tab (alongside Start lesson): renders the Grab3D kidney onto the
+/* 3D kidney tab (alongside Teach Me): renders the Grab3D kidney onto the
    whiteboard and jumps the camera to the Whiteboard view; click again to hide. */
 var kidneyBtn=document.getElementById('kidneyBtn');
 var kidneyBoardPrevView=null;
@@ -4503,6 +4758,8 @@ function dumpDiag(){
     podium:podiumInfo,
     bsc:bscInfo,
     heart:heartInfo,
+    fighter:fighter?Object.assign({},fighterInfo,{playing:fighter.playing,state:fighter.state,
+      streamClips:Object.keys(fighter.clips)}):fighterInfo,
     taps:tapOut,
     drawers:drawerOut,
     treesInfo:{count:trees.length,minParts:treeParts.length?Math.min.apply(null,treeParts):0,parts:treeParts},
@@ -4605,6 +4862,8 @@ function frame(){
   streamTex.offset.y-=dt*2.4;
   if(time-wbLastDraw>0.05){wbLastDraw=time;drawBoardAnim(time);}   /* ~20fps: avoid a 1024x410 texture upload every frame */
   if(heartModel)heartModel.userData.spin.rotation.y+=dt*.4;
+  if(fighterMixer)fighterMixer.update(dt);   /* tutor idle/walk clip */
+  if(typeof fighterWalkTick==='function')fighterWalkTick(dt);
   var slowTier=phase8&&phase8.perf.state.tier==='low';
   if(phase3&&phase3.frame&&(!slowTier||phase8.perf.shouldRun('behaviour',time)))phase3.frame(dt);
   if(phase5&&phase5.frame&&(!slowTier||phase8.perf.shouldRun('students',time)))phase5.frame(dt);
