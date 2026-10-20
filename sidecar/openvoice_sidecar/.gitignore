@@ -1,0 +1,6 @@
+.venv/
+checkpoints_v2/
+voice_store/
+__pycache__/
+*.pyc
+outputs/

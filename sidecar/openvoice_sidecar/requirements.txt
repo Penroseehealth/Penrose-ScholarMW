@@ -1,0 +1,14 @@
+# Runtime deps for the OpenVoice sidecar.
+#
+# NOTE: install torch/torchaudio from the CPU index if you have no GPU; the
+# setup.sh script handles that. This file lists what the sidecar imports.
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+httpx==0.27.2
+
+# OpenVoice pulls in its own audio stack. MeloTTS and the OpenVoice package are
+# installed from git in setup.sh (they are not on PyPI under these names).
+numpy
+soundfile
+librosa
