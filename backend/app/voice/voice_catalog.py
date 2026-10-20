@@ -104,8 +104,27 @@ VOICE_CATALOG: tuple[TutorVoice, ...] = (
 
 VOICES_BY_ID: dict[str, TutorVoice] = {v.id: v for v in VOICE_CATALOG}
 
-# Malawi's language of instruction is British English, so that is the default.
+# Malawi's language of instruction is British English, so that is the built-in
+# default. It can be overridden at runtime via NARRATION_VOICE_ID (see
+# resolve_default_voice_id); this constant remains the last-resort fallback so
+# an unknown or empty setting can never leave the app without a voice.
 DEFAULT_VOICE_ID = "en-gb-female"
+
+
+def resolve_default_voice_id() -> str:
+    """Return the configured narration voice id, falling back safely.
+
+    Order: NARRATION_VOICE_ID when it names a real catalog voice, else the
+    built-in DEFAULT_VOICE_ID. Never returns an unknown id, so callers get a
+    voice the provider can actually synthesize.
+    """
+    from app.config.settings import get_settings
+
+    configured = (get_settings().NARRATION_VOICE_ID or "").strip().lower()
+    if configured in VOICES_BY_ID:
+        return configured
+    return DEFAULT_VOICE_ID
+
 
 # Fallback language -> Edge voice for non-catalog locales (used when the caller
 # asks for a language rather than a catalog voice id).
@@ -151,6 +170,5 @@ def resolve_edge_voice(voice_id: str | None, language: str = "en") -> str:
 
 def voice_payloads() -> list[dict]:
     """Catalog as API payloads, with the default flagged."""
-    return [
-        {**v.to_dict(), "is_default": v.id == DEFAULT_VOICE_ID} for v in VOICE_CATALOG
-    ]
+    default_id = resolve_default_voice_id()
+    return [{**v.to_dict(), "is_default": v.id == default_id} for v in VOICE_CATALOG]

@@ -104,6 +104,18 @@ class Settings(BaseSettings):
     OPENVOICE_HEALTH_TIMEOUT_S: float = 3.0
     OPENVOICE_SYNTHESIZE_TIMEOUT_S: float = 900.0
 
+    # --- Chat narration voice (app/voice/ Edge TTS path) ------------------
+    # A premade US/UK female catalog id (see app.voice.voice_catalog). This is
+    # the voice the chat/TTS narration uses, distinct from TTS_VOICE above
+    # (which belongs to the Groq Orpheus /speech path used by the VTC).
+    #
+    # Fallback chain when the requested voice is unavailable:
+    #   1. NARRATION_VOICE_ID (must be a catalog id)
+    #   2. the catalog default (en-gb-female) if NARRATION_VOICE_ID is unknown
+    #   3. LANGUAGE_VOICES[language], else the "en" mapping
+    # resolve_edge_voice() applies steps 2-3 and never raises.
+    NARRATION_VOICE_ID: str = "en-gb-female"
+
     @property
     def livekit_configured(self) -> bool:
         return bool(

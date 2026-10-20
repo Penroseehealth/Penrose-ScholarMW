@@ -21,8 +21,8 @@ from app.voice.models import (
 from app.voice.tts_service import tts_service
 from app.voice.voice_catalog import (
     ACCENTS,
-    DEFAULT_VOICE_ID,
     GENDERS,
+    resolve_default_voice_id,
     voice_payloads,
 )
 
@@ -137,7 +137,7 @@ async def list_voices():
         voices=[VoiceOption(**payload) for payload in voice_payloads()],
         accents=list(ACCENTS),
         genders=list(GENDERS),
-        default_voice_id=DEFAULT_VOICE_ID,
+        default_voice_id=resolve_default_voice_id(),
     )
 
 
