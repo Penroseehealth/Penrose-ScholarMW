@@ -22,6 +22,7 @@ class FloatingChatbot extends StatefulWidget {
   /// honours the positioning (a `Positioned` returned by a nested widget's
   /// `build` is treated as a plain, unpositioned Stack child).
   static Widget wrap(BuildContext context, Widget? child) => Stack(
+        fit: StackFit.expand,
         textDirection: TextDirection.ltr,
         children: [
           if (child != null) child,
