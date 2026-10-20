@@ -30,6 +30,7 @@ from app.livekit.router import router as livekit_router
 from app.malawi_context.router import router as malawi_context_router
 from app.mathematics.router import router as math_syllabus_router
 from app.mathematics.tutor_router import router as math_tutor_router
+from app.mathsdrill.router import router as mathsdrill_router
 from app.messaging.router import router as messaging_router
 from app.middleware.security import RateLimitMiddleware
 from app.notifications.router import router as notifications_router
@@ -289,6 +290,7 @@ app.include_router(practical_router, prefix="/api/v1")
 app.include_router(biology_viz_router, prefix="/api/v1")
 app.include_router(presentation_router, prefix="/api/v1")
 app.include_router(examinations_builder_router, prefix="/api/v1")
+app.include_router(mathsdrill_router, prefix="/api/v1")
 
 
 @app.get("/health")

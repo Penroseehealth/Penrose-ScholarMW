@@ -54,6 +54,13 @@ class MathsdrillScreen extends StatelessWidget {
             Text('Mathsdrill', style: TextStyle(color: t.textPrimary, fontSize: 16)),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.insights_rounded),
+            onPressed: () => context.go('/mathsdrill/progress'),
+            tooltip: 'Stored Progress',
+          ),
+        ],
       ),
       body: MathsdrillViewport(
         url: mathsdrillEmbedUrl(userName),

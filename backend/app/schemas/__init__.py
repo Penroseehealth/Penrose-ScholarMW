@@ -28,6 +28,12 @@ from app.schemas.course import (
     ScheduleItemCreate,
     ScheduleItemResponse,
 )
+from app.schemas.mathsdrill import (
+    MathsdrillPaperStateIn,
+    MathsdrillPaperStateOut,
+    MathsdrillSessionIn,
+    MathsdrillSessionOut,
+)
 from app.schemas.research import (
     EvidenceExtraction,
     LiteratureResult,
@@ -68,6 +74,10 @@ __all__ = [
     "LiteratureResult",
     "LiteratureSearchRequest",
     "MarkingDecision",
+    "MathsdrillPaperStateIn",
+    "MathsdrillPaperStateOut",
+    "MathsdrillSessionIn",
+    "MathsdrillSessionOut",
     "PasswordChange",
     "QuestionCreate",
     "QuestionResponse",

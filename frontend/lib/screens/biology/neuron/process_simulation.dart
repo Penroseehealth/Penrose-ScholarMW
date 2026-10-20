@@ -66,6 +66,38 @@ class SimulationFrame {
   bool get isFirstStage => stageIndex == 0;
 }
 
+/// A user-controlled teaching mode (Phase 5).
+///
+/// Each mode is a named, ordered slice of the global stage timeline so the
+/// learner can focus on one biological process at a time while the painter
+/// still receives the true global stage index. `isSimplified` marks animations
+/// that intentionally omit biological detail (the screen shows a "simplified
+/// model" note for those).
+class SimulationMode {
+  final String id;
+  final String title;
+  final String subtitle;
+
+  /// First global stage index included in this mode (inclusive).
+  final int firstStage;
+
+  /// Last global stage index included in this mode (inclusive).
+  final int lastStage;
+
+  final bool isSimplified;
+
+  const SimulationMode({
+    required this.id,
+    required this.title,
+    required this.subtitle,
+    required this.firstStage,
+    required this.lastStage,
+    this.isSimplified = false,
+  });
+
+  int get stageCount => lastStage - firstStage + 1;
+}
+
 /// The static disciplines a painter can visualise independently of the stage
 /// timeline (anatomical view vs functional animation).
 enum SimulationView { structure, function }

@@ -14,12 +14,16 @@ class NeuronScene {
   final bool dark;
   final bool animate;
 
+  /// Id of the currently selected structure (Phase 4), or null.
+  final String? selectedId;
+
   const NeuronScene({
     this.stage = 0,
     this.progress = 0,
     this.labelsOn = true,
     this.dark = false,
     this.animate = true,
+    this.selectedId,
   });
 
   NeuronScene copyWith({
@@ -28,6 +32,8 @@ class NeuronScene {
     bool? labelsOn,
     bool? dark,
     bool? animate,
+    String? selectedId,
+    bool clearSelection = false,
   }) =>
       NeuronScene(
         stage: stage ?? this.stage,
@@ -35,6 +41,7 @@ class NeuronScene {
         labelsOn: labelsOn ?? this.labelsOn,
         dark: dark ?? this.dark,
         animate: animate ?? this.animate,
+        selectedId: clearSelection ? null : (selectedId ?? this.selectedId),
       );
 }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'neuron_anatomy.dart';
 import 'neuron_scene.dart';
 
 /// Paints the two-neuron communication scene for a [NeuronScene] frame.
@@ -27,6 +28,28 @@ class NeuronPainter extends CustomPainter {
   /// Logical drawing height used for coordinate layout.
   static const double logHeight = 744;
 
+  /// Hit radius (logical px) around a structure anchor for tap selection.
+  static const double hitRadius = 46;
+
+  /// Maps a local tap position (in the widget's own coordinate space, scaled by
+  /// [size]) to the nearest structure id, or null if nothing is close enough.
+  static String? hitTestStructure(Offset local, Size size) {
+    if (size.width <= 0 || size.height <= 0) return null;
+    final sx = logWidth / size.width;
+    final sy = logHeight / size.height;
+    final p = Offset(local.dx * sx, local.dy * sy);
+    String? best;
+    var bestDist = hitRadius;
+    for (final s in neuronStructures) {
+      final d = (p - Offset(s.anchorDx, s.anchorDy + 8)).distance;
+      if (d < bestDist) {
+        bestDist = d;
+        best = s.id;
+      }
+    }
+    return best;
+  }
+
   late final NeuronPalette _c = NeuronPalette(dark: scene.dark);
 
   @override
@@ -43,6 +66,7 @@ class NeuronPainter extends CustomPainter {
 
     _drawDendrites(canvas, postsynaptic: false);
     _drawSoma(canvas, postsynaptic: false);
+    _drawAxonHillock(canvas);
     _drawAxon(canvas);
     _drawBoutons(canvas, st, pr);
     _drawCleft(canvas, st, pr);
@@ -55,9 +79,29 @@ class NeuronPainter extends CustomPainter {
       _drawSignalPulse(canvas, st, pr);
       _drawRestingIons(canvas, st, pr);
       if (st >= 8) _drawNaInflux(canvas, st, pr);
-      _drawLegend(canvas);
     }
+    _drawDirectionOfSignal(canvas);
+    if (scene.animate) _drawLegend(canvas);
     if (scene.labelsOn) _drawLabels(canvas);
+    _drawSelection(canvas);
+  }
+
+  void _drawSelection(Canvas canvas) {
+    final id = scene.selectedId;
+    if (id == null) return;
+    final s = neuronStructureById[id];
+    if (s == null) return;
+    final anchor = Offset(s.anchorDx, s.anchorDy);
+    canvas.drawCircle(anchor, 20, Paint()..color = _c.signal.withValues(alpha: 0.18));
+    canvas.drawCircle(
+      anchor,
+      20,
+      Paint()
+        ..color = _c.signal
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.5,
+    );
+    canvas.drawCircle(anchor, 4.5, Paint()..color = _c.signal);
   }
 
   double _lerp(double a, double b, double t) => a + (b - a) * t.clamp(0.0, 1.0);
@@ -138,19 +182,41 @@ class NeuronPainter extends CustomPainter {
     canvas.drawCircle(nucleus, 12, Paint()..color = _c.nucleusNucleolus);
   }
 
+  void _drawAxonHillock(Canvas canvas) {
+    // Cone-shaped trigger zone where the axon leaves the soma (255,400). It
+    // tapers from the soma membrane to the full axon width at x=346 so the axon
+    // reads as a continuous extension of the cell body, not a detached line.
+    final path = Path()
+      ..moveTo(300, 356)
+      ..quadraticBezierTo(330, 372, 346, 396)
+      ..lineTo(346, 404)
+      ..quadraticBezierTo(330, 428, 300, 444)
+      ..close();
+    canvas.drawPath(path, Paint()..color = _c.presynapticFill);
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = _c.presynapticStroke
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.5
+        ..strokeJoin = StrokeJoin.round,
+    );
+  }
+
   void _drawAxon(Canvas canvas) {
     final axon = Paint()
       ..color = _c.axon
       ..strokeWidth = 8
       ..strokeCap = StrokeCap.round;
-    canvas.drawLine(const Offset(318, 400), const Offset(868, 400), axon);
+    // Continuous from the axon hillock (x=346) to the terminal (x=868).
+    canvas.drawLine(const Offset(346, 400), const Offset(868, 400), axon);
 
     const segWidth = 78.0;
     const gap = 16.0;
-    var x = 336.0;
-    var i = 0;
-    while (x < 812.0 - segWidth - gap) {
+    var x = 366.0;
+    while (x < 812.0 - gap) {
       final sweep = segWidth < (812.0 - x) ? segWidth : (812.0 - x);
+      if (sweep <= 0) break;
       final rect = Rect.fromLTWH(x, 366, sweep, 68);
       canvas.drawRRect(
         RRect.fromRectAndRadius(rect, const Radius.circular(14)),
@@ -163,19 +229,22 @@ class NeuronPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2,
       );
-      if (i == 1) {
-        final nodeX = x + segWidth + gap / 2;
-        canvas.drawLine(
-          Offset(nodeX, 358),
-          Offset(nodeX, 442),
-          Paint()
-            ..color = _c.leader
-            ..strokeWidth = 1.5,
-        );
-      }
-      x += segWidth + gap;
-      i++;
+      // Draw the exposed node of Ranvier in the gap after this segment.
+      final nodeX = x + sweep + gap / 2;
+      if (nodeX < 812.0) _drawNodeOfRanvier(canvas, nodeX);
+      x += sweep + gap;
     }
+  }
+
+  void _drawNodeOfRanvier(Canvas canvas, double x) {
+    // Exposed bare membrane: a short unmyelinated patch clearly wider than the
+    // axon, with the axon showing through, marking where the impulse jumps.
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(Rect.fromLTWH(x - 7, 380, 14, 40), const Radius.circular(4)),
+      Paint()..color = _c.axon,
+    );
+    canvas.drawCircle(Offset(x, 366), 3, Paint()..color = _c.axon);
+    canvas.drawCircle(Offset(x, 434), 3, Paint()..color = _c.axon);
   }
 
   void _drawBoutons(Canvas canvas, int st, double pr) {
@@ -375,6 +444,88 @@ class NeuronPainter extends CustomPainter {
     }
   }
 
+  /// Persistent direction-of-signal cue (independent of the animation): a
+  /// dashed arrow running dendrites → soma → axon → terminal, then a second
+  /// arrow across the synapse to the postsynaptic receptors. Faint so it never
+  /// competes with the anatomy, present in both 2D modes.
+  void _drawDirectionOfSignal(Canvas canvas) {
+    final arrowPaint = Paint()
+      ..color = _c.leader
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round;
+
+    // Electrical conduction path (dendrites → soma → axon → terminal).
+    const electricalPath = <Offset>[
+      Offset(60, 250),
+      Offset(180, 400),
+      Offset(346, 400),
+      Offset(868, 400),
+    ];
+    _dashedArrow(canvas, electricalPath, arrowPaint);
+
+    // Chemical transmission path (terminal → cleft → receptors).
+    const chemicalPath = <Offset>[
+      Offset(884, 428),
+      Offset(940, 428),
+      Offset(944, 452),
+    ];
+    _dashedArrow(canvas, chemicalPath, arrowPaint, chemical: true);
+
+    // Educational note: real neurons vary in shape.
+    final note = TextPainter(
+      text: TextSpan(
+        text: 'Schematic — real neurones vary in shape and size',
+        style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: _c.labelInk.withValues(alpha: 0.7)),
+      ),
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+    )..layout();
+    note.paint(canvas, Offset(logWidth - note.width - 40, 26));
+  }
+
+  void _dashedArrow(Canvas canvas, List<Offset> pts, Paint paint, {bool chemical = false}) {
+    final color = chemical ? _c.neurotransmitter : paint.color;
+    final p = Paint()
+      ..color = color
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round;
+    for (var i = 0; i < pts.length - 1; i++) {
+      _dashedLine(canvas, pts[i], pts[i + 1], p);
+      if (i == pts.length - 2) _arrowHead(canvas, pts[i], pts[i + 1], p);
+    }
+  }
+
+  void _dashedLine(Canvas canvas, Offset a, Offset b, Paint paint) {
+    const dash = 9.0;
+    const gapLen = 7.0;
+    final total = (b - a).distance;
+    if (total <= 0) return;
+    final dir = (b - a) / total;
+    var d = 0.0;
+    while (d < total) {
+      final end = (d + dash).clamp(0.0, total);
+      canvas.drawLine(a + dir * d, a + dir * end, paint);
+      d += dash + gapLen;
+    }
+  }
+
+  void _arrowHead(Canvas canvas, Offset from, Offset to, Paint paint) {
+    final dir = to - from;
+    final len = dir.distance;
+    if (len <= 0) return;
+    final u = dir / len;
+    final n = Offset(-u.dy, u.dx);
+    const head = 12.0;
+    final tip = to;
+    final base = tip - u * head;
+    final path = Path()
+      ..moveTo(tip.dx, tip.dy)
+      ..lineTo(base.dx + n.dx * head * 0.5, base.dy + n.dy * head * 0.5)
+      ..lineTo(base.dx - n.dx * head * 0.5, base.dy - n.dy * head * 0.5)
+      ..close();
+    canvas.drawPath(path, Paint()..color = paint.color);
+  }
+
   void _drawLegend(Canvas canvas) {
     const styleB = TextStyle(
       fontSize: 12,
@@ -402,46 +553,24 @@ class NeuronPainter extends CustomPainter {
   // ── Labels ─────────────────────────────────────────────────────────
 
   void _drawLabels(Canvas canvas) {
-    final labels = <List<double>>[
-      [92, 238, 20, 150, 0], // dendrites
-      [255, 356, 320, 270, 1], // nucleus
-      [430, 350, 470, 230, 2], // myelin
-      [664, 350, 700, 230, 3], // node
-      [560, 420, 400, 640, 4], // axon
-      [180, 468, 30, 610, 5], // soma
-      [858, 370, 700, 90, 6], // terminal
-      [904, 344, 830, 120, 7], // vesicles
-      [924, 210, 840, 40, 8], // cleft
-      [944, 452, 1020, 648, 9], // postsynaptic membrane
-      [928, 520, 800, 690, 10], // neurotransmitter
-      [944, 384, 1090, 470, 11], // receptors
-    ];
-    final names = <String>[
-      'Dendrites',
-      'Nucleus',
-      'Myelin sheath',
-      'Node of Ranvier',
-      'Axon',
-      'Cell body (soma)',
-      'Axon terminal',
-      'Synaptic vesicles',
-      'Synaptic cleft',
-      'Postsynaptic membrane',
-      'Neurotransmitters',
-      'Receptors',
-    ];
-    for (var i = 0; i < labels.length; i++) {
-      final l = labels[i];
+    for (final s in neuronStructures) {
       _leaderLabel(
         canvas,
-        anchor: Offset(l[0], l[1]),
-        label: Offset(l[2], l[3]),
-        text: names[i],
+        anchor: Offset(s.anchorDx, s.anchorDy),
+        label: Offset(s.labelDx, s.labelDy),
+        text: s.shortName,
+        marker: s.marker,
       );
     }
   }
 
-  void _leaderLabel(Canvas canvas, {required Offset anchor, required Offset label, required String text}) {
+  void _leaderLabel(
+    Canvas canvas, {
+    required Offset anchor,
+    required Offset label,
+    required String text,
+    required String marker,
+  }) {
     final textW = text.length * 11.5;
     final startX = label.dx + textW + 8;
     canvas.drawLine(
@@ -452,6 +581,20 @@ class NeuronPainter extends CustomPainter {
         ..strokeWidth = 1.5,
     );
     canvas.drawCircle(anchor, 3.2, Paint()..color = _c.leaderDot);
+    // Colour-independent marker glyph in a small box before the label text.
+    final markerBox = Rect.fromLTWH(label.dx - 24, label.dy - 6, 18, 18);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(markerBox, const Radius.circular(4)),
+      Paint()..color = _c.leaderDot.withValues(alpha: 0.16),
+    );
+    final markerTp = TextPainter(
+      text: TextSpan(
+        text: marker,
+        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: _c.labelInk),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    markerTp.paint(canvas, markerBox.center - Offset(markerTp.width / 2, markerTp.height / 2));
     final tp = TextPainter(
       text: TextSpan(
         text: text,
@@ -474,5 +617,6 @@ class NeuronPainter extends CustomPainter {
       (oldDelegate.scene.progress - scene.progress).abs() > 1e-4 ||
       oldDelegate.scene.labelsOn != scene.labelsOn ||
       oldDelegate.scene.dark != scene.dark ||
-      oldDelegate.scene.animate != scene.animate;
+      oldDelegate.scene.animate != scene.animate ||
+      oldDelegate.scene.selectedId != scene.selectedId;
 }

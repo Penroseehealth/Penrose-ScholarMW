@@ -119,19 +119,21 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
   }
 
   @override
-  Widget build(BuildContext context) => Positioned(
-        right: 20,
-        bottom: 20,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            if (_open) ...[
-              _buildPanel(context),
-              const SizedBox(height: 12),
+  Widget build(BuildContext context) => Align(
+        alignment: Alignment.bottomRight,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (_open) ...[
+                _buildPanel(context),
+                const SizedBox(height: 12),
+              ],
+              _buildButton(context),
             ],
-            _buildButton(context),
-          ],
+          ),
         ),
       );
 
@@ -165,26 +167,39 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
         ),
       );
 
-  Widget _buildPanel(BuildContext context) => Material(
-        elevation: 12,
-        borderRadius: BorderRadius.circular(16),
-        clipBehavior: Clip.antiAlias,
-        child: Container(
+  Widget _buildPanel(BuildContext context) {
+    final media = MediaQuery.of(context);
+    final maxHeight = media.size.height - media.padding.vertical - 120;
+    final maxWidth = media.size.width - 40;
+    return Material(
+      elevation: 12,
+      borderRadius: BorderRadius.circular(16),
+      clipBehavior: Clip.antiAlias,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: maxHeight < 320 ? 320 : maxHeight,
+          maxWidth: maxWidth < 260 ? 260 : maxWidth,
+        ),
+        child: SizedBox(
           width: 360,
-          height: 480,
-          decoration: BoxDecoration(
-            color: context.colors.surface,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              _buildHeader(context),
-              Expanded(child: _buildMessages(context)),
-              _buildComposer(context),
-            ],
+          height: maxHeight < 480 ? maxHeight : 480,
+          child: Container(
+            decoration: BoxDecoration(
+              color: context.colors.surface,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                _buildHeader(context),
+                Expanded(child: _buildMessages(context)),
+                _buildComposer(context),
+              ],
+            ),
           ),
         ),
-      );
+      ),
+    );
+  }
 
   Widget _buildHeader(BuildContext context) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

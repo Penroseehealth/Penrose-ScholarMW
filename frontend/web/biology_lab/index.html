@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -19,7 +19,6 @@
 <!-- note: the big foliage GLBs are deliberately NOT preload-linked: a loader
      fetch joining an in-flight low-priority preload stalled their bodies for
      minutes; the module starts them right after scene construction instead -->
-<link rel="preload" href="./assets/microscope.glb" as="fetch" crossorigin>
 <style>
 :root{
   --ink:#17322f; --paper:#e2ebe5; --bar:rgba(244,242,234,.92); --line:rgba(23,50,47,.28);
@@ -217,6 +216,7 @@ window.addEventListener('error',function(ev){
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from './vendor/libs/meshopt_decoder.module.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 import { createNav } from './js/nav.js';
@@ -235,6 +235,9 @@ import { createKidneyViewer } from './js/kidney_viewer.js';
 import { createKidneyBoard } from './js/kidney_board.js';
 import { createNeuronViewer } from './js/neuron_viewer.js';
 THREE.ColorManagement.enabled=false;
+/* every GLB in assets/ is meshopt-compressed (gltfpack -cc), so each loader
+   needs the decoder or it throws "setMeshoptDecoder must be called" */
+function makeGLTFLoader(){var l=new GLTFLoader();l.setMeshoptDecoder(MeshoptDecoder);return l;}
 (function(){
 'use strict';
 /* boot splash progress: count every GLTF/OBJ load so the overlay tracks real
@@ -1130,7 +1133,7 @@ var FW=12,FD=10,RH=3.2,HX=FW/2,HZ=FD/2,WT=.25;
     });
   }
   FILES.forEach(function(url,i){
-    new GLTFLoader().load(url,function(gltf){
+    makeGLTFLoader().load(url,function(gltf){
       protos[i]=gltf.scene;loaded[i]=true;place();
     },undefined,function(err){
       loaded[i]=true;                                 /* still allow the other species */
@@ -1347,7 +1350,7 @@ function makeAirconUnit(parent,x,y,z,ry){
   var lm=canvasTex(96,48,function(xc,wc,hc){
     xc.fillStyle='#001200';xc.fillRect(0,0,wc,hc);
     xc.strokeStyle='#1aff4d';xc.strokeRect(2,2,wc-4,hc-4);
-    xc.fillStyle='#1aff4d';xc.font='bold 28px Courier New,monospace';xc.textAlign='right';xc.fillText('24Â°C',wc-6,hc/2+10);
+    xc.fillStyle='#1aff4d';xc.font='bold 28px Courier New,monospace';xc.textAlign='right';xc.fillText('24°C',wc-6,hc/2+10);
   },true);
   var pm=new THREE.MeshBasicMaterial({map:lm});var tp=plane(.16,.07,pm,0,0,0);
   tp.position.set(0,0,.012);temp.add(tp);tempDisplays.push(tp);
@@ -1783,7 +1786,7 @@ if(CONFIG.bsc){
   bscBodyG.add(plane(BW,BH,new THREE.MeshStandardMaterial({map:bscTex,roughness:.8,metalness:0}),
     0,BH/2,-(BD/2+.005),Math.PI));
   /* label planes sit 9 mm proud of the photo (no z-fighting), lighting-matched;
-     default ry=Ï€ so front labels face the room exactly like the photo plane */
+     default ry=π so front labels face the room exactly like the photo plane */
   function bscLabel(w,h,tex,lx,ly,lz,ry){
     var m=plane(w,h,new THREE.MeshStandardMaterial({map:tex,roughness:.5,metalness:0}),lx,ly,lz,ry===undefined?Math.PI:ry);
     m.receiveShadow=false;
@@ -1851,10 +1854,69 @@ function makeStorageCabinet(px,py,pz,ry,single){
   pl.position.set(0,.02,0);pl.receiveShadow=true;g.add(pl);
   var drawerH1=.32,drawerH2=.6,th=.01;
   function makeDrawer(height,label){
+
+function fighterWalkStart(){
+  if(!fighter||fighter.walk)return false;
+  var h=fighter.holder;
+  fighter.walk={i:0,t:0,turn:0,done:false};
+  fighter.state='walk';
+  /* start the path from wherever he is standing (the door) */
+  h.position.set(CONFIG.fighterHomeX,fighter.footOffset,CONFIG.fighterHomeZ);
+  h.rotation.y=CONFIG.fighterHomeYaw;
+  if(window.__fighterCrossFade)window.__fighterCrossFade('walk',0.4);
+  return true;
+}
+function fighterWalkActive(){ return !!(fighter&&fighter.walk&&!fighter.walk.done); }
+function fighterWalkTick(dt){
+  if(!fighter||!fighter.walk)return;
+  var w=fighter.walk;if(w.done)return;
+  var path=CONFIG.fighterPath,pos=fighter.holder.position;
+  if(w.i>=path.length){w.done=true;fighter.state='idle';
+    fighter.holder.rotation.y=CONFIG.fighterYaw;   /* square up to the class */
+    if(window.__fighterCrossFade)window.__fighterCrossFade('idle',0.6);
+    if(typeof beginPractical==='function'&&!window.__tutorArrived)beginPractical();
+    return;}
+  var wp=path[w.i];
+  var dx=wp.x-pos.x,dz=wp.z-pos.z,dist=Math.sqrt(dx*dx+dz*dz);
+  /* face the travel direction smoothly */
+  var wantYaw=(dist>1e-4)?Math.atan2(dx,dz):fighter.holder.rotation.y;
+  var dyaw=((wantYaw-fighter.holder.rotation.y+Math.PI*3)%(Math.PI*2))-Math.PI;
+  fighter.holder.rotation.y+=dyaw*Math.min(1,dt*6);
+  var step=CONFIG.fighterWalkSpeed*dt;
+  if(dist<=step){
+    pos.x=wp.x;pos.z=wp.z;
+    if(wp.step)w.stepCount=(w.stepCount||0)+1;   /* reached the next riser top */
+    w.i++;
+  }else{
+    pos.x+=dx/dist*step;pos.z+=dz/dist*step;
+  }
+  /* target foot height: floor plus 150 mm per riser already climbed. The climb
+     count only advances on `step:true` legs, so ground legs stay at floor level;
+     the final ground leg onto the deck eases him up to the accumulated height.
+     Eased so the climb reads as steps, not a lift. */
+  var targetY=fighter.footOffset+FIGHTER_STEP_H*(w.stepCount||0);
+  pos.y+=(targetY-pos.y)*Math.min(1,dt*8);
+}
+function fighterStand(){ return !!(fighter&&fighter.holder); }
+window.__fighterStand=fighterStand;
+window.__fighterWalkStart=fighterWalkStart;
+window.__fighterWalkActive=fighterWalkActive;
+window.__fighterState=function(){
+  if(!fighter)return null;
+  return{phase:fighter.walk?(fighter.walk.done?'stand':'walk'):'idle',playing:fighter.playing,
+    arrived:!!window.__tutorArrived,
+    pos:[+fighter.holder.position.x.toFixed(3),+fighter.holder.position.y.toFixed(3),+fighter.holder.position.z.toFixed(3)],
+    booked:!!fighter.book,clips:Object.keys(fighter.clips)};
+};
+
+/* ---------- benches, sinks and taps ---------- */
+var SW=.5,SD=.4,BD=.2,H=.9,TT=.045,TAPL=.415;
+
+
     var dg=new THREE.Group();
     var frontMat=M.door.clone();
     /* sliding gate (pocket-door): a fixed left leaf + a right leaf that slides
-       LEFT over it â€” the compartment never swings into the room, so stored
+       LEFT over it — the compartment never swings into the room, so stored
        gear stays safe; the door travel stays inside the cabinet footprint */
     var panelW=(w-.02)/2,faceZ=d/2-.007;
     var fixed=new THREE.Mesh(new THREE.BoxGeometry(panelW,height-.01,.014),frontMat);
@@ -1865,7 +1927,7 @@ function makeStorageCabinet(px,py,pz,ry,single){
     face.position.set(panelW/2,height/2,faceZ);
     face.castShadow=true;face.receiveShadow=true;gate.add(face);
     /* hollow compartment behind the leaves: darker floor, two side walls and a
-       back â€” the top stays open so an opened gate shows the real interior */
+       back — the top stays open so an opened gate shows the real interior */
     var bw=w-.04,bh=height-.03,bd=single?.30:.24;
     var tray=new THREE.Group();tray.position.set(0,height/2,-.01);dg.add(tray);
     var flMat=M.cab.clone();flMat.color.multiplyScalar(.85);
@@ -2099,7 +2161,7 @@ function requestRenderedMicroscope(bench,lx,ly,lz,yaw){
 (function loadRenderedMicroscope(){
   if(!CONFIG.renderedMicroscope||KIDNEY||KIDNEYTEST||BOARDTEST)return;
   trace('micro:start');
-  new GLTFLoader().load('./assets/microscope.glb',function(gltf){
+  makeGLTFLoader().load('./assets/microscope.glb',function(gltf){
     var model=gltf.scene;
     /* only the bulkier microscope parts cast shadows; the many tiny knobs/lenses
        would otherwise each add a shadow-pass draw call for no visible gain */
@@ -2299,7 +2361,7 @@ function makeDrawerFace(parent,w,h,x,y,z,dir,faceMat,maxExt){
   var fm=faceMat.clone();
   var face=new THREE.Mesh(new THREE.BoxGeometry(w,h,.016),fm);
   face.castShadow=true;face.receiveShadow=true;dg.add(face);
-  /* hollow drawer box behind the face: darker floor, two side walls and a back â€”
+  /* hollow drawer box behind the face: darker floor, two side walls and a back —
      the top stays open so an opened drawer shows its real interior from above */
   var bw=w-.02,bh=h-.03,bd=.3;
   var tray=new THREE.Group();tray.position.set(0,0,-dir*bd/2);dg.add(tray);
@@ -2651,7 +2713,7 @@ var cabMicro=makeStorageCabinet(-4.28,0,-4.55,0,true);pickRoot.add(cabMicro);
   /* floor autoclave 0.62 x 0.6 at (5.05,-4.55) */
   nav.addRect(4.74,-4.85,5.36,-4.25,'autoclave');
   /* bscInfo captured the cabinet's true footprint when the cabinet was built;
-     use it here (not the generic BW/BD vars â€” other builders redeclare those) */
+     use it here (not the generic BW/BD vars — other builders redeclare those) */
   if(bscInfo&&bscInfo.present)nav.addRect(CONFIG.bscX-bscInfo.w/2,bscInfo.z-bscInfo.d/2,CONFIG.bscX+bscInfo.w/2,bscInfo.z+bscInfo.d/2,'bsc');
   else nav.addRect(CONFIG.bscX-.65,CONFIG.bscZ-.36,CONFIG.bscX+.65,CONFIG.bscZ+.36,'bsc');
   labNav=nav;
@@ -3360,7 +3422,7 @@ function tapZoneFromClick(ref,clientY){
     return r.top+(1-(p.y*.5+.5))*r.height;
   }
   var zTop=syOf(.126),zBot=syOf(.096);          /* sensor band screen span */
-  if(clientY>=Math.min(zTop,zBot)-7&&clientY<=Math.max(zTop,zBot)+7)return 0;  /* touch â†’ close */
+  if(clientY>=Math.min(zTop,zBot)-7&&clientY<=Math.max(zTop,zBot)+7)return 0;  /* touch → close */
   return clientY<syOf(.111)?1:-1;               /* above = hot, below = cold */
 }
 function toggleTap(ref,clientY){
@@ -4014,8 +4076,8 @@ if(kidneyBtn)kidneyBtn.addEventListener('click',function(){toggleKidneyBoard();}
   if(mvol)mvol.addEventListener('input',function(){masterVol=parseFloat(mvol.value);});
   /* ---------- laboratory themes: 20 coordinated looks, settings-driven ----------
      Themes tint the EXISTING shared materials in place (no duplicates, no scene
-     rebuild). Scientific/safety elements â€” specimens, optics, glassware,
-     liquids, hazard markings, fire equipment, steel/chrome fittings â€” are
+     rebuild). Scientific/safety elements — specimens, optics, glassware,
+     liquids, hazard markings, fire equipment, steel/chrome fittings — are
      deliberately never recoloured. */
   var THEME_SLOTS=['floor','wall','dado','rail','ceil','slab','top','carcass','door','cab',
     'plinth','dark','frame','shelf','board','baseClad','fill'];
@@ -4650,7 +4712,7 @@ renderer.render(scene,camera);
   frames++;
   if(bootAlive)bootSync();   /* splash hides on its own once ready, or here if loads settled first */
   /* shot mode: hold the loop until async assets settle, then capture once (rAF-driven,
-     which survives headless virtual-time â€” setInterval polls stall behind fetches) */
+     which survives headless virtual-time — setInterval polls stall behind fetches) */
   if(shotMode&&(texPending>0||(CONFIG.renderedMicroscope&&!renderedMicroTemplate))){requestAnimationFrame(frame);return;}
   if(shotMode&&frames>=SHOT_FRAMES){doShotCapture();return;}
   if(DIAG&&frames>=4){dumpDiag();return;}
@@ -5668,6 +5730,8 @@ if(LABFIX)runLabFixTest();
 </script>
 </body>
 </html>
+
+
 
 
 

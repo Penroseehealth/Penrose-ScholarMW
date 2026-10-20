@@ -6,8 +6,9 @@
   "description": "Standalone 3D biology laboratory environment (Three.js), embeddable in Penrose.",
   "scripts": {
     "serve": "node serve.mjs",
-    "test": "node scripts/themes_test.mjs && node scripts/smoke.mjs",
+    "test": "node scripts/themes_test.mjs && node scripts/phase9_unit.mjs && node scripts/smoke.mjs",
     "test:themes": "node scripts/themes_test.mjs",
+    "test:neuron": "node scripts/phase9_unit.mjs",
     "test:smoke": "node scripts/smoke.mjs"
   }
 }

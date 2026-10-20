@@ -1,15 +1,15 @@
 import 'dart:convert';
 
 import '../../../models/biology_visualization.dart';
+import '../neuron/neuron_anatomy.dart';
 
-/// Deterministic scientific renderer for neuron diagrams.
+/// Deterministic scientific renderer for the neuron/synapse diagram.
 ///
-/// The AI layer only decides WHAT the diagram contains (a structured
-/// `BiologySpec` with neuron `structures`); this renderer decides HOW it is
-/// drawn. It produces a static anatomical image of two communicating neurones
-/// showing both signal types: electrical conduction within the axon and
-/// chemical signalling across the synaptic cleft. Labels are drawn with leader
-/// lines on a fixed, non-overlapping layout (mirroring `NeuronPainter`).
+/// Uses the shared [neuronStructures] catalogue as the single source of truth
+/// for labels. Draws smooth, connected anatomy with a visible
+/// direction-of-signal cue (dendrites/soma → axon hillock → axon → terminal →
+/// cleft → postsynaptic receptors). The diagram is a schematic (real neurones
+/// vary) and is designed to stay within bounds at the standard canvas size.
 class NeuronDiagramRenderer {
   static const double w = 1280;
   static const double h = 860;
@@ -25,7 +25,8 @@ class NeuronDiagramRenderer {
         'viewBox="0 0 $w $h" font-family="Arial, Helvetica, sans-serif">\n');
     b.write('<rect width="$w" height="$h" fill="$bg"/>\n');
     b.write('  <title>${_esc(spec.title)}</title>\n');
-    b.write('  <desc>${_esc(spec.title)} — neuron communication diagram.</desc>\n');
+    b.write(
+        '  <desc>${_esc(spec.title)} — neuron communication diagram (electrical conduction within the axon; chemical transmission across the synaptic cleft).</desc>\n');
 
     final has = _presence(spec);
 
@@ -34,8 +35,11 @@ class NeuronDiagramRenderer {
     _terminal(b, p, has);
     _synapse(b, p, has);
     _postsynaptic(b, p, has);
-    if (spec.labelsShown) _labels(b, p, has);
+    if (spec.labelsShown) {
+      _labels(b, p, has);
+    }
     _legend(b, p);
+    _note(b, p);
 
     b.writeln('</svg>');
     return b.toString();
@@ -51,96 +55,100 @@ class NeuronDiagramRenderer {
     return has[id] ?? true;
   }
 
-  // ── Presynaptic cell body ────────────────────────────────────────────
-
+  // ── Presynaptic cell ─────────────────────────────────────────────────
   static void _presynaptic(StringBuffer b, _Palette p, Map<String, bool> has) {
     if (_present(has, 'dendrites')) {
-      b.write('  <g fill="none" stroke="${p.dendrite}" stroke-width="14" stroke-linecap="round">\n');
-      for (final d in [
-        'M 20 620 L 70 575 L 118 555',
-        'M 20 500 L 55 495 L 98 495',
-        'M 20 365 L 52 360 L 96 357',
-        'M 24 280 L 60 258 L 96 236',
-        'M 50 220 L 96 175 L 128 150',
+      b.write(
+          '  <g fill="none" stroke="${p.dendrite}" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">\n');
+      for (final d in const [
+        'M 18 640 L 70 588 L 128 560',
+        'M 16 520 L 58 512 L 110 504',
+        'M 16 380 L 54 372 L 106 362',
+        'M 22 290 L 62 266 L 108 240',
+        'M 58 224 L 104 176 L 142 148',
       ]) {
         b.write('    <path d="$d"/>\n');
       }
       b.write('  </g>\n');
-      for (final d in [
-        '118,555 98,495 96,357 96,236 128,150',
+      for (final d in const [
+        '128,560 110,504 106,362 108,240 142,148',
       ]) {
         final pts = d.split(' ');
         b.write('  <g fill="${p.dendrite}">\n');
         for (final pt in pts) {
           final xy = pt.split(',');
-          b.write('    <circle cx="${xy[0]}" cy="${xy[1]}" r="6.5"/>\n');
+          b.write('    <circle cx="${xy[0]}" cy="${xy[1]}" r="6.8"/>\n');
         }
         b.write('  </g>\n');
       }
     }
 
     if (_present(has, 'soma')) {
-      b.write('  <ellipse cx="280" cy="430" rx="88" ry="102" fill="${p.somaFill}" '
+      b.write('  <ellipse cx="290" cy="430" rx="92" ry="106" fill="${p.somaFill}" '
           'stroke="${p.line}" stroke-width="3" stroke-linejoin="round"/>\n');
-      _nucleus(b, p);
+    }
+    if (_present(has, 'nucleus')) {
+      b.write('  <circle cx="294" cy="426" r="34" fill="${p.nucleusFill}" stroke="${p.line}" stroke-width="2"/>\n');
+      b.write('  <circle cx="296" cy="428" r="13" fill="${p.nucleolus}"/>\n');
     }
   }
 
-  static void _nucleus(StringBuffer b, _Palette p) {
-    b.write('  <circle cx="284" cy="426" r="32" fill="${p.nucleusFill}" stroke="${p.line}" stroke-width="2.5"/>\n');
-    b.write('  <circle cx="284" cy="426" r="12" fill="${p.nucleolus}"/>\n');
-  }
-
-  // ── Axon (electrical conduction) ─────────────────────────────────────
-
+  // ── Axon + hillock + nodes ───────────────────────────────────────────
   static void _axon(StringBuffer b, _Palette p, Map<String, bool> has) {
+    if (_present(has, 'axon_hillock')) {
+      b.write('  <path d="M 366 382 Q 384 404 400 426 L 400 438 Q 384 460 366 482 Z" '
+          'fill="${p.somaFill}" stroke="${p.line}" stroke-width="2.5" stroke-linejoin="round"/>\n');
+    }
+
     if (!_present(has, 'axon')) return;
-    b.write('  <path d="M 368 430 L 906 430" fill="none" stroke="${p.axon}" '
+    b.write('  <path d="M 400 432 L 914 432" fill="none" stroke="${p.axon}" '
         'stroke-width="8" stroke-linecap="round"/>\n');
-    if (!_present(has, 'myelin_sheath')) return;
-    var x = 386.0;
-    var i = 0;
-    while (x < 856) {
-      final width = (856 - x) < 84 ? (856 - x) : 84.0;
-      b.write('  <rect x="$x" y="396" width="$width" height="68" rx="14" fill="${p.myelinFill}" '
-          'stroke="${p.myelinStroke}" stroke-width="2"/>\n');
-      x += width + 18;
-      if (i == 1 && _present(has, 'nodes_of_ranvier')) {
-        b.write('  <line x1="${x - 9 - 4}" y1="396" x2="${x - 9 - 4}" y2="464" '
-            'stroke="${p.leader}" stroke-width="2" stroke-dasharray="4 5"/>\n');
+
+    if (_present(has, 'myelin_sheath')) {
+      var x = 418.0;
+      while (x < 860) {
+        final remaining = 860 - x;
+        if (remaining <= 0) break;
+        final width = remaining < 90 ? remaining : 90.0;
+        if (width <= 0) break;
+        b.write('  <rect x="$x" y="396" width="$width" height="72" rx="16" fill="${p.myelinFill}" '
+            'stroke="${p.myelinStroke}" stroke-width="2"/>\n');
+        x += width + 22;
+        if (_present(has, 'nodes_of_ranvier')) {
+          final nodeX = x - 22 - 11;
+          if (nodeX >= 434 && nodeX <= 880) {
+            b.write('  <rect x="${nodeX - 7}" y="410" width="14" height="44" rx="4" fill="${p.axon}"/>\n');
+          }
+        }
       }
-      i++;
     }
   }
 
-  // ── Axon terminal / boutons ──────────────────────────────────────────
-
+  // ── Terminal ─────────────────────────────────────────────────────────
   static void _terminal(StringBuffer b, _Palette p, Map<String, bool> has) {
     if (!_present(has, 'axon_terminal')) return;
-    for (final c in ['924,398', '924,462']) {
-      final xy = c.split(',');
-      b.write('  <ellipse cx="${xy[0]}" cy="${xy[1]}" rx="23" ry="19" fill="${p.boutonFill}" '
-          'stroke="${p.line}" stroke-width="2"/>\n');
-    }
+    b.write(
+        '  <path d="M 914 414 Q 938 392 956 392 L 960 392 Q 970 412 970 432 Q 970 452 960 472 L 956 472 Q 938 472 914 450 Z" '
+        'fill="${p.boutonFill}" stroke="${p.line}" stroke-width="2.5" stroke-linejoin="round"/>\n');
+
     if (_present(has, 'synaptic_vesicles')) {
-      final spots = ['912,390', '930,386', '916,404', '934,440', '918,448', '932,444'];
+      const spots = ['934,404', '946,400', '938,416', '950,440', '936,452', '948,448'];
       for (final s in spots) {
         final xy = s.split(',');
-        b.write('  <circle cx="${xy[0]}" cy="${xy[1]}" r="4.5" fill="${p.vesicle}" '
-            'stroke="${p.vesicleStroke}" stroke-width="1.2"/>\n');
+        b.write('  <circle cx="${xy[0]}" cy="${xy[1]}" r="5" fill="${p.vesicle}" '
+            'stroke="${p.vesicleStroke}" stroke-width="1"/>\n');
       }
     }
   }
 
-  // ── Synaptic cleft (chemical signalling) ─────────────────────────────
-
+  // ── Cleft + neurotransmitter ─────────────────────────────────────────
   static void _synapse(StringBuffer b, _Palette p, Map<String, bool> has) {
     if (_present(has, 'synaptic_cleft')) {
-      b.write('  <rect x="956" y="330" width="40" height="200" fill="${p.cleftFill}" '
+      b.write('  <rect x="972" y="322" width="30" height="220" rx="4" fill="${p.cleftFill}" '
           'stroke="${p.cleftStroke}" stroke-width="1.5"/>\n');
     }
     if (_present(has, 'neurotransmitter')) {
-      final spots = ['962,392', '974,414', '964,438', '978,462', '968,486'];
+      const spots = ['978,392', '986,414', '980,438', '988,462', '982,486'];
       for (final s in spots) {
         final xy = s.split(',');
         b.write('  <circle cx="${xy[0]}" cy="${xy[1]}" r="4" fill="${p.neurotransmitter}"/>\n');
@@ -148,83 +156,95 @@ class NeuronDiagramRenderer {
     }
   }
 
-  // ── Postsynaptic membrane + cell body ────────────────────────────────
-
+  // ── Postsynaptic ─────────────────────────────────────────────────────
   static void _postsynaptic(StringBuffer b, _Palette p, Map<String, bool> has) {
     if (_present(has, 'postsynaptic_membrane')) {
-      b.write('  <line x1="1000" y1="292" x2="1000" y2="568" stroke="${p.postMembrane}" '
-          'stroke-width="9" stroke-linecap="round"/>\n');
+      b.write('  <line x1="1006" y1="288" x2="1006" y2="576" stroke="${p.postMembrane}" '
+          'stroke-width="10" stroke-linecap="round"/>\n');
     }
     if (_present(has, 'receptors')) {
-      for (final y in ['368', '410', '444', '478']) {
-        b.write('  <line x1="1000" y1="$y" x2="988" y2="$y" stroke="${p.receptor}" '
-            'stroke-width="5" stroke-linecap="round"/>\n');
-        b.write('  <circle cx="987" cy="$y" r="5" fill="${p.receptor}"/>\n');
+      for (final y in const ['366', '410', '444', '478']) {
+        b.write('  <path d="M 1006 $y L 994 $y" stroke="${p.receptor}" stroke-width="5" stroke-linecap="round"/>\n');
+        b.write('  <path d="M 994 $y L 990 ${double.parse(y) - 3} L 988 $y L 990 ${double.parse(y) + 3} Z" '
+            'fill="${p.receptor}"/>\n');
       }
     }
     if (_present(has, 'soma')) {
-      b.write('  <ellipse cx="1090" cy="430" rx="84" ry="98" fill="${p.postCellFill}" '
+      b.write('  <ellipse cx="1100" cy="432" rx="88" ry="102" fill="${p.postCellFill}" '
           'stroke="${p.line}" stroke-width="3" stroke-linejoin="round"/>\n');
-      b.write('  <circle cx="1094" cy="426" r="31" fill="${p.nucleusFill}" stroke="${p.line}" stroke-width="2.5"/>\n');
-      b.write('  <circle cx="1094" cy="426" r="11" fill="${p.nucleolus}"/>\n');
+    }
+    if (_present(has, 'nucleus')) {
+      b.write('  <circle cx="1104" cy="428" r="32" fill="${p.nucleusFill}" stroke="${p.line}" stroke-width="2"/>\n');
+      b.write('  <circle cx="1106" cy="430" r="11" fill="${p.nucleolus}"/>\n');
     }
     if (_present(has, 'dendrites')) {
-      b.write('  <g fill="none" stroke="${p.dendritePost}" stroke-width="13" stroke-linecap="round">\n');
-      for (final d in [
-        'M 1166 346 L 1210 308 L 1250 266',
-        'M 1166 398 L 1218 398 L 1268 406',
-        'M 1166 462 L 1214 498 L 1258 540',
-        'M 1166 520 L 1200 556 L 1240 590',
+      b.write(
+          '  <g fill="none" stroke="${p.dendritePost}" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">\n');
+      for (final d in const [
+        'M 1176 350 L 1224 308 L 1266 264',
+        'M 1178 402 L 1234 404 L 1284 414',
+        'M 1178 468 L 1230 506 L 1276 550',
+        'M 1176 528 L 1214 566 L 1258 602',
       ]) {
         b.write('    <path d="$d"/>\n');
       }
       b.write('  </g>\n');
-      final tips = ['1250,266', '1268,406', '1258,540', '1240,590'];
-      for (final t in tips) {
+      for (final t in const ['1266,264', '1284,414', '1276,550', '1258,602']) {
         final xy = t.split(',');
-        b.write('  <circle cx="${xy[0]}" cy="${xy[1]}" r="6.5" fill="${p.dendritePost}"/>\n');
+        b.write('  <circle cx="${xy[0]}" cy="${xy[1]}" r="6.8" fill="${p.dendritePost}"/>\n');
       }
     }
   }
 
-  // ── Labels ───────────────────────────────────────────────────────────
-
+  // ── Labels (anchored, clamped to bounds) ─────────────────────────────
   static void _labels(StringBuffer b, _Palette p, Map<String, bool> has) {
-    final rows = <({String id, String text, double ax, double ay, double lx, double ly})>[
-      (id: 'dendrites', text: 'Dendrites', ax: 98, ay: 275, lx: 21, ly: 173),
-      (id: 'soma', text: 'Cell body (soma)', ax: 192, ay: 541, lx: 32, ly: 705),
-      (id: 'nucleus', text: 'Nucleus', ax: 272, ay: 411, lx: 341, ly: 312),
-      (id: 'myelin_sheath', text: 'Myelin sheath', ax: 459, ay: 405, lx: 501, ly: 266),
-      (id: 'nodes_of_ranvier', text: 'Node of Ranvier', ax: 708, ay: 405, lx: 747, ly: 266),
-      (id: 'axon', text: 'Axon', ax: 597, ay: 486, lx: 427, ly: 740),
-      (id: 'axon_terminal', text: 'Axon terminal', ax: 915, ay: 428, lx: 747, ly: 104),
-      (id: 'synaptic_vesicles', text: 'Synaptic vesicles', ax: 964, ay: 398, lx: 885, ly: 139),
-      (id: 'synaptic_cleft', text: 'Synaptic cleft', ax: 986, ay: 243, lx: 896, ly: 46),
-      (id: 'receptors', text: 'Receptors', ax: 1007, ay: 444, lx: 1163, ly: 543),
-      (id: 'postsynaptic_membrane', text: 'Postsynaptic membrane', ax: 1007, ay: 523, lx: 1088, ly: 749),
-      (id: 'neurotransmitter', text: 'Neurotransmitters', ax: 990, ay: 601, lx: 853, ly: 798),
+    final rows = <({String id, double ax, double ay, double lx, double ly})>[
+      (id: 'dendrites', ax: 110, ay: 270, lx: 16, ly: 164),
+      (id: 'soma', ax: 206, ay: 544, lx: 24, ly: 724),
+      (id: 'nucleus', ax: 282, ay: 410, lx: 356, ly: 308),
+      (id: 'axon_hillock', ax: 384, ay: 476, lx: 150, ly: 826),
+      (id: 'myelin_sheath', ax: 466, ay: 404, lx: 516, ly: 262),
+      (id: 'nodes_of_ranvier', ax: 718, ay: 404, lx: 758, ly: 262),
+      (id: 'axon', ax: 600, ay: 490, lx: 428, ly: 756),
+      (id: 'axon_terminal', ax: 930, ay: 432, lx: 754, ly: 96),
+      (id: 'synaptic_vesicles', ax: 944, ay: 396, lx: 894, ly: 134),
+      (id: 'synaptic_cleft', ax: 988, ay: 238, lx: 902, ly: 40),
+      (id: 'neurotransmitter', ax: 998, ay: 604, lx: 856, ly: 814),
+      (id: 'receptors', ax: 1014, ay: 444, lx: 1176, ly: 550),
+      (id: 'postsynaptic_membrane', ax: 1014, ay: 528, lx: 1100, ly: 766),
     ];
-    b.write('  <g fill="${p.ink}" font-size="20">\n');
+    b.write('  <g fill="${p.ink}" font-size="19">\n');
     for (final r in rows) {
       if (!_present(has, r.id)) continue;
-      final width = r.text.length * 11.0;
-      final endX = r.lx + width + 8;
-      b.write('  <line x1="$endX" y1="${r.ly + 15}" x2="${r.ax > endX ? r.ax - 6 : r.ax + 6}" '
-          'y2="${r.ay}" stroke="${p.leader}" stroke-width="1.5"/>\n');
-      b.write('  <circle cx="${r.ax}" cy="${r.ay}" r="3.2" fill="${p.ink}"/>\n');
-      b.write('  <text x="${r.lx}" y="${r.ly}" font-weight="700">${_esc(r.text)}</text>\n');
+      final text = neuronStructureById[r.id]?.shortName ?? r.id;
+      final lx = r.lx.clamp(4.0, w - (text.length * 11.0) - 16);
+      final ly = r.ly.clamp(18.0, h - 28);
+      final width = text.length * 11.0;
+      final endX = lx + width + 10;
+      final ax = r.ax.clamp(0.0, w);
+      final ay = r.ay.clamp(0.0, h);
+      b.write('  <line x1="$endX" y1="${ly + 15}" x2="${ax > endX ? ax - 6 : ax + 6}" '
+          'y2="$ay" stroke="${p.leader}" stroke-width="1.5"/>\n');
+      b.write('  <circle cx="$ax" cy="$ay" r="3.4" fill="${p.ink}"/>\n');
+      b.write('  <text x="$lx" y="$ly" font-weight="700">${_esc(text)}</text>\n');
     }
     b.write('  </g>\n');
   }
 
   static void _legend(StringBuffer b, _Palette p) {
     b.write('  <g font-size="15">\n');
-    b.write('  <rect x="20" y="820" width="14" height="14" rx="3" fill="${p.signalIcon}"/>');
-    b.write('  <text x="44" y="832" fill="${p.signalInk}" font-weight="700">Electrical signalling</text>');
-    b.write('  <rect x="270" y="820" width="14" height="14" rx="3" fill="${p.chemIcon}"/>');
-    b.write('  <text x="294" y="832" fill="${p.chemInk}" font-weight="700">Chemical signalling</text>');
-    b.write('  <text x="540" y="832" fill="${p.muted}">within neurones · across the synapse</text>');
+    b.write('  <rect x="18" y="826" width="14" height="14" rx="3" fill="${p.signalIcon}"/>\n');
+    b.write('  <text x="42" y="838" fill="${p.signalInk}" font-weight="700">Electrical signalling</text>\n');
+    b.write('  <rect x="278" y="826" width="14" height="14" rx="3" fill="${p.chemIcon}"/>\n');
+    b.write('  <text x="302" y="838" fill="${p.chemInk}" font-weight="700">Chemical transmission</text>\n');
+    b.write(
+        '  <text x="558" y="838" fill="${p.muted}">dendrites/soma → axon hillock → axon → terminal → cleft → receptors</text>\n');
     b.write('  </g>\n');
+  }
+
+  static void _note(StringBuffer b, _Palette p) {
+    b.write(
+        '  <text x="18" y="20" fill="${p.muted}" font-size="13">Schematic — real neurones vary. Vesicles/receptors shown in simplified form.</text>\n');
   }
 
   static String _esc(String s) => const HtmlEscape().convert(s);
@@ -299,12 +319,12 @@ class _Palette {
         nucleusFill: '#8a5bd6',
         nucleolus: '#cdb4ff',
         axon: '#6b79c9',
-        myelinFill: '#f3eef5',
-        myelinStroke: '#b9b0c9',
+        myelinFill: '#f6f4fa',
+        myelinStroke: '#bcb3cc',
         boutonFill: '#e4e9ff',
         vesicle: '#ffc857',
         vesicleStroke: '#b38b1b',
-        cleftFill: '#f4f1fa',
+        cleftFill: '#f7f5fb',
         cleftStroke: '#d6d2e6',
         neurotransmitter: '#14b8a6',
         postMembrane: '#6d4fc9',
@@ -314,7 +334,7 @@ class _Palette {
         signalInk: '#8a5a00',
         chemIcon: '#14b8a6',
         chemInk: '#0d7a6f',
-        muted: '#7a7a90',
+        muted: '#6f6f84',
       );
 
   factory _Palette.dark() => const _Palette(

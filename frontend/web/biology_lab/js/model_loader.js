@@ -3,10 +3,12 @@
    parsed by GLTFLoader as data (never executed); dispose() frees GPU resources. */
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { MeshoptDecoder } from "../vendor/libs/meshopt_decoder.module.js";
 
 export function createModelLoader(options) {
   var opts = options || {};
   var loader = new GLTFLoader();
+  loader.setMeshoptDecoder(MeshoptDecoder);
   var maxBytes = opts.maxBytes || 48 * 1024 * 1024;
   var counters = { loads: 0, failures: 0, active: 0, disposed: 0 };
 

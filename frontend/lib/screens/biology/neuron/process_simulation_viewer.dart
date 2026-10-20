@@ -23,6 +23,7 @@ class ProcessSimulationViewer extends StatefulWidget {
     this.accent = const Color(0xFF10B981),
     this.canvasHeight = 520,
     this.painterAspect = 1200 / 744,
+    this.modes = const [],
   });
 
   /// Ordered stages of the process.
@@ -35,6 +36,11 @@ class ProcessSimulationViewer extends StatefulWidget {
   final String? subtitle;
   final Color accent;
   final double canvasHeight;
+
+  /// Optional teaching modes (Phase 5). When non-empty, a segmented selector is
+  /// shown and each mode scopes the timeline to its stage slice, while frames
+  /// still report the true global stage index to the painter.
+  final List<SimulationMode> modes;
 
   /// Logical aspect ratio (width / height) of the caller's painter. The canvas
   /// letterboxes the painter inside [canvasHeight] so text is never distorted.
@@ -61,6 +67,9 @@ class _ProcessSimulationViewerState extends State<ProcessSimulationViewer> with 
   /// Teach step currently revealed (valid in teach mode).
   int _teachStep = 0;
 
+  /// Active teaching mode index, or null when all stages play (Phase 5).
+  int? _modeIndex;
+
   /// Stage that furnishing a step in step mode started on; used to pause at the
   /// next stage boundary.
   int _stepLock = 0;
@@ -81,11 +90,33 @@ class _ProcessSimulationViewerState extends State<ProcessSimulationViewer> with 
 
   int get _stageCount => widget.stages.length;
 
-  List<SimulationStage> get _visibleStages => _teachMode ? _teachSteps[_teachStep].stages : widget.stages;
+  SimulationMode? get _activeMode =>
+      (_modeIndex != null && _modeIndex! < widget.modes.length) ? widget.modes[_modeIndex!] : null;
+
+  List<SimulationStage> get _visibleStages {
+    if (_teachMode) return _teachSteps[_teachStep].stages;
+    final mode = _activeMode;
+    if (mode != null) return widget.stages.sublist(mode.firstStage, mode.lastStage + 1);
+    return widget.stages;
+  }
 
   int get _visibleCount => _visibleStages.length;
 
-  int get _visibleFirstIndex => _teachMode ? _teachSteps[_teachStep].firstStage : 0;
+  int get _visibleFirstIndex {
+    if (_teachMode) return _teachSteps[_teachStep].firstStage;
+    return _activeMode?.firstStage ?? 0;
+  }
+
+  void _setMode(int? index) {
+    _ctl.stop();
+    setState(() {
+      _modeIndex = (_modeIndex == index) ? null : index;
+      _playing = false;
+      _teachMode = false;
+      _ctl.value = 0.0;
+      _stepLock = _visibleFirstIndex;
+    });
+  }
 
   @override
   void dispose() {
@@ -248,6 +279,7 @@ class _ProcessSimulationViewerState extends State<ProcessSimulationViewer> with 
                   child: RepaintBoundary(
                     child: ProcessSimulationViewer(
                       stages: widget.stages,
+                      modes: widget.modes,
                       buildFrame: widget.buildFrame,
                       title: widget.title,
                       subtitle: widget.subtitle,
@@ -281,8 +313,19 @@ class _ProcessSimulationViewerState extends State<ProcessSimulationViewer> with 
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _header(accent),
+        if (widget.modes.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          _modeSelector(accent),
+        ],
         const SizedBox(height: 10),
         _canvas(accent),
+        if (_activeMode?.isSimplified ?? false) ...[
+          const SizedBox(height: 6),
+          Text(
+            'Simplified model — omits much of the biological complexity.',
+            style: TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: _inkMutedColor()),
+          ),
+        ],
         const SizedBox(height: 10),
         if (_explanationsOn && _visibleStages.isNotEmpty) _explanationPanel(accent),
         const SizedBox(height: 10),
@@ -290,6 +333,53 @@ class _ProcessSimulationViewerState extends State<ProcessSimulationViewer> with 
         const SizedBox(height: 8),
         _controls(accent),
       ],
+    );
+  }
+
+  Widget _modeSelector(Color accent) => Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          _modeChip(accent, null, 'Full process'),
+          for (var i = 0; i < widget.modes.length; i++) _modeChip(accent, i, widget.modes[i].title),
+        ],
+      );
+
+  Widget _modeChip(Color accent, int? index, String label) {
+    final on = _modeIndex == index;
+    final mode = index == null ? null : widget.modes[index];
+    return Tooltip(
+      message: mode?.subtitle ?? 'Play every stage of the process',
+      child: GestureDetector(
+        onTap: () => _setMode(index),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: on ? accent.withValues(alpha: 0.16) : _panelColor(),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: on ? accent.withValues(alpha: 0.55) : _borderColor()),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                on ? Icons.radio_button_checked_rounded : Icons.radio_button_unchecked_rounded,
+                size: 14,
+                color: on ? accent : _inkMutedColor(),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: on ? accent : _inkMutedColor(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

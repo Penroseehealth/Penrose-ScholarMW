@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/theme_colors.dart';
+import 'neuron_anatomy.dart';
+import 'neuron_info_panel.dart';
 import 'neuron_painter.dart';
 import 'neuron_scene.dart';
+import 'neuron_structure_list.dart';
 import 'process_simulation.dart';
 import 'process_simulation_viewer.dart';
 
@@ -16,8 +19,40 @@ const Color _neuronAccent = Color(0xFF7C3AED);
 /// neurotransmitter release, synaptic transmission, receptor binding,
 /// postsynaptic response and signal continuation) with the same electrical /
 /// chemical separation rules the learner is expected to distinguish.
-class NeuronCommunicationScreen extends StatelessWidget {
+class NeuronCommunicationScreen extends StatefulWidget {
   const NeuronCommunicationScreen({super.key});
+
+  @override
+  State<NeuronCommunicationScreen> createState() => _NeuronCommunicationScreenState();
+}
+
+class _NeuronCommunicationScreenState extends State<NeuronCommunicationScreen> {
+  /// Teaching modes (Phase 5): Mode A electrical conduction, Mode B chemical
+  /// synaptic transmission, Mode C guided step-by-step (the full lesson).
+  static const List<SimulationMode> _modes = [
+    SimulationMode(
+      id: 'electrical',
+      title: 'A · Electrical impulse',
+      subtitle: 'Action potential travels along the axon (saltatory conduction).',
+      firstStage: 1,
+      lastStage: 3,
+    ),
+    SimulationMode(
+      id: 'chemical',
+      title: 'B · Chemical transmission',
+      subtitle: 'Vesicle release, diffusion across the cleft and receptor binding.',
+      firstStage: 3,
+      lastStage: 8,
+      isSimplified: true,
+    ),
+    SimulationMode(
+      id: 'lesson',
+      title: 'C · Guided lesson',
+      subtitle: 'Every stage, one at a time, with explanations.',
+      firstStage: 0,
+      lastStage: 8,
+    ),
+  ];
 
   static const List<SimulationStage> _stages = [
     SimulationStage(
@@ -97,9 +132,16 @@ class NeuronCommunicationScreen extends StatelessWidget {
     ),
   ];
 
+  String? _selectedId;
+
+  void _select(String? id) {
+    setState(() => _selectedId = _selectedId == id ? null : id);
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final dark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: colors.background,
       appBar: AppBar(
@@ -109,35 +151,98 @@ class NeuronCommunicationScreen extends StatelessWidget {
         elevation: 0,
       ),
       body: LayoutBuilder(
-        builder: (context, constraints) => SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _intro(colors),
-              const SizedBox(height: 14),
-              ProcessSimulationViewer(
-                stages: _stages,
-                accent: _neuronAccent,
-                title: 'How two neurones communicate',
-                subtitle: 'Electrical within the neurone · Chemical across the synapse',
-                buildFrame: (context, frame) => CustomPaint(
-                  painter: NeuronPainter(
-                    scene: NeuronScene(
-                      stage: frame.stageIndex,
-                      progress: frame.progress,
-                      labelsOn: frame.labelsOn,
-                      dark: frame.dark,
+        builder: (context, constraints) {
+          final narrow = constraints.maxWidth < 720;
+          final selected = _selectedId == null ? null : neuronStructureById[_selectedId];
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _intro(colors),
+                const SizedBox(height: 14),
+                if (narrow) ...[
+                  _structureList(dark),
+                  const SizedBox(height: 12),
+                ],
+                ProcessSimulationViewer(
+                  stages: _stages,
+                  modes: _modes,
+                  accent: _neuronAccent,
+                  title: 'How two neurones communicate',
+                  subtitle: 'Electrical within the neurone · Chemical across the synapse',
+                  buildFrame: (context, frame) => _tappableCanvas(frame),
+                ),
+                const SizedBox(height: 12),
+                if (selected != null) ...[
+                  NeuronInfoPanel(
+                    structure: selected,
+                    accent: _neuronAccent,
+                    dark: dark,
+                    onClose: () => _select(null),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                if (!narrow)
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: colors.surface,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: colors.border),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Tap a structure or choose it below',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: colors.textPrimary),
+                        ),
+                        const SizedBox(height: 8),
+                        _structureList(dark),
+                      ],
                     ),
                   ),
-                ),
-              ),
-            ],
-          ),
-        ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
+
+  Widget _structureList(bool dark) => NeuronStructureList(
+        accent: _neuronAccent,
+        dark: dark,
+        selectedId: _selectedId,
+        onSelect: (id) => _select(id),
+      );
+
+  /// The neuron canvas wrapped in a tap detector that resolves the tapped
+  /// structure from the painter's hit test. GestureDetector + a Focus wrapper
+  /// keeps touch and pointer input working; the structure list provides the
+  /// keyboard-accessible path.
+  Widget _tappableCanvas(SimulationFrame frame) => LayoutBuilder(
+        builder: (context, constraints) => GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapUp: (details) {
+            final size = Size(constraints.maxWidth, constraints.maxHeight);
+            final id = NeuronPainter.hitTestStructure(details.localPosition, size);
+            _select(id);
+          },
+          child: CustomPaint(
+            painter: NeuronPainter(
+              scene: NeuronScene(
+                stage: frame.stageIndex,
+                progress: frame.progress,
+                labelsOn: frame.labelsOn,
+                dark: frame.dark,
+                selectedId: _selectedId,
+              ),
+            ),
+          ),
+        ),
+      );
 
   Widget _intro(ThemeColors colors) => Container(
         padding: const EdgeInsets.all(14),

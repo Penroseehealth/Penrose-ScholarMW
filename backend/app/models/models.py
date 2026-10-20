@@ -253,6 +253,47 @@ class Submission(Base):
     student: Mapped["User"] = relationship(back_populates="submissions")
 
 
+class MathsdrillSession(Base):
+    __tablename__ = "mathsdrill_sessions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    student_name: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
+    topic_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    correct: Mapped[int] = mapped_column(Integer, nullable=False)
+    total: Mapped[int] = mapped_column(Integer, nullable=False)
+    score_ts: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+
+
+class MathsdrillPaperState(Base):
+    __tablename__ = "mathsdrill_paper_states"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    student_name: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
+    paper_signature: Mapped[str] = mapped_column(
+        String(512), index=True, nullable=False
+    )
+    question_id: Mapped[str] = mapped_column(String(128), index=True, nullable=False)
+    selected: Mapped[bool] = mapped_column(Boolean, default=False)
+    viewed: Mapped[bool] = mapped_column(Boolean, default=False)
+    solved: Mapped[bool] = mapped_column(Boolean, default=False)
+    answer: Mapped[str | None] = mapped_column(Text, nullable=True)
+    phrase: Mapped[str | None] = mapped_column(Text, nullable=True)
+    answer_lines: Mapped[str | None] = mapped_column(Text, nullable=True)
+    strokes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    updated_at_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
+
+
 class ChatSession(Base):
     __tablename__ = "chat_sessions"
 
