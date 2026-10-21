@@ -105,6 +105,30 @@ def _merge_live_sources(sources_json: str | None, grounding_block: str) -> str |
         return sources_json
 
 
+def _merge_internal_sources(
+    sources_json: str | None, internal_sources: list[dict]
+) -> str | None:
+    """Append internal course-material titles to the stored sources list."""
+    if not internal_sources:
+        return sources_json
+    try:
+        titles = [
+            f"{s.get('title', 'Untitled')} (course material)"
+            for s in internal_sources
+            if s.get("title")
+        ]
+        if not titles:
+            return sources_json
+        existing = json.loads(sources_json) if sources_json else []
+        merged = existing + [t for t in titles if t not in existing]
+        return json.dumps(merged)
+    except Exception as exc:  # noqa: BLE001
+        import logging
+
+        logging.getLogger(__name__).info("Internal source merge skipped: %s", exc)
+        return sources_json
+
+
 def _build_system_prompt(agent_type: str) -> str:
     prompts = {
         "tutor": (
@@ -282,10 +306,26 @@ async def _chat_impl(
     system_prompt += ctx.to_prompt_block()
     system_prompt += ResponseModeRouter.get_system_prompt_addition(ctx, intent)
 
-    # --- Ground the answer in live educational sources --------------------
-    grounding_block = await _retrieve_grounding(body.message)
-    if grounding_block:
-        system_prompt += grounding_block
+    # --- Ground the answer in the sources appropriate to this message ------
+    # A per-message router decides whether the question needs the
+    # institution's own materials, live web/academic sources, or neither, and
+    # only then retrieves - so ordinary conceptual questions still answer from
+    # the model without a needless network call.
+    from app.retrieval.source_router import (
+        internal_prompt_block,
+        limitation_note,
+        plan_sources,
+        search_internal,
+    )
+
+    plan = plan_sources(body.message, has_uploaded_files=bool(body.file_ids))
+    internal_sources: list[dict] = []
+    if plan.use_internal_docs:
+        internal_sources = await search_internal(body.message, db=db)
+        if internal_sources:
+            system_prompt += internal_prompt_block(internal_sources)
+
+    grounding_block = await _retrieve_grounding(body.message) if plan.use_web else ""
 
     if body.file_ids:
         from app.stem.multimodal_router import _file_store
@@ -308,10 +348,18 @@ async def _chat_impl(
                 f"--- UPLOADED CONTENT ---\n{file_context}\n--- END UPLOADED CONTENT ---"
             )
 
+    # Honest limitation note when a needed source produced nothing.
+    note = limitation_note(
+        plan, internal_found=bool(internal_sources), web_found=bool(grounding_block)
+    )
+    if note:
+        system_prompt += note
+
     ai_response = await _call_llm(system_prompt, history)
 
     content, sources = _extract_sources(ai_response)
     sources = _merge_live_sources(sources, grounding_block)
+    sources = _merge_internal_sources(sources, internal_sources)
 
     ai_msg = ChatMessage(
         session_id=session_id,
@@ -682,9 +730,21 @@ async def _chat_stream_impl(
     system_prompt += ctx.to_prompt_block()
     system_prompt += ResponseModeRouter.get_system_prompt_addition(ctx, intent)
 
-    grounding_block = await _retrieve_grounding(body.message)
-    if grounding_block:
-        system_prompt += grounding_block
+    from app.retrieval.source_router import (
+        internal_prompt_block,
+        limitation_note,
+        plan_sources,
+        search_internal,
+    )
+
+    plan = plan_sources(body.message, has_uploaded_files=bool(body.file_ids))
+    internal_sources: list[dict] = []
+    if plan.use_internal_docs:
+        internal_sources = await search_internal(body.message, db=db)
+        if internal_sources:
+            system_prompt += internal_prompt_block(internal_sources)
+
+    grounding_block = await _retrieve_grounding(body.message) if plan.use_web else ""
 
     if body.file_ids:
         from app.stem.multimodal_router import _file_store
@@ -704,6 +764,12 @@ async def _chat_stream_impl(
                 "Use the content as the primary source for your answer.\n\n"
                 f"--- UPLOADED CONTENT ---\n{file_context}\n--- END UPLOADED CONTENT ---"
             )
+
+    note = limitation_note(
+        plan, internal_found=bool(internal_sources), web_found=bool(grounding_block)
+    )
+    if note:
+        system_prompt += note
 
     full_messages = [{"role": "system", "content": system_prompt}] + history
 
@@ -726,6 +792,7 @@ async def _chat_stream_impl(
         complete_response = "".join(collected)
         content, sources = _extract_sources(complete_response)
         sources = _merge_live_sources(sources, grounding_block)
+        sources = _merge_internal_sources(sources, internal_sources)
 
         ai_msg = ChatMessage(
             session_id=session_id,
