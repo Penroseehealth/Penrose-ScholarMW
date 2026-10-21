@@ -107,6 +107,15 @@ class PenroseVoiceEngine extends ChangeNotifier {
     tts.stop();
   }
 
+  /// Whether the interrupted answer can be resumed from where it stopped.
+  bool get canResumeSpeech => tts.canResume;
+
+  /// Resume the interrupted answer from its unspoken boundary.
+  Future<void> resumeSpeaking() async {
+    if (!tts.canResume) return;
+    await tts.resume(lang: session.language, speed: session.playbackSpeed);
+  }
+
   /// Set auto-read mode.
   set autoRead(bool value) {
     _autoRead = value;
@@ -116,6 +125,7 @@ class PenroseVoiceEngine extends ChangeNotifier {
   /// End the current voice session.
   Future<void> endSession() async {
     tts.stop();
+    tts.clearResume();
     audioCapture.dispose();
     await conversation.endSession();
   }
@@ -155,6 +165,10 @@ class PenroseVoiceEngine extends ChangeNotifier {
       unawaited(bargeIn.start());
     } else if (newState != VoiceEngineState.speaking && _lastState == VoiceEngineState.speaking) {
       bargeIn.stop();
+    }
+    // When a barge-in interrupts an answer, keep the unsaid part for resume.
+    if (newState == VoiceEngineState.interrupted && _lastState == VoiceEngineState.speaking) {
+      tts.interrupt();
     }
     _lastState = newState;
     notifyListeners();

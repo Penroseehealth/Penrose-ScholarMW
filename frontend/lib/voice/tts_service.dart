@@ -18,8 +18,20 @@ class PenroseTtsService {
 
   bool _serverTtsAvailable = false;
   bool _isSpeaking = false;
+  bool _speakingActive = false;
   List<String> _segments = [];
   int _currentSegmentIndex = 0;
+
+  // ── Resumable speech stack ────────────────────────────────────────────────
+  // When the user barges in mid-answer, the answer is not discarded: the
+  // remaining segments are kept so the assistant can pick up where it left off.
+  // The stack is deliberately bounded and time-limited so a stale resume cannot
+  // replay an answer from an earlier turn.
+  final List<_ResumableSpeech> _resumeStack = [];
+  static const int _maxResumeDepth = 3;
+  static const Duration _resumeExpiry = Duration(minutes: 2);
+  int _resumeSeq = 0;
+  List<String> get _segmentsView => List<String>.unmodifiable(_segments);
 
   PenroseTtsService({
     required VoiceSessionManager session,
@@ -61,9 +73,26 @@ class PenroseTtsService {
     _segments = _segmentText(text);
     _currentSegmentIndex = 0;
     _isSpeaking = true;
+    _speakingActive = true;
 
     _session.startSpeaking(_segments.isNotEmpty ? _segments[0] : text);
 
+    await _speakSegments(lang: lang, speed: speed);
+  }
+
+  /// Speak an explicit list of segments (used for resume), tracking position so
+  /// a further interruption stays resumable.
+  Future<void> _speakExplicitSegments(
+    List<String> segments, {
+    required String lang,
+    required double speed,
+  }) async {
+    if (segments.isEmpty) return;
+    _segments = List<String>.of(segments);
+    _currentSegmentIndex = 0;
+    _isSpeaking = true;
+    _speakingActive = true;
+    _session.startSpeaking(_segments[0]);
     await _speakSegments(lang: lang, speed: speed);
   }
 
@@ -119,12 +148,70 @@ class PenroseTtsService {
   }
 
   /// Stop speaking.
+  ///
+  /// This is a hard stop: the answer is abandoned and any pending resume is
+  /// dropped. Use [interrupt] when the stop is a barge-in that should be
+  /// resumable.
   void stop() {
     _speech.cancelSpeech();
     _audioPlayer.stop();
     _isSpeaking = false;
     _segments = [];
     _currentSegmentIndex = 0;
+  }
+
+  /// Stop because the user spoke over the assistant, keeping the unsaid part of
+  /// the answer so it can be resumed later.
+  void interrupt() {
+    _pushResumableFromCurrentIndex();
+    stop();
+  }
+
+  /// Whether there is an un-expired answer part that can be resumed.
+  bool get canResume {
+    _pruneResumeStack();
+    return _resumeStack.isNotEmpty;
+  }
+
+  /// Resume the most recently interrupted answer from its unspoken boundary.
+  ///
+  /// Re-speaks from the start of the sentence that was playing when the user
+  /// cut in, so the listener hears a complete thought rather than a fragment.
+  Future<void> resume({String lang = 'en-US', double speed = 1.0}) async {
+    _pruneResumeStack();
+    if (_resumeStack.isEmpty) return;
+    final entry = _resumeStack.removeLast();
+    final remaining = entry.segments.sublist(
+      entry.index.clamp(0, entry.segments.length),
+    );
+    if (remaining.isEmpty) return;
+    _speakExplicitSegments(remaining, lang: lang, speed: speed);
+  }
+
+  /// Forget any pending resumable answer.
+  void clearResume() => _resumeStack.clear();
+
+  void _pushResumableFromCurrentIndex() {
+    // Only retain when an utterance was actually in flight: calling interrupt()
+    // after the answer already finished must not resurrect a stale resume.
+    if (!_speakingActive) return;
+    if (_segments.isEmpty || _currentSegmentIndex >= _segments.length) return;
+    _resumeStack.add(
+      _ResumableSpeech(
+        segments: _segmentsView,
+        index: _currentSegmentIndex,
+        seq: _resumeSeq++,
+      ),
+    );
+    // Bounded: keep only the newest few.
+    while (_resumeStack.length > _maxResumeDepth) {
+      _resumeStack.removeAt(0);
+    }
+  }
+
+  void _pruneResumeStack() {
+    final cutoff = DateTime.now().subtract(_resumeExpiry);
+    _resumeStack.removeWhere((e) => e.createdAt.isBefore(cutoff));
   }
 
   /// Pause speaking.
@@ -181,12 +268,35 @@ class PenroseTtsService {
 
     if (!_shouldStop()) {
       _isSpeaking = false;
+      _speakingActive = false;
       _session.onSpeakingComplete();
     }
   }
 
   void dispose() {
     stop();
+    _resumeStack.clear();
     _audioPlayer.dispose();
   }
+}
+
+/// A partially-spoken answer retained so it can be resumed after a barge-in.
+class _ResumableSpeech {
+  _ResumableSpeech({
+    required this.segments,
+    required this.index,
+    required this.seq,
+  }) : createdAt = DateTime.now();
+
+  /// All segments of the answer, in order.
+  final List<String> segments;
+
+  /// Index of the segment that was playing when the user interrupted.
+  final int index;
+
+  /// Monotonic sequence, so recency can be compared even within one millisecond.
+  final int seq;
+
+  /// When this entry was captured, for expiry.
+  final DateTime createdAt;
 }
