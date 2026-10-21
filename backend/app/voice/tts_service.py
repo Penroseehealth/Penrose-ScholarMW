@@ -90,7 +90,10 @@ class TTSService:
 
         Provider priority: ElevenLabs -> OpenAI -> Edge TTS -> browser fallback.
         """
-        normalized = AcademicSpeechNormalizer.normalize(text)
+        # Speech-prep: strip markdown/citations/metadata, expand formulae and
+        # symbols, and cap long answers with a spoken cue. The written answer is
+        # untouched (normalize_for_speech works on a copy) - C1/C5/C6/C7/C8.
+        normalized = AcademicSpeechNormalizer.normalize_for_speech(text)
 
         if not self._available:
             return self._empty_result(normalized)

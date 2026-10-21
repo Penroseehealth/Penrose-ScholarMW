@@ -5,7 +5,18 @@ import re
 
 class AcademicSpeechNormalizer:
     """Converts mathematical, chemical, and scientific notation into
-    TTS-friendly spoken text."""
+    TTS-friendly spoken text.
+
+    Markdown/URL/citation cleanup reuses ``app.speech.tts_text.clean_for_tts``
+    so there is a single implementation of "make assistant prose speakable";
+    this class adds the academic notation layer (formulae, symbols, units) on
+    top. The written answer is never mutated - callers pass a copy.
+    """
+
+    # Hard cap for a single spoken utterance when the answer is long. Above
+    # this, summarize_for_speech() truncates on a sentence boundary and adds a
+    # spoken cue, so a 3-page answer does not become a 10-minute monologue.
+    MAX_SPEECH_CHARS = 1200
 
     _CHEMICAL_SUBSCRIPTS = {
         "0": "\u2080",
@@ -54,6 +65,8 @@ class AcademicSpeechNormalizer:
 
     @classmethod
     def normalize(cls, text: str) -> str:
+        text = cls._strip_markdown(text)
+        text = cls._strip_internal_metadata(text)
         text = cls._normalize_chemical(text)
         text = cls._normalize_superscripts(text)
         text = cls._normalize_subscripts(text)
@@ -61,6 +74,68 @@ class AcademicSpeechNormalizer:
         text = cls._normalize_math_operators(text)
         text = cls._normalize_common_patterns(text)
         return text
+
+    @classmethod
+    def _strip_markdown(cls, text: str) -> str:
+        """Reduce markdown/URLs/citations to speakable prose.
+
+        Reuses ``clean_for_tts`` (the single markdown-to-speech implementation
+        in the codebase) rather than duplicating its regexes here.
+        """
+        try:
+            from app.speech.tts_text import clean_for_tts
+
+            return clean_for_tts(text)
+        except Exception:  # noqa: BLE001 - never break synthesis on cleanup
+            return text
+
+    @classmethod
+    def _strip_internal_metadata(cls, text: str) -> str:
+        """Remove blocks that must never be read aloud (C8).
+
+        The SOURCES section and any leaked routing/instruction lines are
+        writer-facing metadata, not answer content.
+        """
+        marker = "--- SOURCES ---"
+        idx = text.rfind(marker)
+        if idx != -1:
+            text = text[:idx]
+        # Drop any residual "--- ... ---" fence lines.
+        text = re.sub(r"(?m)^\s*---.*?---\s*$", "", text)
+        return text
+
+    @classmethod
+    def summarize_for_speech(cls, text: str, max_chars: int | None = None) -> str:
+        """Return a speech-length version of a long answer (C7).
+
+        Truncates on a sentence boundary near the cap and appends a cue so the
+        listener knows the full written answer is longer. Short text is
+        returned unchanged, so this is a no-op for typical replies.
+        """
+        cap = max_chars or cls.MAX_SPEECH_CHARS
+        if len(text) <= cap:
+            return text
+        window = text[:cap]
+        # Prefer the last sentence end within the window.
+        cut = max(window.rfind(". "), window.rfind("! "), window.rfind("? "))
+        if cut < cap // 2:
+            cut = window.rfind(" ")
+        if cut <= 0:
+            cut = cap
+        spoken = window[:cut].rstrip()
+        return spoken + " … The full explanation is in the written answer."
+
+    @classmethod
+    def normalize_for_speech(cls, text: str, *, max_chars: int | None = None) -> str:
+        """Full speech-prep pipeline: clean, normalize, and cap length.
+
+        This is the entry point callers should use for a spoken reply. It keeps
+        the written answer untouched (it operates on a copy) and yields text
+        that is safe to send to Edge TTS.
+        """
+        cleaned = cls.normalize(text)
+        cleaned = cls.summarize_for_speech(cleaned, max_chars=max_chars)
+        return cleaned
 
     @classmethod
     def _normalize_chemical(cls, text: str) -> str:
