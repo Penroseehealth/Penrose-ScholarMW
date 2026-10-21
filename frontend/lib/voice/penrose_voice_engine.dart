@@ -62,6 +62,7 @@ class PenroseVoiceEngine extends ChangeNotifier {
       onUserSpoke: _onUserSpoke,
       onAiResponded: _onAiResponded,
       onError: _onError,
+      onSentenceReady: _onSentenceReady,
     );
 
     // Set up session state change listener
@@ -178,10 +179,22 @@ class PenroseVoiceEngine extends ChangeNotifier {
     debugPrint('PIVE: User spoke: $transcript');
   }
 
+  /// A complete sentence of the assistant's reply became available while it was
+  /// still streaming, so speak it now instead of waiting for the whole answer.
+  void _onSentenceReady(String sentence) {
+    if (!_autoRead) return;
+    final normalized = AcademicSpeechNormalizer.normalize(sentence);
+    if (normalized.isEmpty) return;
+    unawaited(tts.speakChunk(normalized, lang: session.language, speed: session.playbackSpeed));
+  }
+
   void _onAiResponded(String aiText, {String modality = 'combined'}) async {
     debugPrint('PIVE: AI responded (${modality.length} chars)');
 
-    if (_autoRead && modality != 'text') {
+    // The streamed sentences were already spoken as they completed, so do not
+    // replay the whole answer here. Only speak in full when nothing was spoken
+    // incrementally (e.g. a non-streaming turn).
+    if (_autoRead && modality != 'text' && !tts.isSpeaking) {
       await tts.speak(aiText, lang: session.language, speed: session.playbackSpeed);
     }
   }

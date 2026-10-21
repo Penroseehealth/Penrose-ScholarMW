@@ -119,13 +119,49 @@ class PenroseTtsService {
   }
 
   /// Speak a streaming chunk (called as AI generates text).
+  ///
+  /// Chunks arrive as soon as each sentence of the stream is complete, so they
+  /// are queued and played strictly in order - playing them concurrently would
+  /// overlap audio. The queue is abandoned when the session is interrupted or a
+  /// new utterance starts.
   Future<void> speakChunk(String chunk, {String lang = 'en-US', double speed = 1.0}) async {
     if (chunk.isEmpty) return;
+    if (_shouldStop()) return;
+    _isSpeaking = true;
     _session.startSpeaking(chunk);
-    // Prefer server audio; fall back to browser speech when it is unavailable.
-    final playedViaServer = await _speakServerSegment(chunk, speed: speed);
-    if (!playedViaServer && _speech.isSupported) {
-      await _speech.speak(chunk, lang: lang);
+    _enqueueChunk(chunk, lang: lang, speed: speed);
+  }
+
+  final List<String> _chunkQueue = [];
+  bool _drainingChunks = false;
+
+  void _enqueueChunk(String chunk, {required String lang, required double speed}) {
+    _chunkQueue.add(chunk);
+    if (!_drainingChunks) {
+      unawaited(_drainChunkQueue(lang: lang, speed: speed));
+    }
+  }
+
+  Future<void> _drainChunkQueue({required String lang, required double speed}) async {
+    _drainingChunks = true;
+    try {
+      while (_chunkQueue.isNotEmpty) {
+        if (_shouldStop()) {
+          _chunkQueue.clear();
+          break;
+        }
+        final next = _chunkQueue.removeAt(0);
+        final playedViaServer = await _speakServerSegment(next, speed: speed);
+        if (!playedViaServer && _speech.isSupported) {
+          await _speech.speak(next, lang: lang);
+        }
+      }
+    } finally {
+      _drainingChunks = false;
+      if (_chunkQueue.isEmpty && !_shouldStop()) {
+        _isSpeaking = false;
+        _session.onSpeakingComplete();
+      }
     }
   }
 
@@ -156,6 +192,7 @@ class PenroseTtsService {
     _speech.cancelSpeech();
     _audioPlayer.stop();
     _isSpeaking = false;
+    _chunkQueue.clear();
     _segments = [];
     _currentSegmentIndex = 0;
   }
