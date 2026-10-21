@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import 'academic_speech_normalizer.dart';
 import 'audio_capture_service.dart';
+import 'barge_in_monitor.dart';
 import 'tts_service.dart';
 import 'voice_conversation_manager.dart';
 import 'voice_session_manager.dart';
@@ -19,6 +22,7 @@ class PenroseVoiceEngine extends ChangeNotifier {
   late final AudioCaptureService audioCapture;
   late final PenroseTtsService tts;
   late final VoiceConversationManager conversation;
+  late final BargeInMonitor bargeIn;
 
   bool _initialized = false;
   bool _autoRead = true;
@@ -44,6 +48,7 @@ class PenroseVoiceEngine extends ChangeNotifier {
     audioCapture = AudioCaptureService(session: session);
     tts = PenroseTtsService(session: session);
     conversation = VoiceConversationManager(session: session);
+    bargeIn = BargeInMonitor(session: session);
 
     // Initialize TTS
     await tts.initialize();
@@ -143,6 +148,14 @@ class PenroseVoiceEngine extends ChangeNotifier {
     } else if (newState != VoiceEngineState.listening && _lastState == VoiceEngineState.listening) {
       audioCapture.stopCapture();
     }
+    // Barge-in: hold the mic meter open only while the assistant is speaking, so
+    // the user can cut in by talking. Stopped immediately otherwise to release
+    // the microphone.
+    if (newState == VoiceEngineState.speaking && _lastState != VoiceEngineState.speaking) {
+      unawaited(bargeIn.start());
+    } else if (newState != VoiceEngineState.speaking && _lastState == VoiceEngineState.speaking) {
+      bargeIn.stop();
+    }
     _lastState = newState;
     notifyListeners();
   }
@@ -166,6 +179,7 @@ class PenroseVoiceEngine extends ChangeNotifier {
   @override
   void dispose() {
     session.removeListener(_onSessionStateChanged);
+    bargeIn.dispose();
     session.dispose();
     audioCapture.dispose();
     tts.dispose();
