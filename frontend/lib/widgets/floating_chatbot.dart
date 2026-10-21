@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/theme_colors.dart';
 import '../services/api_service.dart';
+import '../services/web_speech_service.dart';
+import '../voice/tts_service.dart';
+import '../voice/voice_session_manager.dart';
 import 'stem_text.dart';
 
 /// A global floating chatbot that can be opened from anywhere in the app.
@@ -57,15 +60,69 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scroll = ScrollController();
 
+  // Unified voice stack: the same TTS service and speech recogniser the AI
+  // Tutor screen uses, so the floating bot speaks with identical behaviour
+  // (server Edge/ElevenLabs voices, markdown/notation cleanup, sentence
+  // streaming). It keeps its own lightweight session for TTS bookkeeping rather
+  // than running the full PIVE conversation state machine.
+  final VoiceSessionManager _voiceSession = VoiceSessionManager();
+  late final PenroseTtsService _tts = PenroseTtsService(session: _voiceSession);
+  final WebSpeechService _speech = WebSpeechService();
+
   bool _open = false;
   bool _sending = false;
+  bool _speakReplies = false;
+  bool _listening = false;
   final List<Map<String, dynamic>> _messages = <Map<String, dynamic>>[];
 
   @override
+  void initState() {
+    super.initState();
+    _voiceSession.createSession();
+    _tts.initialize();
+  }
+
+  @override
   void dispose() {
+    _speech.stopListening();
+    _speech.dispose();
+    _tts.dispose();
+    _voiceSession.dispose();
     _controller.dispose();
     _scroll.dispose();
     super.dispose();
+  }
+
+  void _toggleMic() {
+    if (_listening) {
+      _speech.stopListening();
+      setState(() => _listening = false);
+      return;
+    }
+    if (!_speech.isSupported) return;
+    setState(() => _listening = true);
+    _speech.startListening(
+      lang: _voiceSession.language,
+      onResult: (text, isFinal) {
+        if (!mounted) return;
+        setState(() => _controller.text = text);
+        if (isFinal) {
+          _speech.stopListening();
+          setState(() => _listening = false);
+        }
+      },
+      onEnd: () {
+        if (mounted) setState(() => _listening = false);
+      },
+      onError: (_) {
+        if (mounted) setState(() => _listening = false);
+      },
+    );
+  }
+
+  void _speak(String text) {
+    if (text.isEmpty) return;
+    _tts.speak(text, lang: _voiceSession.language);
   }
 
   Future<void> _send() async {
@@ -91,17 +148,24 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
       if (!mounted) return;
 
       if (response.statusCode == 200) {
+        // `jsonDecode` yields `Map<String, Object?>` on the web, which is not a
+        // `Map<String, dynamic>`; matching on that type silently dropped every
+        // successful reply. Accept any JSON object and read the field defensively.
         final decoded = jsonDecode(response.body);
-        if (decoded is Map<String, dynamic>) {
-          setState(() {
-            _messages.add({
-              'role': 'assistant',
-              'content': (decoded['content'] as String?)?.trim() ?? 'No response',
-              'sources': decoded['sources'],
-            });
+        final content = decoded is Map ? decoded['content'] : null;
+        final reply = (content as String?)?.trim() ?? 'No response';
+        setState(() {
+          _messages.add({
+            'role': 'assistant',
+            'content': reply,
+            'sources': decoded is Map ? decoded['sources'] : null,
           });
-        }
-      } else if (response.statusCode == 401) {
+        });
+        if (_speakReplies) _speak(reply);
+      } else if (response.statusCode == 401 || response.statusCode == 403) {
+        // FastAPI's HTTPBearer answers a missing Authorization header with 403
+        // ("Not authenticated") and an expired/invalid one with 401, so both
+        // mean the same thing here: the session is not usable.
         setState(() {
           _messages.add({'role': 'assistant', 'content': 'Please sign in to chat with ScholarAI.'});
         });
@@ -239,6 +303,18 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
               ),
             ),
             InkWell(
+              onTap: () {
+                setState(() => _speakReplies = !_speakReplies);
+                if (!_speakReplies) _tts.stop();
+              },
+              child: Icon(
+                _speakReplies ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            InkWell(
               onTap: () => setState(() => _open = false),
               child: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
             ),
@@ -315,6 +391,13 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
         ),
         child: Row(
           children: [
+            if (_speech.isSupported)
+              IconButton(
+                onPressed: _sending ? null : _toggleMic,
+                icon: Icon(_listening ? Icons.mic_rounded : Icons.mic_none_rounded),
+                color: _listening ? context.colors.error : null,
+                tooltip: _listening ? 'Stop listening' : 'Ask by voice',
+              ),
             Expanded(
               child: TextField(
                 controller: _controller,
