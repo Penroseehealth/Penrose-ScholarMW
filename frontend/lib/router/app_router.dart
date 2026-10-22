@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../core/constants/api_constants.dart';
+import '../core/networking/api_client.dart';
+import '../features/audio_input/vtc/voice_training_center_page.dart';
 import '../modules/chemistry_lab/screens/chemistry_lab_screen.dart';
 import '../modules/mathsdrill/screens/mathsdrill_progress_screen.dart';
 import '../modules/mathsdrill/screens/mathsdrill_screen.dart';
@@ -118,21 +121,35 @@ import '../screens/student/profile_screen.dart';
 import '../screens/student/study_plan.dart';
 import '../screens/sync/offline_sync_screen.dart';
 import '../screens/writing/writing_studio.dart';
+import '../services/api_service.dart';
 
 class AppRouter {
   final AuthProvider authProvider;
 
   AppRouter(this.authProvider);
 
+  /// Shared client for the Voice Training Center dashboards. The session
+  /// token is resolved from secure storage on the first request.
+  static final ApiClient _voiceApiClient = ApiClient(baseUrl: apiBaseUrl)
+    ..tokenProvider = () => ApiService().accessToken;
+
   static Widget _fadeTransition(
-          BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) =>
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) =>
       FadeTransition(
         opacity: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
         child: child,
       );
 
   static Widget _slideTransition(
-      BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
     final tween = Tween<Offset>(
       begin: const Offset(0.06, 0),
       end: Offset.zero,
@@ -170,10 +187,7 @@ class AppRouter {
       final isAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/register';
 
       if (!isAuth && !isAuthRoute) {
-        return Uri(
-          path: '/login',
-          queryParameters: {'redirect': state.uri.toString()},
-        ).toString();
+        return Uri(path: '/login', queryParameters: {'redirect': state.uri.toString()}).toString();
       }
       if (isAuth && isAuthRoute) {
         final redirect = state.uri.queryParameters['redirect'];
@@ -220,6 +234,7 @@ class AppRouter {
           _route('/learning-coach', (_) => const LearningCoachScreen()),
           _route('/malawi-context', (_) => const MalawiContextScreen()),
           _route('/knowledge-retrieval', (_) => const KnowledgeRetrievalScreen()),
+          _route('/voice-training-center', (_) => VoiceTrainingCenterPage(apiClient: _voiceApiClient)),
           _route('/examinations', (_) => const ExaminationHall()),
           _route('/writing-studio', (_) => const WritingStudio()),
           _route('/gamification', (_) => const GamificationScreen()),
@@ -350,48 +365,52 @@ class AppRouter {
             },
           ),
           GoRoute(
-              path: '/stem-knowledge-graph',
-              pageBuilder: (_, state) {
-                final slug = state.uri.queryParameters['subject'] ?? '';
-                return CustomTransitionPage<void>(
-                  key: state.pageKey,
-                  child: StemKnowledgeGraphScreen(subjectSlug: slug),
-                  transitionsBuilder: _slideTransition,
-                );
-              }),
+            path: '/stem-knowledge-graph',
+            pageBuilder: (_, state) {
+              final slug = state.uri.queryParameters['subject'] ?? '';
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: StemKnowledgeGraphScreen(subjectSlug: slug),
+                transitionsBuilder: _slideTransition,
+              );
+            },
+          ),
           _route('/stem-formula-centre', (_) => const StemFormulaCentreScreen()),
           GoRoute(
-              path: '/stem-careers',
-              pageBuilder: (_, state) {
-                final slug = state.uri.queryParameters['subject'] ?? '';
-                return CustomTransitionPage<void>(
-                  key: state.pageKey,
-                  child: StemCareerExplorerScreen(subjectSlug: slug),
-                  transitionsBuilder: _slideTransition,
-                );
-              }),
+            path: '/stem-careers',
+            pageBuilder: (_, state) {
+              final slug = state.uri.queryParameters['subject'] ?? '';
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: StemCareerExplorerScreen(subjectSlug: slug),
+                transitionsBuilder: _slideTransition,
+              );
+            },
+          ),
           GoRoute(
-              path: '/stem-labs',
-              pageBuilder: (_, state) {
-                final slug = state.uri.queryParameters['subject'] ?? '';
-                final type = state.uri.queryParameters['type'] ?? '';
-                return CustomTransitionPage<void>(
-                  key: state.pageKey,
-                  child: StemLabScreen(subjectSlug: slug, labType: type),
-                  transitionsBuilder: _slideTransition,
-                );
-              }),
+            path: '/stem-labs',
+            pageBuilder: (_, state) {
+              final slug = state.uri.queryParameters['subject'] ?? '';
+              final type = state.uri.queryParameters['type'] ?? '';
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: StemLabScreen(subjectSlug: slug, labType: type),
+                transitionsBuilder: _slideTransition,
+              );
+            },
+          ),
           _route('/stem-mastery', (_) => const StemMasteryDashboardScreen()),
           GoRoute(
-              path: '/stem-tutor',
-              pageBuilder: (_, state) {
-                final conceptId = int.tryParse(state.uri.queryParameters['concept'] ?? '0') ?? 0;
-                return CustomTransitionPage<void>(
-                  key: state.pageKey,
-                  child: StemTutorScreen(conceptId: conceptId),
-                  transitionsBuilder: _slideTransition,
-                );
-              }),
+            path: '/stem-tutor',
+            pageBuilder: (_, state) {
+              final conceptId = int.tryParse(state.uri.queryParameters['concept'] ?? '0') ?? 0;
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: StemTutorScreen(conceptId: conceptId),
+                transitionsBuilder: _slideTransition,
+              );
+            },
+          ),
           _route('/stem-analytics', (_) => const StemAnalyticsScreen()),
           _route('/stem-malawi', (_) => const StemMalawiScreen()),
           _route('/stem-revision', (_) => const StemRevisionScreen()),
@@ -701,9 +720,7 @@ class AppRouter {
       ),
       ShellRoute(
         builder: (_, __, child) => _selectable(AiTutorShell(child: child)),
-        routes: [
-          _route('/ai-tutor', (_) => const AiTutorScreen()),
-        ],
+        routes: [_route('/ai-tutor', (_) => const AiTutorScreen())],
       ),
     ],
   );

@@ -4,7 +4,7 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.5.0
+  sdk: ^3.6.0
 
 dependencies:
   flutter:
@@ -14,6 +14,7 @@ dependencies:
   intl: any
   cupertino_icons: ^1.0.8
   http: ^1.2.2
+  http_parser: ^4.0.2
   shared_preferences: ^2.3.2
   provider: ^6.1.2
   go_router: ^14.6.2
@@ -37,3 +38,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/chemistry_lab/reference/chemi_lab.jpeg
+    - assets/brand/

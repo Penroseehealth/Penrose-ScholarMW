@@ -41,6 +41,10 @@ from app.presentation.router import router as presentation_router
 from app.research.router import router as research_router
 from app.retrieval.router import router as retrieval_router
 from app.smart_notifications.router import router as smart_notifications_router
+from app.speech.exceptions import (
+    register_exception_handlers as register_speech_exception_handlers,
+)
+from app.speech.router import router as speech_router
 from app.stem.adaptive_learning_router import router as adaptive_router
 from app.stem.ai_stem_tutor_router import router as stem_tutor_router
 from app.stem.analytics_router import router as stem_analytics_router
@@ -227,6 +231,10 @@ app.add_middleware(
 )
 app.add_middleware(RateLimitMiddleware, requests_per_minute=60, requests_per_hour=500)
 
+# Speech module domain errors (422/429/503 JSON) — registered before the SPA
+# catch-all so provider failures don't get swallowed as HTML.
+register_speech_exception_handlers(app)
+
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(users_router, prefix="/api/v1")
 app.include_router(courses_router, prefix="/api/v1")
@@ -287,6 +295,7 @@ app.include_router(phys_syllabus_router, prefix="/api/v1")
 app.include_router(languages_router, prefix="/api/v1")
 app.include_router(livekit_router, prefix="/api/v1")
 app.include_router(voice_router, prefix="/api/v1")
+app.include_router(speech_router, prefix="/api/v1")
 app.include_router(ocr_router, prefix="/api/v1")
 app.include_router(practical_router, prefix="/api/v1")
 app.include_router(biology_viz_router, prefix="/api/v1")
@@ -306,7 +315,7 @@ if WEB_DIR.is_dir():
     import os
     import time
 
-    from starlette.responses import FileResponse, HTMLResponse
+    from starlette.responses import FileResponse, HTMLResponse, Response
 
     _main_js_path = WEB_DIR / "main.dart.js"
     _build_hash = hashlib.md5(
@@ -373,8 +382,13 @@ if WEB_DIR.is_dir():
                 headers=_no_cache_headers,
             )
         if full_path == "flutter_bootstrap.js":
-            return HTMLResponse(
+            # Served as JavaScript, not HTML: the browser only executes a
+            # <script src> whose response carries a JS MIME type, and an HTML
+            # content-type makes Chrome refuse the file outright, leaving the
+            # app stuck on its loading splash.
+            return Response(
                 _bootstrap_js,
+                media_type="application/javascript",
                 headers=_no_cache_headers,
             )
         if full_path == "flutter_service_worker.js":
@@ -393,8 +407,9 @@ if WEB_DIR.is_dir():
                 "  e.respondWith(fetch(e.request, { cache: 'no-store' }));\n"
                 "});\n"
             )
-            return HTMLResponse(
+            return Response(
                 sw_code,
+                media_type="application/javascript",
                 headers=_no_cache_headers,
             )
         if file_path.is_file():

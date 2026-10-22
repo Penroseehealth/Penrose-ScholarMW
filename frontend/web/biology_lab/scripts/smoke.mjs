@@ -44,6 +44,8 @@ const CONSISTTEST_VTIME_BUDGET = process.env.SMOKE_CONSISTTEST_VTIME ?? "300000"
 const MODELTEST_VTIME_BUDGET = process.env.SMOKE_MODELTEST_VTIME ?? "600000";
 const KIDNEYTEST_URL = `http://127.0.0.1:${PORT}/?kidneytest=1`;
 const KIDNEYTEST_VTIME_BUDGET = process.env.SMOKE_KIDNEYTEST_VTIME ?? "600000";
+const KREBSTEST_URL = `http://127.0.0.1:${PORT}/?krebstest=1`;
+const KREBSTEST_VTIME_BUDGET = process.env.SMOKE_KREBSTEST_VTIME ?? "300000";
 
 function findBrowser() {
   const candidates = [
@@ -662,6 +664,29 @@ async function main() {
       }
       check("kidneytest: zero failures", (kidneyReport.fails ?? 1) === 0);
       check("kidneytest: no page errors", (kidneyReport.errors ?? []).length === 0);
+    }
+
+    /* ---------- krebstest pass (?krebstest=1) — Phases 3/4 Krebs lesson ---------- */
+    console.log("smoke: krebstest pass");
+    const krebsDom = await dumpDom(browser, KREBSTEST_URL, KREBSTEST_VTIME_BUDGET, "biolab-krebstest-", /KREBSTESTREADY/, "krebstest");
+    const krebsTitle = (krebsDom.match(/<title[^>]*>([^<]*)<\/title>/) || [])[1] || "";
+    check("krebstest ran (KREBSTESTREADY)", /KREBSTESTREADY/.test(krebsTitle));
+    let krebsReport = null;
+    const krbm = krebsDom.match(/<pre id="__krebstest"[^>]*>([\s\S]*?)<\/pre>/);
+    if (krbm) {
+      try {
+        krebsReport = JSON.parse(decodeEntities(krbm[1]));
+      } catch (error) {
+        console.error("smoke: could not parse krebstest JSON:", error.message);
+      }
+    }
+    check("krebstest report emitted", krebsReport !== null);
+    if (krebsReport) {
+      for (const item of krebsReport.checks || []) {
+        check(`krebstest: ${item.name}`, item.ok === true, item.detail);
+      }
+      check("krebstest: zero failures", (krebsReport.fails ?? 1) === 0);
+      check("krebstest: no page errors", (krebsReport.errors ?? []).length === 0);
     }
   } finally {
     if (server && !server.killed) server.kill();

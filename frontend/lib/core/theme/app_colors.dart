@@ -15,6 +15,7 @@ class AppColors {
   static const primaryDark = Color(0xFF7C3AED);
   static const primaryMuted = Color(0xFF6D28D9);
   static const primaryGlow = Color(0x338B5CF6);
+  static const deepPurple = Color(0xFF3B1E63);
 
   // ── Text ──
   static const textPrimary = Color(0xFFF5F3FF);

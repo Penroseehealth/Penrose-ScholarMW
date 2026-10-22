@@ -67,6 +67,9 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:
 .lesson.on{background:var(--accent);color:var(--accent-ink);border-color:transparent}
 .lesson:hover:not(.on){background:rgba(31,122,109,.16)}
 .lesson:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#lessonBtn{background:#c43d3d;color:#fff;border-color:transparent;
+  box-shadow:0 2px 10px rgba(196,61,61,.4)}
+#lessonBtn:hover{filter:brightness(1.12)}
 .settings{position:fixed;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 72px);pointer-events:none;z-index:10}
 .settings button{pointer-events:auto;font:inherit;font-size:1rem;border:1px solid var(--line);background:var(--bar);
   color:var(--ink);width:44px;height:44px;border-radius:22px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.25)}
@@ -143,7 +146,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:
 /* harness and screenshot modes never show the splash: headless dumps and pixel
    checks must see the raw page (mirrors the foliage HARNESS guard in the module).
    This classic script runs during parse, well before the deferred module. */
-if(/[?&](diag|navtest|behavtest|studenttest|lessontest|envtest|camtest|movtest|evtest|microtest|consisttest|modeltest|kidney|kidneytest|boardtest|labfix|shot|neuron|neutrontest)=1/.test(location.search)){
+if(/[?&](diag|navtest|behavtest|studenttest|lessontest|envtest|camtest|movtest|evtest|microtest|consisttest|modeltest|kidney|kidneytest|boardtest|labfix|shot|neuron|neutrontest|krebs|krebstest)=1/.test(location.search)){
   var bootEl=document.getElementById('boot');if(bootEl&&bootEl.parentNode)bootEl.parentNode.removeChild(bootEl);
 }
 window.addEventListener('error',function(ev){
@@ -167,6 +170,7 @@ window.addEventListener('error',function(ev){
   <p class="hint" id="hint">Drag to look around. Pinch or scroll to zoom. Select a tap to run the water, or a door to open it.</p>
   <button id="lessonBtn" class="lesson" title="Call the tutor to start the practical">Teach Me</button>
   <button id="kidneyBtn" class="lesson" title="Show the 3D kidney on the whiteboard">3D kidney</button>
+  <button id="krebsBtn" class="lesson" title="Start the interactive Krebs cycle lesson">Krebs cycle</button>
   <nav class="bar" aria-label="Views and controls">
     <button data-view="overview" class="on">Overview</button>
     <button data-view="aisle">Aisle</button>
@@ -236,6 +240,11 @@ import { createModelLoader } from './js/model_loader.js';
 import { createKidneyViewer } from './js/kidney_viewer.js';
 import { createKidneyBoard } from './js/kidney_board.js';
 import { createNeuronViewer } from './js/neuron_viewer.js';
+import { createKrebsViewer } from './js/krebs_viewer.js';
+import { KREBS_MODEL, verifyModel } from './js/krebs.js';
+import { planLesson } from './js/lesson_planner.js';
+import { createAssetRegistry } from './js/asset_registry.js';
+import { SEED_ASSETS } from './js/asset_seed.js';
 THREE.ColorManagement.enabled=false;
 /* every GLB in assets/ is meshopt-compressed (gltfpack -cc), so each loader
    needs the decoder or it throws "setMeshoptDecoder must be called" */
@@ -292,18 +301,22 @@ var KIDNEY=/[?&]kidney=1/.test(location.search);
 var KIDNEYTEST=/[?&]kidneytest=1/.test(location.search);
 var NEURON=/[?&]neuron=1/.test(location.search);
 var NEURONTEST=/[?&]neutrontest=1/.test(location.search);
+var KREBS=/[?&]krebs=1/.test(location.search);
+var KREBSTEST=/[?&]krebstest=1/.test(location.search);
 var BOARDTEST=/[?&]boardtest=1/.test(location.search);
 var LABFIX=/[?&]labfix=1/.test(location.search);
 var FIGHTER=/[?&]fighter=1/.test(location.search);
 /* combined harness flag for the tutor loader: every headless/test mode skips the
    27 MB rig unless a capture (?shot=1) or an explicit ?fighter=1 asks for it. */
 var SKYHARNESS=DIAG||STUDENTTEST||LESSONTEST||ENVTEST||CAMTEST||MODELTEST||
-  KIDNEY||KIDNEYTEST||NEURON||NEURONTEST||BOARDTEST||LABFIX||SHOT;
+  KIDNEY||KIDNEYTEST||NEURON||NEURONTEST||KREBS||KREBSTEST||BOARDTEST||LABFIX||SHOT;
 var kidneyBoard=null,kidneyBoardActive=false;   /* whiteboard stage (frame hook reads these) */
 if(KIDNEY)startKidneyViewer();   /* standalone overlay: no teacher-load dependency */
 if(KIDNEYTEST)runKidneyTest();
 if(NEURON)startNeuronViewer();   /* standalone overlay: no teacher-load dependency */
 if(NEURONTEST)runNeuronTest();
+if(KREBS)startKrebsViewer();     /* standalone overlay: no teacher-load dependency */
+if(KREBSTEST)runKrebsTest();
 if(BOARDTEST)runBoardTest();
 /* Phase 4: scientific simulation layer - pure rules, separate from rendering */
 var science=createScience();window.BioLabScience=science;
@@ -337,7 +350,7 @@ var CONFIG={
   heartX:3.95,
   heartZ:-4.25,
   heartYaw:0,
-  fighter:true,                  /* rigged Mixamo figure (assets/fighter.fbx) */
+   fighter:true,                  /* rigged tutor figure (assets/tutor.glb) */
   fighterHeight:1.72,            /* metres; model normalised to this height */
   fighterX:-1.30,                /* standing spot on the podium, left of centre */
   fighterZ:-4.34,                /* on the raised deck (z -4.92..-3.77) */
@@ -1133,11 +1146,18 @@ var FW=12,FD=10,RH=3.2,HX=FW/2,HZ=FD/2,WT=.25;
              './assets/trees/grass_medium_02.glb','./assets/trees/shrub_01.glb',
              './assets/trees/shrub_03.glb','./assets/trees/fern_02.glb'];
   var protos=[],loaded=[];
+  /* Progressive placement: each species is planted as soon as its GLB arrives, so
+     the two large tree scans (~19 MB) no longer block the light grass/shrub tufts.
+     `placed` tracks species already instanced so a late arrival never double-plants. */
+  var placed=[];
   function place(){
-    for(var i=0;i<FILES.length;i++)if(!loaded[i])return;
-    SPOTS.forEach(function(s){
-      var proto=protos[s[2]];if(!proto)return;
-      var g=proto.clone();
+    for(var i=0;i<FILES.length;i++){
+      if(placed[i]||!loaded[i]||!protos[i])continue;
+      placed[i]=true;
+      var proto=protos[i];
+      SPOTS.forEach(function(s){
+        if(s[2]!==i)return;
+        var g=proto.clone();
       var plant=s[2]>=2;                     /* plants rest their origin on the grass */
       g.position.set(s[0],plant?GY:GY_TOP,s[1]);
       g.rotation.y=s[4];
@@ -1167,7 +1187,8 @@ var FW=12,FD=10,RH=3.2,HX=FW/2,HZ=FD/2,WT=.25;
       scene.add(g);
       trees.push(g);
       if(s[5])contactShadow(scene,s[0],GY+.012,s[1],s[5],s[5]);
-    });
+      });
+    }
   }
   FILES.forEach(function(url,i){
     makeGLTFLoader().load(url,function(gltf){
@@ -2235,8 +2256,9 @@ var HEART_COLORS={ZaHeart_Artery:0xb01c1c,ZaHeart_Vein:0x2a52bd,ZaHeart_Muscle:0
 })();
 
 /* ---------- tutor actor (Mixamo fighter): loader, practical book, walk API ----------
-   Ported from the standalone biology-lab build. The rigged figure (assets/fighter.fbx)
-   loads into the centre-aisle doorway holding a green "Biology Practicals" book and holds
+   Ported from the standalone biology-lab build. The rigged figure (assets/tutor.glb -
+   the restyled MakeHuman teacher: white lab coat, blue shirt, glasses, pen) loads into
+   the centre-aisle doorway holding a green "Biology Practicals" book and holds
    a calm idle; the walk API moves him to the podium via CONFIG.fighterPath. The rig is
    skipped under every headless harness (SKYHARNESS) unless ?shot=1 or ?fighter=1 asks for
    it, so the test harnesses stay deterministic. */
@@ -2246,8 +2268,8 @@ var fighterModel=null,fighterMixer=null,fighterDone=false,fighterInfo={present:f
 var fighter=null;
 /* ---------- practical book held by the tutor ----------
    A slim green hardback with the course title on the cover, rendered to a canvas
-   texture so the lettering stays crisp at any zoom. Parented to the right hand
-   (or the left, or the rig root as a fallback), so it travels with him as he
+   texture so the lettering stays crisp at any zoom. Parented to the left hand
+   (or the right, or the rig root as a fallback), so it travels with him as he
    walks and stands. */
 function makePracticalBook(handBone,holder){
   var W=.16,H=.225,D=.028,sec=.03;
@@ -2296,7 +2318,7 @@ function makePracticalBook(handBone,holder){
   /* only the two clips the tutor uses are streamed (idle stance + walk-in), so
      the low-end target does not pay for the unused locomotion clips at boot */
   var ANIM_FILES={idle:'Standing_Idle.fbx',walk:'Walking.fbx'};
-  new FBXLoader().load('./assets/fighter.fbx',function(obj){
+  function onTutorModelLoaded(obj){
     var parts=0,verts=0;
     obj.traverse(function(o){
       if(o.isMesh||o.isSkinnedMesh){
@@ -2352,7 +2374,7 @@ function makePracticalBook(handBone,holder){
       handBone:handBone,handBoneL:handBoneL,book:null,clips:{},actions:{},baseClip:baseClip,
       state:'idle',t:0,walk:null,want:'idle',clipNames:[],playing:null};
     fighterModel=holder;fighterDone=true;
-    fighter.book=makePracticalBook(handBone||handBoneL,holder);
+    fighter.book=makePracticalBook(handBoneL||handBone,holder);   /* tucked in the left arm, as in her reference art */
 
     var fb=new THREE.Box3().setFromObject(holder),fsz=fb.getSize(new THREE.Vector3());
     fighterInfo={present:true,parts:parts,vertices:verts,clips:obj.animations?obj.animations.length:0,
@@ -2364,17 +2386,26 @@ function makePracticalBook(handBone,holder){
             max:[+fb.max.x.toFixed(3),+fb.max.y.toFixed(3),+fb.max.z.toFixed(3)]}};
     trace('fighter:loaded');
 
-    /* NB: the rig's own baked take is a punch combo, so it is NOT played; the
-       figure holds the bind pose only until Standing_Idle streams in (it plays
-       automatically below once loaded). */
+    /* NB: the tutor GLB ships without animation clips, so the figure holds the
+       bind pose only until Standing_Idle streams in (it plays automatically
+       below once loaded). */
     loadFighterClips(ANIM_BASE,ANIM_FILES);
 
     if(DIAG)dumpDiag();
     if(shotMode&&window.__doShotCapture)window.__doShotCapture();
+  }
+  /* tutor model: assets/tutor.glb (restyled MakeHuman teacher - white lab coat,
+     blue shirt, glasses, pen, mixamorig rig identical to the fighter's), falling
+     back to the original assets/fighter.fbx if the GLB is missing. */
+  makeGLTFLoader().load('./assets/tutor.glb',function(gltf){
+    onTutorModelLoaded(gltf.scene);
   },undefined,function(err){
-    ERRLOG.push('FBX fighter: '+String((err&&err.message)||err));
-    fighterDone=true;
-    if(shotMode&&window.__doShotCapture)window.__doShotCapture();
+    ERRLOG.push('GLB tutor: '+String((err&&err.message)||err));
+    new FBXLoader().load('./assets/fighter.fbx',onTutorModelLoaded,undefined,function(err2){
+      ERRLOG.push('FBX fighter fallback: '+String((err2&&err2.message)||err2));
+      fighterDone=true;
+      if(shotMode&&window.__doShotCapture)window.__doShotCapture();
+    });
   });
 
   /* stream each animation FBX (skeleton-only, ~0.4 MB each). Track names use the
@@ -2388,8 +2419,13 @@ function makePracticalBook(handBone,holder){
         var clip=null;
         animObj.animations.forEach(function(c){if(!clip||c.duration>clip.duration)clip=c;});
         /* strip the FBX root translation tracks that would fight our root motion,
-           keeping only the pose channels; the actor drives position itself. */
-        clip.tracks=clip.tracks.filter(function(tr){return !/^mixamorig:Hips\.position$/.test(tr.name);});
+           keeping only the pose channels; the actor drives position itself.
+           NB: FBXLoader drops the ':' from bone names, so the track is
+           `mixamorigHips.position` - the old `^mixamorig:Hips\.position$`
+           never matched and the centimeter-valued hips track floated the whole
+           skeleton ~89 m up (invisible figure). Strip every .position track:
+           hips is the only translating bone in the Mixamo clips. */
+        clip.tracks=clip.tracks.filter(function(tr){return !/\.position$/i.test(tr.name);});
         if(!fighter)return;
         fighter.clips[key]=clip;fighter.clipNames.push(key+':'+clip.name+'/'+clip.duration.toFixed(2));
         var act=fighter.mixer.clipAction(clip);
@@ -2489,9 +2525,118 @@ window.__fighterState=function(){
     pos:[+fighter.holder.position.x.toFixed(3),+fighter.holder.position.y.toFixed(3),+fighter.holder.position.z.toFixed(3)],
     booked:!!fighter.book,clips:Object.keys(fighter.clips)};
 };
-/* arrival flag: the standalone sets it in beginPractical() when the walk finishes.
-   Penrose starts phase6 straight from its lesson button, so nothing reads it yet. */
+/* harness diagnostics: per-mesh/bone health of the tutor rig (NaNs, world box,
+   skin attributes, bone matrices) - used by the headless visual proofs */
+window.__tutorDebug=function(){
+  if(!fighter)return{present:false};
+  var rep={present:true,
+    holderParent:fighter.holder.parent?String(fighter.holder.parent.name||fighter.holder.parent.type):null,
+    holderPos:[+fighter.holder.position.x.toFixed(3),+fighter.holder.position.y.toFixed(3),+fighter.holder.position.z.toFixed(3)],
+    holderScale:+fighter.holder.scale.x.toFixed(4),scale:fighter.scale,footOffset:fighter.footOffset,
+    meshes:[],bones:{n:0,bad:0}};
+  var sk=null;
+  fighter.rig.traverse(function(o){
+    if(o.isBone){rep.bones.n++;
+      var e=o.matrixWorld.elements;for(var i=0;i<16;i++){if(!isFinite(e[i])){rep.bones.bad++;break;}}}
+    if(!o.isMesh&&!o.isSkinnedMesh)return;
+    if(!sk&&o.isSkinnedMesh)sk=o;
+    var m={name:o.name,skinned:!!o.isSkinnedMesh,visible:o.visible,fc:o.frustumCulled,
+      verts:o.geometry.attributes.position.count,
+      skinAttrs:!!(o.geometry.attributes.skinIndex&&o.geometry.attributes.skinWeight),
+      matVis:o.material?(o.material.visible!==false):null,op:o.material?o.material.opacity:null,
+      cw:o.material?o.material.colorWrite:null,nanPos:false,box:null,mat:null};
+    if(o.material){
+      m.mat={type:o.material.type,transparent:!!o.material.transparent,
+        alphaTest:o.material.alphaTest,blending:o.material.blending,
+        side:o.material.side,depthWrite:o.material.depthWrite,
+        color:o.material.color?o.material.color.getHexString():null,
+        mapLoaded:!!(o.material.map&&o.material.map.image&&(o.material.map.image.width>0)),
+        skinning:!!o.material.skinning};
+    }
+    var arr=o.geometry.attributes.position.array,step=Math.max(4,Math.floor(arr.length/500));
+    for(var i=0;i<arr.length;i+=step){if(!isFinite(arr[i])){m.nanPos=true;break;}}
+    var b=new THREE.Box3().setFromObject(o);
+    m.box=[+b.min.x.toFixed(2),+b.min.y.toFixed(2),+b.min.z.toFixed(2),+b.max.x.toFixed(2),+b.max.y.toFixed(2),+b.max.z.toFixed(2)];
+    rep.meshes.push(m);
+  });
+  if(sk&&sk.skeleton){
+    var bm=sk.skeleton.boneMatrices||[],bad=0;
+    for(var i=0;i<bm.length;i++){if(!isFinite(bm[i]))bad++;}
+    rep.boneMat={n:bm.length,bad:bad};
+    var inv=sk.skeleton.boneInverses||[],ib=0;
+    for(var j=0;j<inv.length;j++){for(var k=0;k<16;k++){if(!isFinite(inv[j].elements[k])){ib++;break;}}}
+    rep.ibm={n:inv.length,bad:ib};rep.bindMode=sk.bindMode;rep.skelBones=sk.skeleton.bones.length;
+  }
+  return rep;
+};
+/* GPU truth: force one render, then readPixels at the screen position where the
+   tutor's torso/head should project - distinguishes "in scene" from "on screen" */
+window.__tutorShoot=function(){
+  if(!fighter||!renderer||!camera)return{err:'no fighter/renderer'};
+  renderer.render(scene,camera);
+  var gl=renderer.getContext(),c=renderer.domElement;
+  var pts=[];
+  var hp=fighter.holder.position;
+  [[0,1.35,0],[0,1.05,0],[0,0.35,0],[0,1.6,0],[0.3,1.2,0],[-0.3,1.2,0]].forEach(function(d){
+    var v=new THREE.Vector3(hp.x+d[0],d[1],hp.z+d[2]).project(camera);
+    pts.push({ndc:[+v.x.toFixed(3),+v.y.toFixed(3)],
+      px:Math.round((v.x+1)*0.5*c.width),py:Math.round((1-v.y)*0.5*c.height)});
+  });
+  var samples=pts.map(function(p){
+    var buf=new Uint8Array(4);
+    if(p.px<0||p.py<0||p.px>=c.width||p.py>=c.height)return{off:true};
+    gl.readPixels(p.px,p.py,1,1,gl.RGBA,gl.UNSIGNED_BYTE,buf);
+    return{rgb:[buf[0],buf[1],buf[2],buf[3]]};
+  });
+  var fb=new THREE.Box3().setFromObject(fighter.holder);
+  return{canvas:[c.width,c.height],pts:pts,samples:samples,
+    holderBox:[+fb.min.x.toFixed(2),+fb.min.y.toFixed(2),+fb.min.z.toFixed(2),
+      +fb.max.x.toFixed(2),+fb.max.y.toFixed(2),+fb.max.z.toFixed(2)],
+    cam:[+camera.position.x.toFixed(2),+camera.position.y.toFixed(2),+camera.position.z.toFixed(2)],
+    camRot:[+camera.rotation.x.toFixed(3),+camera.rotation.y.toFixed(3)],
+    drawingBufferLost:gl.isContextLost?gl.isContextLost():null};
+};
+/* harness escape hatch: evaluate a snippet inside the module scope (access to
+   THREE/scene/renderer/fighter) - diagnostics only, inert unless called */
+window.__tutorEval=function(src){try{return String(eval(src));}catch(e){return 'ERR:'+e.message;}};
 window.__tutorArrived=false;
+/* Tutor-arrival watchdog. Any request for the teacher — "Teach Me" pressed while
+   his rig is still streaming, or a lesson already running from ?experiment= /
+   the localStorage auto-resume — is queued here. The frame loop starts the walk
+   the moment he is ready; if his rig never lands the lesson starts anyway after
+   12 s, so the control never dead-ends and he always reaches the board. */
+window.__teachPending=false;
+window.__pendingExperiment=null;
+window.__tutorWalkTimer=null;
+function requestTutorIn(expId){
+  if(expId)window.__pendingExperiment=expId;
+  if(window.__tutorArrived)return;
+  window.__teachPending=true;
+  if(!window.__tutorWalkTimer){
+    window.__tutorWalkTimer=setTimeout(function(){
+      window.__tutorWalkTimer=null;
+      if(window.__tutorArrived||fighterWalkActive())return;
+      /* rig still absent: run the lesson anyway — if he lands later, the
+         running-state watchdog still walks him to the board (arrived stays false) */
+      window.__teachPending=false;
+      if(typeof fighter!=='undefined'&&fighter)fighterWalkStart();
+      else startPracticalNow();
+      if(typeof syncLessonBtn==='function')syncLessonBtn();
+    },12000);
+  }
+  if(typeof fighter!=='undefined'&&fighter&&!fighterWalkActive()&&fighterWalkStart())
+    window.__teachPending=false;
+  if(typeof syncLessonBtn==='function')syncLessonBtn();
+}
+window.__requestTutorIn=requestTutorIn;
+function maybeWalkTutorIn(){
+  if(!fighter||window.__tutorArrived||fighterWalkActive())return;
+  var want=!!window.__teachPending,running=false;
+  try{running=!!(phase6&&phase6.status&&phase6.status().running);}catch(e){running=false;}
+  if(!want&&!running)return;
+  window.__teachPending=false;
+  fighterWalkStart();
+}
 /* ---------- benches, sinks and taps ---------- */
 var SW=.5,SD=.4,BD=.2,H=.9,TT=.045,TAPL=.415;
 
@@ -3049,7 +3194,7 @@ var cabMicro=makeStorageCabinet(-4.28,0,-4.55,0,true);pickRoot.add(cabMicro);
   microTipEl.id='microInstruction';
   microTipEl.style.cssText='position:fixed;left:50%;bottom:64px;transform:translateX(-50%);z-index:40;'+
     'pointer-events:none;background:rgba(14,26,38,.92);color:#eef4f8;padding:10px 14px;border-radius:8px;'+
-    'font:600 15px "Segoe UI",Arial,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.35);display:flex;gap:10px;align-items:center';
+    'font:600 15px "Segoe UI",Arial,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.35);display:none;gap:10px;align-items:center';
   var microTipTxt=document.createElement('span');
   microTipTxt.id='microInstructionText';
   microTipTxt.textContent='Take out the kidney carefully.';
@@ -4046,6 +4191,7 @@ var lessonBtn=document.getElementById('lessonBtn');
 function tutorWalking(){return typeof fighterWalkActive==='function'&&fighterWalkActive();}
 function lessonBtnState(){
   if(tutorWalking())return{label:'Teaching...',act:'walking',on:true,phase:'walk'};
+  if(window.__teachPending)return{label:'Tutor loading...',act:'teach',on:false,phase:'loading'};
   if(!phase6||!phase6.status)return{label:'Teach Me',act:'teach',on:false,phase:'idle'};
   var st=phase6.status();
   if(!st.running||st.phase==='done')
@@ -4064,22 +4210,47 @@ function syncLessonBtn(){
   if(lessonBtn.title!==t)lessonBtn.title=t;
   lessonBtn.classList.toggle('on',s.on);
 }
+window.__syncLessonBtn=syncLessonBtn;   /* harnesses re-sync labels without waiting on the 10-frame throttle */
 /* "Teach Me": the tutor walks from the back door up to the podium, then the
    practical begins when he has arrived (calm, real-scenario flow). If the rig
-   is not ready yet (still loading, harness mode, or he is already in), the
-   practical starts immediately so the button always does something. */
-function beginPractical(){
-  window.__tutorArrived=true;
+   is not ready yet, the request is queued and the walk starts the moment he
+   lands (Tutor loading... state; 12 s fallback + frame watchdog), so the
+   lesson can never end up running while he stands stuck at the back door. */
+function startPracticalNow(){
   if(SKYHARNESS)return;   /* harnesses skip lesson side-effects */
   if(typeof phase6==='undefined'||!phase6||!phase6.start)return;
-  phase6.start('osmosis','osmosis',{concentrationM:0});
+  var ex=window.__pendingExperiment;
+  window.__pendingExperiment=null;   /* consume even if we don't start (below) */
+  var st=phase6.status?phase6.status():null;
+  if(st&&st.running&&st.phase!=='done')return;   /* already under way (auto-resume/deep-link) */
+  if(ex)phase6.start(ex.id,ex.id,ex.cond||{});
+  else phase6.start('osmosis','osmosis',{concentrationM:0});
+}
+function beginPractical(){
+  window.__tutorArrived=true;
+  window.__teachPending=false;
+  if(window.__tutorWalkTimer){clearTimeout(window.__tutorWalkTimer);window.__tutorWalkTimer=null;}
+  startPracticalNow();
 }
 if(lessonBtn)lessonBtn.addEventListener('click',function(){
   var s=lessonBtnState();
   if(s.act==='teach'){
     var started=(typeof fighterWalkStart==='function'&&!window.__tutorArrived&&!tutorWalking())
       ? fighterWalkStart() : false;   /* walk in; beginPractical runs on arrival */
-    if(!started)beginPractical();
+    if(!started){
+      if(window.__teachPending){
+        /* second press while he still streams: start the lesson now — the
+           running-state watchdog still walks him to the board once he lands
+           (arrived stays false, so the walk is never blocked) */
+        window.__teachPending=false;
+        startPracticalNow();
+        syncLessonBtn();
+      }else if((typeof fighter==='undefined'||!fighter)&&typeof requestTutorIn==='function'){
+        requestTutorIn();             /* pressed during load: walk him in on ready */
+      }else{
+        beginPractical();
+      }
+    }
   }
   else if(s.act==='ack')phase6.safetyAck();
   else if(s.act==='resume')phase6.resume();
@@ -4124,6 +4295,16 @@ function toggleKidneyBoard(){
   return true;
 }
 if(kidneyBtn)kidneyBtn.addEventListener('click',function(){toggleKidneyBoard();});
+/* Krebs cycle lesson: opens the interactive overlay (Phase 3/4) */
+(function(){
+  var krebsBtn=document.getElementById('krebsBtn');
+  var open=null;
+  if(krebsBtn)krebsBtn.addEventListener('click',function(){
+    if(open){open.destroy();open=null;krebsBtn.classList.remove('on');krebsBtn.textContent='Krebs cycle';return;}
+    open=createKrebsViewer({container:document.body,onClose:function(){open=null;krebsBtn.classList.remove('on');krebsBtn.textContent='Krebs cycle';}});
+    krebsBtn.classList.add('on');krebsBtn.textContent='Hide Krebs';
+  });
+})();
 /* settings panel */
 (function(){
   var sb=document.getElementById('settingsBtn');
@@ -4863,6 +5044,7 @@ function frame(){
   if(time-wbLastDraw>0.05){wbLastDraw=time;drawBoardAnim(time);}   /* ~20fps: avoid a 1024x410 texture upload every frame */
   if(heartModel)heartModel.userData.spin.rotation.y+=dt*.4;
   if(fighterMixer)fighterMixer.update(dt);   /* tutor idle/walk clip */
+  if(typeof maybeWalkTutorIn==='function')maybeWalkTutorIn();
   if(typeof fighterWalkTick==='function')fighterWalkTick(dt);
   var slowTier=phase8&&phase8.perf.state.tier==='low';
   if(phase3&&phase3.frame&&(!slowTier||phase8.perf.shouldRun('behaviour',time)))phase3.frame(dt);
@@ -5018,7 +5200,11 @@ applyCam();
     cam.target.copy(goal.target);cam.theta=goal.theta;cam.phi=goal.phi;cam.r=goal.r;
     applyCam();
   }
-  if(phase6&&phase6.start){
+  if(typeof requestTutorIn==='function'){
+    /* tutor first: he walks to the board, then the practical starts on arrival
+       (12 s fallback starts it anyway if his rig never lands) */
+    requestTutorIn({id:id,cond:{}});
+  }else if(phase6&&phase6.start){
     phase6.start(id,id,{});
     if(syncLessonBtn)syncLessonBtn();
   }
@@ -5579,6 +5765,73 @@ function runNeuronTest(){
   }catch(e){
     ck('neutrontest pipeline',false,String((e&&e.message)||e));
   }
+  finish();
+}
+/* ---------- ?krebs=1: interactive Krebs cycle lesson (Phases 3/4) ---------- */
+function startKrebsViewer(){
+  try{
+    var viewer=createKrebsViewer({container:document.body});
+    window.BioLabKrebs={viewer:viewer,model:KREBS_MODEL};
+    document.title='KREBSREADY';
+  }catch(e){ERRLOG.push('krebs viewer: '+String((e&&e.message)||e));}
+}
+/* ---------- ?krebstest=1: Krebs lesson acceptance (science order + interaction) ---------- */
+function runKrebsTest(){
+  var out={checks:[],fails:0,errors:[],evidence:{}};
+  function ck(n,ok,detail){out.checks.push({name:n,ok:ok===true,detail:detail==null?'':String(detail)});if(ok!==true)out.fails++;}
+  window.addEventListener('error',function(ev){out.errors.push(String(ev.message||ev.error));});
+  window.addEventListener('unhandledrejection',function(ev){out.errors.push('REJECT:'+String((ev.reason&&ev.reason.message)||ev.reason));});
+  document.title='KTA-start';
+  var holder=document.createElement('div');
+  holder.style.cssText='position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:57;';
+  document.body.appendChild(holder);
+  var viewer=null;
+  var finish=function(){
+    try{ck('krebstest: no page errors',out.errors.length===0,out.errors.slice(0,3).join(' | '));}catch(e){}
+    var el=document.createElement('pre');el.id='__krebstest';el.style.display='none';
+    el.textContent=JSON.stringify(out);document.body.appendChild(el);
+    document.title='KREBSTESTREADY';
+  };
+  try{
+    var v=verifyModel(KREBS_MODEL);
+    out.evidence.verify=v;
+    ck('krebstest: curated model self-verifies',v.ok===true,JSON.stringify(v.errors));
+    ck('krebstest: exactly 8 cycle reactions',KREBS_MODEL.stages.length===8);
+    ck('krebstest: entry (link) reaction is separate',!!KREBS_MODEL.entry&&/pyruvate/i.test(KREBS_MODEL.entry.reaction));
+    var spec=planLesson('show me the krebs cycle',{krebs:KREBS_MODEL});
+    out.evidence.spec={status:spec.status,valid:spec.valid,stages:spec.science?spec.science.stages.length:0};
+    ck('krebstest: planner builds a ready spec',spec.status==='ready'&&spec.valid===true,(spec.issues||[]).join(';'));
+    ck('krebstest: spec science is marked verified',spec.science.verified===true);
+    var registry=createAssetRegistry(SEED_ASSETS);
+    out.evidence.registry=registry.stats();
+    ck('krebstest: asset registry loads seed',registry.stats().count===SEED_ASSETS.length);
+    ck('krebstest: restricted assets excluded from redistribution',
+      registry.redistributable().every(function(r){return r.redistributable===true;}));
+    viewer=createKrebsViewer({container:holder});
+    window.BioLabKrebsTest=viewer;
+    ck('krebstest: viewer created',!!viewer&&!!viewer.wrapper);
+    ck('krebstest: viewer reports verified model',viewer.verification.ok===true);
+    viewer.setStep(4);
+    ck('krebstest: setStep selects the succinyl-CoA step',viewer.currentStep()===4);
+    out.evidence.quiz=viewer.quizQuestions;
+    ck('krebstest: quiz has questions',viewer.quizQuestions>=5,'q='+viewer.quizQuestions);
+    viewer.next();
+    ck('krebstest: next advances the step',viewer.currentStep()===5);
+    viewer.prev();
+    ck('krebstest: prev returns to the step',viewer.currentStep()===4);
+    var btns=viewer.wrapper.querySelectorAll('button');
+    ck('krebstest: controls are real buttons',btns.length>=5,'buttons='+btns.length);
+    var labelled=true;
+    for(var i=0;i<btns.length;i++){if(!btns[i].getAttribute('aria-label')){labelled=false;}}
+    ck('krebstest: every control has an aria-label',labelled);
+    var svgEl=viewer.wrapper.querySelector('svg[role="img"]');
+    ck('krebstest: diagram exposes role=img with title/desc',!!svgEl&&!!svgEl.querySelector('title')&&!!svgEl.querySelector('desc'));
+    viewer.destroy();
+    ck('krebstest: destroy removes the overlay',!viewer.wrapper.parentNode);
+  }catch(e){
+    ck('krebstest pipeline',false,String((e&&e.message)||e));
+  }
+  if(holder.parentNode)holder.parentNode.removeChild(holder);
   finish();
 }
 /* ---------- ?kidneytest=1: segmented kidney + verified labels acceptance ---------- */

@@ -95,6 +95,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_error(404)
 
     def end_headers(self):
+        # Local dev: never hand back a stale biology_lab page. no-store stops new
+        # entries (the old cache was already purged from disk), so every load is
+        # fresh without Clear-Site-Data — which Chrome logs to the console on
+        # *every* response, flooding the user's devtools.
+        self.send_header("Cache-Control", "no-store")
         # Allow the app served here to call the backend on :8000 too (bonus).
         self.send_header("Access-Control-Allow-Origin", "*")
         super().end_headers()

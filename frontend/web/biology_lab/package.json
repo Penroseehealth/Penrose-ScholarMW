@@ -6,9 +6,15 @@
   "description": "Standalone 3D biology laboratory environment (Three.js), embeddable in Penrose.",
   "scripts": {
     "serve": "node serve.mjs",
-    "test": "node scripts/themes_test.mjs && node scripts/phase9_unit.mjs && node scripts/smoke.mjs",
+    "test": "node scripts/themes_test.mjs && node scripts/phase1_unit.mjs && node scripts/phase2_unit.mjs && node scripts/phase3_unit.mjs && node scripts/phase4_unit.mjs && node scripts/phase5_unit.mjs && node scripts/phase6_unit.mjs && node scripts/phase7_unit.mjs && node scripts/phase8_unit.mjs && node scripts/phase10_unit.mjs && node scripts/phase11_unit.mjs && node scripts/phase12_unit.mjs && node scripts/phase13_unit.mjs && node scripts/phase14_unit.mjs && node scripts/smoke.mjs",
     "test:themes": "node scripts/themes_test.mjs",
-    "test:neuron": "node scripts/phase9_unit.mjs",
+    "test:units": "node scripts/phase1_unit.mjs && node scripts/phase2_unit.mjs && node scripts/phase3_unit.mjs && node scripts/phase4_unit.mjs && node scripts/phase5_unit.mjs && node scripts/phase6_unit.mjs && node scripts/phase7_unit.mjs && node scripts/phase8_unit.mjs",
+    "test:assets": "node scripts/phase10_unit.mjs",
+    "test:providers": "node scripts/phase11_unit.mjs",
+    "test:planner": "node scripts/phase12_unit.mjs",
+    "test:krebs": "node scripts/phase13_unit.mjs",
+    "test:reliability": "node scripts/phase14_unit.mjs",
+    "test:providers-live": "node scripts/providers_live_probe.mjs",
     "test:smoke": "node scripts/smoke.mjs"
   }
 }

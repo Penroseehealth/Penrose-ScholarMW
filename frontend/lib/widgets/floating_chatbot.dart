@@ -55,10 +55,26 @@ class FloatingChatbot extends StatefulWidget {
   State<FloatingChatbot> createState() => _FloatingChatbotState();
 }
 
-class _FloatingChatbotState extends State<FloatingChatbot> {
+class _FloatingChatbotState extends State<FloatingChatbot> with SingleTickerProviderStateMixin {
   final ApiService _api = ApiService();
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scroll = ScrollController();
+
+  // Drives the layered brand mark: the base portrait plus four staggered
+  // sound-wave layers ripple outward continuously so the button reads as a
+  // "speaking" assistant rather than a static glyph.
+  late final AnimationController _waveCtrl = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 2200),
+  )..repeat();
+
+  static const List<String> _waveLayers = <String>[
+    'assets/brand/assistant_base.png',
+    'assets/brand/assistant_wave0.png',
+    'assets/brand/assistant_wave1.png',
+    'assets/brand/assistant_wave2.png',
+    'assets/brand/assistant_wave3.png',
+  ];
 
   // Unified voice stack: the same TTS service and speech recogniser the AI
   // Tutor screen uses, so the floating bot speaks with identical behaviour
@@ -71,8 +87,13 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
 
   bool _open = false;
   bool _sending = false;
-  bool _speakReplies = false;
+  bool _speakReplies = true;
+  bool _continuous = true;
   bool _listening = false;
+
+  /// True when the in-flight turn was started by voice, so the reply should be
+  /// followed by reopening the mic for a natural back-and-forth conversation.
+  bool _voiceTurn = false;
   final List<Map<String, dynamic>> _messages = <Map<String, dynamic>>[];
 
   @override
@@ -84,6 +105,7 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
 
   @override
   void dispose() {
+    _waveCtrl.dispose();
     _speech.stopListening();
     _speech.dispose();
     _tts.dispose();
@@ -99,7 +121,11 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
       setState(() => _listening = false);
       return;
     }
-    if (!_speech.isSupported) return;
+    _startListening();
+  }
+
+  void _startListening() {
+    if (!_speech.isSupported || _listening) return;
     setState(() => _listening = true);
     _speech.startListening(
       lang: _voiceSession.language,
@@ -108,7 +134,13 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
         setState(() => _controller.text = text);
         if (isFinal) {
           _speech.stopListening();
-          setState(() => _listening = false);
+          setState(() {
+            _listening = false;
+            _voiceTurn = true;
+          });
+          // A finished voice turn is sent immediately - no Send tap - so the
+          // assistant synthesizes its reply as soon as the user stops talking.
+          _send();
         }
       },
       onEnd: () {
@@ -120,9 +152,22 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
     );
   }
 
-  void _speak(String text) {
+  /// Toggle hands-free conversation: replies are spoken and, once the assistant
+  /// finishes, the microphone reopens for the next turn.
+  void _toggleContinuous() {
+    setState(() => _continuous = !_continuous);
+    if (_continuous) {
+      _speakReplies = true;
+      _startListening();
+    } else {
+      _speech.stopListening();
+      setState(() => _listening = false);
+    }
+  }
+
+  Future<void> _speak(String text) async {
     if (text.isEmpty) return;
-    _tts.speak(text, lang: _voiceSession.language);
+    await _tts.speak(text, lang: _voiceSession.language);
   }
 
   Future<void> _send() async {
@@ -136,6 +181,7 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
     _controller.clear();
     _scrollToBottom();
 
+    String? replyToSpeak;
     try {
       final response = await _api.post(
         '/ai/chat',
@@ -161,7 +207,7 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
             'sources': decoded is Map ? decoded['sources'] : null,
           });
         });
-        if (_speakReplies) _speak(reply);
+        if (_speakReplies) replyToSpeak = reply;
       } else if (response.statusCode == 401 || response.statusCode == 403) {
         // FastAPI's HTTPBearer answers a missing Authorization header with 403
         // ("Not authenticated") and an expired/invalid one with 401, so both
@@ -192,6 +238,15 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
         _scrollToBottom();
       }
     }
+
+    // Speak the reply after the spinner clears, then reopen the mic so the
+    // conversation continues naturally, turn after turn, like talking to a
+    // person - the user never has to tap the mic again.
+    if (replyToSpeak != null) {
+      await _speak(replyToSpeak);
+    }
+    if (!mounted) return;
+    if (_voiceTurn || _continuous) _startListening();
   }
 
   void _scrollToBottom() {
@@ -243,15 +298,53 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
                   ),
                 ],
               ),
-              child: Icon(
-                _open ? Icons.close_rounded : Icons.chat_bubble_rounded,
-                color: Colors.white,
-                size: 26,
-              ),
+              child: _open
+                  ? const Icon(Icons.close_rounded, color: Colors.white, size: 26)
+                  : AnimatedBuilder(
+                      animation: _waveCtrl,
+                      builder: (context, _) => _buildBrandMark(),
+                    ),
             ),
           ),
         ),
       );
+
+  /// Clips the layered brand assets into the 56px circle. The base portrait
+  /// stays put; each wave layer pulses on a staggered phase so the arcs appear
+  /// to ripple outward from the face and dissolve.
+  Widget _buildBrandMark() {
+    final t = _waveCtrl.value;
+    return ClipOval(
+      child: SizedBox(
+        width: 56,
+        height: 56,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.asset(_waveLayers[0], fit: BoxFit.cover, filterQuality: FilterQuality.medium),
+            for (int i = 0; i < 4; i++)
+              Builder(
+                builder: (context) {
+                  final phase = (t + i * 0.18) % 1.0;
+                  final opacity = (1 - phase) * (1 - phase);
+                  return Opacity(
+                    opacity: opacity.clamp(0.0, 1.0),
+                    child: Transform.scale(
+                      scale: 1.0 + 0.12 * phase,
+                      child: Image.asset(
+                        _waveLayers[i + 1],
+                        fit: BoxFit.cover,
+                        filterQuality: FilterQuality.medium,
+                      ),
+                    ),
+                  );
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _buildPanel(BuildContext context) {
     final media = MediaQuery.of(context);
@@ -305,7 +398,14 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
             InkWell(
               onTap: () {
                 setState(() => _speakReplies = !_speakReplies);
-                if (!_speakReplies) _tts.stop();
+                if (!_speakReplies) {
+                  _tts.stop();
+                  _speech.stopListening();
+                  setState(() {
+                    _continuous = false;
+                    _listening = false;
+                  });
+                }
               },
               child: Icon(
                 _speakReplies ? Icons.volume_up_rounded : Icons.volume_off_rounded,
@@ -313,6 +413,17 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
                 size: 20,
               ),
             ),
+            if (_speech.isSupported) ...[
+              const SizedBox(width: 12),
+              InkWell(
+                onTap: _toggleContinuous,
+                child: Icon(
+                  _continuous ? Icons.forum_rounded : Icons.forum_outlined,
+                  color: _continuous ? const Color(0xFF8EF6E4) : Colors.white,
+                  size: 20,
+                ),
+              ),
+            ],
             const SizedBox(width: 12),
             InkWell(
               onTap: () => setState(() => _open = false),
@@ -328,7 +439,7 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            'Ask me anything about your studies.',
+            'Ask me anything about your studies.\nTap the speech-pair icon for hands-free voice chat.',
             textAlign: TextAlign.center,
             style: TextStyle(color: context.colors.textSecondary, fontSize: 14),
           ),
@@ -394,9 +505,13 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
             if (_speech.isSupported)
               IconButton(
                 onPressed: _sending ? null : _toggleMic,
-                icon: Icon(_listening ? Icons.mic_rounded : Icons.mic_none_rounded),
+                icon: Icon(
+                  _continuous ? Icons.mic_rounded : (_listening ? Icons.mic_rounded : Icons.mic_none_rounded),
+                ),
                 color: _listening ? context.colors.error : null,
-                tooltip: _listening ? 'Stop listening' : 'Ask by voice',
+                tooltip: _continuous
+                    ? 'Conversation mode (auto-listening)'
+                    : (_listening ? 'Stop listening' : 'Ask by voice'),
               ),
             Expanded(
               child: TextField(
@@ -404,7 +519,10 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
                 minLines: 1,
                 maxLines: 4,
                 textInputAction: TextInputAction.send,
-                onSubmitted: (_) => _send(),
+                onSubmitted: (_) {
+                  _voiceTurn = false;
+                  _send();
+                },
                 decoration: const InputDecoration(
                   hintText: 'Type your question...',
                   border: InputBorder.none,
@@ -413,7 +531,12 @@ class _FloatingChatbotState extends State<FloatingChatbot> {
               ),
             ),
             IconButton(
-              onPressed: _sending ? null : _send,
+              onPressed: _sending
+                  ? null
+                  : () {
+                      _voiceTurn = false;
+                      _send();
+                    },
               icon: const Icon(Icons.send_rounded),
               color: AppColors.primary,
             ),

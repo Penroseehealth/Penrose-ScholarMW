@@ -26,14 +26,19 @@ class ApiService {
   VoidCallback? onAuthExpired;
 
   Future<Map<String, String>> get headers async {
+    final token = await accessToken;
+    return {'Content-Type': 'application/json', if (token != null) 'Authorization': 'Bearer $token'};
+  }
+
+  /// The session access token, loaded from secure storage on first use.
+  /// Also used to authenticate clients that build their own requests, such as
+  /// the Voice Training Center's [ApiClient].
+  Future<String?> get accessToken async {
     if (_accessToken == null) {
       _accessToken = await _secureStorage.read(key: 'access_token');
       _refreshToken = await _secureStorage.read(key: 'refresh_token');
     }
-    return {
-      'Content-Type': 'application/json',
-      if (_accessToken != null) 'Authorization': 'Bearer $_accessToken',
-    };
+    return _accessToken;
   }
 
   Future<void> setTokens(String access, String refresh) async {
@@ -73,7 +78,7 @@ class ApiService {
         }
       } catch (_) {}
     }
-    if (response.statusCode == 401 && _refreshToken != null) {
+    if (_isAuthFailure(response.statusCode) && _refreshToken != null) {
       final refreshed = await _tryRefresh();
       if (refreshed) {
         return http.get(Uri.parse('$apiBaseUrl$path'), headers: await headers);
@@ -111,7 +116,7 @@ class ApiService {
       headers: h,
       body: body != null ? jsonEncode(body) : null,
     );
-    if (response.statusCode == 401 && _refreshToken != null) {
+    if (_isAuthFailure(response.statusCode) && _refreshToken != null) {
       final refreshed = await _tryRefresh();
       if (refreshed) {
         return http.post(
@@ -124,6 +129,13 @@ class ApiService {
     return response;
   }
 
+  /// Whether a status means the bearer token was missing or no longer valid.
+  ///
+  /// FastAPI's `HTTPBearer` replies 403 ("Not authenticated") when the
+  /// `Authorization` header is absent and 401 when the token is present but
+  /// expired or invalid. Both are recovered the same way: refresh, then retry.
+  static bool _isAuthFailure(int statusCode) => statusCode == 401 || statusCode == 403;
+
   Future<http.Response> put(String path, {Map<String, dynamic>? body}) async {
     final h = await headers;
     var response = await http.put(
@@ -131,7 +143,7 @@ class ApiService {
       headers: h,
       body: body != null ? jsonEncode(body) : null,
     );
-    if (response.statusCode == 401 && _refreshToken != null) {
+    if (_isAuthFailure(response.statusCode) && _refreshToken != null) {
       final refreshed = await _tryRefresh();
       if (refreshed) {
         response = await http.put(
@@ -147,7 +159,7 @@ class ApiService {
   Future<http.Response> delete(String path) async {
     final h = await headers;
     var response = await http.delete(Uri.parse('$apiBaseUrl$path'), headers: h);
-    if (response.statusCode == 401 && _refreshToken != null) {
+    if (_isAuthFailure(response.statusCode) && _refreshToken != null) {
       final refreshed = await _tryRefresh();
       if (refreshed) {
         response = await http.delete(Uri.parse('$apiBaseUrl$path'), headers: await headers);
@@ -163,7 +175,7 @@ class ApiService {
     var h = await headers;
     final uri = Uri.parse('$apiBaseUrl$path');
     var response = await http.get(uri, headers: h);
-    if (response.statusCode == 401 && _refreshToken != null) {
+    if (_isAuthFailure(response.statusCode) && _refreshToken != null) {
       final refreshed = await _tryRefresh();
       if (refreshed) {
         h = await headers;
@@ -208,15 +220,25 @@ class ApiService {
     }
   }
 
-  Future<http.Response> uploadFile(String path, String filePath, String filename,
-      {Map<String, String>? fields, void Function(int, int)? onProgress}) async {
+  Future<http.Response> uploadFile(
+    String path,
+    String filePath,
+    String filename, {
+    Map<String, String>? fields,
+    void Function(int, int)? onProgress,
+  }) async {
     final request = await _buildMultipart(path, fields);
     request.files.add(await http.MultipartFile.fromPath('file', filePath, filename: filename));
     return _sendMultipart(request, path, onProgress);
   }
 
-  Future<http.Response> uploadFileBytes(String path, List<int> bytes, String filename,
-      {Map<String, String>? fields, void Function(int, int)? onProgress}) async {
+  Future<http.Response> uploadFileBytes(
+    String path,
+    List<int> bytes,
+    String filename, {
+    Map<String, String>? fields,
+    void Function(int, int)? onProgress,
+  }) async {
     final request = await _buildMultipart(path, fields);
     request.files.add(http.MultipartFile.fromBytes('file', bytes, filename: filename));
     return _sendMultipart(request, path, onProgress);
@@ -234,10 +256,13 @@ class ApiService {
   /// Sends a multipart request with optional upload progress and 401
   /// refresh-token retry (mirroring the JSON helpers).
   Future<http.Response> _sendMultipart(
-      http.MultipartRequest request, String path, void Function(int, int)? onProgress) async {
+    http.MultipartRequest request,
+    String path,
+    void Function(int, int)? onProgress,
+  ) async {
     final response = onProgress == null ? await request.send() : await _sendWithProgress(request, onProgress);
     var parsed = await http.Response.fromStream(response);
-    if (parsed.statusCode == 401 && _refreshToken != null) {
+    if (_isAuthFailure(parsed.statusCode) && _refreshToken != null) {
       final refreshed = await _tryRefresh();
       if (refreshed) {
         final retry = http.MultipartRequest('POST', Uri.parse('$apiBaseUrl$path'))
@@ -256,15 +281,19 @@ class ApiService {
   /// finalized byte stream. The server receives the exact multipart body; an
   /// extra header is added so the server knows how many bytes to read.
   Future<http.StreamedResponse> _sendWithProgress(
-      http.MultipartRequest request, void Function(int, int) onProgress) async {
+    http.MultipartRequest request,
+    void Function(int, int) onProgress,
+  ) async {
     final total = request.contentLength;
     final byteStream = http.ByteStream(request.finalize());
     var sent = 0;
-    final progressStream = http.ByteStream(byteStream.map((chunk) {
-      sent += chunk.length;
-      onProgress(sent, total);
-      return chunk;
-    }));
+    final progressStream = http.ByteStream(
+      byteStream.map((chunk) {
+        sent += chunk.length;
+        onProgress(sent, total);
+        return chunk;
+      }),
+    );
     final streamed = http.StreamedRequest('POST', request.url)
       ..contentLength = total
       ..headers.addAll(request.headers);
@@ -280,7 +309,7 @@ class ApiService {
     request.headers.addAll(h);
     if (body != null) request.body = jsonEncode(body);
     var response = await http.Client().send(request);
-    if (response.statusCode == 401 && _refreshToken != null) {
+    if (_isAuthFailure(response.statusCode) && _refreshToken != null) {
       final refreshed = await _tryRefresh();
       if (refreshed) {
         final retryReq = http.Request('POST', Uri.parse('$apiBaseUrl$path'));
