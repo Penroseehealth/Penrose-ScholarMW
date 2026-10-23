@@ -30,6 +30,9 @@ function createPerf(opts) {
     bridgeQueue: 0,
   };
   var samples = [];           /* recent frame times (ms), capped */
+  var elapsed = 0;            /* real seconds sampled (not frames/60: a 3 fps
+                                 machine must still accumulate wall-clock time
+                                 quickly enough to trigger a tier change) */
   var MAX_SAMPLES = opts.maxSamples == null ? 90 : opts.maxSamples;
   var HYST = opts.hysteresis == null ? 2.0 : opts.hysteresis;   /* seconds in tier before switching */
   var pendingSince = null, pendingTier = null;
@@ -58,10 +61,11 @@ function createPerf(opts) {
     samples.push(dtMs);
     if (samples.length > MAX_SAMPLES) samples.shift();
     state.frames++;
+    elapsed += dtMs / 1000;
     state.frameMsAvg = +mean(samples).toFixed(2);
     state.frameMsP95 = +pct(samples, 95).toFixed(2);
     state.fps = +(1000 / (state.frameMsAvg || 16.7)).toFixed(1);
-    autoTier(state.frames / 60);
+    autoTier(elapsed);
     return state;
   }
 

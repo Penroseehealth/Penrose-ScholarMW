@@ -350,7 +350,10 @@ var CONFIG={
   heartX:3.95,
   heartZ:-4.25,
   heartYaw:0,
-   fighter:true,                  /* rigged tutor figure (assets/tutor.glb) */
+   fighter:true,                  /* rigged tutor figure (assets/tutor.glb) - REQUIRED:
+                                     the tutor always walks the aisle and teaches the
+                                     lesson (3.9 MB GLB, ~105k verts, normalised 1.72 m).
+                                     Keep ON; set false only to debug the actor. */
   fighterHeight:1.72,            /* metres; model normalised to this height */
   fighterX:-1.30,                /* standing spot on the podium, left of centre */
   fighterZ:-4.34,                /* on the raised deck (z -4.92..-3.77) */
@@ -379,15 +382,41 @@ var CONFIG={
     {x:-1.30,z:-4.34,step:false}  /* onto the deck: the standing spot */
   ],
   fighterBookColor:0x1f7a3d,     /* green "Biology Practicals" book */
-  fighterBookTitle:'Biology Practicals'
+  fighterBookTitle:'Biology Practicals',
+  /* second teacher: the original Mixamo fighter (assets/fighter.fbx), displayed
+     permanently beside the tutor on the podium deck. Mirrors the tutor's
+     normalisation + idle clip but never walks, so the two read as co-teachers. */
+  fighter2:false,                /* show the fighter as a second standing teacher - OFF
+                                    for now alongside `fighter`; flip to true to restore
+                                    the co-teacher (needs `fighter` for the walk-in). */
+  fighter2Height:1.78,           /* metres; a touch taller than the tutor */
+  fighter2X:1.30,                /* podium deck, right of centre (tutor is at -1.30) */
+  fighter2Z:-4.34,               /* same depth as the tutor's standing spot */
+  fighter2Yaw:0                  /* face the class, out over the room (+z) */
 };
 /* three r172 dropped legacy (non-physical) lighting; scale intensities to keep the tuned r128 look */
 var LIGHT_BOOST=Math.PI*1.18;
 
 /* ---------- renderer / scene ---------- */
 var canvas=document.getElementById('c');
-var renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true,preserveDrawingBuffer:SHOT||DIAG});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+/* Weak-GPU detection: this lab was tuned on discrete graphics. HD/UHD Intel
+   iGPUs and software rasterisers cannot afford MSAA + 2048 shadows + 8 point
+   lights at native resolution, so start those machines straight in low mode. */
+function detectWeakGPU(){
+  try{
+    var c=document.createElement('canvas');
+    var gl=c.getContext('webgl2')||c.getContext('webgl');
+    if(!gl)return true;
+    var ext=gl.getExtension('WEBGL_debug_renderer_info');
+    var s=((ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER))||'').toLowerCase();
+    var lose=gl.getExtension('WEBGL_lose_context');if(lose)lose.loseContext();
+    return s.indexOf('swiftshader')>=0||s.indexOf('llvmpipe')>=0||s.indexOf('software')>=0||
+      s.indexOf('basic render')>=0||/intel.*(hd|uhd) graphics/.test(s);
+  }catch(e){return false;}
+}
+var WEAK_GPU=detectWeakGPU();
+var renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:!WEAK_GPU,preserveDrawingBuffer:SHOT||DIAG});
+renderer.setPixelRatio(WEAK_GPU?1:Math.min(window.devicePixelRatio||1,2));
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure=CONFIG.exposure;
@@ -625,8 +654,8 @@ var M={
   extRed:new THREE.MeshStandardMaterial({color:0xe2231b,roughness:.3,metalness:.08,emissive:0x4a0b05,emissiveIntensity:.35}),
   metalRack:new THREE.MeshStandardMaterial({color:0xb8c0c6,roughness:.32,metalness:.9}),
   aircon:new THREE.MeshStandardMaterial({color:0xf4f4f0,roughness:.55,metalness:.05}),
-  liquid:new THREE.MeshStandardMaterial({color:0x9fd3e8,transparent:true,opacity:.5,roughness:.08,metalness:0}),
-  glass:new THREE.MeshPhongMaterial({color:0xe6f4fb,transparent:true,opacity:.18,shininess:150,specular:0xffffff,side:THREE.DoubleSide,depthWrite:false}),
+  liquid:new THREE.MeshStandardMaterial({color:0x3fb6e8,roughness:.12,metalness:0,envMapIntensity:.9}),
+  glass:new THREE.MeshPhysicalMaterial({color:0xeaf8ff,metalness:0,roughness:.04,transparent:true,opacity:.14,side:THREE.DoubleSide,depthWrite:false,envMapIntensity:2.4,clearcoat:1,clearcoatRoughness:.03,ior:1.5,specularIntensity:1}),
   winGlass:new THREE.MeshStandardMaterial({color:0xf6fbfe,roughness:.06,metalness:0,transparent:true,opacity:.12,envMapIntensity:1.1,depthWrite:false,side:THREE.DoubleSide}),
   blind:new THREE.MeshStandardMaterial({color:0xf2e8c6,roughness:.9}),
   shelf:new THREE.MeshStandardMaterial({color:0xc19760,roughness:.7}),
@@ -2338,6 +2367,102 @@ function makePracticalBook(handBone,holder){
         }
       }
     });
+    /* RC-1 (idle/walk clips never bound): the GLB keeps the authored bone names
+       `mixamorig:Hips`, but FBXLoader sanitises the clip tracks' node names to
+       `mixamorigHips` (PropertyBinding.sanitizeNodeName drops the ':'). The
+       AnimationMixer binds tracks by node name, so `mixamorigHips` never matched
+       `mixamorig:Hips` and the clips silently did nothing -> the tutor froze in
+       its A-pose bind pose. Rename the GLB bones to the sanitised form (in place,
+       so every skinned mesh's skeleton keeps pointing at the same bone objects)
+       so the existing FBX clips bind without re-exporting the model. */
+    obj.traverse(function(o){
+      if(o.isBone&&o.name.indexOf(':')!==-1)o.name=o.name.replace(/:/g,'');
+    });
+    /* RC-2 (scattered face): in the GLB the eye / eyebrow / teeth / face-shell
+       primitives are skinned to `Neck` (eyes 100 % Neck, teeth 100 % Neck, the
+       face shell 79 % Neck) while the glasses ride `Head`. Any head/neck motion
+       therefore slides the facial features off the skull. Re-bind those face
+       primitives rigidly to the `Head` bone so the face stays assembled. Only
+       face materials are touched; the body/hair/suit/shoes keep their weights. */
+    var headBone=null;
+    obj.traverse(function(o){if(o.isBone&&/Head$/i.test(o.name)&&!/End/i.test(o.name)&&!headBone)headBone=o;});
+    var faceReweighted=0,glassesReplaced=false;
+    if(headBone){
+      /* whole-figure bind height (local space) to identify the head region */
+      var figBox=new THREE.Box3().setFromObject(obj);
+      var figH=Math.max(figBox.max.y-figBox.min.y,1e-4),figY0=figBox.min.y;
+      var FACE_MAT=/eye|eyebrow|eyelash|teeth|face|mouth|tongue/i;
+      obj.traverse(function(o){
+        if(!o.isSkinnedMesh||!o.geometry||!o.geometry.attributes.skinIndex)return;
+        var mnames=(Array.isArray(o.material)?o.material:[o.material]).map(function(m){return m&&m.name||'';});
+        var byName=mnames.some(function(n){return FACE_MAT.test(n);});
+        /* the eye/eyelash shell primitive is named `bodyMaterial`, so also catch
+           the small face-region parts by their bind bounds: their geometry sits
+           entirely in the top ~18 % of the figure (head height). */
+        var byRegion=false;
+        if(!byName){
+          if(o.geometry.boundingBox===null)o.geometry.computeBoundingBox();
+          var b=o.geometry.boundingBox;
+          if(b&&b.max.y>b.min.y&&(b.min.y-figY0)>figH*0.82&&(b.max.y-b.min.y)<figH*0.30)byRegion=true;
+        }
+        if(!byName&&!byRegion)return;
+        var hi=o.skeleton?o.skeleton.bones.indexOf(headBone):-1;
+        if(hi<0)return;   /* Head not in this skin: leave untouched */
+        var si=o.geometry.attributes.skinIndex,sw=o.geometry.attributes.skinWeight,n=si.count;
+        for(var v=0;v<n;v++){
+          si.setX(v,hi);si.setY(v,0);si.setZ(v,0);si.setW(v,0);
+          sw.setX(v,1);sw.setY(v,0);sw.setZ(v,0);sw.setW(v,0);
+        }
+        si.needsUpdate=true;sw.needsUpdate=true;
+        faceReweighted++;
+      });
+    }
+    /* RC-3 (over-dense glasses): the GLB ships a 4,680-vertex `Torus` bound 100 %
+       to `Head`, which is runtime cost with no visual payoff. Hide it and add a
+       light pair of glasses (two lens rings + bridge + temple arms) parented to
+       the `Head` bone so it tracks the skull. The original mesh is kept in the
+       scene (just made invisible) so nothing that counts meshes breaks. */
+    if(headBone){
+      var origGlasses=null;
+      obj.traverse(function(o){if((o.isMesh||o.isSkinnedMesh)&&o.material&&/glass/i.test(o.material.name||'')&&!origGlasses)origGlasses=o;});
+      if(origGlasses){
+        /* place the lite glasses exactly where the original sat (its bind-pose
+           world centre), then attach() them to the Head bone so they keep that
+           world pose and inherit the head's motion. Avoids guessing offsets in
+           the bone's rotated local frame. */
+        origGlasses.visible=false;
+        obj.updateMatrixWorld(true);
+        var gbox=new THREE.Box3().setFromObject(origGlasses);
+        var gsz=gbox.getSize(new THREE.Vector3());
+        var gc=gbox.getCenter(new THREE.Vector3());
+        /* size the lite frames from the original: half the width is one lens plus
+           the gap, so a lens radius of ~40 % of the full width reads correctly. */
+        var lensR=Math.max(gsz.x*0.24,gsz.y*0.30,0.02);
+        headBone.updateMatrixWorld(true);
+        var gm=new THREE.MeshStandardMaterial({color:0x1a1a1f,metalness:0.2,roughness:0.35});
+        var glasses=new THREE.Group();glasses.name='TutorGlassesLite';
+        var R=lensR,gauge=Math.max(lensR*0.12,0.002);
+        [-1,1].forEach(function(side){
+          var ring=new THREE.Mesh(new THREE.TorusGeometry(R,gauge,8,20),gm);
+          ring.position.set(side*R*1.05,0,0);glasses.add(ring);
+        });
+        var bridge=new THREE.Mesh(new THREE.CylinderGeometry(gauge,gauge,R*0.9,8),gm);
+        bridge.rotation.z=Math.PI/2;bridge.position.y=R*0.12;glasses.add(bridge);
+        [-1,1].forEach(function(side){
+          var arm=new THREE.Mesh(new THREE.CylinderGeometry(gauge*0.8,gauge*0.8,R*2.6,6),gm);
+          arm.rotation.y=Math.PI/2;arm.position.set(side*R*1.9,0,-R*0.2);glasses.add(arm);
+        });
+        /* the original torus lies in the head's local XZ; keep the lite frames
+           flat facing out (+z) and centred on that point, in world space. */
+        glasses.traverse(function(o){o.castShadow=false;o.receiveShadow=false;});
+        glasses.position.copy(gc);
+        obj.updateMatrixWorld(true);
+        (origGlasses.parent||obj).add(glasses);   /* sibling in the rig's frame */
+        glasses.updateMatrixWorld(true);
+        headBone.attach(glasses);                 /* re-parent, preserving world pose */
+        glassesReplaced=true;
+      }
+    }
     /* normalise: scale so the figure is CONFIG.fighterHeight tall, then recentre
        it on the origin (x/z) and drop its feet to the floor (y=0). */
     var bb=new THREE.Box3().setFromObject(obj);
@@ -2379,7 +2504,7 @@ function makePracticalBook(handBone,holder){
     var fb=new THREE.Box3().setFromObject(holder),fsz=fb.getSize(new THREE.Vector3());
     fighterInfo={present:true,parts:parts,vertices:verts,clips:obj.animations?obj.animations.length:0,
       clipNames:baseClip?[baseClip.name+'/'+baseClip.duration.toFixed(2)]:[],playing:null,
-      grip:!!handBone,book:!!fighter.book,
+      grip:!!handBone,book:!!fighter.book,faceReweighted:faceReweighted,glassesReplaced:glassesReplaced,
       pos:[+holder.position.x.toFixed(3),+holder.position.y.toFixed(3),+holder.position.z.toFixed(3)],
       size:[+fsz.x.toFixed(3),+fsz.y.toFixed(3),+fsz.z.toFixed(3)],
       bbox:{min:[+fb.min.x.toFixed(3),+fb.min.y.toFixed(3),+fb.min.z.toFixed(3)],
@@ -2427,6 +2552,23 @@ function makePracticalBook(handBone,holder){
            hips is the only translating bone in the Mixamo clips. */
         clip.tracks=clip.tracks.filter(function(tr){return !/\.position$/i.test(tr.name);});
         if(!fighter)return;
+        /* RC-1 guard: bind tracks to the rig by name even if the naming convention
+           ever differs (GLB keeps `mixamorig:Hips`, FBXLoader sanitises tracks to
+           `mixamorigHips`). Map each track's nodeName onto the rig's actual bone
+           name so the mixer always finds the target; record how many matched so a
+           broken bind is visible in the diag dump instead of silently no-opping. */
+        var boneByKey={},matched=0,unmatched=0;
+        fighter.rig.traverse(function(o){
+          if(o.isBone)boneByKey[String(o.name).replace(/[^A-Za-z0-9_]/g,'')]=o.name;
+        });
+        clip.tracks.forEach(function(tr){
+          var dot=tr.name.lastIndexOf('.');
+          var nodeName=tr.name.slice(0,dot),prop=tr.name.slice(dot);
+          var key=nodeName.replace(/[^A-Za-z0-9_]/g,'');
+          if(boneByKey[key]!==undefined){matched++;if(boneByKey[key]!==nodeName)tr.name=boneByKey[key]+prop;}
+          else unmatched++;
+        });
+        fighter.clipBind={clip:key,matched:matched,unmatched:unmatched,total:clip.tracks.length};
         fighter.clips[key]=clip;fighter.clipNames.push(key+':'+clip.name+'/'+clip.duration.toFixed(2));
         var act=fighter.mixer.clipAction(clip);
         fighter.actions[key]=act;
@@ -2458,6 +2600,87 @@ function makePracticalBook(handBone,holder){
     return true;
   }
   window.__fighterCrossFade=crossFadeTo;
+})();
+
+/* ---------- second teacher: the original Mixamo fighter ----------
+   assets/fighter.fbx (27 MB) is displayed permanently beside the tutor on the
+   podium deck and holds the same looping idle stance - the two figures read as
+   co-teachers. It never walks, so it has its own minimal actor: normalise to
+   CONFIG.fighter2Height, drop the feet onto the deck (CONFIG.fighterStandY),
+   place at CONFIG.fighter2X/Z facing the class, and stream the idle clip. The
+   whole actor is skipped under every headless harness unless ?fighter=1 asks,
+   keeping the test gates deterministic (exactly like the tutor). */
+var fighter2Model=null,fighter2Mixer=null,fighter2Info={present:false};
+var fighter2=null;
+(function loadSecondTeacher(){
+  if(!CONFIG.fighter2||(SKYHARNESS&&!SHOT&&!FIGHTER)){return;}
+  trace('fighter2:start');
+  function onFighter2Loaded(obj){
+    var parts=0,verts=0;
+    obj.traverse(function(o){
+      if(o.isMesh||o.isSkinnedMesh){
+        parts++;verts+=(o.geometry&&o.geometry.attributes.position)?o.geometry.attributes.position.count:0;
+        /* performance: the co-teacher is ~105k skinned verts and always drawn
+           (frustumCulled=false). Keeping it out of the shadow pass removes that
+           whole mesh from the shadow map every time it refreshes, which is the
+           single biggest per-frame cost on software/weak GPUs. It still receives
+           shadows (receiveShadow=true) so it never looks flat or detached. */
+        o.castShadow=false;o.receiveShadow=true;
+        o.frustumCulled=false;   /* skinned meshes deform each frame: never cull */
+        if(o.material){
+          (Array.isArray(o.material)?o.material:[o.material]).forEach(function(m){
+            if(m&&m.map){m.map.colorSpace=THREE.SRGBColorSpace;m.map.anisotropy=8;}
+          });
+        }
+      }
+    });
+    /* normalise to CONFIG.fighter2Height, recentre on x/z, feet on the deck */
+    var bb=new THREE.Box3().setFromObject(obj);
+    var sz=bb.getSize(new THREE.Vector3());
+    var s=CONFIG.fighter2Height/Math.max(sz.y,1e-4);
+    var holder=new THREE.Group();
+    holder.scale.setScalar(s);
+    holder.add(obj);
+    var bb2=new THREE.Box3().setFromObject(holder);
+    var ctr2=bb2.getCenter(new THREE.Vector3());
+    obj.position.x-=ctr2.x/s;obj.position.z-=ctr2.z/s;
+    var footOffset=CONFIG.fighterStandY-bb2.min.y;   /* deck top under the feet */
+    holder.position.set(CONFIG.fighter2X,footOffset,CONFIG.fighter2Z);
+    holder.rotation.y=CONFIG.fighter2Yaw;
+    holder.name='secondTeacher';
+    pickRoot.add(holder);
+
+    fighter2Mixer=new THREE.AnimationMixer(obj);
+    fighter2={rig:obj,holder:holder,mixer:fighter2Mixer,scale:s,footOffset:footOffset,playing:null};
+    fighter2Model=holder;
+
+    var fb=new THREE.Box3().setFromObject(holder),fsz=fb.getSize(new THREE.Vector3());
+    fighter2Info={present:true,parts:parts,vertices:verts,
+      pos:[+holder.position.x.toFixed(3),+holder.position.y.toFixed(3),+holder.position.z.toFixed(3)],
+      size:[+fsz.x.toFixed(3),+fsz.y.toFixed(3),+fsz.z.toFixed(3)]};
+    trace('fighter2:loaded');
+
+    /* stream the idle stance so the fighter breathes rather than freezing in bind pose */
+    new FBXLoader().load('./assets/anims/Standing_Idle.fbx',function(animObj){
+      if(!animObj.animations||!animObj.animations.length||!fighter2)return;
+      var clip=null;
+      animObj.animations.forEach(function(c){if(!clip||c.duration>clip.duration)clip=c;});
+      /* strip the hips translation like the tutor clips (FBXLoader drops the ':') */
+      clip.tracks=clip.tracks.filter(function(tr){return !/\.position$/i.test(tr.name);});
+      var act=fighter2.mixer.clipAction(clip);
+      act.reset();act.setLoop(THREE.LoopRepeat,Infinity);act.play();
+      fighter2.playing='idle';
+      fighter2Info.clip=clip.name+'/'+clip.duration.toFixed(2);
+    },undefined,function(err2){
+      ERRLOG.push('FBX fighter2 idle: '+String((err2&&err2.message)||err2));
+    });
+
+    if(DIAG)dumpDiag();
+    if(shotMode&&window.__doShotCapture)window.__doShotCapture();
+  }
+  new FBXLoader().load('./assets/fighter.fbx',onFighter2Loaded,undefined,function(err){
+    ERRLOG.push('FBX second teacher: '+String((err&&err.message)||err));
+  });
 })();
 
 /* ---------- tutor actor: walk in from the door, stand on the podium ----------
@@ -2611,6 +2834,15 @@ window.__tutorWalkTimer=null;
 function requestTutorIn(expId){
   if(expId)window.__pendingExperiment=expId;
   if(window.__tutorArrived)return;
+  /* no teacher configured (CONFIG.fighter off): the lab is running without a rig,
+     so start the practical immediately instead of waiting for a walk-in that can
+     never happen. Keeps the lesson button instant while the figures are absent. */
+  if(!CONFIG.fighter){
+    window.__teachPending=false;
+    if(typeof startPracticalNow==='function')startPracticalNow();
+    if(typeof syncLessonBtn==='function')syncLessonBtn();
+    return;
+  }
   window.__teachPending=true;
   if(!window.__tutorWalkTimer){
     window.__tutorWalkTimer=setTimeout(function(){
@@ -2785,22 +3017,46 @@ function makeSlidingDoor(parent,w,h,x,y,z,dir,faceMat,maxExt){
 }
 
 /* ---------- bench glassware: flasks, graduated cylinders and test-tube racks ---------- */
+/* Graduation marks are drawn once into a small texture and wrapped onto a
+   slightly larger transparent shell, so each vessel gains calibrated-looking
+   markings at the cost of one extra draw call - no refraction pass. */
+var gradTex=(function(){
+  var c=document.createElement('canvas');c.width=64;c.height=128;
+  var x=c.getContext('2d');
+  x.strokeStyle='rgba(255,255,255,0.85)';x.lineWidth=1.4;
+  for(var i=0;i<=10;i++){
+    var y=8+i*11.2,longTick=(i%2===0);
+    x.beginPath();x.moveTo(3,y);x.lineTo(longTick?20:12,y);x.stroke();
+  }
+  x.strokeStyle='rgba(255,255,255,0.45)';x.lineWidth=1;
+  x.beginPath();x.moveTo(3,8);x.lineTo(3,120);x.stroke();
+  var t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=2;
+  return t;
+})();
+var gradMat=new THREE.MeshBasicMaterial({map:gradTex,transparent:true,opacity:.55,depthWrite:false,side:THREE.DoubleSide,toneMapped:false});
+var beakerTicksGeo=new THREE.CylinderGeometry(.0402,.0382,.098,16,1,true);
+var cylTicksGeo=new THREE.CylinderGeometry(.0224,.0224,.196,16,1,true);
+var beakerRimGeo=new THREE.TorusGeometry(.04,.0022,6,20);
+var cylRimGeo=new THREE.TorusGeometry(.022,.0016,6,16);
 function flask(parent,x,z,col){
   var g=new THREE.Group();g.position.set(x,H,z);
-  var body=new THREE.Mesh(new THREE.CylinderGeometry(.022,.052,.13,20,1,true),M.glass);body.position.y=.065;g.add(body);
-  var neck=new THREE.Mesh(new THREE.CylinderGeometry(.014,.017,.07,14,1,true),M.glass);neck.position.y=.163;g.add(neck);
-  var rim=new THREE.Mesh(new THREE.TorusGeometry(.016,.0022,8,20),M.glass);rim.position.y=.198;rim.rotation.x=Math.PI/2;g.add(rim);
+  var body=new THREE.Mesh(new THREE.CylinderGeometry(.022,.052,.13,20,1,true),M.glass);body.position.y=.065;body.renderOrder=2;g.add(body);
+  var foot=new THREE.Mesh(new THREE.CylinderGeometry(.052,.052,.006,20),M.glass);foot.position.y=.003;foot.renderOrder=2;g.add(foot);
+  var neck=new THREE.Mesh(new THREE.CylinderGeometry(.014,.017,.07,14,1,true),M.glass);neck.position.y=.163;neck.renderOrder=2;g.add(neck);
+  var rim=new THREE.Mesh(new THREE.TorusGeometry(.016,.0022,8,20),M.glass);rim.position.y=.198;rim.rotation.x=Math.PI/2;rim.renderOrder=2;g.add(rim);
   var fm=M.liquid.clone();fm.color.setHex(col||0x9fd3e8);
-  var f=new THREE.Mesh(new THREE.CylinderGeometry(.019,.045,.09,20),fm);f.position.y=.05;g.add(f);
+  var f=new THREE.Mesh(new THREE.CylinderGeometry(.019,.045,.09,20),fm);f.position.y=.05;f.renderOrder=1;g.add(f);
   contactShadow(g,0,.002,0,.2,.2);
   parent.add(g);glassware.push(g);return g;
 }
 function gradCylinder(parent,x,z,col){
   var g=new THREE.Group();g.position.set(x,H,z);
-  var base=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,.012,16),M.glass);base.position.y=.006;g.add(base);
-  var body=new THREE.Mesh(new THREE.CylinderGeometry(.022,.022,.2,16,1,true),M.glass);body.position.y=.108;g.add(body);
+  var base=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,.012,16),M.glass);base.position.y=.006;base.renderOrder=2;g.add(base);
+  var body=new THREE.Mesh(new THREE.CylinderGeometry(.022,.022,.2,16,1,true),M.glass);body.position.y=.108;body.renderOrder=2;g.add(body);
   var fm2=M.liquid.clone();fm2.color.setHex(col||0x9fd3e8);
-  var f=new THREE.Mesh(new THREE.CylinderGeometry(.019,.019,.14,16),fm2);f.position.y=.075;g.add(f);
+  var f=new THREE.Mesh(new THREE.CylinderGeometry(.019,.019,.14,16),fm2);f.position.y=.075;f.renderOrder=1;g.add(f);
+  var ticks=new THREE.Mesh(cylTicksGeo,gradMat);ticks.position.y=.108;ticks.renderOrder=4;g.add(ticks);
+  var lip=new THREE.Mesh(cylRimGeo,M.glass);lip.rotation.x=Math.PI/2;lip.position.y=.208;lip.renderOrder=2;g.add(lip);
   contactShadow(g,0,.002,0,.16,.16);
   parent.add(g);glassware.push(g);return g;
 }
@@ -2815,9 +3071,9 @@ function testTubeRack(parent,x,z,n,col){
   for(var i=0;i<n;i++){
     var tx=-w/2+.024+i*((w-.048)/(n-1));
     box(.028,.006,.028,M.dark,tx,h+.001,0,g,true);
-    var t=new THREE.Mesh(tubeGlassGeo,M.glass);t.position.set(tx,h+.028,0);g.add(t);testTubes.push(t);
+    var t=new THREE.Mesh(tubeGlassGeo,M.glass);t.position.set(tx,h+.028,0);t.renderOrder=2;g.add(t);testTubes.push(t);
     var fm=M.liquid.clone();fm.color.setHex(col||0x9fd3e8);
-    var f=new THREE.Mesh(tubeFillGeo,fm);f.position.set(tx,h+.018,0);g.add(f);
+    var f=new THREE.Mesh(tubeFillGeo,fm);f.position.set(tx,h+.018,0);f.renderOrder=1;g.add(f);
   }
   contactShadow(g,0,.002,0,.24,.16);
   parent.add(g);tubeRacks.push(g);return g;
@@ -2957,12 +3213,15 @@ function beaker(parent,x,z,col){
   var g=new THREE.Group();g.position.set(x,H,z);
   var hasWater=(beakerN++%2===0);
   var ref={group:g,col:col,water:hasWater,broken:false};
-  var b=new THREE.Mesh(new THREE.CylinderGeometry(.04,.038,.1,16,1,true),M.glass);b.position.y=.05;g.add(b);
+  var b=new THREE.Mesh(new THREE.CylinderGeometry(.04,.038,.1,16,1,true),M.glass);b.position.y=.05;b.renderOrder=2;g.add(b);
+  var bfoot=new THREE.Mesh(new THREE.CylinderGeometry(.039,.039,.006,16),M.glass);bfoot.position.y=.003;bfoot.renderOrder=2;g.add(bfoot);
+  var lip=new THREE.Mesh(beakerRimGeo,M.glass);lip.rotation.x=Math.PI/2;lip.position.y=.1;lip.renderOrder=2;g.add(lip);
+  var ticks=new THREE.Mesh(beakerTicksGeo,gradMat);ticks.position.y=.05;ticks.renderOrder=4;g.add(ticks);
   var f=null;
   if(hasWater){
     f=new THREE.Mesh(new THREE.CylinderGeometry(.036,.036,.055,16),
-      new THREE.MeshStandardMaterial({color:col,transparent:true,opacity:.7,roughness:.3}));
-    f.position.y=.03;g.add(f);
+      new THREE.MeshStandardMaterial({color:col,roughness:.12,metalness:0,envMapIntensity:.9}));
+    f.position.y=.03;f.renderOrder=1;g.add(f);
   }
   ref.fill=f;
   contactShadow(g,0,.002,0,.2,.2);
@@ -3008,7 +3267,7 @@ function makeStool(x,z){
   pickRoot.add(g);
 }
 
-var beakerCols=[0x9fd3e8,0xb7e0a5,0xe9c27a],bi=0;
+var beakerCols=[0x3fb6e8,0x4fbe6a,0xe0a02e],bi=0;
 /* varied specimen slides distributed across the laboratory microscopes */
 var slidePlan=[
   {stain:'pos'},{stain:'empty'},{stain:'neg'},{stain:'none',cover:true},
@@ -3719,6 +3978,46 @@ function addCeilingFixture(px,pz){
 [[-2.4,-1.5],[-2.4,.7],[-2.4,2.9],[2.4,-1.5],[2.4,.7],[2.4,2.9],[0,-3.3],[0,1.6]].forEach(function(p){
   addCeilingFixture(p[0],p[1]);
 });
+
+/* Adaptive render quality: the Phase-8 perf monitor picks high/medium/low from
+   measured frame time; these are the renderer-side knobs. `?quality=high|medium|low`
+   pins a tier (useful for captures and A/B testing). High is identical to the
+   original tuned look, so nothing changes on a GPU that keeps up. */
+var QUALITY=(function(){
+  var forced=(location.search.match(/[?&]quality=(high|medium|low)/)||[])[1]||(WEAK_GPU?'low':null);
+  var tier='high';
+  function shadowSize(n){
+    if(!key.shadow||key.shadow.mapSize.x===n)return;
+    if(key.shadow.map){key.shadow.map.dispose();key.shadow.map=null;}
+    key.shadow.mapSize.set(n,n);
+  }
+  function apply(t){
+    if(t!=='high'&&t!=='medium'&&t!=='low')t='high';
+    if(t===tier)return tier;
+    tier=t;
+    if(t==='low'){
+      renderer.setPixelRatio(1);
+      renderer.shadowMap.enabled=false;
+      renderer.shadowMap.needsUpdate=false;
+      shadowEvery=1e9;                                  /* never refresh while off */
+      overheadLights.forEach(function(pl,i){pl.userData.qOff=i>=2;});   /* 2 fills, not 8 */
+    }else{
+      var med=(t==='medium');
+      renderer.setPixelRatio(WEAK_GPU?1:Math.min(window.devicePixelRatio||1,med?1.25:2));
+      renderer.shadowMap.enabled=true;
+      renderer.shadowMap.type=med?THREE.PCFShadowMap:THREE.PCFSoftShadowMap;
+      shadowSize(med?1024:(SHOT?1024:2048));
+      shadowEvery=med?3:2;
+      renderer.shadowMap.needsUpdate=true;
+      overheadLights.forEach(function(pl){pl.userData.qOff=false;});
+    }
+    return tier;
+  }
+  function current(){return tier;}
+  if(forced)apply(forced);
+  window.BioLabQuality={apply:apply,current:current,forced:forced,weak:WEAK_GPU};
+  return {apply:apply,current:current,forced:forced};
+})();
 
 /* ---------- camera rig ---------- */
 var cam={target:new V(0.3,1.05,-0.7),theta:.55,phi:1.32,r:4.4};
@@ -4909,6 +5208,11 @@ function dumpDiag(){
       if(!phase8||!phase8.perf)return {ready:false};
       return phase8.perf.snapshot();
     })(),
+    quality:(function(){
+      return {tier:QUALITY.current(),forced:QUALITY.forced,weakGPU:WEAK_GPU,
+        pixelRatio:renderer.getPixelRatio(),shadows:renderer.shadowMap.enabled,
+        shadowEvery:shadowEvery,overheadLit:overheadLights.filter(function(pl){return pl.visible;}).length};
+    })(),
     theme:window.__bioThemeState?window.__bioThemeState():null,
     themeProbe:(function(){
       var p={};
@@ -4940,7 +5244,8 @@ function dumpDiag(){
     bsc:bscInfo,
     heart:heartInfo,
     fighter:fighter?Object.assign({},fighterInfo,{playing:fighter.playing,state:fighter.state,
-      streamClips:Object.keys(fighter.clips)}):fighterInfo,
+      streamClips:Object.keys(fighter.clips),clipBind:fighter.clipBind||null}):fighterInfo,
+    fighter2:fighter2?Object.assign({},fighter2Info,{playing:fighter2.playing}):fighter2Info,
     taps:tapOut,
     drawers:drawerOut,
     treesInfo:{count:trees.length,minParts:treeParts.length?Math.min.apply(null,treeParts):0,parts:treeParts},
@@ -5011,6 +5316,7 @@ function frame(){
   if(BOARDTEST&&document.title==='BOARDTESTREADY')return;
   var dt=Math.min(clock.getDelta(),.05);time+=dt;
   if(phase8&&phase8.frame)phase8.frame(dt);
+  QUALITY.apply(QUALITY.forced||(phase8&&phase8.perf?phase8.perf.state.tier:'high'));
   var k=1-Math.exp(-dt*7);
   cam.target.lerp(goal.target,k);
   cam.theta+=(goal.theta-cam.theta)*k;
@@ -5032,7 +5338,7 @@ function frame(){
   /* faint daylight still enters through the windows when the room lights are off */
   windowLight.visible=true;
   windowLight.intensity=(lightsOn?CONFIG.windowDaylight:0.3)*LIGHT_BOOST;
-  overheadLights.forEach(function(pl){pl.visible=lightsOn;});
+  overheadLights.forEach(function(pl){pl.visible=lightsOn&&!pl.userData.qOff;});
   /* surfaces that only look bright (whiteboard, posters, ceiling fixtures) vanish in the dark */
   glowHide.forEach(function(o){o.visible=lightsOn;});
   /* toggle aircons */
@@ -5044,6 +5350,7 @@ function frame(){
   if(time-wbLastDraw>0.05){wbLastDraw=time;drawBoardAnim(time);}   /* ~20fps: avoid a 1024x410 texture upload every frame */
   if(heartModel)heartModel.userData.spin.rotation.y+=dt*.4;
   if(fighterMixer)fighterMixer.update(dt);   /* tutor idle/walk clip */
+  if(fighter2Mixer)fighter2Mixer.update(dt);   /* second teacher idle clip */
   if(typeof maybeWalkTutorIn==='function')maybeWalkTutorIn();
   if(typeof fighterWalkTick==='function')fighterWalkTick(dt);
   var slowTier=phase8&&phase8.perf.state.tier==='low';
