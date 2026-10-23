@@ -27,6 +27,8 @@ class HomeShell extends StatelessWidget {
         location.startsWith('/writing-studio') ||
         location.startsWith('/malawi-context')) {
       currentIndex = 3;
+    } else if (location.startsWith('/msce-papers')) {
+      currentIndex = 4;
     } else {
       currentIndex = 0;
     }
@@ -56,6 +58,11 @@ class HomeShell extends StatelessWidget {
             selectedIcon: Icon(Icons.science_rounded),
             label: 'Research',
           ),
+          NavigationDestination(
+            icon: Icon(Icons.description_outlined),
+            selectedIcon: Icon(Icons.description_rounded),
+            label: 'Past Papers',
+          ),
         ];
 
         void onNavTap(int index) {
@@ -71,6 +78,9 @@ class HomeShell extends StatelessWidget {
               break;
             case 3:
               context.go('/research');
+              break;
+            case 4:
+              context.go('/msce-papers');
               break;
           }
         }
@@ -106,6 +116,11 @@ class HomeShell extends StatelessWidget {
                       icon: Icon(Icons.science_outlined),
                       selectedIcon: Icon(Icons.science_rounded),
                       label: Text('Research'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.description_outlined),
+                      selectedIcon: Icon(Icons.description_rounded),
+                      label: Text('Past Papers'),
                     ),
                   ],
                 ),

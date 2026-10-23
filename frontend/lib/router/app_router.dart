@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../core/constants/api_constants.dart';
 import '../core/networking/api_client.dart';
 import '../features/audio_input/vtc/voice_training_center_page.dart';
+import '../features/msce_papers/msce_papers_page.dart';
 import '../modules/chemistry_lab/screens/chemistry_lab_screen.dart';
 import '../modules/mathsdrill/screens/mathsdrill_progress_screen.dart';
 import '../modules/mathsdrill/screens/mathsdrill_screen.dart';
@@ -226,6 +227,7 @@ class AppRouter {
           _route('/student', (_) => const StudentDashboard()),
           _route('/dashboard', (_) => const StudentDashboard()),
           _route('/research', (_) => const ResearchLab()),
+          _route('/msce-papers', (_) => const MscePapersPage()),
           _route('/vault', (_) => const KnowledgeVaultScreen()),
           _route('/ocr-scan', (_) => const OcrScanScreen()),
           _route('/assessment-studio', (_) => const AssessmentStudio()),

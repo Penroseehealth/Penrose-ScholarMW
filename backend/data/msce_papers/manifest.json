@@ -1,0 +1,209 @@
+{
+  "generated_at": "2026-10-23T01:43:26Z",
+  "papers": [
+    {
+      "id": "2023_mathematics_p1_p0000",
+      "year": 2023,
+      "subject": "Mathematics",
+      "paper": 1,
+      "subject_code": "131",
+      "title": "MSCE 2023 Mathematics Paper 1",
+      "pages": 14,
+      "file": "papers/ia_2023_maths_p1_p0000.pdf",
+      "source_key": "ia_2023_maths_p1",
+      "source_name": "MSCE Mathematics Paper 1 (2023)",
+      "source_provider": "archive.org",
+      "source_url": "https://archive.org/download/2023-msce-mat-p-1/2023_MSCE_MAT_P1_text.pdf",
+      "sha256": "3b08a15a0905402c05173d923601b4ec8ce8b7d5ddab09581487451df7bf3368",
+      "verified": true,
+      "verification": {
+        "maneb_header": true,
+        "not_mock": true,
+        "subject_code": "131",
+        "paper_label": 1,
+        "year": 2023,
+        "declared_pages": 14,
+        "next_paper_found_at": null,
+        "page_range": [
+          0,
+          13
+        ],
+        "declared_page_total": 14,
+        "page_count_plausible": true,
+        "pages_match_declared": true
+      },
+      "licence": "Educational use; papers are the property of MANEB.",
+      "attribution": "Malawi National Examinations Board (MANEB)"
+    },
+    {
+      "id": "2023_mathematics_p2_p0000",
+      "year": 2023,
+      "subject": "Mathematics",
+      "paper": 2,
+      "subject_code": "131",
+      "title": "MSCE 2023 Mathematics Paper 2",
+      "pages": 18,
+      "file": "papers/ia_2023_maths_p2_p0000.pdf",
+      "source_key": "ia_2023_maths_p2",
+      "source_name": "MSCE Maneb Mathematics Paper 2 (2023)",
+      "source_provider": "archive.org",
+      "source_url": "https://archive.org/download/2023-maneb-maths-p-2/2023_Maneb_Maths_P2_text.pdf",
+      "sha256": "d2592c08bff2e1d940fa3d77783b847c7b87d204acc9d4cc32c5efe9ef481a88",
+      "verified": true,
+      "verification": {
+        "maneb_header": true,
+        "not_mock": true,
+        "subject_code": "131",
+        "paper_label": 2,
+        "year": 2023,
+        "declared_pages": 19,
+        "next_paper_found_at": null,
+        "page_range": [
+          0,
+          17
+        ],
+        "declared_page_total": 19,
+        "page_count_plausible": true,
+        "pages_match_declared": true
+      },
+      "licence": "Educational use; papers are the property of MANEB.",
+      "attribution": "Malawi National Examinations Board (MANEB)"
+    },
+    {
+      "id": "2026_biology_p1_p0000",
+      "year": 2026,
+      "subject": "Biology",
+      "paper": 1,
+      "subject_code": "022",
+      "title": "MSCE 2026 Biology Paper 1",
+      "pages": 12,
+      "file": "papers/ia_2026_bio_p1_p0000.pdf",
+      "source_key": "ia_2026_bio_p1",
+      "source_name": "MSCE Biology Paper 1 (2026)",
+      "source_provider": "archive.org",
+      "source_url": "https://archive.org/download/2026-bio-p-1.pdf/2026%20Bio%20p1.pdf_text.pdf",
+      "sha256": "c49b492e7e989d1afcd9f6cc4687aa7e524a5fe23d1ab362412cbeebb38ad5de",
+      "verified": true,
+      "verification": {
+        "maneb_header": true,
+        "not_mock": true,
+        "subject_code": "022",
+        "paper_label": 1,
+        "year": 2026,
+        "declared_pages": 12,
+        "next_paper_found_at": null,
+        "page_range": [
+          0,
+          11
+        ],
+        "declared_page_total": 12,
+        "page_count_plausible": true,
+        "pages_match_declared": true
+      },
+      "licence": "Educational use; papers are the property of MANEB.",
+      "attribution": "Malawi National Examinations Board (MANEB)"
+    },
+    {
+      "id": "2020_biology_p1_p0000",
+      "year": 2020,
+      "subject": "Biology",
+      "paper": 1,
+      "subject_code": "022",
+      "title": "MSCE 2020 Biology Paper 1",
+      "pages": 11,
+      "file": "papers/wtec1_2021_2023_mixed_p0000.pdf",
+      "source_key": "wtec1_2021_2023_mixed",
+      "source_name": "Maneb MSCE papers 2021 & 2023",
+      "source_provider": "wtec1.com (Google Drive mirror)",
+      "source_url": "https://drive.google.com/uc?export=download&id=1Pskb61dISyFbx8mu9A4vyPOEpJi2FnWv",
+      "sha256": "a180784af6b6daadc11f2f823168eaf5385cc09cf2e4b3e8ab889e4ad080d7cf",
+      "verified": true,
+      "verification": {
+        "maneb_header": true,
+        "not_mock": true,
+        "subject_code": "022",
+        "paper_label": 1,
+        "year": 2020,
+        "declared_pages": 11,
+        "next_paper_found_at": 11,
+        "page_range": [
+          0,
+          10
+        ],
+        "declared_page_total": 11,
+        "page_count_plausible": true,
+        "pages_match_declared": true
+      },
+      "licence": "Educational use; papers are the property of MANEB.",
+      "attribution": "Malawi National Examinations Board (MANEB)"
+    },
+    {
+      "id": "2021_biology_p1_p0011",
+      "year": 2021,
+      "subject": "Biology",
+      "paper": 1,
+      "subject_code": "022",
+      "title": "MSCE 2021 Biology Paper 1",
+      "pages": 12,
+      "file": "papers/wtec1_2021_2023_mixed_p0011.pdf",
+      "source_key": "wtec1_2021_2023_mixed",
+      "source_name": "Maneb MSCE papers 2021 & 2023",
+      "source_provider": "wtec1.com (Google Drive mirror)",
+      "source_url": "https://drive.google.com/uc?export=download&id=1Pskb61dISyFbx8mu9A4vyPOEpJi2FnWv",
+      "sha256": "2a4c6c354841d9dab593c765276d1d8b5c140342f4960425957326ff01d8e70b",
+      "verified": true,
+      "verification": {
+        "maneb_header": true,
+        "not_mock": true,
+        "subject_code": "022",
+        "paper_label": 1,
+        "year": 2021,
+        "declared_pages": null,
+        "next_paper_found_at": 23,
+        "page_range": [
+          11,
+          22
+        ],
+        "declared_page_total": null,
+        "page_count_plausible": true,
+        "pages_match_declared": false
+      },
+      "licence": "Educational use; papers are the property of MANEB.",
+      "attribution": "Malawi National Examinations Board (MANEB)"
+    },
+    {
+      "id": "2021_mathematics_p1_p0028",
+      "year": 2021,
+      "subject": "Mathematics",
+      "paper": 1,
+      "subject_code": "131",
+      "title": "MSCE 2021 Mathematics Paper 1",
+      "pages": 14,
+      "file": "papers/wtec1_2021_2023_mixed_p0028.pdf",
+      "source_key": "wtec1_2021_2023_mixed",
+      "source_name": "Maneb MSCE papers 2021 & 2023",
+      "source_provider": "wtec1.com (Google Drive mirror)",
+      "source_url": "https://drive.google.com/uc?export=download&id=1Pskb61dISyFbx8mu9A4vyPOEpJi2FnWv",
+      "sha256": "e8062691c62a3b0e5347a8b6f29da09ccf8958a871227caf63333ecdc67a42e6",
+      "verified": true,
+      "verification": {
+        "maneb_header": true,
+        "not_mock": true,
+        "subject_code": "131",
+        "paper_label": 1,
+        "year": 2021,
+        "declared_pages": null,
+        "next_paper_found_at": 42,
+        "page_range": [
+          28,
+          41
+        ],
+        "declared_page_total": null,
+        "page_count_plausible": true,
+        "pages_match_declared": false
+      },
+      "licence": "Educational use; papers are the property of MANEB.",
+      "attribution": "Malawi National Examinations Board (MANEB)"
+    }
+  ]
+}

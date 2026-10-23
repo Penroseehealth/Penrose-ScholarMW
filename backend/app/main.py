@@ -33,6 +33,7 @@ from app.mathematics.tutor_router import router as math_tutor_router
 from app.mathsdrill.router import router as mathsdrill_router
 from app.messaging.router import router as messaging_router
 from app.middleware.security import RateLimitMiddleware
+from app.msce_papers.router import router as msce_papers_router
 from app.notifications.router import router as notifications_router
 from app.ocr.router import router as ocr_router
 from app.physics.router import router as phys_syllabus_router
@@ -241,6 +242,7 @@ app.include_router(courses_router, prefix="/api/v1")
 app.include_router(ai_router, prefix="/api/v1")
 app.include_router(assessments_router, prefix="/api/v1")
 app.include_router(research_router, prefix="/api/v1")
+app.include_router(msce_papers_router, prefix="/api/v1")
 app.include_router(vault_router, prefix="/api/v1")
 app.include_router(notifications_router, prefix="/api/v1")
 app.include_router(admin_router, prefix="/api/v1")
