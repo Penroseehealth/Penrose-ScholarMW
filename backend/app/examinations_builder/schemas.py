@@ -68,6 +68,20 @@ class QuestionItem(BaseModel):
     learning_outcome: str = ""
     rubric: str = ""
     reference: str = ""
+    # Mathematics pipeline structured fields (additive, optional).
+    topic: str = ""
+    subtopic: str = ""
+    curriculum_objective: str = ""
+    given_information: str = ""
+    required_unknown: str = ""
+    expected_method: str = ""
+    worked_solution: str = ""
+    final_answer: str = ""
+    units: str = ""
+    diagram_specification: str = ""
+    equations_or_expressions: list[str] = Field(default_factory=list)
+    source_references: list[str] = Field(default_factory=list)
+    validation_status: str = ""
 
 
 class GenerateRequest(BaseModel):

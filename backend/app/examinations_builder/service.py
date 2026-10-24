@@ -12,6 +12,11 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.ai_client import AIProviderError, call_ai_json
+from app.examinations_builder.math_validate import (
+    is_mathematics,
+    validate_math_question,
+    validation_status,
+)
 from app.config.stem_latex import STEM_LATEX_INSTRUCTION, VISUAL_GENERATION_POLICY
 from app.examinations_builder.paper import (
     ConstructedPaper,
@@ -215,6 +220,26 @@ def _normalise_ai_question(raw: dict) -> dict:
         "rubric": str(raw.get("rubric") or "").strip(),
         "reference": str(raw.get("reference") or "").strip(),
     }
+    # Mathematics pipeline structured fields (additive, optional).
+    for key in (
+        "topic",
+        "subtopic",
+        "curriculum_objective",
+        "given_information",
+        "required_unknown",
+        "expected_method",
+        "worked_solution",
+        "final_answer",
+        "units",
+        "diagram_specification",
+    ):
+        value = str(raw.get(key) or "").strip()
+        if value:
+            question[key] = value
+    for key in ("equations_or_expressions", "source_references"):
+        values = [str(v).strip() for v in (raw.get(key) or []) if str(v).strip()]
+        if values:
+            question[key] = values
     return sanitize_question(question)
 
 
@@ -606,6 +631,179 @@ def _fallback_questions(config, context: dict, count: int) -> list[dict]:
     return questions
 
 
+# ── Mathematics-specific generation pipeline ────────────────────────────────
+# Inserted by math_patch.py. Mathematics is never silently degraded to generic
+# template questions: defective questions are repaired with the provider and
+# re-validated; a persistent failure raises MathGenerationError.
+
+
+class MathGenerationError(Exception):
+    """Raised when mathematics generation cannot produce validated questions."""
+
+
+def _math_prompt(config, context) -> str:
+    """Mathematics-specific generation prompt (structured, solvable tasks)."""
+    objectives = context.get("learning_objectives") or []
+    objective_lines = (
+        "\n".join(f"- {o}" for o in objectives) or "- (no objectives provided)"
+    )
+    type_instruction = ", ".join(config.question_types or ["calculation"])
+    count = _safe_int(config.num_questions, 10)
+    return (
+        f"Create {count} genuine, solvable mathematics questions for the Malawi "
+        f"MSCE syllabus.\n"
+        f"Subject: {context.get('subject') or 'Mathematics'}\n"
+        f"Class/Form: {context.get('form') or '-'}\n"
+        f"Topic: {context.get('topic') or '-'}\n"
+        f"Subtopic: {context.get('subtopic') or '-'}\n"
+        f"Paper title: {config.title or 'Untitled Examination'}\n"
+        f"Total marks: {config.total_marks}\n"
+        f"Difficulty: {config.difficulty}. Bloom focus: {config.bloom_focus}.\n"
+        f"Question types allowed: {type_instruction}.\n\n"
+        "Curriculum objectives to assess (these are the CONTENT to test — never "
+        "quote their wording in a question stem):\n"
+        f"{objective_lines}\n\n"
+        "HARD RULES — a question is INVALID if it violates any of these:\n"
+        "1. Every question must contain a concrete mathematical task: all the "
+        "necessary numbers, expressions, equations, coordinates, or measurements, "
+        "plus a specific unknown, quantity, proof, construction, graph, or result "
+        "the learner must determine.\n"
+        "2. NEVER write 'Carry out a calculation related to ...'. NEVER name a "
+        "theorem, formula, graph, or topic without specifying the actual task. "
+        "NEVER ask the learner to calculate something when the information "
+        "needed is absent. INVALID example: 'Carry out a calculation related to "
+        "the theorem: the angle in a semicircle is a right angle.'\n"
+        "3. VALID example: 'A, B and C lie on a circle, centre O. AB is a "
+        "diameter and angle BAC = 32 degrees. Calculate angle ABC, giving a "
+        "reason for your answer.' — numeric data, a named unknown, and a "
+        "verifiable answer.\n"
+        "4. Non-arithmetic tasks (prove, show that, simplify, factorise, "
+        "factorize, expand, sketch, construct, define, interpret) are welcome "
+        "and do NOT need numbers — but must still state exactly what to do and "
+        "with which given objects.\n"
+        "5. Use consistent units wherever quantities have them. The final "
+        "answer must follow determinately from the given information.\n"
+        "6. worked_solution must show the full reasoning; final_answer must be "
+        "the exact value (with units when applicable).\n"
+        "7. For equation-based items, put the governing equation(s) in "
+        "equations_or_expressions using ASCII math (x^2, 2x + 3 = 11, "
+        "y = 2x - 5) so they can be verified symbolically.\n"
+        "8. When a figure helps, give diagram_specification: labelled points "
+        "and their relationships — they must agree with the question's numbers "
+        "and the verified solution.\n"
+        "9. Do not fabricate sources, page numbers, or past-paper attributions; "
+        "leave source_references empty unless quoting supplied resources.\n"
+        "10. Vary structure; keep difficulty and marks appropriate for the "
+        "selected Form; marks across questions should sum towards "
+        f"{config.total_marks}.\n\n"
+        "Return ONLY a JSON object in this exact shape:\n"
+        '{"questions": [{"question_type": '
+        '"multiple_choice|true_false|fill_in_blank|short_answer|structured|'
+        'essay|calculation|case_study", "question_text": "...", "options": '
+        '["...", ...], "correct_answer": "...", "marks": <int>, "difficulty": '
+        '"easy|medium|hard", "bloom_level": "...", "learning_outcome": "...", '
+        '"rubric": "...", "topic": "...", "subtopic": "...", '
+        '"curriculum_objective": "...", "given_information": "...", '
+        '"required_unknown": "...", "equations_or_expressions": ["..."], '
+        '"diagram_specification": "", "expected_method": "...", '
+        '"worked_solution": "...", "final_answer": "...", "units": "", '
+        '"source_references": []}]}'
+    )
+
+
+async def _repair_math_questions(config, context, defect_map) -> list[dict]:
+    """One corrective provider round-trip for defective mathematics questions."""
+    items = []
+    for idx, (q, problems) in enumerate(defect_map.values(), 1):
+        items.append(
+            f"{idx}. ORIGINAL: {q['question_text']}\n"
+            f"   DEFECTS: {'; '.join(problems)}"
+        )
+    raw = await call_ai_json(
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are an expert MSCE mathematics examiner. Rewrite "
+                    "defective mathematics questions as concrete, solvable "
+                    "tasks that fix every listed defect. Return ONLY valid "
+                    "JSON matching the requested schema."
+                    + STEM_LATEX_INSTRUCTION
+                    + VISUAL_GENERATION_POLICY
+                ),
+            },
+            {
+                "role": "user",
+                "content": (
+                    "Rewrite each defective mathematics question below. For "
+                    "every item supply ALL the information a learner needs "
+                    "(numbers, equations, named unknown), a worked_solution, "
+                    "and a final_answer that actually follows from the given "
+                    "information. Never mention a theorem without the actual "
+                    "task. Return ONLY a JSON object: "
+                    '{"questions": [{...same schema as before...}]} with the '
+                    "same number of items, in order.\n\n"
+                    + "\n\n".join(items)
+                ),
+            },
+        ],
+        temperature=0.4,
+        max_tokens=3072,
+        timeout=45.0,
+    )
+    raw_questions = raw.get("questions") if isinstance(raw, dict) else raw
+    return [
+        _normalise_ai_question(q)
+        for q in (raw_questions or [])
+        if isinstance(q, dict) and str(q.get("question_text") or "").strip()
+    ]
+
+
+async def _math_generate_with_validation(
+    config, context, questions, count, max_rounds: int = 2
+) -> list[dict]:
+    """Validate mathematics questions and repair defective ones.
+
+    Round 0 validates the provider's output. Defective questions are repaired
+    with a defect-listed follow-up call (up to ``max_rounds`` rounds). Only
+    questions that pass every check are returned; persistent failures are
+    logged with their defects. Never pads with generic templates.
+    """
+    topic = context.get("topic") or getattr(config, "topic", "") or ""
+    valid: list[dict] = []
+    defect_map: dict[str, tuple[dict, list[str]]] = {}
+    for q in questions:
+        problems = validate_math_question(q, topic)
+        if problems:
+            defect_map[q["id"]] = (q, problems)
+        else:
+            q.setdefault("validation_status", validation_status(q))
+            valid.append(q)
+    for round_no in range(1, max_rounds + 1):
+        if not defect_map or len(valid) >= count:
+            break
+        log.info(
+            "Math validation: repairing %d question(s) (round %d)", len(defect_map), round_no
+        )
+        repaired = await _repair_math_questions(config, context, defect_map)
+        new_defects: dict[str, tuple[dict, list[str]]] = {}
+        for q in repaired:
+            problems = validate_math_question(q, topic)
+            if problems:
+                new_defects[q["id"]] = (q, problems)
+            else:
+                q.setdefault("validation_status", validation_status(q))
+                valid.append(q)
+        defect_map = new_defects
+    if defect_map:
+        summary = "; ".join(
+            f"'{q['question_text'][:60]}...': {', '.join(p)}"
+            for q, p in defect_map.values()
+        )
+        log.warning("Math questions rejected after retries: %s", summary)
+    return valid[:count]
+
+
 async def generate_questions(config, db: AsyncSession) -> list[dict]:
     """Generate exam questions from the syllabus context (AI, then fallback)."""
     context = await load_syllabus_context(db, config)
@@ -694,15 +892,35 @@ async def generate_questions(config, db: AsyncSession) -> list[dict]:
             _normalise_ai_question(q) for q in raw_questions if isinstance(q, dict)
         ]
         questions = [q for q in questions if q["question_text"]]
-        # Keep only questions that pass validation; malformed ones (metadata
-        # leakage, filler options, missing options) are dropped rather than
-        # ever reaching the renderer.
-        questions = [q for q in questions if not question_problems(q)][:count]
+        # Keep only questions that pass structural validation; malformed ones
+        # (metadata leakage, filler options, missing options) are dropped
+        # rather than ever reaching the renderer.
+        questions = [q for q in questions if not question_problems(q)]
+        math_mode = is_mathematics(config.subject or "")
+        if math_mode:
+            # Mathematics: validate solvability, repair defects with the
+            # provider, and never fall back to generic templates.
+            math_qs = await _math_generate_with_validation(
+                config, context, questions, count
+            )
+            if math_qs:
+                return math_qs
+            raise MathGenerationError(
+                "Mathematics generation failed validation after the retry "
+                "limit; no validated questions could be produced. Please retry."
+            )
+        questions = questions[:count]
         if questions:
             return questions
         log.warning("AI returned no usable questions; using fallback templates")
+    except MathGenerationError:
+        raise
     except (AIProviderError, ValueError) as e:
         log.warning("AI question generation failed (%s); using fallback templates", e)
+        if is_mathematics(config.subject or ""):
+            raise MathGenerationError(
+                f"AI provider unavailable for mathematics generation: {e}"
+            ) from e
     return _fallback_questions(config, context, count)
 
 
@@ -752,9 +970,30 @@ async def regenerate_question(
             rebuilt = _normalise_ai_question(raw)
             rebuilt["id"] = question_id
             if rebuilt["question_text"]:
+                if is_mathematics(config.subject or ""):
+                    problems = validate_math_question(
+                        rebuilt, getattr(config, "topic", "") or ""
+                    )
+                    if problems:
+                        raise MathGenerationError(
+                            "Regenerated mathematics question failed "
+                            "validation: " + "; ".join(problems)
+                        )
+                    rebuilt.setdefault(
+                        "validation_status", validation_status(rebuilt)
+                    )
                 return rebuilt
         except (AIProviderError, ValueError) as e:
             log.warning("Question regeneration failed (%s); using fallback", e)
+            if is_mathematics(config.subject or ""):
+                raise MathGenerationError(
+                    f"AI provider unavailable for mathematics regeneration: {e}"
+                ) from e
+    if is_mathematics(config.subject or ""):
+        raise MathGenerationError(
+            "Mathematics regeneration failed validation; generic template "
+            "fallback is disabled for mathematics."
+        )
     if existing is None:
         factory = _FALLBACK_FACTORIES.get("short_answer")
         return factory(
