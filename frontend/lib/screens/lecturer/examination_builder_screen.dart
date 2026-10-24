@@ -40,10 +40,11 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
   bool _includeAnswers = false;
 
   // Professional-paper formatting (optional; drives cover/paper_options payload).
-  bool _includeCover = false;
+  bool _includeCover = true;
+  bool _msceStyle = true; // Marist/MSCE exam layout: strict cover, no section headings
   String _paperSize = 'A4';
   String _numberingStyle = 'decimal';
-  String _markStyle = '[2 marks]';
+  String _markStyle = '(2 marks)';
   String _answerSpace = 'standard';
   bool _showPageNumbers = true;
   bool _showTurnOver = true;
@@ -116,9 +117,12 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
         'answer_space': _answerSpace,
         'show_page_numbers': _showPageNumbers,
         'show_turn_over': _showTurnOver,
+        'show_sections': !_msceStyle,
       };
 
   Map<String, dynamic> get _coverPayload => {
+        'style': _msceStyle ? 'msce' : 'classic',
+        'num_questions': _numQuestions,
         'paper_number': _paperNumberCtrl.text.trim(),
         'exam_code': _examCodeCtrl.text.trim(),
         'term': _termCtrl.text.trim(),
@@ -1130,6 +1134,16 @@ class _ExaminationBuilderScreenState extends State<ExaminationBuilderScreen> {
             controlAffinity: ListTileControlAffinity.leading,
             dense: true,
             title: Text('Include an institution cover page',
+                style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
+          ),
+          CheckboxListTile(
+            value: _msceStyle,
+            onChanged: (v) => setState(() => _msceStyle = v ?? true),
+            activeColor: context.colors.primary,
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            dense: true,
+            title: Text('MSCE exam layout (logo box, instructions, tick table)',
                 style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
           ),
           if (_includeCover) ...[

@@ -35,6 +35,10 @@ class WebTtsAudioPlayer implements TtsAudioPlayer {
       }
       final audio = ctor.callAsConstructor<JSObject>();
       audio.setProperty('src'.toJS, 'data:audio/mpeg;base64,$base64Data'.toJS);
+      // More natural playback
+      try {
+        audio.setProperty('playbackRate'.toJS, 0.98.toJS);
+      } catch (_) {}
       audio.setProperty(
         'onended'.toJS,
         ((JSAny? _) {

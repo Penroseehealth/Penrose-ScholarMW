@@ -74,6 +74,7 @@ class PaperOptions:
     custom_lines_per_question: int = 4
     show_page_numbers: bool = True
     show_turn_over: bool = True
+    show_sections: bool = True  # False = MSCE style: straight numbered questions
     header_lines: list[str] = field(default_factory=list)
     footer_left: str = ""
     footer_right: str = "Examination Code: {exam_code}"
@@ -123,6 +124,8 @@ class CoverData:
     show_version: bool = True
     show_declaration: bool = True
     show_signature: bool = True
+    style: str = "classic"  # classic (institutional) | msce (Marist-style exam cover)
+    num_questions: int = 0
 
 
 @dataclass
@@ -504,6 +507,176 @@ def _options_paragraph(options: list[str]):
     return Paragraph(body, style)
 
 
+def _end_style():
+    from reportlab.lib.styles import ParagraphStyle
+
+    return ParagraphStyle(
+        "endMark",
+        fontName="Helvetica-Bold",
+        fontSize=11,
+        leading=15,
+        spaceBefore=12,
+        alignment=1,
+    )
+
+
+def _msce_cover_story(c: "CoverData", paper: "ConstructedPaper") -> list:
+    """Strict Marist-style MSCE cover.
+
+    Reserved school-logo space (top-left), EXAMINATION NO line (top-right),
+    centred exam header block (exam name / subject / paper / marks), subject
+    number, date + time allowed, numbered instructions, the question tick
+    table with a Total row, and a "Turn over" footer — matching the 2024
+    Marist MSCE Mock II sample layout.
+    """
+    from reportlab.lib import colors
+    from reportlab.lib.styles import ParagraphStyle
+    from reportlab.platypus import Image, Paragraph, Spacer, Table, TableStyle
+
+    left = ParagraphStyle("msceL", fontName="Helvetica", fontSize=10.5, leading=15)
+    centre = ParagraphStyle("msceC", parent=left, alignment=1)
+    centre_b = ParagraphStyle("msceCB", parent=centre, fontName="Helvetica-Bold")
+    head = ParagraphStyle("msceHead", parent=centre_b, fontSize=14, leading=18)
+    head_big = ParagraphStyle("msceBig", parent=head, fontSize=16, leading=20)
+    tiny_r = ParagraphStyle(
+        "msceTinyR", fontName="Helvetica-Oblique", fontSize=8, leading=10, alignment=2
+    )
+    turn_over = ParagraphStyle(
+        "msceTurn", fontName="Helvetica-Bold", fontSize=9.5, leading=12, alignment=2
+    )
+
+    story: list = []
+
+    # Reserved school-logo space (top-left) with the EXAMINATION NO line top-right.
+    if c.logo_path and c.show_logo and os.path.exists(c.logo_path):
+        logo_flow = Image(c.logo_path, width=90, height=60)
+    else:
+        box = Table([[""]], colWidths=[92], rowHeights=[58])
+        box.setStyle(TableStyle([("BOX", (0, 0), (-1, -1), 0.8, colors.black)]))
+        logo_flow = box
+    top = Table(
+        [[logo_flow, Paragraph("<b>EXAMINATION NO</b> " + "_" * 26, left)]],
+        colWidths=[120, 330],
+    )
+    top.setStyle(
+        TableStyle(
+            [
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("ALIGN", (1, 0), (1, 0), "RIGHT"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 0),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+            ]
+        )
+    )
+    story.append(top)
+    story.append(Spacer(1, 20))
+
+    story.append(Paragraph(_esc(c.exam_name), head))
+    story.append(Paragraph(_esc(c.subject), head_big))
+    if c.paper_number:
+        story.append(Paragraph(_esc(c.paper_number), head))
+    if _safe_int(c.total_marks, 0):
+        story.append(Paragraph(f"({_esc(c.total_marks)} marks)", centre_b))
+    story.append(Spacer(1, 8))
+    if c.exam_code:
+        story.append(Paragraph(f"Subject Number: {_esc(c.exam_code)}", left))
+    story.append(Spacer(1, 8))
+    meta_bits = [
+        bit
+        for bit in (
+            c.exam_date,
+            (f"Time Allowed: {_esc(c.duration)}" if c.duration else ""),
+        )
+        if bit
+    ]
+    if meta_bits:
+        story.append(
+            Paragraph(
+                "&nbsp;&nbsp;&nbsp;&nbsp;".join(_esc(b) for b in meta_bits), left
+            )
+        )
+    story.append(Spacer(1, 12))
+
+    num_q = c.num_questions or sum(len(s.questions) for s in paper.sections)
+    total_marks = _safe_int(c.total_marks, 0) or sum(
+        _safe_int(q.marks, 1) for s in paper.sections for q in s.questions
+    )
+    classic_defaults = [
+        "Answer all questions in the spaces provided.",
+        "Write your answers clearly.",
+        "Show all working where required.",
+        "Calculators may be used unless stated otherwise.",
+        "Do not write in the margins.",
+        "Check that your paper contains all pages before starting.",
+    ]
+    instructions = (
+        list(c.instructions)
+        if c.instructions and list(c.instructions) != classic_defaults
+        else [
+            "This paper contains printed pages. Please check that all pages are present.",
+            f"Answer all the {num_q} questions in the spaces provided in the question paper.",
+            "The maximum number of marks for each question is indicated against each question.",
+            "Calculators may be used.",
+            "All working must be clearly shown.",
+            "Write your name at the top of each page in the spaces provided.",
+            "In the table provided on this page, tick against the question number you have answered.",
+        ]
+    )
+    story.append(
+        Paragraph(
+            "Instructions",
+            ParagraphStyle("msceInstr", parent=left, fontName="Helvetica-Bold"),
+        )
+    )
+    for n, ins in enumerate(instructions, 1):
+        story.append(Paragraph(_markup(f"{n}. {ins}"), left))
+    story.append(Spacer(1, 16))
+
+    def tick_chunk(start: int, count: int, is_last: bool) -> Table:
+        numbers = [str(start + i) for i in range(count)]
+        data = [
+            [Paragraph("Question Number", centre_b)] + [""] * (count - 1),
+            [Paragraph("Tick if answered", tiny_r)] + [""] * (count - 1),
+            [Paragraph("Do not write in these columns", tiny_r)] + [""] * (count - 1),
+            numbers,
+            ["" for _ in numbers],
+            [Paragraph(f"Total {total_marks}", centre_b), "", ""] + [""] * (count - 3),
+        ]
+        if not is_last:
+            data[-1] = ["" for _ in data[-1]]
+        t = Table(data, colWidths=[44] * count, hAlign="LEFT")
+        t.setStyle(
+            TableStyle(
+                [
+                    ("SPAN", (0, 0), (-1, 0)),
+                    ("SPAN", (0, 1), (-1, 1)),
+                    ("SPAN", (0, 2), (-1, 2)),
+                    ("SPAN", (0, 5), (-2, 5)),
+                    ("GRID", (0, 3), (-1, 4), 0.7, colors.black),
+                    ("FONTSIZE", (0, 0), (-1, -1), 8.5),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 2),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 2),
+                    ("TOPPADDING", (0, 0), (-1, -1), 3),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+                ]
+            )
+        )
+        return t
+
+    start = 1
+    remaining = num_q
+    while remaining > 0:
+        count = min(10, remaining)
+        story.append(tick_chunk(start, count, is_last=(remaining == count)))
+        story.append(Spacer(1, 8))
+        start += count
+        remaining -= count
+
+    story.append(Spacer(1, 4))
+    story.append(Paragraph("Turn over", turn_over))
+    return story
+
+
 # ── PDF renderer ────────────────────────────────────────────────────────────
 
 
@@ -572,12 +745,17 @@ def build_professional_pdf(paper: ConstructedPaper) -> io.BytesIO:
     def _content_on_page(canvas, doc_, total_content=0):
         # Top rule + optional confidentiality (drawn for every page).
         canvas.saveState()
-        canvas.setStrokeColor(colors.HexColor("#aaaaaa"))
-        canvas.setLineWidth(0.5)
-        canvas.line(
-            margin, size[1] - margin + 8, size[0] - margin, size[1] - margin + 8
+        _msce = (
+            paper.cover is not None
+            and getattr(paper.cover, "style", "classic") == "msce"
         )
-        if opts.confidentiality:
+        if not _msce:
+            canvas.setStrokeColor(colors.HexColor("#aaaaaa"))
+            canvas.setLineWidth(0.5)
+            canvas.line(
+                margin, size[1] - margin + 8, size[0] - margin, size[1] - margin + 8
+            )
+        if opts.confidentiality and not _msce:
             canvas.setFont("Helvetica-Bold", 8)
             canvas.setFillColor(colors.HexColor("#a33"))
             canvas.drawCentredString(
@@ -586,14 +764,35 @@ def build_professional_pdf(paper: ConstructedPaper) -> io.BytesIO:
         if opts.show_page_numbers and canvas.getPageNumber() > cover_offset:
             canvas.setFont("Helvetica", 8.5)
             canvas.setFillColorRGB(0.27, 0.27, 0.27)
-            canvas.drawString(margin, 28, footer_left)
-            canvas.drawRightString(size[0] - margin, 28, footer_right)
-            content_num = canvas.getPageNumber() - cover_offset
-            canvas.drawCentredString(
-                size[0] / 2,
-                28,
-                f"Page {content_num} of {total_content}",
+            msce = (
+                paper.cover is not None
+                and getattr(paper.cover, "style", "classic") == "msce"
             )
+            if msce:
+                page_num = canvas.getPageNumber()
+                page_total = total_content + cover_offset
+            else:
+                page_num = canvas.getPageNumber() - cover_offset
+                page_total = total_content
+            canvas.drawString(margin, 28, footer_left)
+            if not msce:
+                canvas.drawRightString(size[0] - margin, 28, footer_right)
+            if msce:
+                code = getattr(paper.cover, "exam_code", "")
+                canvas.drawRightString(
+                    size[0] - margin,
+                    size[1] - margin - 4,
+                    f"Page {page_num} of {page_total}"
+                    + (f"   {code}" if code else ""),
+                )
+                if page_num < page_total:
+                    canvas.drawRightString(size[0] - margin, 28, "Continued/…")
+            else:
+                canvas.drawCentredString(
+                    size[0] / 2,
+                    28,
+                    f"Page {page_num} of {page_total}",
+                )
         canvas.restoreState()
 
     # reportlab mutates flowables while building, so the counting probe and the
@@ -602,7 +801,7 @@ def build_professional_pdf(paper: ConstructedPaper) -> io.BytesIO:
         story: list = []
 
         # ── Cover page ────────────────────────────────────────────────────────
-        if paper.cover:
+        if paper.cover and getattr(paper.cover, "style", "classic") != "msce":
             c = paper.cover
             if c.logo_path and c.show_logo and os.path.exists(c.logo_path):
                 story.append(Image(c.logo_path, width=80, height=60))
@@ -667,6 +866,11 @@ def build_professional_pdf(paper: ConstructedPaper) -> io.BytesIO:
             story.append(NextPageTemplate("content"))
             story.append(PageBreak())
 
+        if paper.cover and getattr(paper.cover, "style", "classic") == "msce":
+            story.extend(_msce_cover_story(paper.cover, paper))
+            story.append(NextPageTemplate("content"))
+            story.append(PageBreak())
+
         # ── Content pages ────────────────────────────────────────────────────
         if opts.show_header and opts.header_lines:
             story.append(
@@ -677,6 +881,11 @@ def build_professional_pdf(paper: ConstructedPaper) -> io.BytesIO:
 
         qnum = 0
         for section in paper.sections:
+            if not opts.show_sections:
+                for q in section.questions:
+                    qnum += 1
+                    story.extend(_render_question_pdf(q, qnum, opts))
+                continue
             heading = _section_heading(section, opts)
             section_intro = Paragraph(
                 _esc(section.instructions or "Answer all questions."), small
@@ -687,6 +896,9 @@ def build_professional_pdf(paper: ConstructedPaper) -> io.BytesIO:
                 story.extend(_render_question_pdf(q, qnum, opts))
             story.append(Spacer(1, 6))
 
+        if not opts.show_sections:
+            story.append(Spacer(1, 14))
+            story.append(Paragraph("END OF QUESTION PAPER", _end_style()))
         if paper.include_answers:
             story.append(PageBreak())
             story.append(Paragraph("MARKING SCHEME / ANSWER KEY", _header_style(opts)))
