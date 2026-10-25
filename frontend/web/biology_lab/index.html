@@ -111,17 +111,49 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:
 .exit:active{transform:translateY(0)}
 .exit:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .exit svg{display:block;pointer-events:none}
-/* Gram staining workflow overlay (the Gram stain bar tab): full-screen iframe
-   above the canvas and the boot splash, with its own close control */
-.gram{position:fixed;inset:0;z-index:4100;background:var(--bg);display:none}
-.gram.open{display:block}
-.gram iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:var(--bg)}
-.gclose{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);right:14px;
-  width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;
-  border:1px solid var(--line);background:var(--bar);color:var(--ink);box-shadow:0 4px 14px rgba(0,0,0,.35)}
-.gclose:hover{background:rgba(180,60,60,.28);border-color:rgba(255,120,110,.7);color:#ffd9d6}
-.gclose:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.gclose svg{display:block;pointer-events:none}
+/* Gram-staining practical, integrated into the 3D lab: the equipment lives on
+   the workstation tray at the left-wall bench, so this panel only guides the
+   steps while the scene stays visible and interactive */
+.gramlab{position:fixed;right:12px;top:calc(env(safe-area-inset-top,0px) + 64px);width:334px;max-width:calc(100vw - 24px);
+  z-index:20;display:none;flex-direction:column;gap:8px;padding:12px 14px;background:var(--bar);
+  border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.35);color:var(--ink)}
+.gramlab.open{display:flex}
+.gramlab .grow{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
+.gramlab h3{margin:0;font-size:1rem}
+.gramlab p{margin:0;font-size:.87rem;line-height:1.45}
+.gramlab .gtime{font-size:.78rem;color:var(--muted);font-style:italic}
+.gramlab .ghint{font-size:.8rem;color:var(--accent);font-weight:600}
+.gramlab .ghint.warn{color:#b4553a}
+.gramlab .gbar{height:4px;background:var(--line);border-radius:2px}
+.gramlab .gbar i{display:block;height:100%;width:0;background:var(--accent);border-radius:2px;transition:width .4s}
+.gramlab .gstages{display:flex;flex-wrap:wrap;gap:4px;max-height:136px;overflow:auto;padding-right:2px}
+.gramlab .gstages button{font:inherit;font-size:.7rem;padding:3px 7px;border:1px solid var(--line);
+  background:transparent;color:var(--muted);border-radius:7px;cursor:pointer;line-height:1.25;text-align:left}
+.gramlab .gstages button:hover{border-color:var(--accent);color:var(--ink)}
+.gramlab .gstages button[aria-current="true"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.gramlab .gctl{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.gramlab .gctl button{font:inherit;font-size:.82rem;padding:6px 10px;border:1px solid var(--line);
+  background:var(--bar);color:var(--ink);border-radius:8px;cursor:pointer}
+.gramlab .gctl button:hover:not(:disabled){border-color:var(--accent)}
+.gramlab .gctl button.p{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.gramlab .gctl button:disabled{opacity:.42;cursor:default}
+.gramlab .gctl select{font:inherit;font-size:.78rem;padding:4px 2px;border:1px solid var(--line);
+  background:var(--bar);color:var(--ink);border-radius:7px}
+.gramlab .gclose2{font:inherit;font-size:.85rem;width:30px;height:30px;flex:0 0 auto;line-height:1;
+  border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;cursor:pointer}
+.gramlab .gclose2:hover{background:rgba(180,60,60,.22);color:#ffd9d6;border-color:rgba(255,120,110,.6)}
+/* microscope examination: the retained upgraded field through the eyepiece */
+.gramEye{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;
+  flex-direction:column;gap:14px;background:rgba(4,6,10,.94)}
+.gramEye.open{display:flex}
+.gramEye .disc{width:min(70vmin,600px);height:min(70vmin,600px);border-radius:50%;border:7px solid #23262d;
+  box-shadow:0 0 0 2px #3a3f49, inset 0 0 70px rgba(0,0,0,.75);background:#000 url("./gram-stain/assets/field-micrograph.webp") center/cover no-repeat}
+.gramEye .cap{margin:0;color:#e7e3f2;font:600 .95rem/1.4 system-ui,-apple-system,sans-serif}
+.gramEye .note{margin:0;max-width:560px;text-align:center;color:#9aa0ad;font:.78rem/1.45 system-ui,-apple-system,sans-serif}
+.gramEye button{font:inherit;font-size:.85rem;padding:8px 16px;border:1px solid #6b6f7a;background:transparent;
+  color:#e7e3f2;border-radius:8px;cursor:pointer}
+.gramEye button:hover{background:rgba(255,255,255,.1)}
 /* boot splash: painted by static HTML before the deferred module runs, hides via
    .hide once the first frames render and every GLTF/OBJ asset has landed */
 #boot{position:fixed;inset:0;z-index:4000;display:flex;align-items:center;justify-content:center;
@@ -157,7 +189,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:
 /* harness and screenshot modes never show the splash: headless dumps and pixel
    checks must see the raw page (mirrors the foliage HARNESS guard in the module).
    This classic script runs during parse, well before the deferred module. */
-if(/[?&](diag|navtest|behavtest|studenttest|lessontest|envtest|camtest|movtest|evtest|microtest|consisttest|modeltest|kidney|kidneytest|boardtest|labfix|shot|neuron|neutrontest|krebs|krebstest)=1/.test(location.search)){
+if(/[?&](diag|gram|navtest|behavtest|studenttest|lessontest|envtest|camtest|movtest|evtest|microtest|consisttest|modeltest|kidney|kidneytest|boardtest|labfix|shot|neuron|neutrontest|krebs|krebstest)=1/.test(location.search)){
   var bootEl=document.getElementById('boot');if(bootEl&&bootEl.parentNode)bootEl.parentNode.removeChild(bootEl);
 }
 window.addEventListener('error',function(ev){
@@ -229,11 +261,26 @@ window.addEventListener('error',function(ev){
     <small>Adjustments update immediately</small>
   </div>
 </div>
-<div class="gram" id="gramPane" aria-hidden="true">
-  <iframe id="gramFrame" data-src="./gram-stain/index.html" title="Gram staining workflow"></iframe>
-  <button id="gramClose" class="gclose" type="button" title="Close" aria-label="Close Gram staining workflow">
-    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
-  </button>
+<div class="gramlab" id="gramLab" aria-hidden="true" aria-label="Gram-staining practical">
+  <div class="grow"><h3 id="gTitle">Gram staining</h3><button id="gClose" class="gclose2" type="button" title="Close" aria-label="Close Gram-staining practical">&#10005;</button></div>
+  <p id="gDesc"></p>
+  <p class="gtime" id="gStep"></p>
+  <span class="ghint" id="gHint"></span>
+  <div class="gbar"><i id="gBar"></i></div>
+  <div class="gstages" id="gStages" aria-label="Practical stages"></div>
+  <div class="gctl">
+    <button id="gBack" type="button">Back</button>
+    <button id="gStart" class="p" type="button">Start</button>
+    <button id="gStop" type="button">Stop</button>
+    <button id="gNext" type="button">Forward</button>
+    <select id="gSpeed" aria-label="Animation speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select>
+  </div>
+</div>
+<div class="gramEye" id="gramEye" aria-hidden="true">
+  <div class="disc" role="img" aria-label="Gram-stained microscopic field: purple cocci clusters and pink rods"></div>
+  <p class="cap">Field of view &middot; 1000&times; oil immersion &middot; purple cocci in clusters, slender pink rods</p>
+  <p class="note">Simulated microscopy field for the Gram-staining practical. It illustrates the expected stain colours only &mdash; it does not identify any real specimen or culture.</p>
+  <button id="gEyeBack" type="button">Back to the lab</button>
 </div>
 <script src="./themes.js"></script>
 <script type="module">
@@ -2008,7 +2055,9 @@ function makeStorageCabinet(px,py,pz,ry,single){
   shell(w,.055,.016,0,.0275,zf);                     /* strip below the lower drawer */
   if(!single)shell(w,.01,.016,0,.37,zf);             /* rail between the two drawers */
   shell(w,.035,.016,0,h-.0175,zf);                   /* strip above the upper drawer */
-  var top=new THREE.Mesh(new THREE.BoxGeometry(w+.02,d+.02,.02),M.top);
+  /* cap slab: horizontal (w × .02 × d) — the argument order previously made it
+     a 0.4 m tall near-black fin standing proud of every cabinet top */
+  var top=new THREE.Mesh(new THREE.BoxGeometry(w+.02,.02,d+.02),M.top);
   top.position.set(0,h+.01,0);top.castShadow=true;top.receiveShadow=true;g.add(top);
   var pl=new THREE.Mesh(new THREE.BoxGeometry(w+.01,d+.01,.04),M.plinth);
   pl.position.set(0,.02,0);pl.receiveShadow=true;g.add(pl);
@@ -4248,22 +4297,463 @@ buttons.forEach(function(b){
     setActive(name);
   });
 });
-/* Gram staining workflow overlay behind the Gram stain bar tab (replaces the
-   old Aisle view tab): the iframe loads on first open, so the animation costs
-   nothing until it is asked for. */
-var gramPane=document.getElementById('gramPane'),gramBtn=document.getElementById('gramBtn'),
-    gramFrame=document.getElementById('gramFrame');
-function setGram(open){
-  if(!gramPane||!gramFrame)return;
-  if(open&&!gramFrame.getAttribute('src'))gramFrame.setAttribute('src',gramFrame.dataset.src);
-  gramPane.classList.toggle('open',open);
-  gramPane.setAttribute('aria-hidden',open?'false':'true');
-  if(gramBtn)gramBtn.classList.toggle('on',open);
+/* ---------- Gram-staining practical, integrated into the 3D lab ----------
+   All equipment sits on an "upper tray" workstation on the room side of the
+   left-wall bench, beside that bench's centre sink. The sink and its tap are
+   the lab's own makeSink() asset (built by makeBench from the bench hole) —
+   no second tap exists anywhere in the scene. Steps advance by clicking the
+   actual equipment; this panel only guides, and the scene stays interactive. */
+var GP_STEPS=[
+ {n:'Loop & smear',t:'Flame the loop, add saline, smear and heat-fix',d:'Hold the inoculating loop in the flame until it glows flame-coloured, then let it cool. Put two drops of normal saline on the clean slide, emulsify a little culture in them and spread a thin smear. Pass the slide horizontally over the flame three times to fix it, then let it dry out slowly.',time:'Loop in the flame, 2 drops of saline, 3 passes over the flame, slow drying',k:'flame',a:'slide',color:0xd8d2c4,h:'Click the slide on the staining rack to make the smear, or use the inoculating loop beside it.'},
+ {n:'Crystal violet',t:'Cover the smear with crystal violet',d:'Add a few drops, just enough to cover the smear and a little beyond it. Every cell turns purple.',time:'About 1 minute',k:'stain',a:'bottle:cv',color:0x6a2fa0,h:'Click the crystal violet bottle on the tray.'},
+ {n:'Water rinse',t:'Rinse with tap water',d:'Wash off the crystal violet with a gentle stream of water, then tilt the slide to drain.',time:'A few seconds',k:'rinse',a:'tap',color:0x6a2fa0,h:'Click the tap’s sensor band at the sink beside the workstation to start the water.'},
+ {n:'Iodine',t:'Cover with Gram’s iodine',d:'Iodine is the mordant. It binds crystal violet inside the cell as a large complex.',time:'About 1 minute',k:'stain',a:'bottle:io',color:0x3b1a66,h:'Click the Gram’s iodine bottle.'},
+ {n:'Water rinse',t:'Rinse with tap water',d:'Wash off the iodine gently with water.',time:'A few seconds',k:'rinse',a:'tap',color:0x3b1a66,h:'Click the tap at the sink to rinse the iodine off.'},
+ {n:'Decolorize',t:'Decolorize with alcohol or acetone',d:'The key step. Thick peptidoglycan in Gram-positive walls traps the dye. Gram-negative cells lose it and turn colourless. As it is applied the wet patch turns crystal-violet purple while the dye washes out, then the smear fades.',time:'5–15 seconds, do not over-decolorize',k:'stain',a:'bottle:de',color:0x3b1a66,h:'Click the decolorizer bottle — 5 to 15 seconds only, do not over-decolorize.'},
+ {n:'Water rinse',t:'Rinse with water at once',d:'Stop decolorizing immediately by rinsing with water.',time:'A few seconds',k:'rinse',a:'tap',color:0x3b1a66,h:'Click the tap to stop the decolorizer at once.'},
+ {n:'Safranin',t:'Counterstain with safranin',d:'The red-pink counterstain colours the colourless Gram-negative cells. Gram-positive cells stay purple.',time:'30–60 seconds',k:'stain',a:'bottle:sa',color:0x3b1a66,h:'Click the safranin bottle on the tray.'},
+ {n:'Water rinse',t:'Final rinse with water',d:'Wash off the safranin gently until the run-off turns colourless, then blot the slide.',time:'A few seconds',k:'rinse',a:'tap',color:0x3b1a66,h:'Click the tap for the final rinse until the run-off turns colourless.'},
+ {n:'Warm',t:'Warm the slide to dry it',d:'Hold the slide gently above a flame or on a slide warmer until fully dry. Do not boil or burn it.',time:'Until dry',k:'flame',a:'slide',color:0x3b1a66,h:'Click the slide to warm it above the flame until it is fully dry.'},
+ {n:'Microscope',t:'Read under oil immersion',d:'Add immersion oil and view at 1000×. Gram-positive cocci appear as round, deep-purple cells in grape-like clusters, with thin Gram-negative rods stained pink among them. The field shows the Gram-stained background too, with crystal violet haze and a little safranin.',time:'Use the 100× oil objective',k:'none',a:'micro',color:0x3b1a66,h:'Click the microscope at the front bench to mount the stained slide.'}
+];
+var gpr={open:false,step:0,done:false,rinse:0,eyeOn:false,timer:null,hintT:null,playing:false,speed:1,autoT:null,autoTap:null};
+var gWS=null,gSlide=null,gPatch=null,gScopeSlide=null,gFlame=null,gMicroHit=null;
+var gBottles={},gPatchTgt=null,gFlying=false,gLoop=null,gLoopRing=null,gBurnerTop=null,gRackPos=null;
+var gLoopGlow=0,gLoopGlowTgt=0;
+var FX0=-5.425,FY0=H+.02;                            /* slide column on the tray */
+var gSinkPos=new THREE.Vector3(-5.62,.955,-.60);      /* over the station sink basin */
+var gWarmPos=new THREE.Vector3(-5.511,1.03,-.19);     /* hovering above the burner */
+var gScopePos=new THREE.Vector3(.45,H+.03,-2.60);     /* front microscope stage */
+function gEl(id){return document.getElementById(id);}
+function gRender(){
+  var s=GP_STEPS[gpr.step],last=gpr.step===GP_STEPS.length-1;
+  gEl('gTitle').textContent=s.t;
+  gEl('gStep').textContent=s.time;
+  gEl('gDesc').textContent=s.d;
+  gEl('gHint').textContent=(last&&gpr.done)?'Examination complete — press Start to repeat the practical.':(gpr.done?'Practical complete.':s.h);
+  gEl('gHint').classList.remove('warn');
+  gEl('gBar').style.width=(gpr.step/(GP_STEPS.length-1))*100+'%';
+  var wrap=gEl('gStages');
+  if(wrap)Array.prototype.forEach.call(wrap.children,function(b,i){b.setAttribute('aria-current',i===gpr.step?'true':'false');});
+  var gb=gEl('gBack'),gn=gEl('gNext'),gs=gEl('gStart'),gx=gEl('gStop');
+  if(gb)gb.disabled=gpr.step===0;
+  if(gn)gn.disabled=last;
+  if(gs)gs.disabled=gpr.playing;
+  if(gx)gx.disabled=!gpr.playing;
 }
-if(gramBtn)gramBtn.addEventListener('click',function(){setGram(!gramPane.classList.contains('open'));});
-var gramClose=document.getElementById('gramClose');
-if(gramClose)gramClose.addEventListener('click',function(){setGram(false);});
-if(/[?&]gram=1/.test(location.search))setGram(true);
+function gWarn(msg){
+  var el=gEl('gHint');if(!el)return;
+  el.textContent=msg;el.classList.add('warn');
+  clearTimeout(gpr.hintT);gpr.hintT=setTimeout(function(){if(gpr.open)gRender();},2600);
+}
+/* ----3D choreography: every stage animates on the lab itself ---- */
+var gTweens=[];
+function ez(k){return k*k*(3-2*k);}
+function gTween(dur,upd,done,tag){gTweens.push({t:0,d:dur,u:upd,e:done,tag:tag||''});}
+function gTweenKill(tag){for(var i=gTweens.length-1;i>=0;i--)if(gTweens[i].tag===tag)gTweens.splice(i,1);}
+function gTweenTick(dt){
+  for(var i=gTweens.length-1;i>=0;i--){
+    var w=gTweens[i];w.t+=dt;
+    var k=w.t>=w.d?1:w.t/w.d;
+    if(w.u)w.u(k);
+    if(k>=1){gTweens.splice(i,1);if(w.e)w.e();}
+  }
+}
+function gTick(dt){
+  gTweenTick(dt);
+  if(gPatch&&gPatchTgt)gPatch.material.color.lerp(gPatchTgt,1-Math.exp(-dt*3));
+  if(gFlame&&gFlame.visible){                              /* live flame flicker */
+    var tt=(typeof performance!=='undefined'?performance.now():Date.now())*.01;
+    gFlame.scale.set(1+Math.sin(tt*1.7)*.08,1+Math.sin(tt*2.6)*.16,1+Math.cos(tt*1.3)*.08);
+  }
+  if(gLoopRing){                                           /* loop tip heats and cools */
+    gLoopGlow+=(gLoopGlowTgt-gLoopGlow)*Math.min(1,dt*5);
+    gLoopRing.material.color.setRGB(.55+.45*gLoopGlow,.58-.20*gLoopGlow,.61-.53*gLoopGlow);
+    gLoopRing.material.emissive.setRGB(gLoopGlow*.9,gLoopGlow*.4,gLoopGlow*.04);
+  }
+}
+/* reagent bottle: lift, travel over the slide, tilt to pour, settle back */
+function gPour(id){
+  var b=gBottles[id];if(!b||!b.userData.slot)return;
+  gTweenKill('pour:'+id);
+  var p0=b.userData.slot.clone();
+  var lift=new THREE.Vector3(p0.x,FY0+.26,.18);
+  var over=new THREE.Vector3(FX0,FY0+.30,.18);            /* directly above the slide */
+  gTween(3.0,function(k){
+    var e;
+    if(k<.30){e=ez(k/.30);b.position.lerpVectors(p0,lift,e);b.rotation.z=0;}
+    else if(k<.44){e=ez((k-.30)/.14);b.position.lerpVectors(lift,over,e);b.rotation.z=-1.5*e;}
+    else if(k<.60){b.position.copy(over);b.rotation.z=-1.5;}
+    else if(k<.74){e=ez((k-.60)/.14);b.position.copy(over);b.rotation.z=-1.5*(1-e);}
+    else{e=ez((k-.74)/.26);b.position.lerpVectors(over,p0,e);b.rotation.z=0;}
+  },function(){b.position.copy(p0);b.rotation.z=0;},'pour:'+id);
+}
+/* slide travels: rack <-> sink (rinse) <-> over the burner (warm) */
+function gSlideGo(dest,tag){
+  if(!gSlide||!gRackPos)return;
+  gTweenKill(tag||'slide');
+  if(gSlide.position.distanceTo(dest)<.01)return;
+  var from=gSlide.position.clone();
+  gTween(.9,function(k){gSlide.position.lerpVectors(from,dest,ez(k));},null,tag||'slide');
+}
+/* the slide flies to the microscope stage, then the eyepiece opens */
+function gFlyToScope(){
+  if(gFlying||!gSlide||!gRackPos)return;
+  gFlying=true;gSyncVisual();
+  var from=gSlide.position.clone();
+  var hi=1.7;
+  var mid1=new THREE.Vector3(from.x,hi,from.z);
+  var mid2=new THREE.Vector3(gScopePos.x,hi,gScopePos.z);
+  gTween(1.7,function(k){
+    var e;
+    if(k<.25){e=ez(k/.25);gSlide.position.lerpVectors(from,mid1,e);}
+    else if(k<.75){e=ez((k-.25)/.5);gSlide.position.lerpVectors(mid1,mid2,e);}
+    else{e=ez((k-.75)/.25);gSlide.position.lerpVectors(mid2,gScopePos,e);}
+  },function(){
+    gFlying=false;
+    gSlide.position.copy(gScopePos);
+    if(gScopeSlide)gScopeSlide.visible=true;   /* hand over: scope stage shows, rack slide hides */
+    gSlide.visible=false;
+    if(phase8&&phase8.view)phase8.view('eyepiece');
+  },'slide');
+}
+/* stage-entry visuals; full=true also plays the one-shot choreography */
+function gEnterAnim(full){
+  var st=GP_STEPS[gpr.step];
+  if(gFlame)gFlame.visible=(st.k==='flame');
+  if(gPatch){
+    if(gpr.step===0){
+      if(full){gTweenKill('grow');gPatch.scale.set(.001,.001,1);
+        gTween(1.2,function(k){var e=Math.max(.001,ez(k));gPatch.scale.set(e,e,1);},null,'grow');}
+    }else if(gPatch.scale.x!==1){gTweenKill('grow');gPatch.scale.set(1,1,1);}
+  }
+  if(gSlide&&gRackPos&&gpr.step<10){
+    if(st.k==='rinse')gSlideGo(gSinkPos);
+    else if(gpr.step===9)gSlideGo(gWarmPos);
+    else gSlideGo(gRackPos);
+  }
+  if(gpr.step===10){
+    if(!gFlying&&gScopeSlide&&!gScopeSlide.visible)gFlyToScope();
+    return;
+  }
+  if(!full)return;
+  if(st.k==='stain'&&st.a.indexOf('bottle:')===0)gPour(st.a.slice(7));
+  if(gpr.step===0&&gLoop&&gBurnerTop){                    /* loop heats in the flame */
+    gTweenKill('loop');
+    var p0=gLoop.position.clone();
+    var hot=new THREE.Vector3(gBurnerTop.x,p0.y,gBurnerTop.z);
+    gTween(4.6,function(k){
+      var e;
+      gLoopGlowTgt=(k>.20&&k<.70)?1:0;
+      if(k<.22){e=ez(k/.22);gLoop.position.lerpVectors(p0,hot,e);}
+      else if(k<.70){gLoop.position.copy(hot);}
+      else{e=ez((k-.70)/.30);gLoop.position.lerpVectors(hot,p0,e);}
+    },function(){gLoop.position.copy(p0);gLoopGlowTgt=0;},'loop');
+  }
+}
+function gSyncVisual(){
+  if(gPatch){
+    gPatch.visible=true;
+    gPatchTgt=new THREE.Color(GP_STEPS[gpr.step].color);   /* colour eases in while the pour happens */
+  }
+  var arrived=!!(gScopeSlide&&gScopeSlide.visible);
+  if(gSlide)gSlide.visible=(gpr.step<10)||gFlying||!arrived;
+  if(gScopeSlide)gScopeSlide.visible=(gpr.step>=10)&&!gFlying&&!gSlide.visible;
+}
+/* the workstation's rinse tap: the left-wall bench tap nearest the station sink */
+function gStationTap(){
+  var best=null,bd=1e9;
+  for(var i=0;i<taps.length;i++){
+    var nd=taps[i].node;if(!nd)continue;
+    var p=new THREE.Vector3();nd.getWorldPosition(p);
+    if(p.x>-5.1)continue;
+    var dd=(p.x+5.65)*(p.x+5.65)+(p.z+.6)*(p.z+.6);
+    if(dd<bd){bd=dd;best=taps[i];}
+  }
+  return bd<1.4?best:null;
+}
+function gAutoTap(on){
+  var t=gStationTap();if(!t)return;
+  if(on){t.target=1;gpr.autoTap=t;}
+  else if(gpr.autoTap){gpr.autoTap.target=0;if(gpr.autoTap.worldId&&teacherWorld)teacherWorld.set(gpr.autoTap.worldId,{running:false});gpr.autoTap=null;}
+  updateStatus();
+}
+/* while a rinse stage plays through, the lab tap runs it — leaving the stage stops it */
+function gRinseAuto(){gAutoTap(gpr.playing&&GP_STEPS[gpr.step].k==='rinse');}
+function gClearAuto(){clearTimeout(gpr.autoT);gpr.autoT=null;}
+function gSchedule(){
+  gClearAuto();
+  var dwell=(gpr.step===0?25500:10000)/gpr.speed;
+  gpr.autoT=setTimeout(function(){
+    if(!gpr.playing)return;
+    if(gpr.step>=GP_STEPS.length-1){gStop();return;}
+    gGo(gpr.step+1);
+    if(gpr.playing)gSchedule();
+  },dwell);
+}
+function gStop(){gpr.playing=false;gClearAuto();gAutoTap(false);gRender();}
+function gPlay(){
+  if(gpr.step>=GP_STEPS.length-1)gGo(0);      /* Start at the end replays, as the original did */
+  gpr.playing=true;gRender();gSchedule();gRinseAuto();
+}
+function gGo(i){
+  gClearAuto();
+  gpr.step=Math.max(0,Math.min(GP_STEPS.length-1,i));
+  gpr.done=false;gpr.rinse=0;
+  gSyncVisual();gRender();
+  gEnterAnim(true);gRinseAuto();
+}
+function gramAdvance(){gGo(gpr.step+1);}
+function gramOpen(moveCam){
+  gpr.open=true;
+  var p=gEl('gramLab');if(p){p.classList.add('open');p.setAttribute('aria-hidden','false');}
+  var b=gEl('gramBtn');if(b)b.classList.add('on');
+  gSyncVisual();gRender();gEnterAnim(false);
+  if(moveCam){
+    /* in-room camera aimed straight at the workstation (the 'wall' preset looks
+       in from outside the window line and does not frame the tray) */
+    if(phase8&&phase8.rig)phase8.rig.setView('orbit',null,{instant:true});
+    setActive('');
+    goal.target.set(-5.35,1.00,.35);goal.theta=1.1;goal.phi=1.35;goal.r=3.2;
+    if(typeof shotMode!=='undefined'&&shotMode){
+      /* headless capture stops at frame 4 — snap instead of lerping */
+      cam.target.copy(goal.target);cam.theta=goal.theta;cam.phi=goal.phi;cam.r=goal.r;
+    }
+  }
+}
+function gramClose(){
+  gpr.open=false;gStop();
+  var p=gEl('gramLab');if(p){p.classList.remove('open');p.setAttribute('aria-hidden','true');}
+  var b=gEl('gramBtn');if(b)b.classList.remove('on');
+}
+function gramTip(id){
+  if(id==='station')return 'Open the Gram-staining practical';
+  if(id==='micro')return gpr.step===10?'Clip the stained slide on the stage':'Look through the microscope';
+  if(id==='slide')return gpr.step===0?'Place the smear on the slide':(gpr.step===9?'Warm the slide until fully dry':'Slide with bacterial smear');
+  if(id==='loop')return 'Inoculating loop';
+  if(id.indexOf('bottle:')===0){
+    var names={'bottle:cv':'Crystal violet','bottle:io':'Gram’s iodine',
+      'bottle:de':'Decolorizer (95% alcohol)','bottle:sa':'Safranin','bottle:sl':'Normal saline (0.85% NaCl)'};
+    return names[id]||'Reagent bottle';
+  }
+  if(id==='wash')return 'Wash bottle (distilled water)';
+  if(id==='burner')return 'Bunsen burner';
+  if(id==='waste')return 'Waste tray';
+  if(id==='spares')return 'Clean spare slides';
+  if(id==='dropper')return 'Dropper pipette';
+  if(id==='forceps')return 'Forceps';
+  return 'Gram-staining workstation';
+}
+function gramClick(id){
+  if(id==='station'){if(!gpr.open)gramOpen(true);return;}
+  if(!gpr.open)gramOpen(false);
+  if(gpr.playing)gStop();            /* touching the equipment takes over from playback */
+  var step=gpr.step,st=GP_STEPS[step];
+  if(step===0&&(id==='slide'||id==='loop')){gramAdvance();return;}
+  if(step===9&&id==='slide'){gramAdvance();return;}     /* flame stays lit for the whole stage */
+  if(step===10&&id==='micro'){
+    if(gFlying)return;
+    if(gScopeSlide&&gScopeSlide.visible){
+      if(!gpr.eyeOn&&phase8&&phase8.view)phase8.view('eyepiece');
+    }else gFlyToScope();
+    return;
+  }
+  if(gpr.done&&step===GP_STEPS.length-1){gWarn('Practical complete — press Start to repeat it.');return;}
+  if(st.a&&id===st.a){gramAdvance();return;}
+  gWarn('Not yet — '+st.h);
+}
+function gMark(o,id){o.traverse(function(x){x.userData.gramRef=id;});return o;}
+function gbLabel(def){
+  return canvasTex(160,110,function(x,w,h){
+    x.fillStyle='#f6f4ee';x.fillRect(0,0,w,h);
+    x.fillStyle='#'+(def.c>>>0).toString(16).padStart(6,'0');x.fillRect(0,0,w,17);
+    x.strokeStyle='#8a8578';x.lineWidth=3;x.strokeRect(1.5,1.5,w-3,h-3);
+    x.fillStyle='#24222b';x.textAlign='center';
+    x.font='bold 31px Georgia,serif';
+    x.fillText(def.l1,w/2,60);
+    if(def.l2)x.fillText(def.l2,w/2,94);
+    else{x.font='18px Georgia,serif';x.fillText('GRAD',w/2,94);}
+  });
+}
+function buildGramStation(){
+  var G=new THREE.Group();gWS=G;
+  var TX=-5.46,TZ=.35,TL=1.26,TW=.24,FX=TX+.035,BX=TX-TW/2+.069,FY=H+.02;
+  /* upper tray: shallow stainless tray resting on the bench worktop */
+  var ts=new THREE.Group();
+  box(TW,.02,TL,M.steel,TX,H+.01,TZ,ts,true);
+  box(.018,.03,TL,M.steel,TX-TW/2+.009,H+.035,TZ,ts,true);
+  box(.018,.03,TL,M.steel,TX+TW/2-.009,H+.035,TZ,ts,true);
+  box(TW,.03,.018,M.steel,TX,H+.035,TZ-TL/2+.009,ts,true);
+  box(TW,.03,.018,M.steel,TX,H+.035,TZ+TL/2-.009,ts,true);
+  gMark(ts,'station');
+  G.add(ts);
+  contactShadow(G,TX,H+.004,TZ,TW+.06,TL+.06);
+  /* back row: the five reagents from the simulation, working solution first */
+  var GB=[
+    {id:'cv',l1:'Crystal',l2:'violet',c:0x6a2fa0},
+    {id:'io',l1:'Gram’s',l2:'iodine',c:0x8a5a1f},
+    {id:'de',l1:'Alcohol',l2:'95%',c:0xdfe9ee},
+    {id:'sa',l1:'Safranin',l2:'',c:0xe0457b},
+    {id:'sl',l1:'Normal',l2:'saline',c:0xcfe6f4}
+  ];
+  GB.forEach(function(def,i){
+    var b=new THREE.Group();b.position.set(BX,FY,.05+i*.21);b.userData.slot=b.position.clone();gBottles[def.id]=b;
+    var body=new THREE.Mesh(new THREE.CylinderGeometry(.04,.043,.13,18),
+      new THREE.MeshStandardMaterial({color:def.c,roughness:.3,metalness:.05}));
+    body.position.y=.065;body.castShadow=true;b.add(body);
+    var sh=new THREE.Mesh(new THREE.CylinderGeometry(.0405,.0408,.06,18),
+      new THREE.MeshStandardMaterial({color:0xf4f1e8,roughness:.55}));
+    sh.position.y=.072;b.add(sh);
+    var lg=new THREE.Mesh(new THREE.CylinderGeometry(.0425,.0428,.062,20,1,true,Math.PI/2-.75,1.5),
+      new THREE.MeshBasicMaterial({map:gbLabel(def),side:THREE.DoubleSide,toneMapped:false}));
+    lg.position.y=.072;b.add(lg);
+    var cap=new THREE.Mesh(new THREE.CylinderGeometry(.017,.02,.024,14),
+      new THREE.MeshStandardMaterial({color:0x2b2d33,roughness:.5}));
+    cap.position.y=.137;b.add(cap);
+    var tip=new THREE.Mesh(new THREE.ConeGeometry(.011,.022,10),
+      new THREE.MeshStandardMaterial({color:0x2b2d33,roughness:.5}));
+    tip.position.y=.16;b.add(tip);
+    gMark(b,'bottle:'+def.id);
+    G.add(b);
+  });
+  /* Bunsen burner (drying/warming step) at the end of the back row */
+  var burn=new THREE.Group();burn.position.set(BX,FY,-.19);
+  var bbase=new THREE.Mesh(new THREE.CylinderGeometry(.03,.034,.025,16),M.chrome);
+  bbase.position.y=.0125;bbase.castShadow=true;burn.add(bbase);
+  var bbar=new THREE.Mesh(new THREE.CylinderGeometry(.011,.013,.1,14),M.chrome);
+  bbar.position.y=.075;bbar.castShadow=true;burn.add(bbar);
+  gFlame=new THREE.Mesh(new THREE.ConeGeometry(.018,.055,10),
+    new THREE.MeshBasicMaterial({color:0xffa726,transparent:true,opacity:.9}));
+  gFlame.position.y=.135;gFlame.visible=false;burn.add(gFlame);
+  gMark(burn,'burner');
+  G.add(burn);gBurnerTop=burn.position.clone();gBurnerTop.y+=.15;
+  /* front row: staining tray + rack + slide, then the hand tools */
+  var st=new THREE.Group();st.position.set(FX,FY,.18);
+  box(.12,.012,.28,M.steel,0,.006,0,st,true);
+  box(.12,.02,.012,M.steel,0,.01,-.134,st,true);
+  box(.12,.02,.012,M.steel,0,.01,.134,st,true);
+  box(.012,.02,.28,M.steel,-.054,.01,0,st,true);
+  box(.012,.02,.28,M.steel,.054,.01,0,st,true);
+  var rack=new THREE.Group();rack.position.y=.012;
+  [[-.045,-.03],[.045,-.03],[-.045,.03],[.045,.03]].forEach(function(p){
+    box(.008,.02,.008,M.chrome,p[0],.01,p[1],rack,true);
+  });
+  box(.1,.008,.008,M.chrome,0,.03,-.03,rack,true);
+  box(.1,.008,.008,M.chrome,0,.03,.03,rack,true);
+  st.add(rack);
+  gMark(st,'slide');
+  G.add(st);
+  /* the working slide, resting across the rack rails */
+  gSlide=new THREE.Group();gSlide.position.set(FX,FY+.0445,.18);
+  box(.026,.003,.1,new THREE.MeshStandardMaterial({color:0xeef2f5,roughness:.15,metalness:.05,transparent:true,opacity:.62}),0,0,0,gSlide,true);
+  gPatch=new THREE.Mesh(new THREE.PlaneGeometry(.018,.07),
+    new THREE.MeshStandardMaterial({color:0x96928e,roughness:.85}));
+  gPatch.rotation.x=-Math.PI/2;gPatch.position.y=.0028;gPatch.visible=false;gSlide.add(gPatch);
+  gMark(gSlide,'slide');
+  G.add(gSlide);gRackPos=gSlide.position.clone();
+  /* dropper pipette, forceps and inoculating loop */
+  var dp=new THREE.Group();dp.position.set(FX,FY,.37);
+  var dpb=new THREE.Mesh(new THREE.CylinderGeometry(.006,.007,.07,10),
+    new THREE.MeshStandardMaterial({color:0xdfe8ec,transparent:true,opacity:.75,roughness:.2}));
+  dpb.rotation.x=Math.PI/2;dpb.position.y=.008;dp.add(dpb);
+  var bulb=new THREE.Mesh(new THREE.SphereGeometry(.012,10,8),
+    new THREE.MeshStandardMaterial({color:0xe06a3a,roughness:.6}));
+  bulb.position.set(0,.008,.045);dp.add(bulb);
+  gMark(dp,'dropper');G.add(dp);
+  var fo=new THREE.Group();fo.position.set(FX,FY,.47);
+  [-1,1].forEach(function(s){
+    var arm=box(.006,.005,.09,M.chrome,s*.004,.005,0,fo,true);
+    arm.rotation.y=s*.05;
+  });
+  gMark(fo,'forceps');G.add(fo);
+  var lp=new THREE.Group();lp.position.set(FX,FY,.61);
+  var handle=new THREE.Mesh(new THREE.CylinderGeometry(.005,.005,.1,8),
+    new THREE.MeshStandardMaterial({color:0x3a3f44,roughness:.5}));
+  handle.rotation.x=Math.PI/2;handle.position.y=.007;lp.add(handle);
+  var wire=new THREE.Mesh(new THREE.CylinderGeometry(.0015,.0015,.03,6),M.chrome);
+  wire.rotation.x=Math.PI/2;wire.position.set(0,.007,-.065);lp.add(wire);
+  var ring=new THREE.Mesh(new THREE.TorusGeometry(.006,.0013,6,14),new THREE.MeshStandardMaterial({color:0x8d939c,roughness:.3,metalness:.9}));
+  ring.position.set(0,.007,-.083);lp.add(ring);
+  gMark(lp,'loop');G.add(lp);gLoop=lp;gLoopRing=ring;
+  /* waste tray, spare-slide box and wash bottle */
+  var wt=new THREE.Group();wt.position.set(FX,FY,.80);
+  box(.07,.012,.16,M.steel,0,.006,0,wt,true);
+  box(.056,.006,.146,M.dark,0,.011,0,wt,true);
+  gMark(wt,'waste');G.add(wt);
+  var sp=new THREE.Group();sp.position.set(FX,FY,-.15);
+  box(.05,.022,.1,new THREE.MeshStandardMaterial({color:0xf3f6f8,roughness:.7}),0,.011,0,sp,true);
+  box(.044,.004,.092,new THREE.MeshStandardMaterial({color:0xd7e6ef,roughness:.3}),0,.024,0,sp,true);
+  gMark(sp,'spares');G.add(sp);
+  var wb=new THREE.Group();wb.position.set(FX,FY,-.02);
+  var wbody=new THREE.Mesh(new THREE.CylinderGeometry(.026,.03,.13,16),
+    new THREE.MeshStandardMaterial({color:0xf2f6f7,roughness:.4,transparent:true,opacity:.9}));
+  wbody.position.y=.065;wbody.castShadow=true;wb.add(wbody);
+  var wcap=new THREE.Mesh(new THREE.CylinderGeometry(.012,.014,.02,12),
+    new THREE.MeshStandardMaterial({color:0x3f7fbf,roughness:.5}));
+  wcap.position.y=.135;wb.add(wcap);
+  var wnoz=new THREE.Mesh(new THREE.CylinderGeometry(.005,.005,.07,8),
+    new THREE.MeshStandardMaterial({color:0x3f7fbf,roughness:.5}));
+  wnoz.rotation.z=-.7;wnoz.position.set(.028,.155,0);wb.add(wnoz);
+  gMark(wb,'wash');G.add(wb);
+  pickRoot.add(G);
+  /* the microscope step target: an invisible pick proxy around micro.front */
+  gMicroHit=box(.26,.34,.26,M.hit,.45,1.32,-2.56,pickRoot,true);
+  gMicroHit.userData.gramRef='micro';
+  /* stained slide once it has been transferred to the microscope stage */
+  gScopeSlide=new THREE.Group();gScopeSlide.position.set(.45,H+.03,-2.60);gScopeSlide.visible=false;
+  box(.026,.003,.1,new THREE.MeshStandardMaterial({color:0xeef2f5,roughness:.15,transparent:true,opacity:.62}),0,0,0,gScopeSlide,true);
+  var sp2=new THREE.Mesh(new THREE.PlaneGeometry(.018,.07),
+    new THREE.MeshStandardMaterial({color:0xd4337a,roughness:.85}));
+  sp2.rotation.x=-Math.PI/2;sp2.position.y=.0028;gScopeSlide.add(sp2);
+  pickRoot.add(gScopeSlide);
+}
+buildGramStation();
+var gramBtn=document.getElementById('gramBtn');
+if(gramBtn){
+  gramBtn.title='Open the Gram-staining practical at the workstation';
+  gramBtn.addEventListener('click',function(){gramOpen(true);});
+}
+var gCloseEl=gEl('gClose');
+if(gCloseEl)gCloseEl.addEventListener('click',gramClose);
+var gEyeBack=gEl('gEyeBack');
+if(gEyeBack)gEyeBack.addEventListener('click',function(){applyView('overview');});
+/* stage chips: jump to any step (each click pauses, like the original list) */
+var gStagesEl=gEl('gStages');
+if(gStagesEl)GP_STEPS.forEach(function(s,i){
+  var b=document.createElement('button');
+  b.type='button';b.textContent=(i+1)+'. '+s.n;
+  b.addEventListener('click',function(){gStop();gGo(i);});
+  gStagesEl.appendChild(b);
+});
+/* control tabs: start, stop, forward/back any step + playback speed */
+[['gBack',function(){gStop();gGo(gpr.step-1);}],
+ ['gNext',function(){gStop();gGo(gpr.step+1);}],
+ ['gStart',function(){gPlay();}],
+ ['gStop',function(){gStop();}]].forEach(function(pair){
+  var el=gEl(pair[0]);if(el)el.addEventListener('click',pair[1]);
+});
+var gSpeedEl=gEl('gSpeed');
+if(gSpeedEl)gSpeedEl.addEventListener('change',function(){
+  gpr.speed=+this.value||1;
+  if(gpr.playing){gpr.playing=false;gClearAuto();gPlay();}   /* reschedule at the new rate */
+});
+document.addEventListener('keydown',function(e){
+  if(!gpr.open||gpr.done)return;
+  if(e.target&&e.target.tagName==='SELECT')return;
+  if(e.key==='ArrowRight'){gStop();gGo(gpr.step+1);}
+  else if(e.key==='ArrowLeft'){gStop();gGo(gpr.step-1);}
+});
+/* deep link: ?gram=1 opens the practical at the workstation, &step=N jumps to a step */
+if(/[?&]gram=1/.test(location.search)){
+  setTimeout(function(){
+    var gm=/[?&]step=(\d+)/.exec(location.search);
+    gramOpen(true);
+    if(gm){
+      gpr.step=Math.max(0,Math.min(GP_STEPS.length-1,+gm[1]));
+      gSyncVisual();gRender();gEnterAnim(false);
+    }
+  },0);
+}
 
 /* ---------- input ---------- */
 var ptrs=new Map(),down=null,lastDist=0,lastMid=null;
@@ -4601,6 +5091,7 @@ function endPtr(e,allowPick){
         else if(u.doorRef){var di=doors.indexOf(u.doorRef);var nd=u.doorRef.target>.5?0:1;if(phase7)phase7.setDoor(di,nd);else{u.doorRef.target=nd;playDoor(nd>.5);}}
         else if(u.windowRef){var wi=windows.indexOf(u.windowRef);var nw=u.windowRef.target>.5?0:1;if(phase7)phase7.setWindow(wi,nw);else{u.windowRef.target=nw;playDoor(nw>.5);}}
         else if(u.drawerRef){toggleDrawerClick(u.drawerRef);hover(e);}
+        else if(u.gramRef){gramClick(u.gramRef,e);}
       }
     }
     down=null;
@@ -4643,8 +5134,8 @@ function hover(e){
     hoverRef=r;
   }
   if(r)setTapGlow(r,zone);
-  canvas.style.cursor=(u.tapRef||u.beakerRef||u.doorRef||u.windowRef||u.drawerRef)?'pointer':'grab';
-  canvas.title=u.beakerRef?'Tap to break the beaker':(u.doorRef?(u.doorRef.target>.5?'Click to close door':'Click to open door'):(u.windowRef?(u.windowRef.target>.5?'Click to close window':'Click to open window'):''));
+  canvas.style.cursor=(u.tapRef||u.beakerRef||u.doorRef||u.windowRef||u.drawerRef||u.gramRef)?'pointer':'grab';
+  canvas.title=u.gramRef?gramTip(u.gramRef):(u.beakerRef?'Tap to break the beaker':(u.doorRef?(u.doorRef.target>.5?'Click to close door':'Click to open door'):(u.windowRef?(u.windowRef.target>.5?'Click to close window':'Click to open window'):'')));
   if(r){
     tapTip.textContent=tapActionText(r,zone);
     tapTip.style.display='block';
@@ -5546,6 +6037,23 @@ function frame(){
       wcLedState[2]!==wcNow.getSeconds())){
     wcLedState=[wcNow.getHours(),wcNow.getMinutes(),wcNow.getSeconds()];
     wcDrawLed(wcLedState[0],wcLedState[1],wcLedState[2]);
+  }
+  gTick(dt);
+  /* Gram practical: a rinse stage completes only while the lab tap runs
+     (during Start playback the tap is driven automatically, so the manual
+     gate stays out of the way) */
+  if(gpr.open&&!gpr.done&&!gpr.playing&&GP_STEPS[gpr.step].k==='rinse'){
+    var gTapOn=false;
+    for(var gi=0;gi<taps.length;gi++)if(Math.abs(taps[gi].target)>.5){gTapOn=true;break;}
+    if(gTapOn){gpr.rinse+=dt;if(gpr.rinse>1.5){gpr.rinse=0;gramAdvance();}}else gpr.rinse=0;
+  }
+  /* eyepiece examination: show the retained field while the rig looks through it */
+  var gEyeOn=!!(phase8&&phase8.rig&&phase8.rig.state&&phase8.rig.state.mode==='eyepiece'&&gpr.step===GP_STEPS.length-1);
+  if(gEyeOn!==gpr.eyeOn){
+    gpr.eyeOn=gEyeOn;
+    var gEl2=document.getElementById('gramEye');
+    if(gEl2){gEl2.classList.toggle('open',gEyeOn);gEl2.setAttribute('aria-hidden',gEyeOn?'false':'true');}
+    if(gEyeOn){gpr.done=true;gRender();}
   }
   if(heartModel)heartModel.userData.spin.rotation.y+=dt*.4;
   if(fighterMixer)fighterMixer.update(dt);   /* tutor idle/walk clip */

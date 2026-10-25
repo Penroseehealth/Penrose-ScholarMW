@@ -36,52 +36,10 @@
     }
   }
   place("gp",16);place("gn",12);
-  (function(){
-    var Rg=document.getElementById("realV"),all=[],sd=11;
-    function q(){sd=(sd*9301+49297)%233280;return sd/233280}
-    function mk(n,a,b,c,fill,op){var e=document.createElementNS(NS,n);return e}
-    for(var k=0;k<30;k++){
-      var a=q()*6.283,d=Math.sqrt(q())*58,e=document.createElementNS(NS,"circle");
-      e.setAttribute("cx",180+Math.cos(a)*d);e.setAttribute("cy",290+Math.sin(a)*d);e.setAttribute("r",.5+q()*1.1);e.setAttribute("fill","#e3a9c6");e.setAttribute("opacity",.3);Rg.appendChild(e);
-    }
-    /* no haze ellipses here: the reference field is a flat light pink, so the
-       background stays --field exactly and only cells/specks sit on top */
-    for(var k3=0;k3<46;k3++){
-      var a4=q()*6.283,d4=Math.sqrt(q())*58,el2=document.createElementNS(NS,"rect"),pk=k3%3===0;
-      el2.setAttribute("x",-2);el2.setAttribute("y",-.7);el2.setAttribute("width",pk?2.4:4);el2.setAttribute("height",pk?2.4:1.4);
-      el2.setAttribute("fill",pk?"#e942b4":"#3b1a80");el2.setAttribute("opacity",.75);
-      el2.setAttribute("transform","translate("+(180+Math.cos(a4)*d4)+","+(290+Math.sin(a4)*d4)+") rotate("+Math.round(q()*180)+")");Rg.appendChild(el2);
-    }
-    [[150,262],[212,258],[200,324],[134,300],[176,292]].forEach(function(c){
-      var mem=[],n=3+Math.floor(q()*7);
-      function add(x,y,r){
-        var gx=document.createElementNS(NS,"g"),ci=document.createElementNS(NS,"circle"),hl=document.createElementNS(NS,"circle");
-        ci.setAttribute("cx",x);ci.setAttribute("cy",y);ci.setAttribute("r",r);ci.setAttribute("fill","url(#cg)");ci.setAttribute("stroke","#1e0a4a");ci.setAttribute("stroke-width",.5);
-        hl.setAttribute("cx",x-r*.3);hl.setAttribute("cy",y-r*.35);hl.setAttribute("r",r*.27);hl.setAttribute("fill","#fff");hl.setAttribute("opacity",.2);
-        gx.appendChild(ci);gx.appendChild(hl);Rg.appendChild(gx);var o={x:x,y:y,r:r};mem.push(o);all.push(o);
-      }
-      add(c[0],c[1],2.4+q()*.7);
-      for(var i=1;i<n;i++)for(var t=0;t<40;t++){
-        var m=mem[Math.floor(q()*mem.length)],r=2.4+q()*.7,an=q()*6.283,x=m.x+Math.cos(an)*(m.r+r)*.93,y=m.y+Math.sin(an)*(m.r+r)*.93,ok=true;
-        if(Math.hypot(x-180,y-290)>56)continue;
-        for(var j=0;j<all.length;j++)if(Math.hypot(all[j].x-x,all[j].y-y)<(all[j].r+r)*.86){ok=false;break}
-        if(ok){add(x,y,r);break}
-      }
-    });
-    var rods=[];
-    for(var n=0,tr=0;n<14&&tr<1500;tr++){
-      var a2=q()*6.283,d2=Math.sqrt(q())*50,x2=180+Math.cos(a2)*d2,y2=290+Math.sin(a2)*d2,ok2=true;
-      for(var j=0;j<all.length;j++)if(Math.hypot(all[j].x-x2,all[j].y-y2)<all[j].r+9){ok2=false;break}
-      for(var j=0;j<rods.length&&ok2;j++)if(Math.hypot(rods[j][0]-x2,rods[j][1]-y2)<14)ok2=false;
-      if(!ok2)continue;
-      rods.push([x2,y2]);n++;
-      var rg=document.createElementNS(NS,"g");rg.setAttribute("transform","translate("+x2+","+y2+") rotate("+Math.round(q()*180)+")");
-      var L=12+q()*7,cv=q()<.4?0:(q()<.5?-1:1)*(3+q()*4),dd="M"+(-L/2)+" 0Q0 "+cv+" "+(L/2)+" 0";
-      rg.innerHTML='<path d="'+dd+'" fill="none" stroke="#6c1159" stroke-width="2.6" stroke-linecap="round"/><path d="'+dd+'" fill="none" stroke="#ee4fc0" stroke-width="1.8" stroke-linecap="round"/><path d="M'+(-L/2+1.5)+' -.4Q0 '+(cv-.4)+' '+(L/2-1.5)+' -.4" fill="none" stroke="#fff" stroke-opacity=".4" stroke-width=".5" stroke-linecap="round"/>';
-      Rg.appendChild(rg);
-    }
-    
-  })();
+  /* The first, drawn field of view has been removed for good: the sole field
+     reference is the upgraded micrograph (#realPhoto) shown at the last stage.
+     The #cells schematic above is the in-progress staining view, not a field
+     reference. */
 
   var cur=0,timer=null,playing=false,tms=[],speed=1,runoff=document.getElementById("runoff");
   var overlay=document.getElementById("overlay"),drops=document.getElementById("drops"),
@@ -180,10 +138,8 @@
     drops.innerHTML="";runoff.innerHTML="";label.textContent="Slide with bacterial smear";
     var last=cur===stages.length-1,rn=s.k==="rinse";
     g.style.transform=last?"scale(1.25)":"scale(1)";g.style.opacity=last?0:1;document.getElementById("fieldG").style.transform=last?"scale(1.22)":"scale(1)";document.getElementById("vig").setAttribute("opacity",0);document.getElementById("real").style.opacity=last?1:0;
-    /* the final field is the micrograph photo; the drawn cells behind it are
-       the fallback shown only if the photo fails to load */
-    var rp=document.getElementById("realPhoto"),rv=document.getElementById("realV"),photoOk=!rp.dataset.failed;
-    rp.style.opacity=(last&&photoOk)?1:0;rv.style.opacity=(last&&!photoOk)?1:0;
+    /* sole field: the upgraded micrograph (no drawn fallback exists anymore) */
+    document.getElementById("realPhoto").style.opacity=last?1:0;
     document.getElementById("fieldLabel").textContent=last?"Field of view · 1000× oil · purple cocci, thin pink rods":"Microscope field";
     document.getElementById("bar").style.width=(cur/(stages.length-1)*100)+"%";
     document.getElementById("legend").className=last?"legend on":"legend";
@@ -350,14 +306,5 @@
     xs.textContent="*{transition:none!important;animation:none!important}";
     document.head.appendChild(xs);
   }
-  /* if the micrograph photo cannot load, fall back to the drawn cells — probed
-     with an HTML Image, because SVG <image> does not emit error events */
-  var rp0=document.getElementById("realPhoto"),rv0=document.getElementById("realV");
-  var probe=new Image();
-  probe.onerror=function(){
-    rp0.dataset.failed="1";
-    if(cur===stages.length-1){rp0.style.opacity=0;rv0.style.opacity=1;}
-  };
-  probe.src="assets/field-micrograph.webp";
   go(qs?Math.max(0,Math.min(stages.length-1,+qs[1])):0);
 })();
