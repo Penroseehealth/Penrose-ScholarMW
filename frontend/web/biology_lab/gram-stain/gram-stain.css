@@ -1,6 +1,6 @@
 :root{
   --bg:#f3f1f6;--panel:#ffffff;--ink:#22202a;--muted:#6a6577;--line:#d9d5e2;
-  --accent:#4b2b7f;--glass:#dfe8ec;--field:#f6f3ea;
+  --accent:#4b2b7f;--glass:#dfe8ec;--field:#eddded;
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
