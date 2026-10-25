@@ -185,6 +185,7 @@ window.addEventListener('error',function(ev){
     <span class="sep"></span>
     <button id="fans" class="on" aria-pressed="true">Fans on</button>
     <button id="alloff">Turn taps off</button>
+    <button id="clockBtn" title="Switch the wall clock between analog and digital">Digital clock</button>
     <span class="sep"></span>
     <label>Brightness <input type="range" id="bright" min="0.6" max="1.8" step="0.02" value="0.92"></label>
   </nav>
@@ -1571,6 +1572,11 @@ function paintBoardBase(){
   c.fillStyle=pal.title;c.font='bold 44px "Segoe UI",Arial,sans-serif';c.textAlign='left';c.textBaseline='alphabetic';
   c.fillText('Cardiovascular System',52,82);
   c.strokeStyle=pal.title;c.lineWidth=4;c.beginPath();c.moveTo(54,96);c.lineTo(540,96);c.stroke();
+  /* dated lesson: today's date, top right of the board */
+  c.textAlign='right';
+  c.fillStyle=pal.title;c.font='bold 28px "Segoe UI",Arial,sans-serif';
+  c.fillText('Date: '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}),972,82);
+  c.textAlign='left';
   c.fillStyle=pal.line;c.font='23px "Comic Sans MS","Segoe UI",cursive';
   c.fillText('\u2022 Heart = 4 chambers: 2 atria + 2 ventricles',58,148);
   c.fillText('\u2022 Arteries carry O\u2082-rich blood away',58,188);
@@ -1647,6 +1653,91 @@ var trayTop=trayY+.025;
   var cap=new THREE.Mesh(new THREE.CylinderGeometry(.0115,.0115,.045,10),new THREE.MeshStandardMaterial({color:col,roughness:.5}));cap.rotation.z=Math.PI/2;cap.position.x=.08;m.add(cap);
   whiteboard.add(m);
 });
+
+/* ---------- wall clock (front wall, right of the whiteboard) ----------
+   Round classroom clock hung level with the board's upper half: static dial
+   texture, live hands rotated from the real clock in frame(). The bar's
+   "Digital clock" tab swaps the analog head for the LED panel below. */
+var wallClock=new THREE.Group();
+/* half-size heads raised so the clock's top sits level with the whiteboard's
+   upper edge (WB_CY+WB_H/2 = 2.91): centre 2.745 + 0.165 half-height after the
+   .5 scale; z pulled to the wall so the scaled backing stays flush on it. */
+wallClock.position.set(2.75,2.745,-HZ+.015);
+wallClock.scale.set(.5,.5,.5);
+pickRoot.add(wallClock);glowHide.push(wallClock);
+var wcAnalog=new THREE.Group(),wcDigital=new THREE.Group();
+wallClock.add(wcAnalog);wallClock.add(wcDigital);
+var wcDial=canvasTex(512,512,function(x,w,h){
+  x.fillStyle='#f7f7f4';x.fillRect(0,0,w,h);
+  x.save();x.translate(w/2,h/2);
+  x.strokeStyle='#20242a';x.lineCap='butt';
+  for(var i=0;i<60;i++){
+    var major=(i%5===0),a=i*Math.PI/30;
+    x.lineWidth=major?7:3;
+    x.beginPath();
+    x.moveTo(Math.sin(a)*(major?198:216),-Math.cos(a)*(major?198:216));
+    x.lineTo(Math.sin(a)*236,-Math.cos(a)*236);
+    x.stroke();
+  }
+  x.fillStyle='#20242a';x.font='bold 62px "Segoe UI",Arial,sans-serif';
+  x.textAlign='center';x.textBaseline='middle';
+  [[12,0],[3,1],[6,2],[9,3]].forEach(function(n){
+    var a=n[1]*Math.PI/6;
+    x.fillText(String(n[0]),Math.sin(a)*152,-Math.cos(a)*152);
+  });
+  x.restore();
+});
+box(.66,.66,.03,M.dark,0,0,-.015,wcAnalog,true);
+wcAnalog.add(plane(.56,.56,new THREE.MeshBasicMaterial({map:wcDial,toneMapped:false}),0,0,.012,0));
+var wcRim=new THREE.Mesh(new THREE.RingGeometry(.28,.315,48),M.steel);
+wcRim.position.z=.016;wcAnalog.add(wcRim);
+var wcHands={};
+function wcHand(w,len,mat,z){
+  var g=new THREE.Group();g.position.z=z;
+  g.add(box(w,len,.012,mat,0,len/2,0,g,true));
+  wcAnalog.add(g);
+  return g;
+}
+wcHands.h=wcHand(.032,.14,M.dark,.04);
+wcHands.m=wcHand(.022,.21,M.dark,.056);
+wcHands.s=wcHand(.01,.235,new THREE.MeshBasicMaterial({color:0xc0392b}),.072);
+var wcCap=new THREE.Mesh(new THREE.SphereGeometry(.02,12,10),M.dark);
+wcCap.position.z=.082;wcAnalog.add(wcCap);
+
+/* digital head: same wall bracket, LED panel; redrawn from the real clock in
+   frame() once per second while visible */
+var wcLed=document.createElement('canvas');wcLed.width=512;wcLed.height=228;
+var wcLedCtx=wcLed.getContext('2d');
+var wcLedTex=new THREE.CanvasTexture(wcLed);wcLedTex.colorSpace=THREE.SRGBColorSpace;
+var wcLedState=[-1,-1,-1];
+function wcDrawLed(h,mi,s){
+  var c=wcLedCtx;
+  c.fillStyle='#05070a';c.fillRect(0,0,512,228);
+  c.strokeStyle='#1b2027';c.lineWidth=6;c.strokeRect(3,3,506,222);
+  c.textBaseline='middle';
+  c.shadowColor='rgba(255,176,46,.55)';c.shadowBlur=16;
+  c.font='bold 110px Consolas,"Segoe UI Mono",monospace';
+  c.textAlign='right';c.fillStyle='#ffb02e';
+  c.fillText((h<10?'0'+h:h)+':'+(mi<10?'0'+mi:mi),352,118);
+  c.font='bold 74px Consolas,"Segoe UI Mono",monospace';
+  c.fillStyle='#ffd27a';
+  c.fillText((s<10?'0'+s:s),488,124);
+  c.shadowBlur=0;
+  wcLedTex.needsUpdate=true;
+}
+box(.66,.34,.045,M.dark,0,0,-.014,wcDigital,true);
+wcDigital.add(plane(.58,.26,new THREE.MeshBasicMaterial({map:wcLedTex,toneMapped:false}),0,0,.012,0));
+wcDigital.visible=false;
+/* local (pre-scale) lift: .16 * .5 = .08 world, so the half-height LED head's
+   top lands on the same 2.91 datum as the analog head */
+wcDigital.position.y=.16;
+var clockBtn=document.getElementById('clockBtn');
+function wcSetDigital(on){
+  wcDigital.visible=on;wcAnalog.visible=!on;
+  if(clockBtn)clockBtn.textContent=on?'Analog clock':'Digital clock';
+}
+if(clockBtn)clockBtn.addEventListener('click',function(){wcSetDigital(!wcDigital.visible);});
+if(/[?&]clock=digital/.test(location.search))wcSetDigital(true);
 
 var texPending=0;
 
@@ -3082,6 +3173,9 @@ function rimRing(parent,geo,x,y,z){
   m.rotation.x=Math.PI/2;m.position.set(x,y,z);m.renderOrder=4;
   parent.add(m);return m;
 }
+/* bench flasks and beakers hold plain water: a near-clear, faintly blue fill
+   (body and lit surface) instead of the coloured reagent palette */
+var WATER_LIQUID=0xcbe7f3;
 function flask(parent,x,z,col){
   var g=new THREE.Group();g.position.set(x,H,z);
   var body=new THREE.Mesh(new THREE.CylinderGeometry(.022,.052,.13,20,1,true),M.vessel);body.position.y=.065;body.renderOrder=2;g.add(body);
@@ -3089,9 +3183,9 @@ function flask(parent,x,z,col){
   rimRing(g,flaskFootRing,0,.0068,0);
   var neck=new THREE.Mesh(new THREE.CylinderGeometry(.014,.017,.07,14,1,true),M.vessel);neck.position.y=.163;neck.renderOrder=2;g.add(neck);
   rimRing(g,flaskRimGeo,0,.198,0);
-  var fm=M.liquid.clone();fm.color.setHex(col||0x9fd3e8);
+  var fm=M.liquid.clone();fm.color.setHex(WATER_LIQUID);
   var f=new THREE.Mesh(new THREE.CylinderGeometry(.0300,.046,.088,20),fm);f.position.y=.048;f.renderOrder=1;g.add(f);
-  liquidSurface(g,0,.0926,0,flaskTopGeo,col);
+  liquidSurface(g,0,.0926,0,flaskTopGeo,WATER_LIQUID);
   contactShadow(g,0,.002,0,.2,.2);
   parent.add(g);glassware.push(g);return g;
 }
@@ -3265,7 +3359,9 @@ var fx=new THREE.Group();scene.add(fx);
 function beaker(parent,x,z,col){
   var g=new THREE.Group();g.position.set(x,H,z);
   var hasWater=(beakerN++%2===0);
-  var ref={group:g,col:col,water:hasWater,broken:false};
+  /* flasks and beakers hold water by spec; col stays in the signature for the
+     shared call sites, and a break spills the same water the beaker held */
+  var ref={group:g,col:WATER_LIQUID,water:hasWater,broken:false};
   var b=new THREE.Mesh(new THREE.CylinderGeometry(.04,.038,.1,16,1,true),M.vessel);b.position.y=.05;b.renderOrder=2;g.add(b);
   var bfoot=new THREE.Mesh(new THREE.CylinderGeometry(.0402,.0428,.007,20),M.vesselFoot);bfoot.position.y=.0035;bfoot.renderOrder=2;g.add(bfoot);
   rimRing(g,beakerFootRing,0,.0072,0);
@@ -3274,8 +3370,8 @@ function beaker(parent,x,z,col){
   var f=null;
   if(hasWater){
     f=new THREE.Mesh(new THREE.CylinderGeometry(.0356,.0356,.055,16),M.liquid.clone());
-    f.material.color.setHex(col);f.position.y=.03;f.renderOrder=1;g.add(f);
-    liquidSurface(g,0,.0582,0,beakerTopGeo,col);
+    f.material.color.setHex(WATER_LIQUID);f.position.y=.03;f.renderOrder=1;g.add(f);
+    liquidSurface(g,0,.0582,0,beakerTopGeo,WATER_LIQUID);
   }
   ref.fill=f;
   contactShadow(g,0,.002,0,.2,.2);
@@ -5409,6 +5505,15 @@ function frame(){
 
   streamTex.offset.y-=dt*2.4;
   if(time-wbLastDraw>0.05){wbLastDraw=time;drawBoardAnim(time);}   /* ~20fps: avoid a 1024x410 texture upload every frame */
+  var wcNow=new Date(),wcSec=wcNow.getSeconds()+wcNow.getMilliseconds()/1000;
+  wcHands.h.rotation.z=-((wcNow.getHours()%12)+wcNow.getMinutes()/60)*Math.PI/6;
+  wcHands.m.rotation.z=-(wcNow.getMinutes()+wcSec/60)*Math.PI/30;
+  wcHands.s.rotation.z=-wcSec*Math.PI/30;
+  if(wcDigital.visible&&(wcLedState[0]!==wcNow.getHours()||wcLedState[1]!==wcNow.getMinutes()||
+      wcLedState[2]!==wcNow.getSeconds())){
+    wcLedState=[wcNow.getHours(),wcNow.getMinutes(),wcNow.getSeconds()];
+    wcDrawLed(wcLedState[0],wcLedState[1],wcLedState[2]);
+  }
   if(heartModel)heartModel.userData.spin.rotation.y+=dt*.4;
   if(fighterMixer)fighterMixer.update(dt);   /* tutor idle/walk clip */
   if(fighter2Mixer)fighter2Mixer.update(dt);   /* second teacher idle clip */
