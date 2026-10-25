@@ -111,6 +111,17 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:
 .exit:active{transform:translateY(0)}
 .exit:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .exit svg{display:block;pointer-events:none}
+/* Gram staining workflow overlay (the Gram stain bar tab): full-screen iframe
+   above the canvas and the boot splash, with its own close control */
+.gram{position:fixed;inset:0;z-index:4100;background:var(--bg);display:none}
+.gram.open{display:block}
+.gram iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:var(--bg)}
+.gclose{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);right:14px;
+  width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;
+  border:1px solid var(--line);background:var(--bar);color:var(--ink);box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.gclose:hover{background:rgba(180,60,60,.28);border-color:rgba(255,120,110,.7);color:#ffd9d6}
+.gclose:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gclose svg{display:block;pointer-events:none}
 /* boot splash: painted by static HTML before the deferred module runs, hides via
    .hide once the first frames render and every GLTF/OBJ asset has landed */
 #boot{position:fixed;inset:0;z-index:4000;display:flex;align-items:center;justify-content:center;
@@ -173,7 +184,7 @@ window.addEventListener('error',function(ev){
   <button id="krebsBtn" class="lesson" title="Start the interactive Krebs cycle lesson">Krebs cycle</button>
   <nav class="bar" aria-label="Views and controls">
     <button data-view="overview" class="on">Overview</button>
-    <button data-view="aisle">Aisle</button>
+    <button id="gramBtn" title="Show the Gram staining workflow animation">Gram stain</button>
     <button data-view="sink">Sink</button>
     <button data-view="wall">Wall sinks</button>
     <button data-view="board">Whiteboard</button>
@@ -217,6 +228,12 @@ window.addEventListener('error',function(ev){
     <label>Master volume <input type="range" id="masterVol" min="0" max="2.0" step="0.01" value="1.0"></label>
     <small>Adjustments update immediately</small>
   </div>
+</div>
+<div class="gram" id="gramPane" aria-hidden="true">
+  <iframe id="gramFrame" data-src="./gram-stain/index.html" title="Gram staining workflow"></iframe>
+  <button id="gramClose" class="gclose" type="button" title="Close" aria-label="Close Gram staining workflow">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
 </div>
 <script src="./themes.js"></script>
 <script type="module">
@@ -4231,6 +4248,22 @@ buttons.forEach(function(b){
     setActive(name);
   });
 });
+/* Gram staining workflow overlay behind the Gram stain bar tab (replaces the
+   old Aisle view tab): the iframe loads on first open, so the animation costs
+   nothing until it is asked for. */
+var gramPane=document.getElementById('gramPane'),gramBtn=document.getElementById('gramBtn'),
+    gramFrame=document.getElementById('gramFrame');
+function setGram(open){
+  if(!gramPane||!gramFrame)return;
+  if(open&&!gramFrame.getAttribute('src'))gramFrame.setAttribute('src',gramFrame.dataset.src);
+  gramPane.classList.toggle('open',open);
+  gramPane.setAttribute('aria-hidden',open?'false':'true');
+  if(gramBtn)gramBtn.classList.toggle('on',open);
+}
+if(gramBtn)gramBtn.addEventListener('click',function(){setGram(!gramPane.classList.contains('open'));});
+var gramClose=document.getElementById('gramClose');
+if(gramClose)gramClose.addEventListener('click',function(){setGram(false);});
+if(/[?&]gram=1/.test(location.search))setGram(true);
 
 /* ---------- input ---------- */
 var ptrs=new Map(),down=null,lastDist=0,lastMid=null;
