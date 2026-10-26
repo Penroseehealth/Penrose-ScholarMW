@@ -436,7 +436,7 @@ var CONFIG={
   heartX:3.95,
   heartZ:-4.25,
   heartYaw:0,
-   fighter:false,                  /* rigged tutor figure (assets/tutor.glb) - REQUIRED:
+    fighter:true,                   /* rigged tutor figure (assets/tutor.glb) - REQUIRED:
                                      the tutor always walks the aisle and teaches the
                                      lesson (3.9 MB GLB, ~105k verts, normalised 1.72 m).
                                      Keep ON; set false only to debug the actor. */
@@ -2478,8 +2478,8 @@ function makePracticalBook(handBone,holder){
     face.position.z=D/2+.002;bk.add(face);
   }catch(e){}
   /* hold: tucked in hand, angled like a carried textbook */
-  bk.rotation.set(-0.35,0.25,0.9);
-  bk.position.set(.02,-.06,.05);
+  bk.rotation.set(-1.485,-1.042,1.375);
+  bk.position.set(-0.032,0.068,-0.038);
   if(handBone)handBone.add(bk);else holder.add(bk);
   return bk;
 }
@@ -2728,10 +2728,31 @@ function makePracticalBook(handBone,holder){
               else m.copy(w);
               var q=new THREE.Quaternion();m.decompose(new THREE.Vector3(),q,new THREE.Vector3());
               bindL[b.name]=q;});
+            /* MakeHuman's bind is an A-pose with the arms splayed wide; retarget
+               the upper-arm rest toward a relaxed hang (arms down, kept ~45% of
+               the lateral flare) so the standing pose reads like a teacher and
+               hand-held props sit near the body. */
+            var tgt={};Object.keys(bindL).forEach(function(k){tgt[k]=bindL[k];});
+            ['mixamorigLeftArm','mixamorigRightArm'].forEach(function(want){
+              var ab=null,nm=null;
+              nsk.skeleton.bones.forEach(function(b){
+                if(!ab&&String(b.name).replace(/[^A-Za-z0-9_]/g,'')===want){ab=b;nm=b.name;}});
+              if(!ab||!ab.parent||!bindW[ab.parent.name])return;
+              var ch=null;ab.children.forEach(function(c){if(!ch&&c.isBone&&bindW[c.name])ch=c;});
+              if(!ch)return;
+              var bp=new THREE.Vector3().setFromMatrixPosition(bindW[nm]);
+              var cp=new THREE.Vector3().setFromMatrixPosition(bindW[ch.name]);
+              var vb=cp.sub(bp).normalize();
+              var vd=new THREE.Vector3(vb.x*0.45,Math.min(vb.y,-0.85),vb.z).normalize();
+              var rw=new THREE.Quaternion().setFromUnitVectors(vb,vd);
+              var pw=new THREE.Quaternion();
+              new THREE.Matrix4().copy(bindW[ab.parent.name]).decompose(new THREE.Vector3(),pw,new THREE.Vector3());
+              tgt[nm]=pw.clone().invert().multiply(rw).multiply(pw).multiply(bindL[nm]);
+            });
             var normCount=0;
             clip.tracks=clip.tracks.map(function(tr){
               if(!/\.quaternion$/.test(tr.name))return tr;
-              var bone=tr.name.replace(/\.quaternion$/,''),r=bindL[bone];
+              var bone=tr.name.replace(/\.quaternion$/,''),r=tgt[bone]||bindL[bone];
               if(!r)return tr;
               var n=tr.values.length/4,sx=0,sy=0,sz=0,sw=0;
               var rx=tr.values[0],ry=tr.values[1],rz=tr.values[2],rw=tr.values[3];
