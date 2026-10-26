@@ -18,7 +18,7 @@ ROOT = os.path.abspath(
         os.path.dirname(os.path.abspath(__file__)), "..", "frontend", "build", "web"
     )
 )
-BACKEND = "http://127.0.0.1:8000"
+BACKEND = os.environ.get("PENROSE_BACKEND", "http://127.0.0.1:8000")
 PORT = int(os.environ.get("PENROSE_WEB_PORT", "8080"))
 
 
@@ -107,6 +107,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 class ThreadingHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
     daemon_threads = True
+    # Python's default listen backlog is 5; Chrome bursts (importmap + module
+    # graph + GLB fetches) overflow it and get immediate RST "connection
+    # refused", killing page module loads. Keep the queue deep.
+    request_queue_size = 256
 
 
 if __name__ == "__main__":
