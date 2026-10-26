@@ -85,9 +85,9 @@ def validate_upload(filename: str, content: bytes) -> ValidatedFile | str:
 
 async def extract_pdf_text(content: bytes) -> str:
     try:
-        import PyPDF2
+        import pypdf
 
-        reader = PyPDF2.PdfReader(io.BytesIO(content))
+        reader = pypdf.PdfReader(io.BytesIO(content))
         pages = []
         for i, page in enumerate(reader.pages):
             text = page.extract_text()

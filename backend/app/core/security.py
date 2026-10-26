@@ -2,7 +2,8 @@ import hashlib
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
-from jose import JWTError, jwt
+import jwt
+from jwt import InvalidTokenError as JWTError
 
 from app.config.settings import get_settings
 
