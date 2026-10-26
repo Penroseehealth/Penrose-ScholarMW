@@ -19,6 +19,8 @@ from app.context_engine.models import WorkspaceState
 from app.context_engine.response_mode_router import ResponseModeRouter
 from app.database.engine import get_db
 from app.dependencies.auth import get_current_user
+from app.diagrams.orchestrator import build_lesson_assets
+from app.diagrams.schemas import LessonAssetsRequest, LessonAssetsResponse
 from app.models.models import ChatMessage, ChatSession, User
 from app.schemas.ai import (
     AssessmentGenerateRequest,
@@ -409,6 +411,21 @@ async def get_session(
             status_code=status.HTTP_404_NOT_FOUND, detail="Session not found"
         )
     return ChatSessionDetail.model_validate(session)
+
+
+@router.post("/lesson-assets", response_model=LessonAssetsResponse)
+async def lesson_assets(
+    body: LessonAssetsRequest,
+    user: User = Depends(get_current_user),
+) -> LessonAssetsResponse:
+    """Orchestrate the lesson-visual decision (Phase 4 of the Asymptote integration).
+
+    Rule-based plan: does this question need an Asymptote diagram, an
+    interactive Three.js scene, both, or neither? When a diagram is planned the
+    real Asymptote service is invoked here; failures come back verbatim with
+    ``asy_executed=False`` and an honest fallback note — never a fake success.
+    """
+    return LessonAssetsResponse(**build_lesson_assets(body.question, body.params))
 
 
 @router.post("/lesson-plan", response_model=LessonPlanResponse)

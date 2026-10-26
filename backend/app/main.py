@@ -18,6 +18,7 @@ from app.context_engine.router import router as context_engine_router
 from app.core.security import hash_password
 from app.courses.router import router as courses_router
 from app.database.engine import Base, async_session, engine
+from app.diagrams.router import router as diagrams_router
 from app.examinations.router import router as examinations_router
 from app.examinations_builder.router import router as examinations_builder_router
 from app.gamification.router import router as gamification_router
@@ -304,6 +305,7 @@ app.include_router(biology_viz_router, prefix="/api/v1")
 app.include_router(presentation_router, prefix="/api/v1")
 app.include_router(examinations_builder_router, prefix="/api/v1")
 app.include_router(mathsdrill_router, prefix="/api/v1")
+app.include_router(diagrams_router, prefix="/api/v1")
 
 
 @app.get("/health")

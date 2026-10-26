@@ -71,3 +71,8 @@ backend/data/msce_papers/papers/
 backend/data/msce_papers/cache/
 tools/_msce_raw/
 
+# Asymptote diagram service cache (regenerated renders + execution logs)
+backend/generated/
+
+# interrupted sqlite journal from test runs
+backend/test.db-journal
