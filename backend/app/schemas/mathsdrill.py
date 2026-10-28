@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -62,3 +63,28 @@ class MathsdrillPaperStateOut(BaseModel):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class MathsdrillSolveIn(BaseModel):
+    """A free-text question typed or pasted into the MathsDrill chat."""
+
+    question: str = Field(min_length=1, max_length=500)
+
+
+class MathsdrillSolveOut(BaseModel):
+    """Structured worked solution for the chat.
+
+    Mirrors the mathematics tutor payload so the client gets verified maths
+    plus the information needed to draw the matching diagram or graph.
+    """
+
+    question: str
+    source: str  # "sympy" (verified) | "ai" (model worked it) | "clarification"
+    subject: str
+    topic: str
+    steps: list[dict[str, Any]]
+    answer_text: str
+    answer_latex: str
+    verification_status: str
+    verification_detail: str
+    visual: dict[str, Any] | None = None

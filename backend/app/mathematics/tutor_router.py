@@ -13,6 +13,7 @@ Two endpoints:
 
 from __future__ import annotations
 
+import json
 import logging
 import math
 import re
@@ -25,7 +26,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from app.config.ai_client import AIProviderError, call_ai_json
+from app.config.ai_client import AIProviderError, call_ai_json, call_ai_text
 from app.database.engine import get_db
 from app.dependencies.auth import get_current_user
 from app.mathematics.solution_types import TutorStep
@@ -63,6 +64,9 @@ class SolveResponse(BaseModel):
     verification_status: str
     verification_detail: str
     visual: dict[str, Any] | None = None
+    # which engine answered: "sympy" (symbolically verified) or "ai" (the model
+    # chain worked it because SymPy could not parse the wording)
+    source: str = "sympy"
 
 
 class ChatTurn(BaseModel):
@@ -105,6 +109,35 @@ class CheckResponse(BaseModel):
 # ---------------------------------------------------------------------------
 
 
+async def run_solve(problem: str) -> SolveResponse:
+    """Deterministic solution first, AI chain as the fallback for odd wording.
+
+    Shared by the tutor endpoint and the MathsDrill chat so both return the
+    same verified payload and the caller can tell *which* engine answered.
+    """
+    solution: TutorSolution = solve(problem)
+    source = "sympy"
+    if _is_clarification(solution):
+        ai_solution = await _ai_solve(problem)
+        if ai_solution is None:
+            # Structured call failed → fall back to the ScholarAI assistant
+            # itself (plain chat completion, the path /ai/chat uses), so the
+            # student still gets a worked answer instead of the deterministic
+            # "I could not turn that into a calculation yet …" clarification.
+            ai_solution = await _assistant_solve(problem)
+        if ai_solution is not None:
+            solution = ai_solution
+            source = "ai"
+        else:
+            source = "clarification"  # neither engine could work it
+    data = solution.to_dict()
+    data["source"] = source
+    # echo the question the caller actually asked (the solver may have rewritten
+    # it, e.g. "find the roots of x^2 - 4x + 3" → "… = 0")
+    data["problem"] = problem
+    return SolveResponse(**data)
+
+
 @router.post("/solve", response_model=SolveResponse)
 async def solve_problem(
     payload: SolveRequest, user: User = Depends(get_current_user)
@@ -116,13 +149,7 @@ async def solve_problem(
     Workers AI -> HuggingFace -> Groq) so an unusual but valid problem still gets
     a worked solution instead of a bare "please rephrase".
     """
-    solution: TutorSolution = solve(payload.problem)
-    if _is_clarification(solution):
-        ai_solution = await _ai_solve(payload.problem)
-        if ai_solution is not None:
-            solution = ai_solution
-    data = solution.to_dict()
-    return SolveResponse(**data)
+    return await run_solve(payload.problem)
 
 
 def _is_clarification(solution: TutorSolution) -> bool:
@@ -219,6 +246,139 @@ async def _ai_solve(problem: str) -> TutorSolution | None:
             "Solved by the AI tutor and not checked by the symbolic engine."
             if not needs_more
             else "The AI tutor needs more information to finish this problem."
+        ),
+    )
+
+
+_ASSISTANT_SOLVE_SYSTEM = """You are the Penrose mathematics assistant, helping a \
+secondary-school student in Malawi.
+
+Work the student's question out yourself, step by step, in plain text.
+
+ABSOLUTE RULES
+1. Do every calculation yourself and check it before you answer. Never invent a \
+number you did not calculate, and never claim a symbolic engine verified it when \
+it did not.
+2. Short concrete steps, one operation each, numbered "1. ", "2. " …, each on its \
+own line. No LaTeX commands and no markdown tables.
+3. End with a line starting "Answer: " only when the question has one clear answer; \
+otherwise end with "Explanation: " and a single sentence.
+4. If the question is not mathematics, or needs numbers the student never gave, say \
+exactly that in one sentence and stop.
+"""
+
+
+def _steps_from_prose(text: str) -> tuple[list[TutorStep], str]:
+    """Turn an assistant reply into numbered steps plus any stated answer.
+
+    Only re-arranges what the model wrote — nothing is recomputed or invented.
+    """
+    chunks = [c.strip() for c in re.split(r"\n\s*\n", text.strip()) if c.strip()]
+    if len(chunks) == 1:
+        parts = [
+            p.strip() for p in re.split(r"(?=\b\d{1,2}\.\s)", chunks[0]) if p.strip()
+        ]
+        if len(parts) > 1:
+            chunks = parts
+
+    answer = ""
+    body: list[str] = []
+    for chunk in chunks:
+        match = re.match(
+            r"^(?:final\s+answer|answer)\s*[:\-]\s*(.+)$", chunk, re.IGNORECASE
+        )
+        if match and not answer:
+            answer = match.group(1).strip()
+        else:
+            body.append(chunk)
+
+    steps = [
+        TutorStep(id=index, title=f"Step {index}", explanation=chunk, narration=chunk)
+        for index, chunk in enumerate(body[:8], start=1)
+    ]
+    return steps, answer
+
+
+async def _assistant_solve(problem: str) -> TutorSolution | None:
+    """ScholarAI fallback: the plain chat completion behind ``/ai/chat``.
+
+    Used when SymPy cannot parse the question *and* the structured JSON call
+    fails, so a free-form question still gets a worked answer from the same
+    assistant the rest of the app uses, instead of the deterministic
+    "I could not turn that into a calculation yet …" clarification.
+    """
+    messages = [
+        {"role": "system", "content": _ASSISTANT_SOLVE_SYSTEM},
+        {"role": "user", "content": f"Problem: {problem}"},
+    ]
+    try:
+        raw = await call_ai_text(
+            messages, max_tokens=2000, temperature=0.7, timeout=45.0
+        )
+    except Exception as exc:  # noqa: BLE001 - any provider failure ends the chain
+        log.warning("Assistant solve fallback failed: %s", exc)
+        return None
+
+    text = (raw or "").strip()
+    if not text:
+        return None
+
+    # the model sometimes answers in the structured shape anyway
+    candidate = text
+    if candidate.startswith("```"):
+        candidate = re.sub(r"^```[a-zA-Z]*\s*", "", candidate).rstrip("`").strip()
+    try:
+        payload = json.loads(candidate)
+    except (json.JSONDecodeError, TypeError, ValueError):
+        payload = None
+
+    if isinstance(payload, dict) and isinstance(payload.get("steps"), list):
+        steps = []
+        for index, raw_step in enumerate(payload["steps"], start=1):
+            if not isinstance(raw_step, dict):
+                continue
+            work = str(raw_step.get("work", "")).strip()
+            title = str(raw_step.get("title", "")).strip() or f"Step {index}"
+            explanation = str(raw_step.get("explanation", "")).strip() or work
+            if not explanation:
+                continue
+            steps.append(
+                TutorStep(
+                    id=index,
+                    title=title,
+                    explanation=explanation,
+                    narration=explanation,
+                    latex_lines=[work] if work else [],
+                )
+            )
+        if steps:
+            return TutorSolution(
+                problem=problem,
+                subject="mathematics",
+                topic="assistant answer",
+                steps=steps,
+                final_answer_latex=str(payload.get("answer_latex") or ""),
+                final_answer_text=str(payload.get("answer_text") or ""),
+                verification_status="ai_unverified",
+                verification_detail=(
+                    "Worked by the AI assistant and not checked by the symbolic engine."
+                ),
+            )
+        return None
+
+    steps, answer = _steps_from_prose(text)
+    if not steps:
+        steps = [TutorStep(id=1, title="Assistant", explanation=text, narration=text)]
+    return TutorSolution(
+        problem=problem,
+        subject="mathematics",
+        topic="assistant answer",
+        steps=steps,
+        final_answer_latex="",
+        final_answer_text=answer,
+        verification_status="ai_unverified",
+        verification_detail=(
+            "Worked by the AI assistant and not checked by the symbolic engine."
         ),
     )
 

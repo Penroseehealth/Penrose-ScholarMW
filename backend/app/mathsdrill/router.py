@@ -3,12 +3,16 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.engine import get_db
-from app.models.models import MathsdrillPaperState, MathsdrillSession
+from app.dependencies.auth import get_current_user
+from app.mathematics.tutor_router import run_solve
+from app.models.models import MathsdrillPaperState, MathsdrillSession, User
 from app.schemas.mathsdrill import (
     MathsdrillPaperStateIn,
     MathsdrillPaperStateOut,
     MathsdrillSessionIn,
     MathsdrillSessionOut,
+    MathsdrillSolveIn,
+    MathsdrillSolveOut,
     MathsdrillStudentSummary,
 )
 
@@ -150,3 +154,30 @@ async def create_paper_state(
     await db.commit()
     await db.refresh(state)
     return state
+
+
+@router.post("/solve", response_model=MathsdrillSolveOut)
+async def solve_chat_question(
+    payload: MathsdrillSolveIn,
+    user: User = Depends(get_current_user),
+) -> MathsdrillSolveOut:
+    """Work a free-text question asked in the MathsDrill chat.
+
+    Reuses the mathematics tutor: SymPy first (every line independently
+    verified), the AI provider chain as the fallback when the wording cannot be
+    turned into a symbolic problem. Authentication is required because that
+    fallback may spend provider credits; the maths itself never changes.
+    """
+    solved = await run_solve(payload.question)
+    return MathsdrillSolveOut(
+        question=solved.problem,
+        source=solved.source,
+        subject=solved.subject,
+        topic=solved.topic,
+        steps=solved.steps,
+        answer_text=solved.final_answer_text,
+        answer_latex=solved.final_answer_latex,
+        verification_status=solved.verification_status,
+        verification_detail=solved.verification_detail,
+        visual=solved.visual,
+    )

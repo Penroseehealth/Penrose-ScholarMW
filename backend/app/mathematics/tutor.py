@@ -170,21 +170,28 @@ def solve(problem: str) -> TutorSolution:
         if result is not None:
             return result
 
-    quadratic = _solve_polynomial(text, degree=2)
+    # A root question written without "=" is still an equation — give the
+    # polynomial solvers that form, and never let the arithmetic fallback
+    # answer a root question with a meaningless evaluation.
+    rewritten = _root_question_as_equation(text)
+    poly_text = rewritten if rewritten is not None else text
+
+    quadratic = _solve_polynomial(poly_text, degree=2)
     if quadratic is not None:
         return quadratic
 
-    linear = _solve_polynomial(text, degree=1)
+    linear = _solve_polynomial(poly_text, degree=1)
     if linear is not None:
         return linear
 
-    percentage = _solve_percentage(text, lowered)
-    if percentage is not None:
-        return percentage
+    if rewritten is None:
+        percentage = _solve_percentage(text, lowered)
+        if percentage is not None:
+            return percentage
 
-    arithmetic = _solve_arithmetic(text)
-    if arithmetic is not None:
-        return arithmetic
+        arithmetic = _solve_arithmetic(text)
+        if arithmetic is not None:
+            return arithmetic
 
     return _clarification(
         problem,
@@ -210,6 +217,74 @@ def _equation_sides(text: str) -> tuple[str, str] | None:
     if not left.strip() or not right.strip():
         return None
     return left, right
+
+
+# Root/zero/x-intercept questions are nearly always written WITHOUT an "="
+# sign: "find the roots of x^2 - 4x + 3". They are still polynomial equations,
+# but _solve_polynomial() needs an "=", so without this rewrite the question
+# fell through to the arithmetic evaluator and answered with a number that is
+# not a root at all (e.g. "-2" for x^2 - 4x + 3).
+_ROOT_INTENT = re.compile(
+    r"\b(?:roots?|zeros?|x-?intercepts?|solutions?|solve|turning\s+points?"
+    r"|cuts?\s+the\s+x-?axis|crosses?\s+the\s+x-?axis)\b",
+    re.IGNORECASE,
+)
+_Y_FORM = re.compile(
+    r"^(?:draw|plot|sketch|graph)?\s*(?:y|f\s*\(\s*x\s*\))\s*=\s*(.+)$",
+    re.IGNORECASE,
+)
+_TRAILING_INTENT = re.compile(
+    r"\s+(?:and|then)?\s*(?:find|give|state|determine|show|calculate)\b.*$",
+    re.IGNORECASE,
+)
+_MATHS_ONLY = re.compile(r"^[\d\s.,+\-*/^()°²³√xX]+$")
+
+
+def _root_question_as_equation(text: str) -> str | None:
+    """Rewrite a root question into ``"<polynomial> = 0"`` when it lacks one.
+
+    Returns None when the question already carries an "=" sign (the normal
+    path handles it), when it does not ask for roots, or when what remains is
+    not a single-variable algebraic expression — so an English sentence is
+    never turned into maths.
+    """
+    body = text.strip()
+
+    match = _Y_FORM.match(body)
+    if match:
+        candidate = _TRAILING_INTENT.sub("", match.group(1)).strip().rstrip(".").strip()
+    elif "=" in body:
+        return None
+    else:
+        if not _ROOT_INTENT.search(body):
+            return None
+        parts = re.split(
+            r"\b(?:roots?|zeros?|x-?intercepts?|solutions?|turning\s+points?)"
+            r"\s*(?:of|for|to)?",
+            body,
+            maxsplit=1,
+            flags=re.IGNORECASE,
+        )
+        if len(parts) < 2:
+            return None
+        candidate = parts[-1].strip().rstrip(".").strip()
+
+    if not candidate or not _MATHS_ONLY.match(candidate):
+        return None
+    if not re.search(r"[xX]", candidate):
+        return None
+    if not _ROOT_INTENT.search(body):
+        return None
+
+    # school notation in, notation the symbolic parser accepts out
+    candidate = (
+        candidate.replace("²", "^2")
+        .replace("³", "^3")
+        .replace("−", "-")
+        .replace("–", "-")
+        .replace("×", "*")
+    )
+    return f"{candidate} = 0"
 
 
 def _constant_equation_solution(problem: str, expression: sp.Expr) -> TutorSolution:
