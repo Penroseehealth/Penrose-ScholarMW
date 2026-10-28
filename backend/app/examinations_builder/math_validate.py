@@ -137,10 +137,10 @@ def verify_with_sympy(question: dict) -> list[str]:
     """
     import sympy
     from sympy.parsing.sympy_parser import (
-        standard_transformations,
-        implicit_multiplication_application,
         convert_xor,
+        implicit_multiplication_application,
         parse_expr,
+        standard_transformations,
     )
 
     defects: list[str] = []

@@ -24,10 +24,14 @@ class _WebVtcAudioEngine implements VtcAudioEngine {
       return const AudioLoadResult(false, error: 'No audio was returned.');
     }
     try {
-      stop();
+      _disposeElement();
       final el = web.HTMLAudioElement()
         ..preload = 'auto'
+        ..style.display = 'none'
         ..src = 'data:${mime.isEmpty ? 'audio/mpeg' : mime};base64,$base64';
+      // Attach to the document: detached media elements are treated
+      // inconsistently by browsers (and can be collected mid-playback).
+      web.document.body?.appendChild(el);
       _base64 = base64;
       _mime = mime;
       _el = el;
@@ -190,6 +194,31 @@ class _WebVtcAudioEngine implements VtcAudioEngine {
     }
   }
 
+  @override
+  Future<AudioShareResult> downloadBytes(Uint8List bytes, String filename, String mime) async {
+    if (bytes.isEmpty) {
+      return const AudioShareResult(false, message: 'The file was empty.');
+    }
+    try {
+      final blob = web.Blob(<JSAny>[bytes.toJS].toJS, web.BlobPropertyBag(type: mime));
+      final url = web.URL.createObjectURL(blob);
+      final anchor = web.HTMLAnchorElement()
+        ..href = url
+        ..download = filename
+        ..style.display = 'none';
+      web.document.body?.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      // Revoking immediately can cancel the download before Chrome has read
+      // the blob, so give it a moment to start.
+      await Future<void>.delayed(const Duration(milliseconds: 1500));
+      web.URL.revokeObjectURL(url);
+      return const AudioShareResult(true, message: 'Download started.');
+    } catch (e) {
+      return AudioShareResult(false, message: 'Download failed: $e');
+    }
+  }
+
   web.Blob _blob() {
     final bytes = _decodeBase64(_base64);
     return web.Blob(<JSAny>[bytes.toJS].toJS, web.BlobPropertyBag(type: _mime));
@@ -197,14 +226,19 @@ class _WebVtcAudioEngine implements VtcAudioEngine {
 
   @override
   void dispose() {
-    final el = _audio;
-    _el = null;
+    _disposeElement();
     _base64 = '';
+  }
+
+  void _disposeElement() {
+    final el = _el;
+    _el = null;
     if (el == null) return;
     try {
       el.pause();
       el.removeAttribute('src');
       el.load();
+      el.remove();
     } catch (_) {
       // Best effort.
     }

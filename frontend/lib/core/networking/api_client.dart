@@ -93,6 +93,25 @@ class ApiClient {
   Future<Map<String, dynamic>> post(String path, {Map<String, dynamic>? body, Map<String, String>? headers}) =>
       _send('POST', path, body: body, extra: headers);
 
+  /// GET returning raw bytes. Used for media downloads (e.g. recorded WAV/MP3)
+  /// where decoding the body as text would corrupt it.
+  Future<List<int>> getBytes(String path, {Map<String, String>? headers, Map<String, String>? query}) async {
+    await _resolveToken();
+    final uri = _uri(path, query);
+    final requestHeaders = _headers(json: false, extra: headers);
+    try {
+      final response = await _client.get(uri, headers: requestHeaders).timeout(_apiTimeout);
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return response.bodyBytes;
+      }
+      throw _toApiException(response.statusCode, _decode(response));
+    } on TimeoutException {
+      throw const NetworkUnavailableException('Backend timed out');
+    } on http.ClientException catch (e) {
+      throw NetworkUnavailableException('Cannot reach the backend (${e.message})');
+    }
+  }
+
   Future<Map<String, dynamic>> put(String path, {Map<String, dynamic>? body, Map<String, String>? headers}) =>
       _send('PUT', path, body: body, extra: headers);
 

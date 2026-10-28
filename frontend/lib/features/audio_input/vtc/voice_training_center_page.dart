@@ -9,6 +9,7 @@ import 'clone_controller.dart';
 import 'my_voices_page.dart';
 import 'penrose_header.dart';
 import 'scenic_backdrop.dart';
+import 'system_recorder_page.dart';
 import 'voice_hero.dart';
 import 'voice_sidebar.dart';
 import 'vtc_controller.dart';
@@ -281,6 +282,10 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
 
   bool get _showingLibrary => _tab == 'my_voices';
 
+  /// The system-audio recorder is its own workspace: it records what the
+  /// computer is playing, then transcribes and summarises that audio.
+  bool get _showingRecorder => _tab == 'recorder';
+
   // -- pulse state -----------------------------------------------------------
 
   VtcPulseState get _pulseState {
@@ -351,31 +356,33 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
           // page's own scroll view would nest two scrollables.
           child: _showingLibrary
               ? _myVoices()
-              : SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(28, 8, 40, 48),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 940),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          VoiceHero(animation: _pulse, pulse: _pulseState),
-                          const SizedBox(height: 6),
-                          Center(
-                            child: Text(
-                              'Standard voices from the configured engine',
-                              style: VtcType.body(context).copyWith(fontSize: 12.5),
-                            ),
+              : _showingRecorder
+                  ? _systemRecorder()
+                  : SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(28, 8, 40, 48),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 940),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              VoiceHero(animation: _pulse, pulse: _pulseState),
+                              const SizedBox(height: 6),
+                              Center(
+                                child: Text(
+                                  'Standard voices from the configured engine',
+                                  style: VtcType.body(context).copyWith(fontSize: 12.5),
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              _workspaceCard(),
+                              const SizedBox(height: 22),
+                              _footerStatements(),
+                            ],
                           ),
-                          const SizedBox(height: 14),
-                          _workspaceCard(),
-                          const SizedBox(height: 22),
-                          _footerStatements(),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
         ),
       ],
     );
@@ -391,10 +398,24 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
     );
   }
 
+  /// The system-audio recorder tab, which scrolls itself.
+  Widget _systemRecorder() {
+    return SystemRecorderPage(
+      key: const ValueKey('system-recorder-tab'),
+      apiClient: widget.apiClient,
+    );
+  }
+
   // -- mobile ----------------------------------------------------------------
 
   Widget _mobileBody() {
     if (_showingLibrary) return _myVoices();
+    if (_showingRecorder) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 8, right: 8),
+        child: _systemRecorder(),
+      );
+    }
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16, 6, 16, 40),
       child: Column(

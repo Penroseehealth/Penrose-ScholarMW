@@ -131,6 +131,124 @@ def _merge_internal_sources(
         return sources_json
 
 
+TEMPORAL_AWARENESS_INSTRUCTION = (
+    "\n\nTEMPORAL AWARENESS — treat time as part of the context:\n"
+    "The CURRENT MOMENT block gives the student's local date, time and weekday. "
+    "Use it whenever time matters: 'today', 'tomorrow', 'next week', 'how long "
+    "until my exam', 'what did we do yesterday', 'this term', deadlines, study "
+    "schedules and dated examples. Never invent a different date, and never say "
+    "you do not know the date - it is given to you.\n"
+    "CONVERSATION MEMORY lists earlier sessions with their dates and topics. "
+    "When the student refers to something discussed before ('last time', 'the "
+    "topic we did', 'you explained...'), look it up there, mention the date it "
+    "was discussed, and continue from it instead of starting over. If the memory "
+    "does not cover it, say so plainly and ask which topic they mean.\n"
+    "Keep the running thread: subject -> topic -> subtopic, and the date each was "
+    "introduced, so later turns can build on them coherently."
+)
+
+
+def _temporal_block(body: ChatRequest) -> str:
+    """Describe 'now' in the student's own time zone, for relative dates."""
+    from datetime import UTC, datetime, timedelta
+
+    moment = body.client_time or datetime.now(UTC)
+    if moment.tzinfo is None:
+        # A naive client timestamp is local wall-clock time; the zone name (if
+        # sent) explains it, otherwise assume the server's interpretation.
+        zone_label = body.timezone or "local time (client clock)"
+    else:
+        zone_label = body.timezone or moment.tzname() or "UTC"
+
+    try:
+        # Keep a stable, readable offset so the model cannot drift hours.
+        offset = moment.utcoffset() or timedelta(0)
+        hours, minutes = divmod(abs(int(offset.total_seconds())) // 60, 60)
+        sign = "+" if offset >= timedelta(0) else "-"
+        offset_label = f"UTC{sign}{hours:02d}:{minutes:02d}"
+    except (TypeError, ValueError):
+        offset_label = "unknown offset"
+
+    lines = [
+        "\n\nCURRENT MOMENT (authoritative - use this, never guess):",
+        f"- Local date: {moment:%A, %d %B %Y}",
+        f"- Local time: {moment:%H:%M} ({offset_label})",
+        f"- Time zone: {zone_label}",
+    ]
+    if body.resumed:
+        lines.append(
+            "- This turn continues a conversation the student restored from "
+            "local memory; treat earlier turns as already discussed."
+        )
+    return "\n".join(lines)
+
+
+async def _memory_block(db: AsyncSession, user: User, session_id: int) -> str:
+    """Recall of earlier sessions: date + topic, so the tutor can refer back.
+
+    Two queries only: the user's recent sessions, then the messages belonging to
+    them. Content is clipped hard because this is a memory cue, not a transcript.
+    """
+    try:
+        sessions_result = await db.execute(
+            select(ChatSession)
+            .where(ChatSession.user_id == user.id)
+            .order_by(ChatSession.updated_at.desc())
+            .limit(8)
+        )
+        sessions = list(sessions_result.scalars().all())
+        if not sessions:
+            return ""
+
+        ids = [s.id for s in sessions]
+        msgs_result = await db.execute(
+            select(ChatMessage)
+            .where(ChatMessage.session_id.in_(ids))
+            .order_by(ChatMessage.id.desc())
+            .limit(240)
+        )
+        messages = list(msgs_result.scalars().all())
+
+        by_session: dict[int, list[ChatMessage]] = {}
+        for m in messages:
+            by_session.setdefault(m.session_id, []).append(m)
+
+        entries: list[str] = []
+        for s in sessions:
+            msgs = by_session.get(s.id, [])
+            if not msgs:
+                continue
+            # Newest first; the first assistant message is the best topic cue.
+            assistant = next((m for m in msgs if m.role == "assistant"), None)
+            first_user = next((m for m in reversed(msgs) if m.role == "user"), None)
+            when = s.updated_at or s.created_at
+            stamp = when.strftime("%d %b %Y %H:%M") if when else "undated"
+            topic = (
+                s.title or (first_user.content if first_user else "") or ""
+            ).strip()
+            topic = " ".join(topic.split())[:90]
+            gist = ""
+            if assistant is not None:
+                gist = " ".join((assistant.content or "").split())[:140]
+            marker = " (current)" if s.id == session_id else ""
+            entry = f"- {stamp}{marker} — {topic or 'untitled'}"
+            if gist and s.id != session_id:
+                entry += f" | replied: {gist}"
+            entries.append(entry)
+
+        if not entries:
+            return ""
+        return (
+            "\n\nCONVERSATION MEMORY (older sessions, newest first; "
+            "use only when relevant):\n" + "\n".join(entries)
+        )
+    except Exception as exc:  # noqa: BLE001 - memory must never break a reply
+        import logging
+
+        logging.getLogger(__name__).info("Memory recall skipped: %s", exc)
+        return ""
+
+
 def _build_system_prompt(agent_type: str) -> str:
     prompts = {
         "tutor": (
@@ -163,6 +281,7 @@ def _build_system_prompt(agent_type: str) -> str:
     return (
         base
         + CONTEXT_AWARE_INSTRUCTION
+        + TEMPORAL_AWARENESS_INSTRUCTION
         + STEM_LATEX_INSTRUCTION
         + VISUAL_GENERATION_POLICY
         + SOURCE_CITATION_INSTRUCTION
@@ -307,6 +426,8 @@ async def _chat_impl(
     # --- Inject live context + response mode into system prompt -----------
     system_prompt += ctx.to_prompt_block()
     system_prompt += ResponseModeRouter.get_system_prompt_addition(ctx, intent)
+    system_prompt += _temporal_block(body)
+    system_prompt += await _memory_block(db, user, session_id)
 
     # --- Ground the answer in the sources appropriate to this message ------
     # A per-message router decides whether the question needs the
@@ -746,6 +867,8 @@ async def _chat_stream_impl(
     system_prompt = _build_system_prompt(body.agent_type)
     system_prompt += ctx.to_prompt_block()
     system_prompt += ResponseModeRouter.get_system_prompt_addition(ctx, intent)
+    system_prompt += _temporal_block(body)
+    system_prompt += await _memory_block(db, user, session_id)
 
     from app.retrieval.source_router import (
         internal_prompt_block,
@@ -793,6 +916,10 @@ async def _chat_stream_impl(
     async def event_generator():
         from app.config.ai_client import AIProviderError, call_ai_stream_with_fallback
 
+        # Tell the client which conversation this is before any text arrives, so
+        # a brand-new chat can persist the session id and keep the thread.
+        yield f"data: {json.dumps({'type': 'session', 'session_id': session_id})}\n\n"
+
         collected = []
         try:
             async for chunk in call_ai_stream_with_fallback(
@@ -825,7 +952,9 @@ async def _chat_stream_impl(
             user.id, session_id, ai_topic=ctx.topic, intent=intent.action
         )
 
-        yield f"data: {json.dumps({'type': 'done', 'message_id': ai_msg.id, 'sources': sources})}\n\n"
+        yield (
+            f"data: {json.dumps({'type': 'done', 'message_id': ai_msg.id, 'sources': sources, 'session_id': session_id})}\n\n"
+        )
 
     return StreamingResponse(
         event_generator(),

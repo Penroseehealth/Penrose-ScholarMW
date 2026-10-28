@@ -46,6 +46,7 @@ class VoiceCatalogService {
   static const String defaultVoiceId = 'en-gb-female';
   static const String voicePrefsKey = 'penrose.tutor.voice_id';
   static const String speedPrefsKey = 'penrose.tutor.speech_speed';
+  static const String autoReadPrefsKey = 'penrose.tutor.auto_read';
 
   static const List<String> accents = <String>['American', 'British', 'Indian'];
   static const List<String> genders = <String>['male', 'female'];
@@ -108,7 +109,25 @@ class VoiceCatalogService {
       accent: 'Indian',
       gender: 'female',
       locale: 'en-IN',
-      description: 'Indian English, friendly and precise',
+      description: 'Indian English, warm and clear',
+      previewText: _offlinePreview,
+    ),
+    TutorVoice(
+      id: 'en-in-male-2',
+      label: 'Indian Male (Conversational)',
+      accent: 'Indian',
+      gender: 'male',
+      locale: 'en-IN',
+      description: 'Indian English, conversational and natural',
+      previewText: _offlinePreview,
+    ),
+    TutorVoice(
+      id: 'en-in-female-2',
+      label: 'Indian Female (Conversational)',
+      accent: 'Indian',
+      gender: 'female',
+      locale: 'en-IN',
+      description: 'Indian English, friendly and natural',
       previewText: _offlinePreview,
     ),
   ];
@@ -173,5 +192,15 @@ class VoiceCatalogService {
   static Future<void> savePreferredSpeed(double speed) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble(speedPrefsKey, speed);
+  }
+
+  static Future<bool> loadPreferredAutoRead() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(autoReadPrefsKey) ?? false;
+  }
+
+  static Future<void> savePreferredAutoRead(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(autoReadPrefsKey, value);
   }
 }

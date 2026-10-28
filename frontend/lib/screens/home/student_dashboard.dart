@@ -81,12 +81,6 @@ class _StudentDashboardState extends State<StudentDashboard> {
             slivers: [
               SliverToBoxAdapter(child: _buildHeader(context, greeting, firstName)),
               SliverToBoxAdapter(child: _buildQuickActions(context)),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
-                  child: _buildSectionTitle('My Courses'),
-                ),
-              ),
               if (_loading)
                 const SliverToBoxAdapter(
                   child: Center(
@@ -96,9 +90,13 @@ class _StudentDashboardState extends State<StudentDashboard> {
                     ),
                   ),
                 )
-              else if (_courses.isEmpty)
-                SliverToBoxAdapter(child: _buildEmptyState('No courses yet', 'Enroll in courses to begin'))
-              else
+              else if (_courses.isNotEmpty) ...[
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+                    child: _buildSectionTitle('My Courses'),
+                  ),
+                ),
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   sliver: SliverList.separated(
@@ -107,6 +105,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                     itemBuilder: (context, index) => _buildCourseCard(_courses[index]),
                   ),
                 ),
+              ],
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),

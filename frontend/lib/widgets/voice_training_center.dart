@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
 import '../core/theme/theme_colors.dart';
+import '../services/voice_catalog_service.dart';
+import '../voice/tts_service.dart';
+import '../voice/voice_session_manager.dart';
 import 'voice_clone_manager.dart';
 
-class VoiceTrainingCenter extends StatelessWidget {
+class VoiceTrainingCenter extends StatefulWidget {
   final String selectedVoiceId;
   final void Function(String) onVoiceSelected;
   final double playbackSpeed;
@@ -21,6 +24,62 @@ class VoiceTrainingCenter extends StatelessWidget {
     this.autoRead = false,
     required this.onAutoReadChanged,
   });
+
+  @override
+  State<VoiceTrainingCenter> createState() => _VoiceTrainingCenterState();
+}
+
+class _VoiceTrainingCenterState extends State<VoiceTrainingCenter> {
+  final VoiceCatalogService _catalog = VoiceCatalogService();
+  final VoiceSessionManager _session = VoiceSessionManager();
+  late final PenroseTtsService _tts = PenroseTtsService(session: _session);
+
+  String? _previewingId;
+
+  @override
+  void initState() {
+    super.initState();
+    _tts.initialize();
+    _loadCatalog();
+  }
+
+  @override
+  void dispose() {
+    _tts.stop();
+    _tts.dispose();
+    _session.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadCatalog() async {
+    await _catalog.load();
+    if (!mounted) return;
+    setState(() {});
+  }
+
+  TutorVoice get _selected => _catalog.voiceForId(widget.selectedVoiceId);
+
+  Future<void> _select(TutorVoice voice) async {
+    widget.onVoiceSelected(voice.id);
+    await VoiceCatalogService.savePreferredVoiceId(voice.id);
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _preview(TutorVoice voice) async {
+    if (_previewingId != null) return;
+    setState(() => _previewingId = voice.id);
+    _tts.voiceId = voice.id;
+    try {
+      await _tts.speak(
+        voice.previewText.isNotEmpty
+            ? voice.previewText
+            : "Hello, I'm your ScholarAI tutor. Let's work through this together.",
+        lang: voice.locale,
+      );
+    } finally {
+      if (mounted) setState(() => _previewingId = null);
+    }
+  }
 
   @override
   Widget build(BuildContext context) => Drawer(
@@ -105,50 +164,184 @@ class VoiceTrainingCenter extends StatelessWidget {
       );
 
   Widget _buildVoicePreview() {
-    final voices = {
-      'en-us-academic-male-1': 'Academic Male 1',
-      'en-us-academic-male-2': 'Academic Male 2',
-      'en-us-academic-male-3': 'Academic Male 3',
-      'en-us-academic-female-1': 'Academic Female 1',
-      'en-us-academic-female-2': 'Academic Female 2',
-      'en-us-academic-female-3': 'Academic Female 3',
-      'en-us-calm-tutor': 'Calm Tutor',
-      'en-us-energetic-tutor': 'Energetic Tutor',
-      'en-us-professional-narrator': 'Professional Narrator',
-      'en-us-friendly-assistant': 'Friendly Assistant',
-      'zh-academic-female-1': 'Chinese Female 1',
-      'zh-academic-male-1': 'Chinese Male 1',
-      'ar-academic-female-1': 'Arabic Female 1',
-      'ar-academic-male-1': 'Arabic Male 1',
-    };
-    final name = voices[selectedVoiceId] ?? selectedVoiceId;
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceElevated,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
+    final voice = _selected;
+    return GestureDetector(
+      onTap: () => _openVoicePicker(context),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceElevated,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.volume_up_rounded, size: 18, color: AppColors.primary),
             ),
-            child: const Icon(Icons.volume_up_rounded, size: 18, color: AppColors.primary),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(name, style: const TextStyle(fontSize: 13, color: AppColors.textPrimary)),
-          ),
-          const Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textMuted),
-        ],
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    voice.label,
+                    style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+                  ),
+                  Text(
+                    '${voice.accent} · ${voice.isMale ? 'Male' : 'Female'}',
+                    style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                  ),
+                ],
+              ),
+            ),
+            InkWell(
+              onTap: _previewingId == null ? () => _preview(voice) : null,
+              borderRadius: BorderRadius.circular(16),
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: _previewingId == voice.id
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.play_circle_outline_rounded, size: 22, color: AppColors.primary),
+              ),
+            ),
+            const SizedBox(width: 4),
+            const Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textMuted),
+          ],
+        ),
       ),
     );
+  }
+
+  void _openVoicePicker(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: context.colors.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: MediaQuery.of(sheetContext).size.height * 0.75),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Text(
+                  'Choose a voice',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: sheetContext.colors.textPrimary,
+                  ),
+                ),
+              ),
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.only(bottom: 16),
+                  children: _buildVoiceGroups(sheetContext),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildVoiceGroups(BuildContext sheetContext) {
+    const order = <String>['American', 'British', 'Indian'];
+    final accents = <String>{
+      ...order,
+      ..._catalog.voices.map((v) => v.accent),
+    }.toList()
+      ..sort((a, b) {
+        final ai = order.indexOf(a);
+        final bi = order.indexOf(b);
+        if (ai == -1 && bi == -1) return a.compareTo(b);
+        if (ai == -1) return 1;
+        if (bi == -1) return -1;
+        return ai.compareTo(bi);
+      });
+
+    final widgets = <Widget>[];
+    for (final accent in accents) {
+      final voices = _catalog.voices.where((v) => v.accent == accent).toList();
+      if (voices.isEmpty) continue;
+      widgets.add(Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+        child: Text(
+          accent.toUpperCase(),
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.1,
+            color: sheetContext.colors.textMuted,
+          ),
+        ),
+      ));
+      for (final voice in voices) {
+        final selected = voice.id == widget.selectedVoiceId;
+        widgets.add(
+          ListTile(
+            key: ValueKey<String>('voice-${voice.id}'),
+            dense: true,
+            leading: Icon(
+              voice.isMale ? Icons.man_rounded : Icons.woman_rounded,
+              color: selected ? AppColors.primary : sheetContext.colors.textMuted,
+            ),
+            title: Text(
+              voice.label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                color: selected ? AppColors.primary : sheetContext.colors.textPrimary,
+              ),
+            ),
+            subtitle: Text(
+              voice.description,
+              style: TextStyle(fontSize: 11, color: sheetContext.colors.textMuted),
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  tooltip: 'Preview',
+                  onPressed: () => _preview(voice),
+                  icon: _previewingId == voice.id
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.play_arrow_rounded, size: 20),
+                ),
+                if (selected) const Icon(Icons.check_circle_rounded, size: 20, color: AppColors.primary),
+              ],
+            ),
+            onTap: () async {
+              await _select(voice);
+              if (sheetContext.mounted) Navigator.pop(sheetContext);
+            },
+          ),
+        );
+      }
+    }
+    return widgets;
   }
 
   Widget _buildSpeedSelector() {
@@ -157,9 +350,12 @@ class VoiceTrainingCenter extends StatelessWidget {
       spacing: 6,
       runSpacing: 6,
       children: speeds.map((s) {
-        final isSelected = s == playbackSpeed;
+        final isSelected = s == widget.playbackSpeed;
         return GestureDetector(
-          onTap: () => onSpeedChanged(s),
+          onTap: () {
+            widget.onSpeedChanged(s);
+            VoiceCatalogService.savePreferredSpeed(s);
+          },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
@@ -184,7 +380,11 @@ class VoiceTrainingCenter extends StatelessWidget {
   }
 
   Widget _buildAutoReadToggle() => GestureDetector(
-        onTap: () => onAutoReadChanged(!autoRead),
+        onTap: () {
+          final value = !widget.autoRead;
+          widget.onAutoReadChanged(value);
+          VoiceCatalogService.savePreferredAutoRead(value);
+        },
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -195,9 +395,9 @@ class VoiceTrainingCenter extends StatelessWidget {
           child: Row(
             children: [
               Icon(
-                autoRead ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+                widget.autoRead ? Icons.volume_up_rounded : Icons.volume_off_rounded,
                 size: 18,
-                color: autoRead ? AppColors.primary : AppColors.textMuted,
+                color: widget.autoRead ? AppColors.primary : AppColors.textMuted,
               ),
               const SizedBox(width: 10),
               const Expanded(
@@ -207,8 +407,11 @@ class VoiceTrainingCenter extends StatelessWidget {
                 ),
               ),
               Switch(
-                value: autoRead,
-                onChanged: onAutoReadChanged,
+                value: widget.autoRead,
+                onChanged: (value) {
+                  widget.onAutoReadChanged(value);
+                  VoiceCatalogService.savePreferredAutoRead(value);
+                },
                 activeThumbColor: AppColors.primary,
                 activeTrackColor: AppColors.primary.withValues(alpha: 0.3),
               ),
@@ -224,17 +427,25 @@ class VoiceTrainingCenter extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: AppColors.border),
         ),
-        child: const Row(
+        child: Row(
           children: [
-            Icon(Icons.language_rounded, size: 18, color: AppColors.textSecondary),
-            SizedBox(width: 10),
+            const Icon(Icons.language_rounded, size: 18, color: AppColors.textSecondary),
+            const SizedBox(width: 10),
             Expanded(
-              child: Text(
-                'Auto Detect',
-                style: TextStyle(fontSize: 13, color: AppColors.textPrimary),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _selected.locale,
+                    style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+                  ),
+                  const Text(
+                    'Follows the selected voice',
+                    style: TextStyle(fontSize: 10, color: AppColors.textMuted),
+                  ),
+                ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textMuted),
           ],
         ),
       );

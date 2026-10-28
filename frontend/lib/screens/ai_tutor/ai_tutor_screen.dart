@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -5,7 +6,9 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
+import '../../services/assistant_memory.dart';
 import '../../services/services.dart';
+import '../../services/voice_catalog_service.dart';
 import '../../services/web_speech_service.dart';
 import '../../voice/voice.dart';
 import '../../widgets/ai_governance_widgets.dart';
@@ -49,10 +52,15 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
   ThinkingState _thinkingState = ThinkingState.analyzing;
 
   final List<Map<String, dynamic>> _attachments = [];
-  String _selectedVoiceId = 'en-us-academic-female-1';
+  String _selectedVoiceId = VoiceCatalogService.defaultVoiceId;
   double _playbackSpeed = 1.0;
   bool _autoRead = false;
   int? _typewriterMessageIndex;
+
+  // Shared local memory + the tutor's own speech engine (auto-read).
+  AssistantMemory? _memory;
+  final VoiceSessionManager _voiceSession = VoiceSessionManager();
+  late final PenroseTtsService _tts = PenroseTtsService(session: _voiceSession);
 
   PenroseVoiceEngine? _voiceEngine;
   bool _showVoicePanel = false;
@@ -70,6 +78,62 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
     _composerFocus.addListener(() {
       if (mounted) setState(() {});
     });
+    _voiceSession.createSession();
+    _tts.initialize();
+    _restoreState();
+  }
+
+  /// Restore the saved voice, speed, auto-read flag and the running
+  /// conversation, so the tutor opens where the student left it.
+  Future<void> _restoreState() async {
+    final voiceId = await VoiceCatalogService.loadPreferredVoiceId();
+    final speed = await VoiceCatalogService.loadPreferredSpeed();
+    final autoRead = await VoiceCatalogService.loadPreferredAutoRead();
+    final memory = await AssistantMemory.load();
+    if (!mounted) return;
+
+    _tts.voiceId = voiceId;
+
+    final restored = <Map<String, dynamic>>[];
+    int? sessionId;
+    if (memory.canResume && memory.transcript.isNotEmpty) {
+      sessionId = memory.resumableSessionId;
+      final recent = memory.transcript.length > 10
+          ? memory.transcript.sublist(memory.transcript.length - 10)
+          : memory.transcript;
+      for (final entry in recent) {
+        restored.add({'role': entry.role, 'content': entry.content, 'restored': true});
+      }
+    }
+
+    setState(() {
+      _selectedVoiceId = voiceId;
+      _playbackSpeed = speed;
+      _autoRead = autoRead;
+      _memory = memory;
+      if (_messages.isEmpty) {
+        _sessionId = sessionId;
+        _messages
+          ..clear()
+          ..addAll(restored);
+      }
+    });
+    if (sessionId != null) _contextService.setActiveSession(sessionId);
+    if (restored.isNotEmpty) _scrollToBottom();
+  }
+
+  void _setVoice(String id) {
+    setState(() => _selectedVoiceId = id);
+    _tts.voiceId = id;
+  }
+
+  void _setSpeed(double speed) {
+    setState(() => _playbackSpeed = speed);
+  }
+
+  void _setAutoRead(bool value) {
+    setState(() => _autoRead = value);
+    if (!value) _tts.stop();
   }
 
   final Map<String, String> _agentLabels = {
@@ -115,11 +179,11 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
         backgroundColor: colors.background,
         endDrawer: VoiceTrainingCenter(
           selectedVoiceId: _selectedVoiceId,
-          onVoiceSelected: (id) => setState(() => _selectedVoiceId = id),
+          onVoiceSelected: _setVoice,
           playbackSpeed: _playbackSpeed,
-          onSpeedChanged: (s) => setState(() => _playbackSpeed = s),
+          onSpeedChanged: _setSpeed,
           autoRead: _autoRead,
-          onAutoReadChanged: (v) => setState(() => _autoRead = v),
+          onAutoReadChanged: _setAutoRead,
         ),
         body: Stack(
           children: [
@@ -1083,6 +1147,8 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
 
     final msgIndex = _messages.length;
     bool usedStreaming = false;
+    final resumed = _sessionId != null;
+    unawaited(_memory?.remember('user', text, session: _sessionId));
 
     try {
       setState(() {
@@ -1098,7 +1164,12 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
         agentType: _agentType,
         workspace: _contextService.currentWorkspace,
         fileIds: fileIds,
+        resumed: resumed,
       )) {
+        if (chunk.sessionId != null) {
+          _sessionId = chunk.sessionId;
+          unawaited(_memory?.adoptSession(chunk.sessionId!));
+        }
         if (chunk.type == 'chunk') {
           setState(() {
             _streamedContent += chunk.content;
@@ -1108,6 +1179,9 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
               // First chunk: create the assistant bubble now (avoids an empty
               // speech bubble sitting on screen while the reply is generated).
               _messages.add({'role': 'assistant', 'content': _streamedContent, 'is_streaming': true});
+              // Type the answer out character by character; the renderer is
+              // streaming-aware, so it keeps revealing instead of restarting.
+              _typewriterMessageIndex = msgIndex;
             }
           });
           _scrollToBottom();
@@ -1119,10 +1193,13 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
               'content': _streamedContent,
               'sources': chunk.sources,
             };
-            // The text was already shown live while streaming; replaying it with
-            // the typewriter would display the whole answer a second time.
-            _typewriterMessageIndex = null;
+            // Keep the typewriter running on this message until it finishes
+            // revealing; onComplete clears the index.
           });
+          unawaited(_memory?.remember('assistant', _streamedContent, session: _sessionId));
+          if (_autoRead && _streamedContent.trim().isNotEmpty) {
+            unawaited(_speakReply(_streamedContent));
+          }
         } else if (chunk.type == 'error') {
           setState(() {
             if (usedStreaming && msgIndex < _messages.length) _messages.removeAt(msgIndex);
@@ -1165,13 +1242,17 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
           if (result['success'] == true) {
             final data = result['data'];
             _sessionId = (data['session_id'] ?? _sessionId) as int?;
+            final content = (data['content'] ?? 'No response') as String;
             _messages.add({
               'role': 'assistant',
-              'content': data['content'] ?? 'No response',
+              'content': content,
               'sources': data['sources'],
             });
             _typewriterMessageIndex = fallbackIndex;
             _contextService.setActiveSession(_sessionId);
+            if (_sessionId != null) unawaited(_memory?.adoptSession(_sessionId!));
+            unawaited(_memory?.remember('assistant', content, session: _sessionId));
+            if (_autoRead && content.trim().isNotEmpty) unawaited(_speakReply(content));
           } else {
             _messages.add({
               'role': 'assistant',
@@ -1197,6 +1278,13 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
 
   // ── PIVE Voice Engine ──────────────────────────────────────────
 
+  /// Read a finished answer aloud with the selected Voice Training Center voice.
+  Future<void> _speakReply(String text) async {
+    if (text.trim().isEmpty) return;
+    _tts.voiceId = _selectedVoiceId;
+    await _tts.speak(text, lang: 'en-US', speed: _playbackSpeed);
+  }
+
   Future<void> _togglePiveVoice() async {
     if (_voiceEngine != null && _voiceEngine!.isSessionActive) {
       _voiceEngine?.stopSpeaking();
@@ -1210,6 +1298,9 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
       agentType: _agentType,
       language: 'en-US',
     );
+    // Keep the hands-free engine on the same voice/speed as the picker.
+    _voiceEngine!.tts.voiceId = _selectedVoiceId;
+    _voiceEngine!.session.playbackSpeed = _playbackSpeed;
 
     _voiceEngine!.session.addListener(() {
       if (mounted) setState(() {});
@@ -1242,6 +1333,8 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
     _streamingService.cancelCurrentStream();
     _voiceService.dispose();
     _speechService.dispose();
+    _tts.dispose();
+    _voiceSession.dispose();
     _contextService.dispose();
     _voiceEngine?.dispose();
     super.dispose();

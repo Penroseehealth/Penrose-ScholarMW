@@ -78,6 +78,7 @@ from app.stem.study_planner_router import router as study_planner_router
 from app.stem.subject_dashboard_router import router as subject_dashboard_router
 from app.stem.syllabus_router import router as syllabus_router
 from app.sync_engine.router import router as sync_engine_router
+from app.system_audio.router import router as system_audio_router
 from app.users.router import router as users_router
 from app.voice.router import router as voice_router
 from app.writing_studio.router import router as writing_studio_router
@@ -150,7 +151,7 @@ async def lifespan(app: FastAPI):
 
 
 async def _seed_default_users():
-    from app.models.models import Course, Enrollment, User, UserRole
+    from app.models.models import User, UserRole
 
     async with async_session() as db:
         result = await db.execute(select(User).limit(1))
@@ -196,25 +197,7 @@ async def _seed_default_users():
         for u in users:
             await db.refresh(u)
 
-        course = Course(
-            code="CS101",
-            title="Introduction to Computer Science",
-            description="Fundamentals of computing, algorithms, and programming.",
-            level="Year 1",
-            credits=3,
-            semester="Semester 1",
-            year=2025,
-            lecturer_id=users[1].id,
-            is_active=True,
-        )
-        db.add(course)
-        await db.commit()
-        await db.refresh(course)
-
-        db.add(
-            Enrollment(student_id=users[2].id, course_id=course.id, progress_pct=35.0)
-        )
-        await db.commit()
+        pass
 
 
 app = FastAPI(
@@ -299,6 +282,7 @@ app.include_router(languages_router, prefix="/api/v1")
 app.include_router(livekit_router, prefix="/api/v1")
 app.include_router(voice_router, prefix="/api/v1")
 app.include_router(speech_router, prefix="/api/v1")
+app.include_router(system_audio_router, prefix="/api/v1")
 app.include_router(ocr_router, prefix="/api/v1")
 app.include_router(practical_router, prefix="/api/v1")
 app.include_router(biology_viz_router, prefix="/api/v1")
@@ -355,6 +339,15 @@ if WEB_DIR.is_dir():
     _bootstrap_js = (WEB_DIR / "flutter_bootstrap.js").read_text(encoding="utf-8")
     _bootstrap_js = _bootstrap_js.replace(
         "main.dart.js", f"main.dart.js?v={_build_hash}"
+    )
+    # Flutter's generated bootstrap loads CanvasKit from the gstatic CDN by
+    # default. On machines without access to that CDN the engine never boots
+    # and the app stays on its "Loading..." splash forever, even though a
+    # complete CanvasKit build is shipped in build/web/canvaskit. Point the
+    # loader at the copy served by this backend instead.
+    _bootstrap_js = _bootstrap_js.replace(
+        "_flutter.loader.load({",
+        '_flutter.loader.load({ config: { canvasKitBaseUrl: "/canvaskit" },',
     )
 
     _NO_CACHE_MIME = {

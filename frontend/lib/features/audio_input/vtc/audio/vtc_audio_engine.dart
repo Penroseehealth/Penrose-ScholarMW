@@ -4,6 +4,8 @@
 // are genuine values read back from the element. Other platforms get an inert
 // stub that reports "unsupported" rather than faking a player.
 
+import 'dart:typed_data';
+
 /// Outcome of a load attempt. [ok] false means the browser refused the data,
 /// and the UI must not claim success.
 class AudioLoadResult {
@@ -59,6 +61,9 @@ abstract class VtcAudioEngine {
 
   /// Saves the loaded audio to disk under [filename].
   Future<AudioShareResult> download(String filename);
+
+  /// Saves arbitrary bytes (a freshly fetched WAV/MP3) under [filename].
+  Future<AudioShareResult> downloadBytes(Uint8List bytes, String filename, String mime);
 
   /// Shares the loaded audio; reports honestly when unsupported.
   Future<AudioShareResult> share(String filename);

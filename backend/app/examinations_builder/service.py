@@ -12,12 +12,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.ai_client import AIProviderError, call_ai_json
+from app.config.stem_latex import STEM_LATEX_INSTRUCTION, VISUAL_GENERATION_POLICY
 from app.examinations_builder.math_validate import (
     is_mathematics,
     validate_math_question,
     validation_status,
 )
-from app.config.stem_latex import STEM_LATEX_INSTRUCTION, VISUAL_GENERATION_POLICY
 from app.examinations_builder.paper import (
     ConstructedPaper,
     CoverData,

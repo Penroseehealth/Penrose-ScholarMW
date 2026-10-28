@@ -30,6 +30,13 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         if not request.url.path.startswith("/api/"):
             return await call_next(request)
 
+        # The Voice Training Centre recorder polls capture status once a second
+        # while a recording is running, which on its own exhausts the per-minute
+        # budget and 429s the page mid-recording. It is a cheap, local,
+        # read-only probe, so it is exempt from throttling.
+        if request.url.path == "/api/v1/system-audio/status":
+            return await call_next(request)
+
         client_ip = request.client.host if request.client else "unknown"
         now = time.time()
 

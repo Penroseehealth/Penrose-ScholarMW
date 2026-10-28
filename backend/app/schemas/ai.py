@@ -30,6 +30,14 @@ class ChatRequest(BaseModel):
     file_ids: list[str] = Field(default_factory=list)
     workspace: WorkspaceSnapshot | None = None
     preferred_response_mode: str | None = None
+    # Temporal awareness: the device clock (ISO 8601) and its IANA zone, so the
+    # tutor can reason about "now", "yesterday", "last week" in the student's
+    # own time rather than the server's. Both are optional for older clients.
+    client_time: datetime | None = None
+    timezone: str | None = None
+    # True when the device resumed an earlier conversation from local memory, so
+    # the tutor knows the persisted session id refers to prior discussions.
+    resumed: bool = False
 
 
 class ChatMessageResponse(BaseModel):

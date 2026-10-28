@@ -259,14 +259,15 @@ class PenroseTtsService {
   /// Check if the session wants us to stop (user interrupted).
   bool _shouldStop() => _session.state == VoiceEngineState.interrupted || _session.state == VoiceEngineState.listening;
 
-  /// Segment text into sentences for streaming TTS.
+  /// Segment text into sentences/clauses for streaming TTS - more natural flow.
   List<String> _segmentText(String text) {
     final segments = <String>[];
     final buffer = StringBuffer();
     for (var i = 0; i < text.length; i++) {
       buffer.write(text[i]);
       if (_isSentenceBoundary(text, i) && buffer.isNotEmpty) {
-        segments.add(buffer.toString().trim());
+        final s = buffer.toString().trim();
+        if (s.isNotEmpty) segments.add(s);
         buffer.clear();
       }
     }
@@ -281,10 +282,15 @@ class PenroseTtsService {
     if (index >= text.length - 1) return false;
     final char = text[index];
     final next = text[index + 1];
-    return (char == '.' || char == '!' || char == '?') && (next == ' ' || next == '\n' || index == text.length - 1);
+    // Split on sentence-ending punctuation followed by space/newline
+    if ((char == '.' || char == '!' || char == '?') && (next == ' ' || next == '\n' || next == '\t')) {
+      return true;
+    }
+    return false;
   }
 
   /// Speak segments sequentially, checking for interruption.
+  /// Flows naturally with pauses based on punctuation.
   Future<void> _speakSegments({required String lang, required double speed}) async {
     for (var i = _currentSegmentIndex; i < _segments.length; i++) {
       if (_shouldStop()) break;
@@ -292,14 +298,23 @@ class PenroseTtsService {
       _currentSegmentIndex = i;
       _session.updateSpeakingText(_segments[i]);
 
-      final playedViaServer = await _speakServerSegment(_segments[i], speed: speed);
+      final seg = _segments[i];
+      final playedViaServer = await _speakServerSegment(seg, speed: speed);
       if (!playedViaServer && _speech.isSupported) {
-        await _speech.speak(_segments[i], lang: lang);
+        await _speech.speak(seg, lang: lang);
       }
 
-      // Brief pause between sentences for natural rhythm
+      // Natural pause between sentences based on punctuation
       if (i < _segments.length - 1 && !_shouldStop()) {
-        await Future<void>.delayed(const Duration(milliseconds: 100));
+        int pauseMs = 140;
+        if (seg.endsWith('?')) {
+          pauseMs = 200;
+        } else if (seg.endsWith('!')) {
+          pauseMs = 180;
+        } else if (seg.endsWith('.')) {
+          pauseMs = 160;
+        }
+        await Future<void>.delayed(Duration(milliseconds: pauseMs));
       }
     }
 

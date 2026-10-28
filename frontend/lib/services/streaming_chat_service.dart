@@ -9,16 +9,22 @@ import 'context_service.dart';
 
 /// A single chunk from the streaming AI response.
 class StreamChunk {
-  final String type; // 'chunk', 'done', 'error'
+  final String type; // 'session', 'chunk', 'done', 'error'
   final String content;
   final int? messageId;
   final String? sources;
+
+  /// Present on the opening `session` event (and on `done`), so a client that
+  /// started a brand-new conversation learns its server session id and can keep
+  /// talking in the same thread.
+  final int? sessionId;
 
   const StreamChunk({
     required this.type,
     required this.content,
     this.messageId,
     this.sources,
+    this.sessionId,
   });
 }
 
@@ -58,6 +64,9 @@ class StreamingChatService {
     List<String> fileIds = const [],
     String? preferredResponseMode,
     ConnectivityManager? connectivity,
+    DateTime? clientTime,
+    String? timezone,
+    bool resumed = false,
   }) async* {
     cancelCurrentStream();
 
@@ -74,6 +83,12 @@ class StreamingChatService {
       'message': message,
       'agent_type': agentType,
     };
+    // Time awareness: the tutor must know the student's local clock, not the
+    // server's, so "today", "tomorrow" and "how long until..." are correct.
+    final now = clientTime ?? DateTime.now();
+    body['client_time'] = now.toIso8601String();
+    body['timezone'] = timezone ?? now.timeZoneName;
+    if (resumed) body['resumed'] = true;
     if (sessionId != null) body['session_id'] = sessionId;
     if (workspace != null && !workspace.isEmpty) {
       body['workspace'] = workspace.toJson();
@@ -115,8 +130,9 @@ class StreamingChatService {
               _controller!.add(StreamChunk(
                 type: type,
                 content: content,
-                messageId: json['message_id'] as int?,
+                messageId: (json['message_id'] as num?)?.toInt(),
                 sources: json['sources'] as String?,
+                sessionId: (json['session_id'] as num?)?.toInt(),
               ));
             } catch (e) {
               debugPrint('SSE parse error: $e');

@@ -1,21 +1,27 @@
-import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
 import '../core/theme/theme_colors.dart';
-import '../services/api_service.dart';
+import '../services/assistant_memory.dart';
+import '../services/streaming_chat_service.dart';
+import '../services/voice_catalog_service.dart';
 import '../services/web_speech_service.dart';
 import '../voice/tts_service.dart';
 import '../voice/voice_session_manager.dart';
 import 'stem_text.dart';
+import 'typewriter_renderer.dart';
 
 /// A global floating chatbot that can be opened from anywhere in the app.
 ///
 /// Mounted once by [MaterialApp.router]'s builder so every route (dashboards,
 /// labs, tutor, maths drill, ...) gets the same ScholarAI assistant without
-/// each screen wiring its own. It talks to the backend `/ai/chat` endpoint,
-/// which is served by the same AI chain as the tutor (Cloudflare -> HF -> Groq).
+/// each screen wiring its own. It streams from `/ai/chat/stream`, which is the
+/// same AI chain the tutor uses, types the reply out character by character and
+/// speaks it with the voice chosen in the Voice Training Center. The session id
+/// and transcript are kept in [AssistantMemory] so closing the panel does not
+/// lose the thread of the discussion.
 class FloatingChatbot extends StatefulWidget {
   const FloatingChatbot({super.key});
 
@@ -56,7 +62,7 @@ class FloatingChatbot extends StatefulWidget {
 }
 
 class _FloatingChatbotState extends State<FloatingChatbot> with SingleTickerProviderStateMixin {
-  final ApiService _api = ApiService();
+  final StreamingChatService _streaming = StreamingChatService();
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scroll = ScrollController();
 
@@ -96,16 +102,30 @@ class _FloatingChatbotState extends State<FloatingChatbot> with SingleTickerProv
   bool _voiceTurn = false;
   final List<Map<String, dynamic>> _messages = <Map<String, dynamic>>[];
 
+  /// Local continuity: conversation id, transcript and last-topic recap.
+  AssistantMemory? _memory;
+  int? _sessionId;
+
+  /// Index of the assistant bubble currently being typed out, if any.
+  int? _typingIndex;
+
+  /// Index of the live assistant bubble while the reply is streaming.
+  int? _replyIndex;
+
+  double _speechSpeed = 1.0;
+
   @override
   void initState() {
     super.initState();
     _voiceSession.createSession();
     _tts.initialize();
+    _restoreMemory();
   }
 
   @override
   void dispose() {
     _waveCtrl.dispose();
+    _streaming.cancelCurrentStream();
     _speech.stopListening();
     _speech.dispose();
     _tts.dispose();
@@ -113,6 +133,43 @@ class _FloatingChatbotState extends State<FloatingChatbot> with SingleTickerProv
     _controller.dispose();
     _scroll.dispose();
     super.dispose();
+  }
+
+  /// Load the saved conversation, the chosen voice and the speech speed, then
+  /// open the panel on the same thread the student left.
+  Future<void> _restoreMemory() async {
+    final memory = await AssistantMemory.load();
+    final voiceId = await VoiceCatalogService.loadPreferredVoiceId();
+    final speed = await VoiceCatalogService.loadPreferredSpeed();
+    if (!mounted) return;
+
+    final restored = <Map<String, dynamic>>[];
+    if (memory.canResume && memory.transcript.isNotEmpty) {
+      final recent = memory.transcript.length > 12
+          ? memory.transcript.sublist(memory.transcript.length - 12)
+          : memory.transcript;
+      for (final entry in recent) {
+        restored.add({'role': entry.role, 'content': entry.content, 'restored': true});
+      }
+    } else {
+      // A fresh conversation after a break: show the recap so the previous
+      // subject and the date it was discussed are not lost.
+      final recap = memory.recap;
+      if (recap != null) {
+        restored.add({'role': 'assistant', 'content': recap, 'restored': true});
+      }
+    }
+
+    setState(() {
+      _memory = memory;
+      _sessionId = memory.resumableSessionId;
+      _tts.voiceId = voiceId;
+      _speechSpeed = speed;
+      _messages
+        ..clear()
+        ..addAll(restored);
+    });
+    _scrollToBottom();
   }
 
   void _toggleMic() {
@@ -167,85 +224,122 @@ class _FloatingChatbotState extends State<FloatingChatbot> with SingleTickerProv
 
   Future<void> _speak(String text) async {
     if (text.isEmpty) return;
-    await _tts.speak(text, lang: _voiceSession.language);
+    await _tts.speak(text, lang: _voiceSession.language, speed: _speechSpeed);
+  }
+
+  /// Start a completely new conversation: drop the local session so the server
+  /// opens a fresh one, but keep the old transcript on the server for memory.
+  Future<void> _newConversation() async {
+    _streaming.cancelCurrentStream();
+    _tts.stop();
+    await _memory?.clear();
+    if (!mounted) return;
+    setState(() {
+      _messages.clear();
+      _sessionId = null;
+      _typingIndex = null;
+      _replyIndex = null;
+      _sending = false;
+    });
   }
 
   Future<void> _send() async {
     final text = _controller.text.trim();
     if (text.isEmpty || _sending) return;
 
+    final memory = _memory;
+    final resumed = _sessionId != null;
+
     setState(() {
       _messages.add({'role': 'user', 'content': text});
       _sending = true;
+      _replyIndex = null;
+      _typingIndex = null;
     });
     _controller.clear();
     _scrollToBottom();
+    unawaited(memory?.remember('user', text, session: _sessionId));
 
-    String? replyToSpeak;
+    var reply = '';
+    var errorKind = '';
+
     try {
-      final response = await _api.post(
-        '/ai/chat',
-        body: <String, dynamic>{
-          'message': text,
-          'agent_type': 'tutor',
-        },
-      ).timeout(const Duration(seconds: 45));
+      await for (final chunk in _streaming.streamChat(
+        message: text,
+        sessionId: _sessionId,
+        agentType: 'tutor',
+        resumed: resumed,
+      )) {
+        if (!mounted) return;
 
-      if (!mounted) return;
+        if (chunk.sessionId != null) {
+          _sessionId = chunk.sessionId;
+          unawaited(memory?.adoptSession(chunk.sessionId!));
+        }
 
-      if (response.statusCode == 200) {
-        // `jsonDecode` yields `Map<String, Object?>` on the web, which is not a
-        // `Map<String, dynamic>`; matching on that type silently dropped every
-        // successful reply. Accept any JSON object and read the field defensively.
-        final decoded = jsonDecode(response.body);
-        final content = decoded is Map ? decoded['content'] : null;
-        final reply = (content as String?)?.trim() ?? 'No response';
-        setState(() {
-          _messages.add({
-            'role': 'assistant',
-            'content': reply,
-            'sources': decoded is Map ? decoded['sources'] : null,
+        if (chunk.type == 'chunk') {
+          reply += chunk.content;
+          setState(() {
+            if (_replyIndex == null) {
+              _replyIndex = _messages.length;
+              // The bubble types itself out as the stream arrives; the same
+              // widget keeps revealing from where it is, so text does not pop
+              // in word groups.
+              _typingIndex = _replyIndex;
+              _messages.add({'role': 'assistant', 'content': reply});
+            } else {
+              _messages[_replyIndex!] = {'role': 'assistant', 'content': reply};
+            }
           });
-        });
-        if (_speakReplies) replyToSpeak = reply;
-      } else if (response.statusCode == 401 || response.statusCode == 403) {
-        // FastAPI's HTTPBearer answers a missing Authorization header with 403
-        // ("Not authenticated") and an expired/invalid one with 401, so both
-        // mean the same thing here: the session is not usable.
-        setState(() {
-          _messages.add({'role': 'assistant', 'content': 'Please sign in to chat with ScholarAI.'});
-        });
-      } else {
-        setState(() {
-          _messages.add({
-            'role': 'assistant',
-            'content': 'ScholarAI could not answer that right now. Please try again.',
-          });
-        });
+          _scrollToBottom();
+        } else if (chunk.type == 'done') {
+          if (_replyIndex != null) {
+            setState(() {
+              _messages[_replyIndex!] = {
+                'role': 'assistant',
+                'content': reply,
+                'sources': chunk.sources,
+              };
+            });
+          }
+        } else if (chunk.type == 'error') {
+          errorKind = chunk.content;
+          break;
+        }
       }
     } catch (_) {
-      if (mounted) {
-        setState(() {
-          _messages.add({
-            'role': 'assistant',
-            'content': 'ScholarAI is unreachable. Check your connection and try again.',
-          });
-        });
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _sending = false);
-        _scrollToBottom();
-      }
+      errorKind = 'connection';
     }
 
-    // Speak the reply after the spinner clears, then reopen the mic so the
-    // conversation continues naturally, turn after turn, like talking to a
-    // person - the user never has to tap the mic again.
-    if (replyToSpeak != null) {
-      await _speak(replyToSpeak);
+    if (!mounted) return;
+
+    if (reply.trim().isEmpty) {
+      setState(() {
+        _sending = false;
+        _replyIndex = null;
+        _typingIndex = null;
+        _messages.add({
+          'role': 'assistant',
+          'content': errorKind == 'auth'
+              ? 'Please sign in to chat with ScholarAI.'
+              : 'ScholarAI could not answer that right now. Check your connection and try again.',
+        });
+      });
+      _scrollToBottom();
+      return;
+    }
+
+    setState(() => _sending = false);
+    _scrollToBottom();
+    unawaited(memory?.remember('assistant', reply, session: _sessionId));
+
+    // Speak the finished answer with the voice from the Voice Training Center.
+    if (_speakReplies) {
+      await _speak(reply);
     }
     if (!mounted) return;
+
+    // Reopen the mic so the conversation continues naturally, turn after turn.
     if (_voiceTurn || _continuous) _startListening();
   }
 
@@ -426,6 +520,11 @@ class _FloatingChatbotState extends State<FloatingChatbot> with SingleTickerProv
             ],
             const SizedBox(width: 12),
             InkWell(
+              onTap: _newConversation,
+              child: const Icon(Icons.add_comment_outlined, color: Colors.white, size: 20),
+            ),
+            const SizedBox(width: 12),
+            InkWell(
               onTap: () => setState(() => _open = false),
               child: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
             ),
@@ -449,7 +548,7 @@ class _FloatingChatbotState extends State<FloatingChatbot> with SingleTickerProv
     return ListView.builder(
       controller: _scroll,
       padding: const EdgeInsets.all(12),
-      itemCount: _messages.length + (_sending ? 1 : 0),
+      itemCount: _messages.length + ((_sending && _replyIndex == null) ? 1 : 0),
       itemBuilder: (ctx, i) {
         if (i == _messages.length) {
           return const Padding(
@@ -484,15 +583,31 @@ class _FloatingChatbotState extends State<FloatingChatbot> with SingleTickerProv
                     msg['content'] as String? ?? '',
                     style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
                   )
-                : StemText(
-                    msg['content'] as String? ?? '',
-                    style: TextStyle(color: context.colors.textPrimary, fontSize: 14, height: 1.5),
-                    selectable: true,
-                  ),
+                : _buildAssistantBubble(context, i, msg),
           ),
         );
       },
     );
+  }
+
+  /// Assistant text. Live answers are revealed one character at a time with
+  /// grammar-aware pauses; restored history appears instantly because replaying
+  /// the animation would be noise.
+  Widget _buildAssistantBubble(BuildContext context, int index, Map<String, dynamic> msg) {
+    final content = msg['content'] as String? ?? '';
+    final style = TextStyle(color: context.colors.textPrimary, fontSize: 14, height: 1.5);
+    if (_typingIndex == index) {
+      return TypewriterRenderer(
+        content: content,
+        style: style,
+        onComplete: () {
+          if (!mounted) return;
+          setState(() => _typingIndex = null);
+          _scrollToBottom();
+        },
+      );
+    }
+    return StemText(content, style: style, selectable: true);
   }
 
   Widget _buildComposer(BuildContext context) => Container(

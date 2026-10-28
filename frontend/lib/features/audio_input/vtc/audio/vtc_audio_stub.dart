@@ -1,5 +1,7 @@
 // Non-web (VM/test) implementation: reports unsupported so the UI can say so
 // instead of pretending an audio file is playing.
+import 'dart:typed_data';
+
 import 'vtc_audio_engine.dart';
 
 class _StubVtcAudioEngine implements VtcAudioEngine {
@@ -51,6 +53,10 @@ class _StubVtcAudioEngine implements VtcAudioEngine {
 
   @override
   Future<AudioShareResult> download(String filename) async =>
+      const AudioShareResult(false, message: 'Downloads need a browser.');
+
+  @override
+  Future<AudioShareResult> downloadBytes(Uint8List bytes, String filename, String mime) async =>
       const AudioShareResult(false, message: 'Downloads need a browser.');
 
   @override
