@@ -26,6 +26,7 @@ def start(data: StartRecordingRequest | None = None) -> dict:
         label=payload.label,
         sample_rate=payload.sample_rate,
         channels=payload.channels,
+        source=payload.source,
     )
 
 

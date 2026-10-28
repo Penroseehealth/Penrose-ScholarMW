@@ -39,6 +39,9 @@ class _SystemRecorderPageState extends State<SystemRecorderPage> {
   String? _error;
   String? _notice;
   String _style = 'minutes';
+
+  /// What the recording captures: system audio, the microphone, or both.
+  String _source = 'both';
   String? _playingId;
   bool _loading = true;
 
@@ -121,7 +124,12 @@ class _SystemRecorderPageState extends State<SystemRecorderPage> {
     try {
       final started = await widget.apiClient.post(
         '/system-audio/start',
-        body: {'label': _label.text.trim(), 'sample_rate': 48000, 'channels': 2},
+        body: {
+          'label': _label.text.trim(),
+          'sample_rate': 48000,
+          'channels': 2,
+          'source': _source,
+        },
       );
       if (!mounted) return;
       setState(() {
@@ -147,12 +155,16 @@ class _SystemRecorderPageState extends State<SystemRecorderPage> {
     try {
       final stopped = await widget.apiClient.post('/system-audio/stop');
       if (!mounted) return;
+      final duration = _clock((stopped['duration_seconds'] as num?)?.toDouble() ?? 0);
+      final silent = stopped['silent'] == true;
       setState(() {
         _busy = null;
         _status = {'active': false};
         _selected = stopped;
-        _notice = 'Saved ${_clock((stopped['duration_seconds'] as num?)?.toDouble() ?? 0)} of audio '
-            'as WAV and MP3.';
+        _notice = silent
+            ? 'Saved $duration as WAV and MP3, but it is completely silent. Nothing was playing and the '
+                'microphone heard nothing — pick "System + mic" above, check the volume, and try again.'
+            : 'Saved $duration of audio as WAV and MP3.';
       });
       await _refresh();
     } catch (e) {
@@ -522,7 +534,7 @@ class _SystemRecorderPageState extends State<SystemRecorderPage> {
             ],
           ),
           const SizedBox(height: 16),
-          if (!_recording)
+          if (!_recording) ...[
             TextField(
               controller: _label,
               enabled: !busy,
@@ -533,6 +545,37 @@ class _SystemRecorderPageState extends State<SystemRecorderPage> {
                 border: OutlineInputBorder(),
               ),
             ),
+            const SizedBox(height: 14),
+            Text('What to record', style: VtcType.body(context).copyWith(fontSize: 12.5)),
+            const SizedBox(height: 8),
+            SegmentedButton<String>(
+              segments: const [
+                ButtonSegment(
+                  value: 'both',
+                  icon: Icon(Icons.merge_type_rounded, size: 16),
+                  label: Text('System + mic'),
+                ),
+                ButtonSegment(
+                  value: 'system',
+                  icon: Icon(Icons.volume_up_rounded, size: 16),
+                  label: Text('System audio'),
+                ),
+                ButtonSegment(value: 'mic', icon: Icon(Icons.mic_rounded, size: 16), label: Text('Microphone')),
+              ],
+              selected: {_source},
+              showSelectedIcon: false,
+              onSelectionChanged: busy ? null : (value) => setState(() => _source = value.first),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              _source == 'system'
+                  ? 'Captures only what this computer plays (a Zoom/Meet call, a video). Your own voice is not recorded.'
+                  : _source == 'mic'
+                      ? 'Captures only the default microphone — your voice and the room.'
+                      : 'Captures the call through the speakers and your own voice through the microphone, mixed together.',
+              style: VtcType.body(context).copyWith(fontSize: 12),
+            ),
+          ],
           if (_recording) ...[
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -563,8 +606,10 @@ class _SystemRecorderPageState extends State<SystemRecorderPage> {
             const SizedBox(height: 6),
             Text(
               _level > 0.02
-                  ? 'Audio detected — the call is being captured.'
-                  : 'Silence so far. Check that the meeting is actually playing through the speakers/headphones.',
+                  ? 'Audio detected — capturing now.'
+                  : _source == 'mic'
+                      ? 'Silence so far. Check that the microphone is not muted and that you are speaking.'
+                      : 'Silence so far. Check that the call or video is actually playing through the speakers/headphones.',
               style: VtcType.body(context).copyWith(fontSize: 12),
             ),
           ],
@@ -630,7 +675,7 @@ class _SystemRecorderPageState extends State<SystemRecorderPage> {
                 date: _date(rec['started_at']),
                 duration: _clock(((rec['duration_seconds'] as num?) ?? 0).toDouble()),
                 subtitle: '${_size(rec['wav_bytes'])} WAV · ${_size(rec['mp3_bytes'])} MP3 · '
-                    '${rec['status'] ?? 'ready'}',
+                    '${rec['status'] ?? 'ready'}${rec['silent'] == true ? ' · SILENT' : ''}',
                 onTap: () => _select(rec),
                 onPlay: ((rec['wav_bytes'] as num?) ?? 0) > 0 ? () => _play(rec) : null,
                 onDownload: ((rec['wav_bytes'] as num?) ?? 0) > 0 ? () => _save(rec, 'mp3') : null,

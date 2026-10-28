@@ -9,6 +9,10 @@ class StartRecordingRequest(BaseModel):
     label: str | None = Field(default=None, max_length=120)
     sample_rate: int = Field(default=48000, ge=8000, le=96000)
     channels: int = Field(default=2, ge=1, le=2)
+    # system = WASAPI loopback (what the PC plays), mic = default microphone,
+    # both = the two mixed together (default, so a recording is never silent
+    # just because the user spoke instead of playing something).
+    source: str = Field(default="both", pattern="^(system|mic|both)$")
 
 
 class StartRecordingResult(BaseModel):
@@ -19,6 +23,7 @@ class StartRecordingResult(BaseModel):
     sample_rate: int
     channels: int
     device: str
+    source: str = "system"
     max_seconds: int
 
 
@@ -28,6 +33,7 @@ class RecordingStatus(BaseModel):
     label: str | None = None
     status: str | None = None
     device: str | None = None
+    source: str | None = None
     started_at: str | None = None
     elapsed_seconds: float = 0.0
     level: float = 0.0
@@ -47,6 +53,8 @@ class RecordingView(BaseModel):
     sample_rate: int = 48000
     channels: int = 2
     device: str | None = None
+    source: str | None = None
+    silent: bool = False
     wav_bytes: int = 0
     mp3_bytes: int = 0
     transcript: str | None = None

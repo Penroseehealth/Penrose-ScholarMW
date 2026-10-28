@@ -13,6 +13,7 @@ import json
 import threading
 import uuid
 import wave
+from contextlib import ExitStack
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -110,15 +111,77 @@ def _loopback_device() -> tuple[Any, str]:
         ) from exc
 
 
+def _microphone_device() -> tuple[Any, str]:
+    """The default recording microphone (the one the voice tools use)."""
+    if _soundcard is None:
+        raise ServiceUnavailableError(
+            "Microphone capture is not available on this server (soundcard could not load)."
+        )
+    try:
+        mic = _soundcard.default_microphone()
+    except Exception:  # pragma: no cover - device/driver specific
+        mic = None
+    if mic is None:
+        try:
+            candidates = _soundcard.all_microphones(include_loopback=False)
+        except Exception:  # pragma: no cover - device/driver specific
+            candidates = []
+        mic = candidates[0] if candidates else None
+    if mic is None:
+        raise ServiceUnavailableError(
+            "No microphone was found. Plug one in or allow microphone access, then try again."
+        )
+    return mic, str(mic.name)
+
+
+def _input_devices(source: str) -> tuple[list[Any], str, str]:
+    """Resolve a recording source to the devices it needs.
+
+    Returns (devices, device label, canonical source key). Recording both lets a
+    meeting be captured end to end: the other participants arrive through the
+    loopback and the local speaker through the microphone.
+    """
+    key = source if source in {"system", "mic", "both"} else "both"
+    if key == "system":
+        mic, name = _loopback_device()
+        return [mic], name, key
+    if key == "mic":
+        mic, name = _microphone_device()
+        return [mic], name, key
+
+    devices: list[Any] = []
+    names: list[str] = []
+    try:
+        loopback, loop_name = _loopback_device()
+        devices.append(loopback)
+        names.append(loop_name)
+    except ServiceUnavailableError:
+        pass
+    try:
+        microphone, mic_name = _microphone_device()
+        devices.append(microphone)
+        names.append(mic_name)
+    except ServiceUnavailableError:
+        pass
+    if not devices:
+        raise ServiceUnavailableError(
+            "No audio input was found. Make sure an output device and a microphone are enabled."
+        )
+    if len(devices) == 1:
+        return devices, names[0], "system" if "Loopback" in names[0] else "mic"
+    return devices, " + ".join(names), "both"
+
+
 @dataclass
 class _ActiveRecording:
     id: str
     directory: Path
-    microphone: Any
+    microphones: list[Any]
     device: str
     label: str
     sample_rate: int
     channels: int
+    source: str = "system"
     started_at: str = field(default_factory=_utc_now)
     wav_path: Path = field(init=False)
     meta_path: Path = field(init=False)
@@ -127,6 +190,7 @@ class _ActiveRecording:
     wave_file: wave.Wave_write | None = None
     frames: int = 0
     level: float = 0.0
+    peak: float = 0.0
     error: str | None = None
     finalized: bool = False
     finalize_lock: threading.Lock = field(default_factory=threading.Lock)
@@ -154,6 +218,8 @@ class _ActiveRecording:
                 "sample_rate": self.sample_rate,
                 "channels": self.channels,
                 "device": self.device,
+                "source": self.source,
+                "silent": payload.get("silent", False),
                 "wav_bytes": payload.get("wav_bytes", 0),
                 "mp3_bytes": payload.get("mp3_bytes", 0),
                 "transcript": payload.get("transcript"),
@@ -186,17 +252,30 @@ class _ActiveRecording:
     def _capture(self) -> None:
         assert self.wave_file is not None
         try:
-            with self.microphone.recorder(
-                samplerate=self.sample_rate,
-                channels=self.channels,
-                blocksize=BLOCK_FRAMES,
-            ) as recorder:
+            with ExitStack() as stack:
+                recorders = [
+                    stack.enter_context(
+                        device.recorder(
+                            samplerate=self.sample_rate,
+                            channels=self.channels,
+                            blocksize=BLOCK_FRAMES,
+                        )
+                    )
+                    for device in self.microphones
+                ]
                 while not self.stop_event.is_set():
-                    block = recorder.record(numframes=BLOCK_FRAMES)
-                    if block is None or len(block) == 0:
+                    blocks = [
+                        np.asarray(
+                            recorder.record(numframes=BLOCK_FRAMES), dtype=np.float32
+                        )
+                        for recorder in recorders
+                    ]
+                    blocks = [block for block in blocks if block.size]
+                    if not blocks:
                         continue
-                    samples = np.asarray(block, dtype=np.float32)
+                    samples = self._mix(blocks)
                     peak = float(np.max(np.abs(samples))) if samples.size else 0.0
+                    self.peak = max(self.peak, peak)
                     self.level = min(1.0, peak)
                     clipped = np.clip(samples, -1.0, 1.0)
                     pcm = (clipped * 32767.0).astype("<i2")
@@ -215,6 +294,36 @@ class _ActiveRecording:
                 pass
             self.wave_file = None
             self.stop_event.set()
+
+    def _mix(self, blocks: list[np.ndarray]) -> np.ndarray:
+        """Combine concurrent input blocks into one stereo block.
+
+        The inputs are summed at full level, so a meeting through the loopback
+        keeps its original loudness while the microphone adds the local speaker.
+        If both are loud at once the block is scaled back instead of clipping.
+        """
+        shaped = [self._widen(block) for block in blocks]
+        if len(shaped) == 1:
+            return shaped[0]
+
+        length = max(len(block) for block in shaped)
+        mixed = np.zeros((length, self.channels), dtype=np.float32)
+        for block in shaped:
+            mixed[: len(block)] += block
+        peak = float(np.max(np.abs(mixed))) if mixed.size else 0.0
+        if peak > 0.99:
+            mixed *= 0.99 / peak
+        return mixed
+
+    def _widen(self, block: np.ndarray) -> np.ndarray:
+        """Normalise any input block to the recording's channel count."""
+        if block.ndim == 1:
+            block = block.reshape(-1, 1)
+        if block.shape[1] == 1 and self.channels == 2:
+            return np.repeat(block, 2, axis=1)
+        if block.shape[1] > self.channels:
+            return block[:, : self.channels]
+        return block
 
     def stop(self) -> None:
         self.stop_event.set()
@@ -271,6 +380,7 @@ class SystemAudioManager:
         label: str | None = None,
         sample_rate: int = 48000,
         channels: int = 2,
+        source: str = "both",
     ) -> dict[str, Any]:
         with self._lock:
             if self._active is not None and not self._active.finalized:
@@ -279,18 +389,19 @@ class SystemAudioManager:
                         "A system-audio recording is already running. Stop it first."
                     )
                 self._finalize(self._active)
-            microphone, device = _loopback_device()
+            microphones, device, resolved_source = _input_devices(source)
             recording_id = uuid.uuid4().hex[:12]
             directory = self.root / recording_id
             directory.mkdir(parents=True, exist_ok=True)
             recording = _ActiveRecording(
                 id=recording_id,
                 directory=directory,
-                microphone=microphone,
+                microphones=microphones,
                 device=device,
                 label=_clean_label(label, f"Recording {datetime.now():%d %b %H:%M}"),
                 sample_rate=sample_rate,
                 channels=channels,
+                source=resolved_source,
             )
             try:
                 recording.start()
@@ -307,6 +418,7 @@ class SystemAudioManager:
                 "sample_rate": recording.sample_rate,
                 "channels": recording.channels,
                 "device": recording.device,
+                "source": recording.source,
                 "max_seconds": MAX_SECONDS,
             }
 
@@ -322,6 +434,7 @@ class SystemAudioManager:
             "label": active.label,
             "status": "recording" if not active.finalized else "ready",
             "device": active.device,
+            "source": active.source,
             "started_at": active.started_at,
             "elapsed_seconds": round(active.elapsed, 2),
             "level": round(active.level, 4),
@@ -353,6 +466,7 @@ class SystemAudioManager:
             )
             mp3_bytes = 0
             error = recording.error
+            silent = recording.peak <= 1e-4
             if wav_bytes > 44:
                 try:
                     mp3_bytes = _encode_mp3(
@@ -381,6 +495,7 @@ class SystemAudioManager:
                 duration_seconds=round(recording.elapsed, 2),
                 wav_bytes=wav_bytes,
                 mp3_bytes=mp3_bytes,
+                silent=silent,
                 error=error,
             )
 
