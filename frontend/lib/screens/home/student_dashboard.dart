@@ -89,23 +89,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                       child: CircularProgressIndicator(color: AppColors.primary),
                     ),
                   ),
-                )
-              else if (_courses.isNotEmpty) ...[
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
-                    child: _buildSectionTitle('My Courses'),
-                  ),
                 ),
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  sliver: SliverList.separated(
-                    itemCount: _courses.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
-                    itemBuilder: (context, index) => _buildCourseCard(_courses[index]),
-                  ),
-                ),
-              ],
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
@@ -183,10 +167,10 @@ class _StudentDashboardState extends State<StudentDashboard> {
           children: [
             _buildActionCard(
               context,
-              icon: Icons.psychology_rounded,
-              label: 'Penrose Learning Assistant',
-              gradient: [const Color(0xFF7C3AED), const Color(0xFF6D28D9)],
-              onTap: () => context.go('/ai-tutor'),
+              icon: Icons.science_rounded,
+              label: 'STEM Labs',
+              gradient: [const Color(0xFF22C55E), const Color(0xFF16A34A)],
+              onTap: () => context.go('/stem-labs'),
             ),
             const SizedBox(width: 10),
             _buildActionCard(
@@ -215,10 +199,10 @@ class _StudentDashboardState extends State<StudentDashboard> {
             const SizedBox(width: 10),
             _buildActionCard(
               context,
-              icon: Icons.science_rounded,
-              label: 'STEM Hub',
-              gradient: [const Color(0xFF22C55E), const Color(0xFF16A34A)],
-              onTap: () => context.go('/stem'),
+              icon: Icons.psychology_rounded,
+              label: 'Penrose Teaching Assistant',
+              gradient: [const Color(0xFF7C3AED), const Color(0xFF6D28D9)],
+              onTap: () => context.go('/ai-tutor'),
             ),
           ],
         ),
