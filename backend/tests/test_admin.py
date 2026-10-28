@@ -31,8 +31,10 @@ async def test_admin_dashboard_non_admin(
 
 @pytest.mark.asyncio
 async def test_admin_dashboard_unauthenticated(client: AsyncClient):
+    # No credentials at all: FastAPI's HTTPBearer rejects before any route
+    # dependency runs, the same 403 test_get_me_no_token documents.
     response = await client.get("/api/v1/admin/dashboard")
-    assert response.status_code == 401
+    assert response.status_code == 403
 
 
 @pytest.mark.asyncio

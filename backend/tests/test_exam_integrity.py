@@ -141,8 +141,10 @@ async def test_generate_certificate_invalid_type(
 
 @pytest.mark.asyncio
 async def test_generate_subject_mastery_cert_no_mastery(
-    client: AsyncClient, student_token: str
+    client: AsyncClient, student_token: str, stem_concept
 ):
+    # stem_concept seeds the Mathematics subject the handler resolves; with a
+    # subject but zero mastery records the request must answer 400 (no mastery).
     resp = await client.post(
         "/api/v1/stem/certificates/generate",
         json={"certificate_type": "subject_mastery", "subject_slug": "mathematics"},

@@ -536,21 +536,21 @@ async def test_search_empty_query(client: AsyncClient, stem_setup):
     assert isinstance(data, list)
 
 
-async def test_get_stats(client: AsyncClient, stem_setup):
-    """GET /stem/stats returns statistics."""
-    resp = await client.get("/api/v1/stem/stats")
+async def test_get_stats(client: AsyncClient, stem_setup, student_token):
+    """GET /stem/stats returns statistics (authenticated since hardening)."""
+    resp = await client.get("/api/v1/stem/stats", headers=auth_header(student_token))
     assert resp.status_code == 200
     data = resp.json()
-    assert "total_subjects" in data
-    assert data["total_subjects"] >= 2
+    assert "total_concepts" in data
+    assert data["total_concepts"] >= 1
 
 
 # ── Phase 2: Knowledge graph, formulas, careers, labs ────────────
 
 
 async def test_get_knowledge_graph(client: AsyncClient, stem_phase2, stem_setup):
-    """GET /stem/knowledge-graph?subject_slug=... returns edges."""
-    resp = await client.get("/api/v1/stem/knowledge-graph?subject_slug=mathematics")
+    """GET /stem/knowledge-graph/subject/{slug} returns edges."""
+    resp = await client.get("/api/v1/stem/knowledge-graph/subject/mathematics")
     assert resp.status_code == 200
     data = resp.json()
     assert isinstance(data, list)
@@ -581,12 +581,12 @@ async def test_get_formula_not_found(client: AsyncClient):
 
 
 async def test_get_formula_categories(client: AsyncClient, stem_phase2):
-    """GET /stem/formulas/categories returns categories."""
-    resp = await client.get("/api/v1/stem/formulas/categories")
+    """GET /stem/formulas/categories/{subject_slug} returns categories."""
+    resp = await client.get("/api/v1/stem/formulas/categories/mathematics")
     assert resp.status_code == 200
     data = resp.json()
     assert isinstance(data, list)
-    assert "Algebra" in data
+    assert "Algebra" in [c["category"] for c in data]
 
 
 async def test_list_careers(client: AsyncClient, stem_phase2):
@@ -607,8 +607,8 @@ async def test_get_career_by_id(client: AsyncClient, stem_phase2):
 
 
 async def test_list_career_paths(client: AsyncClient, stem_phase2):
-    """GET /stem/careers/paths returns career paths."""
-    resp = await client.get("/api/v1/stem/careers/paths")
+    """GET /stem/careers/subject/{slug} returns career paths."""
+    resp = await client.get("/api/v1/stem/careers/subject/mathematics")
     assert resp.status_code == 200
     data = resp.json()
     assert isinstance(data, list)
@@ -658,9 +658,9 @@ async def test_get_analytics_progress(
 
 
 async def test_get_analytics_summary(client: AsyncClient, stem_phase3_5, student_token):
-    """GET /stem/analytics/summary returns study summary."""
+    """GET /stem/analytics/study-summary returns study summary."""
     resp = await client.get(
-        "/api/v1/stem/analytics/summary",
+        "/api/v1/stem/analytics/study-summary",
         headers=auth_header(student_token),
     )
     assert resp.status_code == 200
@@ -669,9 +669,9 @@ async def test_get_analytics_summary(client: AsyncClient, stem_phase3_5, student
 
 
 async def test_get_analytics_weakest(client: AsyncClient, stem_phase3_5, student_token):
-    """GET /stem/analytics/weakest returns weakest concepts."""
+    """GET /stem/analytics/weakest-concepts returns weakest concepts."""
     resp = await client.get(
-        "/api/v1/stem/analytics/weakest",
+        "/api/v1/stem/analytics/weakest-concepts",
         headers=auth_header(student_token),
     )
     assert resp.status_code == 200
@@ -844,9 +844,9 @@ async def test_list_groups(client: AsyncClient, stem_phase3_5):
 async def test_get_my_groups(
     client: AsyncClient, stem_phase3_5, student_token, student_user
 ):
-    """GET /stem/groups/my requires auth."""
+    """GET /stem/groups/mine requires auth."""
     resp = await client.get(
-        "/api/v1/stem/groups/my",
+        "/api/v1/stem/groups/mine",
         headers=auth_header(student_token),
     )
     assert resp.status_code == 200

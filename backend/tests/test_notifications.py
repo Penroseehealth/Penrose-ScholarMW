@@ -39,8 +39,10 @@ async def test_list_notifications_authenticated(
 
 @pytest.mark.asyncio
 async def test_list_notifications_unauthenticated(client: AsyncClient):
+    # No credentials at all: FastAPI's HTTPBearer rejects with 403 before any
+    # route dependency runs — the contract test_get_me_no_token documents.
     response = await client.get("/api/v1/notifications/")
-    assert response.status_code == 401
+    assert response.status_code == 403
 
 
 @pytest.mark.asyncio
@@ -163,4 +165,4 @@ async def test_create_notification_unauthenticated(client: AsyncClient):
             "notif_type": "info",
         },
     )
-    assert response.status_code == 401
+    assert response.status_code == 403
