@@ -220,6 +220,11 @@ class AppRouter {
       _route('/lecturer/presentation-builder', (_) => const LecturePresentationBuilderScreen()),
       _route('/lecturer/examination-builder', (_) => const ExaminationBuilderScreen()),
       _route('/bio-real-lab', (state) => BiologyRealLabScreen(experimentId: state.uri.queryParameters['experiment'])),
+      // MathDrill runs full-screen: registered OUTSIDE HomeShell so the main
+      // navigation rail is not reserved while the workspace is open (it returns
+      // automatically for every other route).
+      _route('/mathsdrill', (_) => const MathsdrillScreen()),
+      _route('/mathsdrill/progress', (_) => const MathsdrillProgressScreen()),
       ShellRoute(
         builder: (_, __, child) => _selectable(HomeShell(child: child)),
         routes: [
@@ -420,8 +425,6 @@ class AppRouter {
           _route('/stem-groups', (_) => const StemGroupsScreen()),
           _route('/mock-exam', (_) => const MockExamScreen()),
           _route('/math-tutor', (_) => const MathTutorScreen()),
-          _route('/mathsdrill', (_) => const MathsdrillScreen()),
-          _route('/mathsdrill/progress', (_) => const MathsdrillProgressScreen()),
           _route('/certificates', (_) => const CertificatesScreen()),
           _route('/exam-analytics', (_) => const ExamAnalyticsScreen()),
           _route('/study-planner', (_) => const StudyPlannerScreen()),

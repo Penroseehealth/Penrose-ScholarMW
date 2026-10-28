@@ -1,0 +1,133 @@
+/* Penrose MathDrill — text appearance controls (Settings → Text)
+   Font size, colour, thickness and sharpness, plus the calculation-mode
+   header removal.
+
+   OPT-IN BY MARKER: every rule below is gated on a data-fs-* (or data-calc)
+   attribute on <html>. With no markers set, nothing here matches, so the
+   default rendering is exactly as shipped.
+
+   State lives in localStorage["mathdrill.font"]; the early reader/applier
+   is in theme-boot.js (runs before React so there is no flash of the
+   wrong size), the Settings panel is injected by font_settings.js.
+*/
+
+/* ══ 1. FONT SIZE ═══════════════════════════════════════════════
+   ~90 of 91 authored sizes are rem, so scaling the root covers the whole
+   UI; browser default root is 16px (the bundle sets none). */
+html[data-fs-size="on"] { font-size: calc(16px * var(--fs-size, 1)); }
+
+/* Diagram labels carry their size as an SVG presentation attribute, and CSS
+   beats attributes. Each authored size is re-scaled on its own so ticks stay
+   smaller than vertex labels — the ratio between label roles is preserved
+   instead of being flattened to one size. */
+html[data-fs-size="on"] .canvas-wrap svg text[font-size="10"] { font-size: calc(10px * var(--fs-size)); }
+html[data-fs-size="on"] .canvas-wrap svg text[font-size="11"] { font-size: calc(11px * var(--fs-size)); }
+html[data-fs-size="on"] .canvas-wrap svg text[font-size="12"] { font-size: calc(12px * var(--fs-size)); }
+html[data-fs-size="on"] .canvas-wrap svg text[font-size="13"] { font-size: calc(13px * var(--fs-size)); }
+html[data-fs-size="on"] .canvas-wrap svg text[font-size="14"] { font-size: calc(14px * var(--fs-size)); }
+html[data-fs-size="on"] .canvas-wrap svg text[font-size="15"] { font-size: calc(15px * var(--fs-size)); }
+html[data-fs-size="on"] .canvas-wrap svg text[font-size="16"] { font-size: calc(16px * var(--fs-size)); }
+html[data-fs-size="on"] .canvas-wrap svg text[font-size="17"] { font-size: calc(17px * var(--fs-size)); }
+html[data-fs-size="on"] .canvas-wrap svg text[font-size="18"] { font-size: calc(18px * var(--fs-size)); }
+html[data-fs-size="on"] .canvas-wrap svg text[font-size="19"] { font-size: calc(19px * var(--fs-size)); }
+html[data-fs-size="on"] .canvas-wrap svg text[font-size="20"] { font-size: calc(20px * var(--fs-size)); }
+
+/* ══ 2. FONT COLOUR ═════════════════════════════════════════════
+   Swaps the app's own --text token (most surfaces read it), and pins the
+   colour on the text you actually read. Diagram annotations keep their
+   role colours (length/angle/vertex are distinguished BY colour) — SVG
+   text uses fill, not color, so those are untouched either way. */
+html[data-fs-color="on"] { --text: var(--fs-color); }
+html[data-fs-color="on"] body {
+  color: var(--fs-color);
+}
+html[data-fs-color="on"] body :where(
+    .wcap, .wstep-body, .wreason, .solution li, .solution p, .solution-title,
+    .prompt, .md-eq .line, .md-step-body, .md-answer, .answer, .muted,
+    .vtitle, .setting-text, .board strong, .board p, .board span,
+    .paper-answer-line, .paper-answer-cap, .wmath li, .typing
+  ) { color: var(--fs-color) !important; }
+
+/* ══ 3. THICKNESS ═══════════════════════════════════════════════
+   body carries it by inheritance; the explicit list overrides elements the
+   bundle hard-weights (headings, bold, captions) so the control is felt
+   everywhere rather than only on unstyled text. Diagram labels are given it
+   too — they are authored at 600/700. */
+html[data-fs-weight="on"] body { font-weight: var(--fs-weight, 400); }
+html[data-fs-weight="on"] body :where(
+    h1, h2, h3, strong, b, th, .wcap, .wstep-num, .wstep-body, .wreason,
+    .solution li, .solution p, .solution-title, .prompt, .md-eq .line,
+    .md-step-head, .md-step-body, .md-answer, .answer, .board strong,
+    .setting-text strong, .paper-answer-final, .wmath li, .typing
+  ) { font-weight: var(--fs-weight); }
+html[data-fs-weight="on"] .canvas-wrap svg text { font-weight: var(--fs-weight); }
+
+/* ══ 4. SHARPNESS ═══════════════════════════════════════════════
+   Three stacked effects, all scaled by --fs-sharp (0..1):
+     · antialiased smoothing + geometric text rendering (crisper outlines)
+     · a hairline text stroke in the current colour, which sharpens the
+       edge contrast — this is what actually reads as "sharp" on Windows
+   The stroke is deliberately NOT applied inside the diagram: those labels
+   already carry a halo (stroke attribute, re-tinted by theme-dark.css), and
+   a text-stroke would fight it. */
+html[data-fs-sharp="on"] {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+html[data-fs-sharp="on"] body :where(
+    .wcap, .wstep-body, .wreason, .solution, .prompt, .md-eq, .md-step-head,
+    .md-step-body, .md-answer, .answer, .muted, .setting-text, .board strong,
+    .board p, .paper-answer-line, .wmath li, .typing
+  ) {
+  -webkit-text-stroke-width: calc(var(--fs-sharp, 0) * 0.45px);
+  -webkit-text-stroke-color: currentColor;
+}
+html[data-fs-sharp="on"] .canvas-wrap svg text { -webkit-text-stroke-width: 0; }
+
+/* ══ 5. CALCULATION MODE — no headers ═══════════════════════════
+   While a solution is being worked (solve workspace open, or the practice
+   worked-solution panel present) the brand + user row is removed outright.
+   It contains no calculation controls, so nothing is lost and no space is
+   reserved for it.
+
+   The practice title bar, by contrast, OWNS the toolbar (Labels / Grid /
+   Asymp / Both / Graph / Steps / zoom / Reset / theme / + New Question), so
+   only its chrome goes: title, icon and tag disappear and the bar stops
+   looking like a header, but every control stays operable. */
+html[data-calc="on"] .app-header,
+html[data-calc="on"] .app-brand,
+html[data-calc="on"] .app-profile { display: none !important; }
+html[data-calc="on"] .md-header {
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+html[data-calc="on"] .md-header .md-ic,
+html[data-calc="on"] .md-header h2,
+html[data-calc="on"] .md-header .md-tag { display: none !important; }
+
+/* The solve workspace reserves `calc(100dvh - 150px)` for app chrome. Since
+   calculation mode removes that chrome, the reservation became a dead strip
+   across the bottom of the screen — measured at a constant 130 px at 1280,
+   1366, 1500 and 1920 wide. Give the height back while calculating so the
+   panels meet the bottom edge with only the page's own 12 px gutter. */
+html[data-calc="on"] .workspace.fullscreen { height: calc(100dvh - 32px); }
+
+/* ══ Settings panel rows (injected by font_settings.js) ═════════ */
+.fs-group { display: flex; flex-direction: column; gap: 14px; }
+.setting[data-fsrow] { flex-wrap: wrap; row-gap: 10px; }
+.fs-ctl { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.fs-ctl .slider { flex: 1 1 220px; margin: 0; }
+.fs-color {
+  inline-size: 52px; block-size: 34px; padding: 2px;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: var(--panel-2); cursor: pointer;
+}
+.fs-color::-webkit-color-swatch-wrapper { padding: 2px; }
+.fs-color::-webkit-color-swatch { border: 0; border-radius: 5px; }
+.fs-val {
+  min-width: 62px; text-align: end;
+  font-variant-numeric: tabular-nums; color: var(--muted);
+}
