@@ -300,21 +300,34 @@ async def health():
 WEB_DIR = Path(__file__).resolve().parent.parent.parent / "frontend" / "build" / "web"
 if WEB_DIR.is_dir():
     import hashlib
-    import os
     import time
 
     from starlette.responses import FileResponse, HTMLResponse, Response
 
     _main_js_path = WEB_DIR / "main.dart.js"
-    _build_hash = hashlib.md5(
-        str(os.path.getmtime(_main_js_path)).encode()
-    ).hexdigest()[:12]
     _startup_version = str(int(time.time()))
     _no_cache_headers = {
         "Cache-Control": "no-cache, no-store, must-revalidate",
         "Pragma": "no-cache",
         "Expires": "0",
     }
+
+    def _build_hash() -> str:
+        """Cache-busting token derived from the current build on disk.
+
+        This used to be computed once at import time. A `flutter build web`
+        while the server was running then kept handing out the *old* JS under an
+        unchanged ?v= URL, so browsers happily re-used cached code and fixes
+        looked like they had no effect. Reading the file stat per request costs
+        microseconds and makes every rebuild take effect on the next page load.
+        """
+        try:
+            stat = _main_js_path.stat()
+        except OSError:
+            return _startup_version
+        return hashlib.md5(f"{int(stat.st_mtime)}:{stat.st_size}".encode()).hexdigest()[
+            :12
+        ]
 
     def _render_index_html() -> str:
         """Read index.html per request.
@@ -326,29 +339,34 @@ if WEB_DIR.is_dir():
         build output. main.dart.js / flutter_bootstrap.js stay versioned via the
         ?v= build-hash query, so cache-busting is unaffected.
         """
+        version = _build_hash()
         html = (WEB_DIR / "index.html").read_text(encoding="utf-8")
-        html = html.replace(
-            "flutter_bootstrap.js", f"flutter_bootstrap.js?v={_build_hash}"
-        )
-        html = html.replace("main.dart.js", f"main.dart.js?v={_build_hash}")
+        html = html.replace("flutter_bootstrap.js", f"flutter_bootstrap.js?v={version}")
+        html = html.replace("main.dart.js", f"main.dart.js?v={version}")
         return html.replace(
             "flutter_service_worker.js",
             f"flutter_service_worker.js?v={_startup_version}",
         )
 
-    _bootstrap_js = (WEB_DIR / "flutter_bootstrap.js").read_text(encoding="utf-8")
-    _bootstrap_js = _bootstrap_js.replace(
-        "main.dart.js", f"main.dart.js?v={_build_hash}"
-    )
-    # Flutter's generated bootstrap loads CanvasKit from the gstatic CDN by
-    # default. On machines without access to that CDN the engine never boots
-    # and the app stays on its "Loading..." splash forever, even though a
-    # complete CanvasKit build is shipped in build/web/canvaskit. Point the
-    # loader at the copy served by this backend instead.
-    _bootstrap_js = _bootstrap_js.replace(
-        "_flutter.loader.load({",
-        '_flutter.loader.load({ config: { canvasKitBaseUrl: "/canvaskit" },',
-    )
+    _bootstrap_source = (WEB_DIR / "flutter_bootstrap.js").read_text(encoding="utf-8")
+
+    def _render_bootstrap_js() -> str:
+        """Bootstrap with the current build hash and a local CanvasKit.
+
+        The generated bootstrap loads CanvasKit from the gstatic CDN by default.
+        On machines without access to that CDN the engine never boots and the app
+        stays on its "Loading..." splash forever, even though a complete
+        CanvasKit build ships in build/web/canvaskit. Point the loader at the
+        copy served by this backend instead. Rendered per request so a rebuild
+        is picked up without restarting the server.
+        """
+        js = _bootstrap_source.replace(
+            "main.dart.js", f"main.dart.js?v={_build_hash()}"
+        )
+        return js.replace(
+            "_flutter.loader.load({",
+            '_flutter.loader.load({ config: { canvasKitBaseUrl: "/canvaskit" },',
+        )
 
     _NO_CACHE_MIME = {
         ".js": "application/javascript",
@@ -384,7 +402,7 @@ if WEB_DIR.is_dir():
             # content-type makes Chrome refuse the file outright, leaving the
             # app stuck on its loading splash.
             return Response(
-                _bootstrap_js,
+                _render_bootstrap_js(),
                 media_type="application/javascript",
                 headers=_no_cache_headers,
             )

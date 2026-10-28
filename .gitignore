@@ -76,3 +76,7 @@ backend/generated/
 
 # interrupted sqlite journal from test runs
 backend/test.db-journal
+
+# Voice Training Centre system-audio recordings (local capture data, may be large)
+backend/storage/recordings/
+
