@@ -181,7 +181,7 @@ async def _seed_default_users():
             User(
                 email="student@scholar.mw",
                 hashed_password=hash_password("student123"),
-                full_name="Chimwemwe Banda",
+                full_name="Aminiology Ma",
                 role=UserRole.STUDENT,
                 institution="University of Malawi",
                 department="Computer Science",
@@ -196,8 +196,6 @@ async def _seed_default_users():
 
         for u in users:
             await db.refresh(u)
-
-        pass
 
 
 app = FastAPI(

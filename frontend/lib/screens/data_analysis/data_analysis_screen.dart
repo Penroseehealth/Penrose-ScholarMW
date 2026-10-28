@@ -30,7 +30,7 @@ class _DataAnalysisScreenState extends State<DataAnalysisScreen> {
 
   void _loadSample() {
     _csvCtrl.text = '''student,subject,score,grade,attendance_pct
-Chimwemwe Banda,Mathematics,78,B,85
+Aminiology Ma,Mathematics,78,B,85
 Aisha Kamwendo,Mathematics,92,A+,95
 Takondwa Moyo,Mathematics,65,C+,72
 Fatsani Gondwe,Mathematics,88,A,90

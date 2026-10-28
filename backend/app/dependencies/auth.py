@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -10,6 +10,15 @@ from app.database.engine import get_db
 from app.models.models import User, UserRole
 
 security = HTTPBearer()
+
+# How often an authenticated request is allowed to bump `users.last_seen_at`.
+#
+# This used to be written (and committed) on *every* authenticated request.
+# With the app polling several endpoints per second, that turned SQLite into a
+# write-bound database: each poll fsyncs a row update, and a real save (profile,
+# recording, voice rename) then queues behind that traffic and appears to hang.
+# Presence only needs minute-level accuracy, so writes are throttled.
+LAST_SEEN_INTERVAL = timedelta(minutes=5)
 
 
 async def get_current_user(
@@ -34,8 +43,14 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found or inactive",
         )
-    user.last_seen_at = datetime.now(timezone.utc)
-    await db.commit()
+    now = datetime.now(timezone.utc)
+    last_seen = user.last_seen_at
+    if last_seen is not None and last_seen.tzinfo is None:
+        # SQLite hands datetimes back naive; treat them as UTC.
+        last_seen = last_seen.replace(tzinfo=timezone.utc)
+    if last_seen is None or now - last_seen >= LAST_SEEN_INTERVAL:
+        user.last_seen_at = now
+        await db.commit()
     return user
 
 
