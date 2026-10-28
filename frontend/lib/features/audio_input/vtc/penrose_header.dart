@@ -276,18 +276,13 @@ class _AccountCluster extends StatelessWidget {
                 Semantics(label: 'Signed in as $userName', child: const SizedBox()),
               ] else ...[
                 const SizedBox(width: 10),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      userName.isEmpty ? 'Signed in' : userName,
-                      style: VtcType.bodyIvory(context).copyWith(fontSize: 14.5, fontWeight: FontWeight.w500),
-                    ),
-                    Text('Voice Training', style: VtcType.body(context).copyWith(fontSize: 12)),
-                  ],
+                // Just the name: no role/subtitle line under it, and it is the
+                // last element in the header so it sits against the right edge.
+                Text(
+                  userName.isEmpty ? 'Signed in' : userName,
+                  textAlign: TextAlign.right,
+                  style: VtcType.bodyIvory(context).copyWith(fontSize: 14.5, fontWeight: FontWeight.w500),
                 ),
-                const Icon(Icons.keyboard_arrow_down_rounded, color: VtcPalette.ivoryDim, size: 20),
               ],
             ],
           ),
