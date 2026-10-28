@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/networking/api_client.dart';
+import '../../../providers/auth_provider.dart';
 import 'accent_selector.dart';
 import 'clone_controller.dart';
 import 'my_voices_page.dart';
@@ -55,6 +58,10 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
   bool _consent = false;
   bool _loadingStatus = true;
   Timer? _sampleTicker;
+
+  /// On wide viewports the sidebar is permanent, so the header's menu button
+  /// slides it away to give the workspace the full width.
+  bool _sidebarVisible = true;
 
   /// Which sidebar destination is showing. `voice_training` is the capture and
   /// synthesis workspace; `my_voices` is the saved voice library. Both are real
@@ -255,12 +262,40 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
     await action();
   }
 
-  void _openAppDrawer() {
-    // The VTC is a full-screen experience; the drawer is the escape hatch back
-    // to the rest of the app.
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Use the menu button to open the app drawer.')));
+  void _toggleMenu({required bool desktop}) {
+    if (desktop) {
+      setState(() => _sidebarVisible = !_sidebarVisible);
+      return;
+    }
+    _scaffoldKey.currentState?.openDrawer();
+  }
+
+  void _handleAccount(String action) {
+    switch (action) {
+      case 'profile':
+        context.go('/profile');
+      case 'settings':
+        context.go('/settings');
+      case 'logout':
+        _confirmLogout();
+    }
+  }
+
+  Future<void> _confirmLogout() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Log out?'),
+        content: const Text('You will be signed out of Penrose Scholar.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: const Text('Cancel')),
+          FilledButton(onPressed: () => Navigator.of(dialogContext).pop(true), child: const Text('Log out')),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    await context.read<AuthProvider>().logout();
+    if (mounted) context.go('/login');
   }
 
   /// Routes a sidebar tap. Disabled destinations and `home` say plainly that
@@ -274,7 +309,8 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
       return;
     }
     if (item.id == 'home') {
-      _openAppDrawer();
+      // The VTC is a full-screen route, so its Home entry leaves it.
+      context.go('/');
       return;
     }
     setState(() => _tab = item.id);
@@ -300,6 +336,7 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
     final width = MediaQuery.sizeOf(context).width;
     final isDesktop = width >= 1080;
     final isCompact = width < 720;
+    final auth = context.watch<AuthProvider>();
 
     return Scaffold(
       key: _scaffoldKey,
@@ -313,8 +350,8 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
                   child: VoiceSidebar(
                     selectedId: _tab,
                     onSelect: (item) {
-                      _selectTab(item);
                       Navigator.of(drawerContext).pop();
+                      _selectTab(item);
                     },
                   ),
                 ),
@@ -326,9 +363,15 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
           children: [
             PenroseHeader(
               height: isCompact ? 64 : 74,
-              // Narrow screens get the real drawer; wide screens have no app
-              // drawer to open, so the button explains where navigation lives.
-              onMenuTap: isDesktop ? _openAppDrawer : () => _scaffoldKey.currentState?.openDrawer(),
+              userName: auth.userName.isNotEmpty ? auth.userName : 'Signed in',
+              menuTooltip: isDesktop
+                  ? (_sidebarVisible ? 'Hide navigation menu' : 'Show navigation menu')
+                  : 'Open navigation menu',
+              // Wide screens have a permanent sidebar, so the button collapses
+              // it; narrow screens open the drawer that holds the same links.
+              onMenuTap: () => _toggleMenu(desktop: isDesktop),
+              onNotificationsTap: () => context.go('/smart-notifications'),
+              onAccountSelected: _handleAccount,
               compact: isCompact,
             ),
             Expanded(child: isDesktop ? _desktopBody(isCompact: isCompact) : _mobileBody()),
@@ -346,10 +389,26 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
       children: [
         // The sidebar fills the column height so its flourish can sit at the
         // bottom; it must not be inside a scroll view (it uses a Spacer).
-        SafeArea(
-          top: false,
-          right: false,
-          child: VoiceSidebar(selectedId: _tab, onSelect: _selectTab),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOut,
+          width: _sidebarVisible ? 244 : 0,
+          child: ClipRect(
+            child: OverflowBox(
+              alignment: Alignment.centerLeft,
+              minWidth: 244,
+              maxWidth: 244,
+              child: SafeArea(
+                top: false,
+                right: false,
+                child: VoiceSidebar(
+                  selectedId: _tab,
+                  onSelect: _selectTab,
+                  width: 244,
+                ),
+              ),
+            ),
+          ),
         ),
         Expanded(
           // The library page scrolls itself; wrapping it in the training

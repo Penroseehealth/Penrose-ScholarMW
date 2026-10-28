@@ -11,6 +11,9 @@ class PenroseHeader extends StatelessWidget implements PreferredSizeWidget {
     super.key,
     required this.height,
     this.onMenuTap,
+    this.menuTooltip = 'Toggle navigation menu',
+    this.onNotificationsTap,
+    this.onAccountSelected,
     this.userName = 'Alex R.',
     this.notifications = 0,
     this.compact = false,
@@ -18,8 +21,14 @@ class PenroseHeader extends StatelessWidget implements PreferredSizeWidget {
 
   final double height;
 
-  /// Opens the app-wide drawer so the rest of the app stays reachable.
+  /// Toggles this page's own navigation: the permanent sidebar on wide
+  /// viewports, the drawer on narrow ones.
   final VoidCallback? onMenuTap;
+  final String menuTooltip;
+  final VoidCallback? onNotificationsTap;
+
+  /// Account menu selection: `profile`, `settings` or `logout`.
+  final ValueChanged<String>? onAccountSelected;
   final String userName;
   final int notifications;
 
@@ -41,7 +50,7 @@ class PenroseHeader extends StatelessWidget implements PreferredSizeWidget {
           child: Row(
             children: [
               if (onMenuTap != null) ...[
-                _IconButton(icon: Icons.menu, tooltip: 'Open app menu', onPressed: onMenuTap!),
+                _IconButton(icon: Icons.menu, tooltip: menuTooltip, onPressed: onMenuTap!),
                 const SizedBox(width: 6),
               ],
               const Flexible(child: _BrandMark()),
@@ -52,7 +61,12 @@ class PenroseHeader extends StatelessWidget implements PreferredSizeWidget {
                 const Expanded(child: _Tagline()),
               ] else
                 const Spacer(),
-              _AccountCluster(userName: userName, compact: compact),
+              _AccountCluster(
+                userName: userName,
+                compact: compact,
+                onNotificationsTap: onNotificationsTap,
+                onSelected: onAccountSelected,
+              ),
             ],
           ),
         ),
@@ -170,23 +184,35 @@ class _WaveformPainter extends CustomPainter {
 }
 
 class _AccountCluster extends StatelessWidget {
-  const _AccountCluster({required this.userName, required this.compact});
+  const _AccountCluster({
+    required this.userName,
+    required this.compact,
+    this.onNotificationsTap,
+    this.onSelected,
+  });
 
   final String userName;
 
   /// On a phone the name/role text is dropped: the avatar still identifies the
   /// account, and keeping the text would overflow the header row.
   final bool compact;
+  final VoidCallback? onNotificationsTap;
+  final ValueChanged<String>? onSelected;
 
   @override
   Widget build(BuildContext context) {
+    final initial = userName.trim().isEmpty ? 'P' : userName.trim()[0].toUpperCase();
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Stack(
           clipBehavior: Clip.none,
           children: [
-            _IconButton(icon: Icons.notifications_none_rounded, tooltip: 'Notifications', onPressed: () {}),
+            _IconButton(
+              icon: Icons.notifications_none_rounded,
+              tooltip: 'Notifications',
+              onPressed: onNotificationsTap ?? () {},
+            ),
             // Small notification indicator.
             Positioned(
               right: 8,
@@ -204,38 +230,68 @@ class _AccountCluster extends StatelessWidget {
           ],
         ),
         const SizedBox(width: 10),
-        Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [VtcPalette.violetSoft, VtcPalette.royalBlue],
+        PopupMenuButton<String>(
+          tooltip: 'Account',
+          enabled: onSelected != null,
+          onSelected: onSelected,
+          offset: const Offset(0, 46),
+          color: VtcPalette.navyDeep,
+          itemBuilder: (menuContext) => const [
+            PopupMenuItem<String>(
+              value: 'profile',
+              child: Text('Profile', style: TextStyle(color: VtcPalette.ivory)),
             ),
-            border: Border.all(color: VtcPalette.gold.withValues(alpha: 0.6), width: 1.2),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            userName.isEmpty ? 'A' : userName.characters.first,
-            style: VtcType.bodyIvory(context).copyWith(fontWeight: FontWeight.w600, fontSize: 15),
-          ),
-        ),
-        if (compact) ...[
-          Semantics(label: 'Signed in as $userName', child: const SizedBox()),
-        ] else ...[
-          const SizedBox(width: 10),
-          Column(
+            PopupMenuItem<String>(
+              value: 'settings',
+              child: Text('Settings', style: TextStyle(color: VtcPalette.ivory)),
+            ),
+            PopupMenuDivider(),
+            PopupMenuItem<String>(
+              value: 'logout',
+              child: Text('Log out', style: TextStyle(color: VtcPalette.gold)),
+            ),
+          ],
+          child: Row(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(userName, style: VtcType.bodyIvory(context).copyWith(fontSize: 14.5, fontWeight: FontWeight.w500)),
-              Text('Researcher', style: VtcType.body(context).copyWith(fontSize: 12)),
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [VtcPalette.violetSoft, VtcPalette.royalBlue],
+                  ),
+                  border: Border.all(color: VtcPalette.gold.withValues(alpha: 0.6), width: 1.2),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  initial,
+                  style: VtcType.bodyIvory(context).copyWith(fontWeight: FontWeight.w600, fontSize: 15),
+                ),
+              ),
+              if (compact) ...[
+                Semantics(label: 'Signed in as $userName', child: const SizedBox()),
+              ] else ...[
+                const SizedBox(width: 10),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      userName.isEmpty ? 'Signed in' : userName,
+                      style: VtcType.bodyIvory(context).copyWith(fontSize: 14.5, fontWeight: FontWeight.w500),
+                    ),
+                    Text('Voice Training', style: VtcType.body(context).copyWith(fontSize: 12)),
+                  ],
+                ),
+                const Icon(Icons.keyboard_arrow_down_rounded, color: VtcPalette.ivoryDim, size: 20),
+              ],
             ],
           ),
-          const Icon(Icons.keyboard_arrow_down_rounded, color: VtcPalette.ivoryDim, size: 20),
-        ],
+        ),
       ],
     );
   }

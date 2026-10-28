@@ -225,6 +225,10 @@ class AppRouter {
       // automatically for every other route).
       _route('/mathsdrill', (_) => const MathsdrillScreen()),
       _route('/mathsdrill/progress', (_) => const MathsdrillProgressScreen()),
+      // The Voice Training Center owns its whole viewport: it has its own
+      // sidebar, so the app-wide rail (Dashboard / ScholarAI / Past Papers…)
+      // must not be reserved next to it.
+      _route('/voice-training-center', (_) => VoiceTrainingCenterPage(apiClient: _voiceApiClient)),
       ShellRoute(
         builder: (_, __, child) => _selectable(HomeShell(child: child)),
         routes: [
@@ -241,7 +245,6 @@ class AppRouter {
           _route('/learning-coach', (_) => const LearningCoachScreen()),
           _route('/malawi-context', (_) => const MalawiContextScreen()),
           _route('/knowledge-retrieval', (_) => const KnowledgeRetrievalScreen()),
-          _route('/voice-training-center', (_) => VoiceTrainingCenterPage(apiClient: _voiceApiClient)),
           _route('/examinations', (_) => const ExaminationHall()),
           _route('/writing-studio', (_) => const WritingStudio()),
           _route('/gamification', (_) => const GamificationScreen()),
