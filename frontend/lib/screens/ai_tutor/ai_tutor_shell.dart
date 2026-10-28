@@ -80,12 +80,7 @@ class _AiTutorShellState extends State<AiTutorShell> {
           _navItem(1, Icons.auto_awesome_outlined, Icons.auto_awesome_rounded, 'ScholarAI', currentNav, colors),
           _navItem(2, Icons.menu_book_outlined, Icons.menu_book_rounded, 'My Learning', currentNav, colors),
           _navItem(3, Icons.science_outlined, Icons.science_rounded, 'Research', currentNav, colors),
-          const SizedBox(height: 16),
-          Expanded(
-            child: SingleChildScrollView(
-              child: _buildVisualPresentations(colors),
-            ),
-          ),
+          const Spacer(),
           _buildSettingsButton(colors),
           const SizedBox(height: 16),
         ],
@@ -159,58 +154,7 @@ class _AiTutorShellState extends State<AiTutorShell> {
     );
   }
 
-  Widget _buildVisualPresentations(ThemeColors colors) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF141522),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
-        boxShadow: [
-          BoxShadow(color: AppColors.primary.withValues(alpha: 0.08), blurRadius: 16, spreadRadius: -2),
-        ],
-      ),
-      child: Column(
-        children: [
-          GestureDetector(
-            onTap: () => setState(() => _presentationsExpanded = !_presentationsExpanded),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'VISUAL PRESENTATIONS',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 1.2,
-                        color: AppColors.primaryLight,
-                      ),
-                    ),
-                  ),
-                  Icon(
-                    _presentationsExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
-                    size: 18,
-                    color: AppColors.primaryLight,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          AnimatedCrossFade(
-            firstChild: const SizedBox.shrink(),
-            secondChild: Column(
-              children: _tools.map((t) => _toolItem(t, colors)).toList(),
-            ),
-            crossFadeState: _presentationsExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-            duration: const Duration(milliseconds: 200),
-          ),
-        ],
-      ),
-    );
-  }
-
+  
   Widget _toolItem(_ToolDef tool, ThemeColors colors) {
     return Material(
       color: Colors.transparent,
