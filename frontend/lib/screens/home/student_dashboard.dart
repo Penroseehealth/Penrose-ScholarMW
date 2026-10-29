@@ -17,8 +17,6 @@ class StudentDashboard extends StatefulWidget {
 }
 
 class _StudentDashboardState extends State<StudentDashboard> {
-  final CourseService _courseService = CourseService();
-  List<dynamic> _courses = [];
   List<dynamic> _notifications = [];
   bool _loading = true;
   Timer? _clockTimer;
@@ -46,11 +44,9 @@ class _StudentDashboardState extends State<StudentDashboard> {
 
   Future<void> _loadData() async {
     try {
-      final courses = await _courseService.listCourses();
       final notifs = await NotificationService().listNotifications();
       if (mounted) {
         setState(() {
-          _courses = courses;
           _notifications = notifs;
           _loading = false;
         });
@@ -168,9 +164,9 @@ class _StudentDashboardState extends State<StudentDashboard> {
             _buildActionCard(
               context,
               icon: Icons.science_rounded,
-              label: 'STEM Labs',
+              label: 'STEM Hub',
               gradient: [const Color(0xFF22C55E), const Color(0xFF16A34A)],
-              onTap: () => context.go('/stem-labs'),
+              onTap: () => context.go('/stem'),
             ),
             const SizedBox(width: 10),
             _buildActionCard(
@@ -195,14 +191,6 @@ class _StudentDashboardState extends State<StudentDashboard> {
               label: 'Grades',
               gradient: [const Color(0xFF0EA5E9), const Color(0xFF0284C7)],
               onTap: () => context.go('/grades'),
-            ),
-            const SizedBox(width: 10),
-            _buildActionCard(
-              context,
-              icon: Icons.psychology_rounded,
-              label: 'Penrose Teaching Assistant',
-              gradient: [const Color(0xFF7C3AED), const Color(0xFF6D28D9)],
-              onTap: () => context.go('/ai-tutor'),
             ),
           ],
         ),
@@ -261,80 +249,6 @@ class _StudentDashboardState extends State<StudentDashboard> {
           color: context.colors.textPrimary,
         ),
       );
-
-  Widget _buildCourseCard(dynamic course) {
-    final progress = ((course['progress'] ?? 0.0) as num).toDouble();
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.colors.border),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: context.colors.primaryGlow,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.menu_book_rounded, color: AppColors.primary, size: 24),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  (course['title'] ?? '') as String,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: context.colors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${course['code'] ?? ''} · ${course['level'] ?? ''}',
-                  style: TextStyle(fontSize: 13, color: context.colors.textMuted),
-                ),
-                if (progress > 0) ...[
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: LinearProgressIndicator(
-                            value: progress / 100,
-                            backgroundColor: context.colors.surfaceHighest,
-                            valueColor: const AlwaysStoppedAnimation(AppColors.primary),
-                            minHeight: 4,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${progress.toInt()}%',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-          Icon(Icons.chevron_right_rounded, color: context.colors.textMuted, size: 20),
-        ],
-      ),
-    );
-  }
 
   Widget _buildActivityCard(dynamic notif) => Container(
         padding: const EdgeInsets.all(14),

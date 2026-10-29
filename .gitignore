@@ -7,6 +7,9 @@ __pycache__/
 .env
 *.db
 *.sqlite3
+# SQLite WAL sidecar files (journal_mode=WAL)
+*.db-wal
+*.db-shm
 
 # Media uploads
 media/

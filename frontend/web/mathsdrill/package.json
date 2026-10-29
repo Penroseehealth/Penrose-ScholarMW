@@ -1,9 +1,0 @@
-{
-  "name": "penrose-mathsdrill-assets",
-  "private": true,
-  "description": "Built MathDrill assets + the Three.js graphing workspace (graph_core/graph3d/workspace).",
-  "type": "module",
-  "scripts": {
-    "test": "node scripts/graph_core_test.mjs"
-  }
-}

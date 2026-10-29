@@ -1,4 +1,7 @@
-from fastapi import APIRouter, Depends, Query, status
+import base64
+import io
+
+from fastapi import APIRouter, Depends, File, Query, UploadFile, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -181,3 +184,43 @@ async def solve_chat_question(
         verification_detail=solved.verification_detail,
         visual=solved.visual,
     )
+
+
+@router.post("/ocr")
+async def ocr_upload(
+    file: UploadFile = File(...), user: User = Depends(get_current_user)
+):
+    """OCR endpoint to extract text/formulas from images/PDFs preserving symbols."""
+    try:
+        content = await file.read()
+        try:
+            import pytesseract
+            from PIL import Image
+
+            img = Image.open(io.BytesIO(content))
+            text = pytesseract.image_to_string(img)
+            return {"text": text}
+        except Exception:
+            try:
+                from app.config.ai_client import call_ai_text
+
+                b64 = base64.b64encode(content).decode("utf-8")
+                messages = [
+                    {
+                        "role": "system",
+                        "content": "Extract all text, mathematical formulas, symbols, equations preserving exact formatting. Return plain text.",
+                    },
+                    {
+                        "role": "user",
+                        "content": f"data:{file.content_type or 'image/png'};base64,{b64}",
+                    },
+                ]
+                try:
+                    result = await call_ai_text(messages, max_tokens=1024)
+                    return {"text": result}
+                except Exception as e:
+                    return {"text": "", "error": str(e)}
+            except Exception as e:
+                return {"text": "", "error": str(e)}
+    except Exception as e:
+        return {"text": "", "error": str(e)}

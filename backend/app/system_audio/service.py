@@ -11,16 +11,18 @@ from __future__ import annotations
 
 import json
 import queue
+import re
+import shutil
 import threading
 import time
 import uuid
 import warnings
 import wave
-from contextlib import ExitStack
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote
 
 import lameenc
 import numpy as np
@@ -41,6 +43,10 @@ except Exception:  # pragma: no cover
 
 ROOT = Path(__file__).resolve().parents[2] / "storage" / "recordings"
 MAX_SECONDS = 90 * 60
+# One hour is the longest single recording the UI offers; its parts can be
+# 10-30 minutes each.
+MAX_SEGMENT_SECONDS = 60 * 60
+EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$")
 # A large device buffer absorbs Windows scheduling and garbage-collection
 # hiccups; the readers then pull it in small pieces. Reading 100 ms out of a
 # 100 ms buffer (the old setting) left no headroom and produced dropouts, which
@@ -328,14 +334,27 @@ class _ActiveRecording:
     sample_rate: int
     channels: int
     source: str = "system"
+    segment_seconds: int = 0
     started_at: str = field(default_factory=_utc_now)
-    wav_path: Path = field(init=False)
     meta_path: Path = field(init=False)
     stop_event: threading.Event = field(default_factory=threading.Event)
     thread: threading.Thread | None = None
-    readers: list[threading.Thread] = field(default_factory=list)
-    queues: list[queue.Queue[np.ndarray]] = field(default_factory=list)
+    reader: threading.Thread | None = None
+    streams: dict[str, queue.Queue] = field(default_factory=dict)
+    stream_lock: threading.Lock = field(default_factory=threading.Lock)
+    mic_enabled: bool = False
+    mic_error: str | None = None
+    mic_denied: bool = False
     wave_file: wave.Wave_write | None = None
+    wave_path: Path | None = None
+    segment_index: int = 0
+    segment_frames: int = 0
+    segments: list[dict[str, Any]] = field(default_factory=list)
+    compress_queue: queue.Queue = field(default_factory=queue.Queue)
+    compressor: threading.Thread | None = None
+    compressing: int = 0
+    compress_error: str | None = None
+    fade_next: bool = True
     frames: int = 0
     level: float = 0.0
     peak: float = 0.0
@@ -344,14 +363,42 @@ class _ActiveRecording:
     error: str | None = None
     finalized: bool = False
     finalize_lock: threading.Lock = field(default_factory=threading.Lock)
+    # Three threads persist meta (reader on mic toggles, writer on segment
+    # roll, compressor on each finished part); overlapping rewrites fail on
+    # Windows with a sharing violation, so every write takes this lock.
+    meta_lock: threading.RLock = field(default_factory=threading.RLock)
 
     def __post_init__(self) -> None:
-        self.wav_path = self.directory / "audio.wav"
         self.meta_path = self.directory / "meta.json"
+        self.mic_enabled = any(capture.role == "mic" for capture in self.inputs)
+
+    @property
+    def has_system(self) -> bool:
+        return any(capture.role == "system" for capture in self.inputs)
 
     @property
     def elapsed(self) -> float:
         return self.frames / float(self.sample_rate) if self.sample_rate else 0.0
+
+    @property
+    def segment_remaining(self) -> float:
+        """Seconds until the current segment is full (0 when not segmenting)."""
+        if not self.segment_seconds:
+            return 0.0
+        return max(0.0, self.segment_seconds - self.segment_frames / self.sample_rate)
+
+    def wav_bytes(self) -> int:
+        total = sum(int(item.get("wav_bytes") or 0) for item in self.segments)
+        path = self.wave_path
+        if path is not None and path.exists():
+            try:
+                total += path.stat().st_size
+            except OSError:
+                pass
+        return total
+
+    def mp3_bytes(self) -> int:
+        return sum(int(item.get("mp3_bytes") or 0) for item in self.segments)
 
     def meta(self) -> dict[str, Any]:
         payload = _read_json(self.meta_path) if self.meta_path.exists() else {}
@@ -370,8 +417,13 @@ class _ActiveRecording:
                 "device": self.device,
                 "source": self.source,
                 "silent": payload.get("silent", False),
-                "wav_bytes": payload.get("wav_bytes", 0),
-                "mp3_bytes": payload.get("mp3_bytes", 0),
+                "wav_bytes": payload.get("wav_bytes") or self.wav_bytes(),
+                "mp3_bytes": payload.get("mp3_bytes") or self.mp3_bytes(),
+                "segmentation_seconds": self.segment_seconds,
+                "segments": payload.get("segments") or list(self.segments),
+                "compressing": self.compressing,
+                "mic_enabled": self.mic_enabled,
+                "mic_error": self.mic_error,
                 "transcript": payload.get("transcript"),
                 "summary": payload.get("summary"),
                 "summary_style": payload.get("summary_style"),
@@ -383,37 +435,57 @@ class _ActiveRecording:
         return payload
 
     def save_meta(self, **changes: Any) -> dict[str, Any]:
-        payload = self.meta()
-        payload.update(changes)
-        _write_json(self.meta_path, payload)
-        return payload
+        with self.meta_lock:
+            payload = self.meta()
+            payload.update(changes)
+            _write_json(self.meta_path, payload)
+            return payload
 
     def start(self) -> None:
         self.save_meta(status="recording", ended_at=None, duration_seconds=0.0)
+        self.compressor = threading.Thread(
+            target=self._compress_loop,
+            name=f"system-audio-{self.id}-compress",
+            daemon=True,
+        )
+        self.compressor.start()
         self.thread = threading.Thread(
             target=self._capture, name=f"system-audio-{self.id}", daemon=True
         )
         self.thread.start()
 
+    # -- microphone ----------------------------------------------------------
+
+    def set_microphone(self, enabled: bool) -> None:
+        """Turn the microphone on or off without touching the system stream."""
+        if self.finalized or self.stop_event.is_set():
+            raise ConflictError("This recording has already stopped.")
+        if not self.has_system and not enabled:
+            raise ValidationError(
+                "This recording is microphone-only, so it cannot be muted. Start a "
+                "System audio + Mic recording to toggle the microphone live."
+            )
+        self.mic_enabled = enabled
+        if enabled:
+            # A previous permission/device failure must not block a fresh attempt.
+            self.mic_denied = False
+            self.mic_error = None
+        self.save_meta(
+            mic_enabled=enabled, mic_error=None if enabled else self.mic_error
+        )
+
     # -- capture pipeline ----------------------------------------------------
 
     def _capture(self) -> None:
-        """Writer thread: owns the WAV file and consumes the reader queues."""
+        """Writer thread: owns the WAV files and consumes the reader queues."""
         try:
-            self.wave_file = wave.open(str(self.wav_path), "wb")
-            self.wave_file.setnchannels(self.channels)
-            self.wave_file.setsampwidth(2)
-            self.wave_file.setframerate(self.sample_rate)
-            self.queues = [queue.Queue(maxsize=QUEUE_BLOCKS) for _ in self.inputs]
-            self.readers = [
-                threading.Thread(
-                    target=self._read,
-                    name=f"system-audio-{self.id}-capture",
-                    daemon=True,
-                )
-            ]
-            for reader in self.readers:
-                reader.start()
+            self._open_wave()
+            self.reader = threading.Thread(
+                target=self._read,
+                name=f"system-audio-{self.id}-capture",
+                daemon=True,
+            )
+            self.reader.start()
             self._write_loop()
         except Exception as exc:  # pragma: no cover - device/driver specific
             self.error = self.error or f"Recording stopped: {exc}"
@@ -421,10 +493,37 @@ class _ActiveRecording:
         finally:
             self.stop_event.set()
             self.level = 0.0
-            self._close_wave()
+            self._finish_segment()
+
+    def _safe_meta(self, **changes: Any) -> None:
+        """Persist state from the audio thread without ever stopping capture."""
+        try:
+            self.save_meta(**changes)
+        except Exception:  # pragma: no cover - disk hiccup
+            pass
+
+    def _register_stream(self, role: str) -> None:
+        with self.stream_lock:
+            self.streams[role] = queue.Queue(maxsize=QUEUE_BLOCKS)
+
+    def _drop_stream(self, role: str) -> None:
+        with self.stream_lock:
+            self.streams.pop(role, None)
+
+    def _open_device(self, capture: _CaptureInput, role: str) -> Any:
+        recorder = capture.device.recorder(
+            samplerate=self.sample_rate,
+            channels=self.channels,
+            blocksize=BUFFER_FRAMES,
+        )
+        recorder.__enter__()
+        self.dropped += self._drain_backlog(recorder)
+        recorder._poll_mode = True
+        self._register_stream(role)
+        return recorder
 
     def _read(self) -> None:
-        """Reader thread: hand every device the same 10 ms block, every 10 ms.
+        """Reader thread: hand every open device the same 10 ms block, every 10 ms.
 
         One thread for all devices keeps them sample-aligned: each tick
         contributes exactly one block per input. A thread per device drifts and
@@ -432,87 +531,117 @@ class _ActiveRecording:
         blocks - a voice heard on both then cancels and returns, and that is
         audible as scratching.
 
-        Reads are polled rather than blocking, and the tick is paced by the
-        wall clock. A blocking read lets one device (a quiet loopback, a mic
-        that pauses) hold up the others; the lagging device then overflows its
-        buffer and audio is lost. Polling keeps the clock honest and the disk
-        writer in its own thread, so a slow write can never interrupt a read.
+        The microphone is opened and closed *inside* this loop so it can be
+        toggled mid-recording: the system stream keeps ticking at exactly the
+        same pace whether the microphone is on or off.
         """
+        recorders: dict[str, Any] = {}
+        filters: dict[str, _Highpass | None] = {}
+        pending: dict[str, np.ndarray] = {}
         drained = 0
         try:
-            with ExitStack() as stack:
-                recorders = [
-                    stack.enter_context(
-                        capture.device.recorder(
-                            samplerate=self.sample_rate,
-                            channels=self.channels,
-                            blocksize=BUFFER_FRAMES,
-                        )
-                    )
-                    for capture in self.inputs
-                ]
-                for recorder in recorders:
-                    # Start near-live: whatever the device buffered before we
-                    # opened it is stale and would only delay this stream.
-                    self.dropped += self._drain_backlog(recorder)
-                    recorder._poll_mode = True
-                filters = [
+            for capture in self.inputs:
+                try:
+                    recorders[capture.role] = self._open_device(capture, capture.role)
+                except Exception as exc:
+                    if capture.role == "mic":
+                        self.mic_error = f"Microphone unavailable: {exc}"
+                        self.mic_enabled = False
+                        self.mic_denied = True
+                        continue
+                    raise
+                filters[capture.role] = (
                     _Highpass(self.sample_rate) if capture.highpass else None
-                    for capture in self.inputs
-                ]
-                pending = [
-                    np.zeros((0, self.channels), dtype=np.float32) for _ in recorders
-                ]
-                tick = BLOCK_FRAMES / float(self.sample_rate)
-                next_tick = time.perf_counter()
-                while True:
-                    stopping = self.stop_event.is_set()
-                    if stopping and drained >= DRAIN_TICKS:
-                        break
-                    pending = self._collect(recorders, pending)
-                    for index in range(len(recorders)):
-                        block, pending[index] = self._take(pending[index])
-                        highpass = filters[index]
-                        if highpass is not None:
-                            block = highpass.process(block)
-                        try:
-                            self.queues[index].put_nowait(block)
-                        except queue.Full:
-                            self.dropped += 1
-                    if stopping:
-                        drained += 1
-                    next_tick += tick
-                    delay = next_tick - time.perf_counter()
-                    if delay > 0:
-                        time.sleep(delay)
-                    elif delay < -1.0:
-                        # Far behind (suspend, heavy load): do not try to replay
-                        # the lost wall time as audio.
-                        next_tick = time.perf_counter()
+                )
+                pending[capture.role] = np.zeros((0, self.channels), dtype=np.float32)
+
+            tick = BLOCK_FRAMES / float(self.sample_rate)
+            next_tick = time.perf_counter()
+            while True:
+                stopping = self.stop_event.is_set()
+                if stopping and drained >= DRAIN_TICKS:
+                    break
+                self._sync_microphone(recorders, filters, pending)
+                for role, recorder in list(recorders.items()):
+                    pending[role] = self._collect(recorder, pending[role])
+                    block, pending[role] = self._take(pending[role])
+                    highpass = filters.get(role)
+                    if highpass is not None:
+                        block = highpass.process(block)
+                    sink = self.streams.get(role)
+                    if sink is None:
+                        continue
+                    try:
+                        sink.put_nowait(block)
+                    except queue.Full:
+                        self.dropped += 1
+                if stopping:
+                    drained += 1
+                next_tick += tick
+                delay = next_tick - time.perf_counter()
+                if delay > 0:
+                    time.sleep(delay)
+                elif delay < -1.0:
+                    # Far behind (suspend, heavy load): do not try to replay
+                    # the lost wall time as audio.
+                    next_tick = time.perf_counter()
         except Exception as exc:  # pragma: no cover - device/driver specific
             self.error = self.error or f"Recording stopped: {exc}"
             self.stop_event.set()
+        finally:
+            for recorder in recorders.values():
+                try:
+                    recorder.__exit__(None, None, None)
+                except Exception:  # pragma: no cover - device teardown
+                    pass
 
-    def _collect(
-        self, recorders: list[Any], pending: list[np.ndarray]
-    ) -> list[np.ndarray]:
-        """Append whatever each device has ready to its pending buffer."""
-        for index, recorder in enumerate(recorders):
-            chunk = np.asarray(recorder.record(numframes=None), dtype=np.float32)
-            if chunk.size == 0:
-                continue
-            chunk = self._widen(chunk)
-            pending[index] = (
-                chunk
-                if not len(pending[index])
-                else np.concatenate([pending[index], chunk], axis=0)
-            )
-            if len(pending[index]) > MAX_PENDING_FRAMES:
-                # Kept only when a device clock runs fast; drop the oldest audio
-                # so the delay does not grow without bound.
-                pending[index] = pending[index][-MAX_PENDING_FRAMES:].copy()
-                self.dropped += 1
-        return pending
+    def _sync_microphone(
+        self,
+        recorders: dict[str, Any],
+        filters: dict[str, _Highpass | None],
+        pending: dict[str, np.ndarray],
+    ) -> None:
+        """Open the microphone when the user turns it on, close it when off."""
+        if self.mic_enabled and "mic" not in recorders and not self.mic_denied:
+            try:
+                device, _name = _microphone_device()
+                recorders["mic"] = self._open_device(
+                    _CaptureInput(device, _name, "mic"), "mic"
+                )
+            except ServiceUnavailableError as exc:
+                self.mic_error = f"Microphone unavailable: {exc}"
+                self.mic_enabled = False
+                self.mic_denied = True
+                self._safe_meta(mic_enabled=False, mic_error=self.mic_error)
+                return
+            filters["mic"] = _Highpass(self.sample_rate)
+            pending["mic"] = np.zeros((0, self.channels), dtype=np.float32)
+            self.mic_error = None
+            self._safe_meta(mic_enabled=True, mic_error=None)
+        elif not self.mic_enabled and "mic" in recorders:
+            if self.has_system:
+                try:
+                    recorders["mic"].__exit__(None, None, None)
+                except Exception:  # pragma: no cover - device teardown
+                    pass
+                recorders.pop("mic", None)
+                filters.pop("mic", None)
+                pending.pop("mic", None)
+                self._drop_stream("mic")
+
+    def _collect(self, recorder: Any, pending: np.ndarray) -> np.ndarray:
+        """Append whatever a device has ready to its pending buffer."""
+        chunk = np.asarray(recorder.record(numframes=None), dtype=np.float32)
+        if chunk.size == 0:
+            return pending
+        chunk = self._widen(chunk)
+        merged = chunk if not len(pending) else np.concatenate([pending, chunk], axis=0)
+        if len(merged) > MAX_PENDING_FRAMES:
+            # Kept only when a device clock runs fast; drop the oldest audio
+            # so the delay does not grow without bound.
+            merged = merged[-MAX_PENDING_FRAMES:].copy()
+            self.dropped += 1
+        return merged
 
     def _take(self, pending: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Cut one block off a pending buffer, padding if the device is late."""
@@ -539,36 +668,35 @@ class _ActiveRecording:
     def _write_loop(self) -> None:
         self._await_prefill()
         fade = min(FADE_FRAMES, BLOCK_FRAMES)
-        first_block = True
         while True:
-            readers_done = not any(reader.is_alive() for reader in self.readers)
-            if (
-                self.stop_event.is_set()
-                and readers_done
-                and all(sink.empty() for sink in self.queues)
-            ):
+            readers_done = self.reader is None or not self.reader.is_alive()
+            idle = all(sink.empty() for sink in list(self.streams.values()))
+            if self.stop_event.is_set() and readers_done and idle:
                 break
             blocks = self._pull_blocks()
             samples = self._mix(blocks)
-            if first_block and len(samples):
+            if self.fade_next and len(samples):
                 self._fade(samples, fade, fade_in=True)
-                first_block = False
-            if (
-                self.stop_event.is_set()
-                and readers_done
-                and all(sink.empty() for sink in self.queues)
-                and len(samples)
-            ):
+                self.fade_next = False
+            if self.stop_event.is_set() and readers_done and idle and len(samples):
                 self._fade(samples, fade, fade_in=False)
             peak = float(np.max(np.abs(samples))) if samples.size else 0.0
             rms = float(np.sqrt(np.mean(samples * samples))) if samples.size else 0.0
             self.peak = max(self.peak, peak)
             self.max_rms = max(self.max_rms, rms)
             self.level = min(1.0, peak)
-            pcm = (np.clip(samples, -1.0, 1.0) * 32767.0).astype("<i2")
-            assert self.wave_file is not None
-            self.wave_file.writeframes(pcm.tobytes())
-            self.frames += len(samples)
+            if len(samples):
+                pcm = (np.clip(samples, -1.0, 1.0) * 32767.0).astype("<i2")
+                assert self.wave_file is not None
+                self.wave_file.writeframes(pcm.tobytes())
+                self.frames += len(samples)
+                self.segment_frames += len(samples)
+                if (
+                    self.segment_seconds
+                    and self.segment_frames >= self.segment_seconds * self.sample_rate
+                    and not self.stop_event.is_set()
+                ):
+                    self._roll_segment()
             if self.elapsed >= MAX_SECONDS:
                 self.stop_event.set()
                 break
@@ -581,16 +709,20 @@ class _ActiveRecording:
         """
         deadline = time.monotonic() + 3.0
         while time.monotonic() < deadline and not self.stop_event.is_set():
-            if all(sink.qsize() >= PREFILL_BLOCKS for sink in self.queues):
+            with self.stream_lock:
+                sinks = list(self.streams.values())
+            if sinks and all(sink.qsize() >= PREFILL_BLOCKS for sink in sinks):
                 return
-            if not any(reader.is_alive() for reader in self.readers):
+            if self.reader is None or not self.reader.is_alive():
                 return
             time.sleep(0.005)
 
     def _pull_blocks(self) -> list[np.ndarray]:
         blocks: list[np.ndarray] = []
         empty = np.zeros((BLOCK_FRAMES, self.channels), dtype=np.float32)
-        for sink in self.queues:
+        with self.stream_lock:
+            sinks = list(self.streams.values())
+        for sink in sinks:
             if sink.qsize() > RESYNC_BLOCKS:
                 # A real clock difference between the devices, not jitter: keep
                 # the backlog short instead of letting the streams slide apart.
@@ -615,7 +747,7 @@ class _ActiveRecording:
         If both are loud at once the block is scaled back instead of clipping.
         """
         if not blocks:
-            return np.zeros((0, self.channels), dtype=np.float32)
+            return np.zeros((BLOCK_FRAMES, self.channels), dtype=np.float32)
         if len(blocks) == 1:
             mixed = blocks[0]
         else:
@@ -651,21 +783,120 @@ class _ActiveRecording:
             return np.tile(block, (1, repeats))[:, : self.channels]
         return block
 
-    def _close_wave(self) -> None:
+    # -- segmentation --------------------------------------------------------
+
+    def _open_wave(self) -> None:
+        name = (
+            f"audio-{self.segment_index + 1:02d}.wav"
+            if self.segment_seconds
+            else "audio.wav"
+        )
+        path = self.directory / name
+        handle = wave.open(str(path), "wb")
+        handle.setnchannels(self.channels)
+        handle.setsampwidth(2)
+        handle.setframerate(self.sample_rate)
+        self.segment_index += 1
+        self.wave_file = handle
+        self.wave_path = path
+        self.segment_frames = 0
+        self.fade_next = True
+
+    def _roll_segment(self) -> None:
+        """Close the full segment, queue its compression, and carry on."""
+        self._finish_segment()
+        if not self.stop_event.is_set():
+            self._open_wave()
+
+    def _finish_segment(self) -> None:
+        handle = self.wave_file
+        if handle is None:
+            return
+        path = self.wave_path
+        frames = self.segment_frames
         try:
-            if self.wave_file is not None:
-                self.wave_file.close()
-        except Exception:
+            handle.close()
+        except Exception:  # pragma: no cover - already closed
             pass
         self.wave_file = None
+        self.wave_path = None
+        self.segment_frames = 0
+        if path is None or not path.exists():
+            return
+        try:
+            size = path.stat().st_size
+        except OSError:
+            return
+        if size <= 44 or frames <= 0:
+            # Nothing was written (a start that failed before audio arrived).
+            try:
+                path.unlink(missing_ok=True)
+            except OSError:
+                pass
+            return
+        entry = {
+            "index": self.segment_index,
+            "file": path.name,
+            "duration_seconds": round(frames / float(self.sample_rate), 2),
+            "wav_bytes": size,
+            "mp3_bytes": 0,
+            "speech_bytes": 0,
+            "status": "compressing",
+            "error": None,
+        }
+        self.segments.append(entry)
+        self.compress_queue.put((len(self.segments) - 1, path))
+        self.save_meta(segments=list(self.segments))
+
+    def _compress_loop(self) -> None:
+        """Compress finished segments in the background, in order."""
+        while True:
+            item = self.compress_queue.get()
+            if item is None:
+                return
+            position, path = item
+            self.compressing += 1
+            try:
+                mp3_path = path.with_suffix(".mp3")
+                mp3_bytes = _encode_mp3(path, mp3_path, bit_rate=160)
+                speech_path = path.with_name(f"{path.stem}.speech.mp3")
+                speech_bytes = _encode_mp3(
+                    path, speech_path, bit_rate=64, downmix_mono=True
+                )
+                self._update_segment(
+                    position,
+                    status="compressed",
+                    mp3_bytes=mp3_bytes,
+                    speech_bytes=speech_bytes,
+                    error=None,
+                )
+            except Exception as exc:  # pragma: no cover - encoder dependent
+                self.compress_error = f"Compression failed: {exc}"
+                self._update_segment(
+                    position, status="failed", error=f"Compression failed: {exc}"
+                )
+            finally:
+                self.compressing -= 1
+
+    def _update_segment(self, position: int, **changes: Any) -> None:
+        if 0 <= position < len(self.segments):
+            self.segments[position].update(changes)
+            self.save_meta(segments=list(self.segments))
+
+    def wait_for_compression(self, timeout: float = 1800.0) -> None:
+        compressor = self.compressor
+        if compressor is None:
+            return
+        self.compress_queue.put(None)
+        compressor.join(timeout=timeout)
 
     def stop(self) -> None:
         self.stop_event.set()
         if self.thread is not None:
             self.thread.join(timeout=8.0)
-        for reader in self.readers:
-            reader.join(timeout=2.0)
-        self._close_wave()
+        if self.reader is not None:
+            self.reader.join(timeout=2.0)
+        self._finish_segment()
 
 
 def _encode_mp3(
@@ -712,6 +943,7 @@ class SystemAudioManager:
         sample_rate: int = 48000,
         channels: int = 2,
         source: str = "both",
+        segment_seconds: int = 0,
     ) -> dict[str, Any]:
         with self._lock:
             if self._active is not None and not self._active.finalized:
@@ -733,6 +965,7 @@ class SystemAudioManager:
                 sample_rate=sample_rate,
                 channels=channels,
                 source=resolved_source,
+                segment_seconds=max(0, min(MAX_SEGMENT_SECONDS, int(segment_seconds))),
             )
             try:
                 recording.start()
@@ -750,6 +983,9 @@ class SystemAudioManager:
                 "channels": recording.channels,
                 "device": recording.device,
                 "source": recording.source,
+                "segment_seconds": recording.segment_seconds,
+                "mic_enabled": recording.mic_enabled,
+                "mic_error": recording.mic_error,
                 "max_seconds": MAX_SECONDS,
             }
 
@@ -772,6 +1008,14 @@ class SystemAudioManager:
             "sample_rate": active.sample_rate,
             "channels": active.channels,
             "max_seconds": MAX_SECONDS,
+            "segment_seconds": active.segment_seconds,
+            "segments_completed": len(active.segments),
+            "segment_elapsed_seconds": round(
+                active.segment_frames / float(active.sample_rate), 2
+            ),
+            "compressing": active.compressing,
+            "mic_enabled": active.mic_enabled,
+            "mic_error": active.mic_error,
             "error": active.error,
         }
 
@@ -791,36 +1035,24 @@ class SystemAudioManager:
             if recording.finalized:
                 return
             recording.stop()
-            status = "ready" if not recording.error else "failed"
-            wav_bytes = (
-                recording.wav_path.stat().st_size if recording.wav_path.exists() else 0
-            )
-            mp3_bytes = 0
-            error = recording.error
+            # Compression of the finished parts runs in a background thread so
+            # it never interrupts capture. A stop waits for it, so the sizes the
+            # user sees before saving or sharing are the real final sizes.
+            recording.wait_for_compression()
+            wav_bytes = recording.wav_bytes()
+            mp3_bytes = recording.mp3_bytes()
+            error = recording.error or recording.compress_error
             # Peak alone is not enough: one click in an otherwise silent file
             # would mark it as containing audio. Use the loudest 10 ms block.
             silent = recording.max_rms < 3e-4
-            if wav_bytes > 44:
-                try:
-                    mp3_bytes = _encode_mp3(
-                        recording.wav_path,
-                        recording.directory / "audio.mp3",
-                        bit_rate=160,
-                    )
-                    _encode_mp3(
-                        recording.wav_path,
-                        recording.directory / "speech.mp3",
-                        bit_rate=64,
-                        downmix_mono=True,
-                    )
-                except Exception as exc:  # pragma: no cover - encoder dependent
-                    error = f"MP3 encoding failed: {exc}"
-                    status = "failed"
-            else:
+            status = "ready" if not recording.error else "failed"
+            if wav_bytes <= 44:
                 status = "failed"
                 error = (
                     error or "Nothing was captured. Is audio playing on this device?"
                 )
+            elif any(part.get("status") == "failed" for part in recording.segments):
+                error = error or "Some parts could not be compressed to MP3."
             recording.finalized = True
             recording.save_meta(
                 status=status,
@@ -830,6 +1062,10 @@ class SystemAudioManager:
                 mp3_bytes=mp3_bytes,
                 silent=silent,
                 error=error,
+                segments=list(recording.segments),
+                compressing=0,
+                mic_enabled=recording.mic_enabled,
+                mic_error=recording.mic_error,
             )
 
     # -- library -------------------------------------------------------------
@@ -855,11 +1091,48 @@ class SystemAudioManager:
 
     def path_for(self, recording_id: str, fmt: str) -> Path:
         directory = self._directory(recording_id)
-        name = "audio.wav" if fmt == "wav" else "audio.mp3"
-        path = directory / name
-        if not path.exists():
-            raise NotFoundError("Recording file", f"{recording_id}.{fmt}")
-        return path
+        path = directory / ("audio.wav" if fmt == "wav" else "audio.mp3")
+        if path.exists():
+            return path
+        # Segmented recordings keep one file per part; the first part stands in
+        # for "the recording" when a client asks for a single file.
+        for entry in self.get(recording_id).get("segments") or []:
+            stem = Path(str(entry.get("file") or "")).stem
+            candidate = directory / f"{stem}.{fmt}"
+            if candidate.exists():
+                return candidate
+        raise NotFoundError("Recording file", f"{recording_id}.{fmt}")
+
+    def path_for_segment(self, recording_id: str, index: int, fmt: str) -> Path:
+        if index < 1:
+            raise ValidationError("Segment numbers start at 1.")
+        directory = self._directory(recording_id)
+        candidate = directory / f"audio-{index:02d}.{fmt}"
+        if not candidate.exists():
+            raise NotFoundError(
+                "Recording part", f"{recording_id} part {index} ({fmt})"
+            )
+        return candidate
+
+    def _delivery_files(
+        self, recording_id: str, formats: list[str]
+    ) -> list[tuple[str, Path]]:
+        """The exact files to copy or send, in part order."""
+        directory = self._directory(recording_id)
+        meta = self.get(recording_id)
+        files: list[tuple[str, Path]] = []
+        for entry in meta.get("segments") or []:
+            stem = Path(str(entry.get("file") or "audio.wav")).stem
+            for fmt in formats:
+                path = directory / f"{stem}.{fmt}"
+                if path.exists():
+                    files.append((path.name, path))
+        if not files:
+            for fmt in formats:
+                path = directory / f"audio.{fmt}"
+                if path.exists():
+                    files.append((path.name, path))
+        return files
 
     def delete(self, recording_id: str) -> None:
         active = self._active
@@ -878,6 +1151,195 @@ class SystemAudioManager:
             raise NotFoundError("Recording", recording_id)
         return directory
 
+    def set_microphone(self, enabled: bool) -> dict[str, Any]:
+        """Turn the microphone on or off while system audio keeps recording."""
+        active = self._active
+        if active is None or active.finalized:
+            raise ConflictError("Start a recording before toggling the microphone.")
+        active.set_microphone(enabled)
+        return self.status()
+
+    # -- delivery ------------------------------------------------------------
+
+    def deliver(
+        self,
+        recording_id: str,
+        *,
+        folder: str | None = None,
+        create_folder: bool = True,
+        whatsapp: str | None = None,
+        email: str | None = None,
+        formats: list[str] | None = None,
+        include_summary: bool = True,
+        note: str | None = None,
+    ) -> dict[str, Any]:
+        """Save to a folder and/or prepare WhatsApp and email hand-offs.
+
+        A folder copy happens here, on the machine running the backend. WhatsApp
+        and email need the user's own app (a browser cannot attach a file to a
+        wa.me or mailto link), so those return an actionable link plus the file
+        names to attach - the documented fallback rather than a silent failure.
+        """
+        meta = self._finalize_if_needed(recording_id)
+        wanted = [f for f in (formats or ["mp3"]) if f in {"wav", "mp3"}] or ["mp3"]
+        files = self._delivery_files(recording_id, wanted)
+        if not files:
+            raise ValidationError(
+                "This recording has no finished audio files to deliver yet."
+            )
+        if folder is None and not whatsapp and not email:
+            raise ValidationError(
+                "Choose at least one destination: a folder, WhatsApp or email."
+            )
+        results: list[dict[str, Any]] = []
+        if folder is not None:
+            results.append(self._deliver_folder(files, folder, create_folder))
+        if whatsapp:
+            results.append(
+                self._deliver_link(
+                    "whatsapp", files, whatsapp, meta, include_summary, note
+                )
+            )
+        if email:
+            results.append(
+                self._deliver_link("email", files, email, meta, include_summary, note)
+            )
+        return {
+            "recording_id": recording_id,
+            "label": meta.get("label"),
+            "files": [
+                {"name": name, "bytes": path.stat().st_size} for name, path in files
+            ],
+            "results": results,
+        }
+
+    def _deliver_folder(
+        self, files: list[tuple[str, Path]], folder: str, create_folder: bool
+    ) -> dict[str, Any]:
+        raw = (folder or "").strip()
+        if not raw:
+            raise ValidationError("Enter the folder where the recordings should go.")
+        target = Path(raw).expanduser()
+        if not target.is_absolute():
+            raise ValidationError(
+                "Enter an absolute folder path, for example "
+                r"C:\Users\You\Music\Penrose recordings."
+            )
+        try:
+            if not target.exists():
+                if not create_folder:
+                    raise ValidationError(
+                        f'{target} does not exist. Tick "Create the folder" to make it.'
+                    )
+                target.mkdir(parents=True, exist_ok=True)
+            if not target.is_dir():
+                raise ValidationError(f"{target} is a file, not a folder.")
+        except ValidationError:
+            raise
+        except OSError as exc:
+            raise ServiceUnavailableError(
+                f"Could not open {target}: {exc}. Check the path and permissions."
+            ) from exc
+        saved: list[dict[str, Any]] = []
+        failed: list[dict[str, Any]] = []
+        for name, path in files:
+            destination = target / name
+            try:
+                shutil.copy2(path, destination)
+                saved.append(
+                    {
+                        "name": name,
+                        "path": str(destination),
+                        "bytes": destination.stat().st_size,
+                    }
+                )
+            except OSError as exc:
+                failed.append({"name": name, "error": str(exc)})
+        status = "saved" if saved and not failed else ("partial" if saved else "failed")
+        detail = (
+            f"Saved {len(saved)} file(s) to {target}."
+            if saved and not failed
+            else (
+                f"Saved {len(saved)} file(s); {len(failed)} could not be copied."
+                if saved
+                else f"Nothing could be saved to {target}."
+            )
+        )
+        return {
+            "destination": "folder",
+            "status": status,
+            "folder": str(target),
+            "detail": detail,
+            "files": saved,
+            "failed": failed,
+        }
+
+    def _deliver_link(
+        self,
+        destination: str,
+        files: list[tuple[str, Path]],
+        address: str,
+        meta: dict[str, Any],
+        include_summary: bool,
+        note: str | None,
+    ) -> dict[str, Any]:
+        label = (meta.get("label") or "Penrose recording").strip()
+        total = sum(path.stat().st_size for _name, path in files)
+        lines = [label, ""]
+        if note and note.strip():
+            lines += [note.strip(), ""]
+        lines.append(
+            "Recording: "
+            f"{round(float(meta.get('duration_seconds') or 0) / 60, 1)} min, "
+            f"{len(files)} file(s), {total / (1024 * 1024):.1f} MB."
+        )
+        if include_summary:
+            summary = (meta.get("summary") or "").strip()
+            if summary:
+                lines += ["", summary[:1800]]
+        lines += ["", "Files: " + ", ".join(name for name, _ in files)]
+        body = "\n".join(lines)
+
+        if destination == "email":
+            target = (address or "").strip()
+            if not EMAIL_PATTERN.match(target):
+                raise ValidationError(
+                    "Enter a valid email address, for example name@example.com."
+                )
+            subject = quote(f"Penrose recording — {label}")
+            link = f"mailto:{quote(target)}?subject={subject}&body={quote(body)}"
+            detail = (
+                "Email needs your mail app, which a web page cannot open with a "
+                "file attached. The files were prepared; open the link, then attach them."
+            )
+            return {
+                "destination": "email",
+                "status": "action_required",
+                "address": target,
+                "link": link,
+                "files": [name for name, _ in files],
+                "detail": detail,
+            }
+
+        digits = re.sub(r"\D", "", address or "")
+        if not 8 <= len(digits) <= 15:
+            raise ValidationError(
+                "Enter a WhatsApp number with its country code, for example +265 991 123 456."
+            )
+        link = f"https://wa.me/{digits}?text={quote(body)}"
+        detail = (
+            "WhatsApp needs its own app to attach a file. The chat opens with the "
+            "message; attach the downloaded files."
+        )
+        return {
+            "destination": "whatsapp",
+            "status": "action_required",
+            "address": f"+{digits}",
+            "link": link,
+            "files": [name for name, _ in files],
+            "detail": detail,
+        }
+
     # -- AI ------------------------------------------------------------------
 
     def transcribe(
@@ -885,20 +1347,32 @@ class SystemAudioManager:
     ) -> dict[str, Any]:
         meta = self._finalize_if_needed(recording_id)
         directory = self._directory(recording_id)
-        source = directory / "speech.mp3"
-        if not source.exists():
-            source = directory / "audio.mp3"
-        if not source.exists():
+        sources = self._speech_sources(recording_id)
+        if not sources:
             raise ValidationError("This recording has no audio to transcribe.")
-        if source.stat().st_size > STT_BYTES_LIMIT:
-            raise ValidationError(
-                "This recording is too long for one transcription request "
-                "(about 50 minutes of MP3). Split it into shorter recordings."
+        parts: list[str] = []
+        provider: str | None = None
+        model: str | None = None
+        for index, source in enumerate(sources, start=1):
+            if source.stat().st_size > STT_BYTES_LIMIT:
+                raise ValidationError(
+                    f"{source.name} is too long for one transcription request "
+                    "(about 50 minutes of MP3). Use a shorter segment length so "
+                    "each part stays under the limit."
+                )
+            result = SpeechService().transcribe(
+                source.read_bytes(), "audio/mpeg", language=language
             )
-        result = SpeechService().transcribe(
-            source.read_bytes(), "audio/mpeg", language=language
-        )
-        transcript = (result.get("transcript") or "").strip()
+            transcript_part = (result.get("transcript") or "").strip()
+            provider = provider or result.get("provider")
+            model = model or result.get("model")
+            if transcript_part:
+                parts.append(
+                    transcript_part
+                    if len(sources) == 1
+                    else f"[Part {index}]\n{transcript_part}"
+                )
+        transcript = "\n\n".join(parts).strip()
         if not transcript:
             raise ServiceUnavailableError("Transcription returned no text.")
         (directory / "transcript.txt").write_text(transcript, encoding="utf-8")
@@ -906,11 +1380,34 @@ class SystemAudioManager:
             recording_id,
             status="transcribed",
             transcript=transcript,
-            provider=result.get("provider"),
-            model=result.get("model"),
+            provider=provider,
+            model=model,
             error=None,
         )
         return meta
+
+    def _speech_sources(self, recording_id: str) -> list[Path]:
+        """The compressed speech files for a recording, one per part."""
+        directory = self._directory(recording_id)
+        segments = self.get(recording_id).get("segments") or []
+        sources: list[Path] = []
+        if segments:
+            for entry in segments:
+                stem = Path(str(entry.get("file") or "audio.wav")).stem
+                for candidate in (
+                    directory / f"{stem}.speech.mp3",
+                    directory / f"{stem}.mp3",
+                ):
+                    if candidate.exists():
+                        sources.append(candidate)
+                        break
+            return sources
+        for name in ("speech.mp3", "audio.speech.mp3", "audio.mp3"):
+            candidate = directory / name
+            if candidate.exists():
+                sources.append(candidate)
+                break
+        return sources
 
     async def summarize(
         self,

@@ -318,7 +318,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
         child: const Row(
           children: [
-            PenroseTriangle(size: 44),
+            PenroseLogo(size: 44),
             SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -336,7 +336,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
   Widget _buildSidebarLogoCompact() => Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: const Center(
-          child: PenroseTriangle(size: 44),
+          child: PenroseLogo(size: 44),
         ),
       );
 

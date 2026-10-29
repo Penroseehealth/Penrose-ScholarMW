@@ -42,8 +42,28 @@ class _SystemRecorderPageState extends State<SystemRecorderPage> {
 
   /// What the recording captures: system audio, the microphone, or both.
   String _source = 'both';
+
+  /// 0 keeps one file for the whole session; otherwise each part is this many
+  /// minutes long (10/15/20/25/30 as offered in the picker).
+  int _segmentMinutes = 0;
+  bool _micBusy = false;
   String? _playingId;
+  String? _playingKey;
+  String? _defaultFolder;
   bool _loading = true;
+
+  // Save & share state.
+  final TextEditingController _folder = TextEditingController();
+  final TextEditingController _phone = TextEditingController();
+  final TextEditingController _emailTo = TextEditingController();
+  final TextEditingController _note = TextEditingController();
+  bool _toFolder = false;
+  bool _toWhatsapp = false;
+  bool _toEmail = false;
+  bool _createFolder = true;
+  bool _includeSummary = true;
+  String _format = 'mp3';
+  Map<String, dynamic>? _delivery;
 
   static const Map<String, String> _styles = {
     'minutes': 'Meeting minutes',
@@ -60,6 +80,7 @@ class _SystemRecorderPageState extends State<SystemRecorderPage> {
   void initState() {
     super.initState();
     _refresh();
+    _loadDeliveryDefaults();
     _poll = Timer.periodic(const Duration(seconds: 1), (_) => _pollStatus());
     _playerPoll = Timer.periodic(const Duration(milliseconds: 400), (_) {
       if (_playingId != null && mounted) setState(() {});
@@ -72,6 +93,10 @@ class _SystemRecorderPageState extends State<SystemRecorderPage> {
     _playerPoll?.cancel();
     _player.dispose();
     _label.dispose();
+    _folder.dispose();
+    _phone.dispose();
+    _emailTo.dispose();
+    _note.dispose();
     super.dispose();
   }
 
@@ -129,14 +154,17 @@ class _SystemRecorderPageState extends State<SystemRecorderPage> {
           'sample_rate': 48000,
           'channels': 2,
           'source': _source,
+          'segment_seconds': _segmentMinutes * 60,
         },
       );
       if (!mounted) return;
       setState(() {
         _busy = null;
         _status = {...started, 'active': true, 'elapsed_seconds': 0.0, 'level': 0.0};
-        _notice = 'Recording ${started['device'] ?? 'system audio'}. Minimise this tab if you like; '
-            'keep the app open so the backend stays running.';
+        _delivery = null;
+        _notice = 'Recording ${started['device'] ?? 'system audio'}'
+            '${_segmentMinutes == 0 ? '' : ' in $_segmentMinutes-minute parts'}. '
+            'Minimise this tab if you like; keep the app open so the backend stays running.';
       });
     } catch (e) {
       if (!mounted) return;
@@ -157,16 +185,206 @@ class _SystemRecorderPageState extends State<SystemRecorderPage> {
       if (!mounted) return;
       final duration = _clock((stopped['duration_seconds'] as num?)?.toDouble() ?? 0);
       final silent = stopped['silent'] == true;
+      final parts = (stopped['segments'] as List? ?? const []).length;
+      final mp3 = _size(stopped['mp3_bytes']);
       setState(() {
         _busy = null;
         _status = {'active': false};
         _selected = stopped;
+        _delivery = null;
         _notice = silent
             ? 'Saved $duration as WAV and MP3, but it is completely silent. Nothing was playing and the '
                 'microphone heard nothing — pick "System + mic" above, check the volume, and try again.'
-            : 'Saved $duration of audio as WAV and MP3.';
+            : 'Saved $duration in ${parts > 1 ? '$parts parts' : 'one file'} — compressed to $mp3 of MP3. '
+                'Choose where it should go below.';
       });
       await _refresh();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _busy = null;
+        _error = _message(e);
+      });
+    }
+  }
+
+  Future<void> _loadDeliveryDefaults() async {
+    try {
+      final defaults = await widget.apiClient.get('/system-audio/default-folder');
+      final folder = defaults['folder'] as String?;
+      if (!mounted || folder == null) return;
+      setState(() {
+        _defaultFolder = folder;
+        if (_folder.text.trim().isEmpty) _folder.text = folder;
+      });
+    } catch (_) {
+      // A missing suggestion is harmless; the user can type a path.
+    }
+  }
+
+  List<Map<String, dynamic>> _segments(Map<String, dynamic> rec) =>
+      (rec['segments'] as List? ?? const []).whereType<Map<String, dynamic>>().toList();
+
+  /// Turn the microphone on or off while system audio keeps recording.
+  Future<void> _toggleMic(bool enable) async {
+    setState(() {
+      _micBusy = true;
+      _error = null;
+    });
+    try {
+      final status = await widget.apiClient.post(
+        '/system-audio/microphone',
+        body: {'enabled': enable},
+      );
+      if (!mounted) return;
+      setState(() {
+        _micBusy = false;
+        _status = status;
+        final micError = status['mic_error'] as String?;
+        if (micError != null && micError.isNotEmpty) {
+          _error = micError;
+        } else {
+          _notice =
+              enable ? 'Microphone added — system audio never stopped.' : 'Microphone muted; system audio continues.';
+        }
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _micBusy = false;
+        _error = _message(e);
+      });
+    }
+  }
+
+  String _fileUrl(Map<String, dynamic> rec, int index, String format) => index > 0
+      ? '/system-audio/recordings/${rec['id']}/segments/$index/audio?format=$format'
+      : '/system-audio/recordings/${rec['id']}/audio?format=$format';
+
+  Future<void> _playPart(Map<String, dynamic> rec, int index) async {
+    final key = '${rec['id']}#$index';
+    try {
+      if (_playingKey == key && _player.playing) {
+        _player.stop();
+        setState(() => _playingKey = null);
+        return;
+      }
+      final bytes = await widget.apiClient.getBytes(_fileUrl(rec, index, 'mp3'));
+      final result = _player.load(base64Encode(bytes), 'audio/mpeg');
+      if (!result.ok) throw AppException(result.error ?? 'This browser cannot play the MP3.');
+      _player.play();
+      if (mounted) setState(() => _playingKey = key);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _error = _message(e));
+    }
+  }
+
+  Future<bool> _downloadPart(Map<String, dynamic> rec, int index, String format) async {
+    try {
+      final bytes = await widget.apiClient.getBytes(_fileUrl(rec, index, format));
+      if (bytes.isEmpty) throw const AppException('The server returned an empty audio file.');
+      final label = (rec['label'] as String?)?.trim();
+      final stem =
+          (label == null || label.isEmpty ? 'penrose-recording' : label).replaceAll(RegExp(r'[^A-Za-z0-9 ._-]'), '-');
+      final suffix = index > 0 ? '-part${index.toString().padLeft(2, '0')}' : '';
+      final name = '$stem$suffix.${rec['id']}.$format';
+      final result = await _player.downloadBytes(
+        Uint8List.fromList(bytes),
+        name,
+        format == 'mp3' ? 'audio/mpeg' : 'audio/wav',
+      );
+      if (!result.ok) throw AppException(result.message ?? 'The browser refused the download.');
+      return true;
+    } catch (e) {
+      if (!mounted) return false;
+      setState(() => _error = _message(e));
+      return false;
+    }
+  }
+
+  /// WhatsApp and email cannot receive an attachment from a web page, so the
+  /// files are downloaded here and the chat/mail window opens ready to attach.
+  Future<int> _downloadAll(Map<String, dynamic> rec) async {
+    final parts = _segments(rec);
+    final count = parts.isEmpty ? 1 : parts.length;
+    var saved = 0;
+    for (var i = 1; i <= count; i++) {
+      if (await _downloadPart(rec, parts.isEmpty ? 0 : i, _format)) saved++;
+    }
+    return saved;
+  }
+
+  Future<void> _deliver(Map<String, dynamic> rec) async {
+    if (!_toFolder && !_toWhatsapp && !_toEmail) {
+      setState(() => _error = 'Tick at least one destination: a folder, WhatsApp or email.');
+      return;
+    }
+    if (_toFolder && _folder.text.trim().isEmpty) {
+      setState(() => _error = 'Enter the folder where the files should be saved.');
+      return;
+    }
+    if (_toWhatsapp && _phone.text.trim().isEmpty) {
+      setState(() => _error = 'Enter the WhatsApp number, including the country code.');
+      return;
+    }
+    if (_toEmail && _emailTo.text.trim().isEmpty) {
+      setState(() => _error = 'Enter the email address.');
+      return;
+    }
+    setState(() {
+      _busy = 'deliver';
+      _error = null;
+      _notice = null;
+      _delivery = null;
+    });
+    try {
+      final result = await widget.apiClient.post(
+        '/system-audio/recordings/${rec['id']}/deliver',
+        body: {
+          'folder': _toFolder ? _folder.text.trim() : null,
+          'create_folder': _createFolder,
+          'whatsapp': _toWhatsapp ? _phone.text.trim() : null,
+          'email': _toEmail ? _emailTo.text.trim() : null,
+          'formats': [_format],
+          'include_summary': _includeSummary,
+          'note': _note.text.trim().isEmpty ? null : _note.text.trim(),
+        },
+      );
+      if (!mounted) return;
+      setState(() {
+        _busy = null;
+        _delivery = result;
+      });
+      final results = (result['results'] as List? ?? const []).whereType<Map<String, dynamic>>().toList();
+      final links = results.where((r) => r['status'] == 'action_required' && (r['link'] as String?) != null).toList();
+      if (links.isNotEmpty) {
+        final saved = await _downloadAll(rec);
+        if (!mounted) return;
+        for (final entry in links) {
+          final launched = await launchUrl(
+            Uri.parse(entry['link'] as String),
+            mode: LaunchMode.externalApplication,
+          );
+          if (!launched && mounted) {
+            setState(() => _error =
+                'The browser blocked opening ${entry['destination'] == 'whatsapp' ? 'WhatsApp' : 'your email app'}. '
+                    'Use the link in the result below, then attach the $saved downloaded file(s).');
+          }
+        }
+        if (mounted) {
+          setState(() => _notice =
+              'The file(s) were prepared ($saved downloaded) for ${links.map((l) => l['destination']).join(' and ')}. '
+                  'Attach them in the window that opened.');
+        }
+      } else {
+        final savedFolders = results.where((r) => r['status'] == 'saved').length;
+        if (mounted) {
+          setState(() => _notice = savedFolders > 0
+              ? 'Files saved. Compression is finished, so the sizes shown are final.'
+              : 'Delivery finished — check the result below.');
+        }
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -328,90 +546,6 @@ class _SystemRecorderPageState extends State<SystemRecorderPage> {
     }
   }
 
-  String _shareBody(Map<String, dynamic> rec, String? note, bool includeSummary) {
-    final label = (rec['label'] as String?)?.trim();
-    final buffer = StringBuffer();
-    if (note != null && note.trim().isNotEmpty) {
-      buffer.writeln(note.trim());
-      buffer.writeln();
-    }
-    buffer.writeln(label == null || label.isEmpty ? 'Penrose ScholarMW recording' : label);
-    buffer.writeln(
-      'Length ${_clock(((rec['duration_seconds'] as num?) ?? 0).toDouble())} · '
-      'recorded ${_date(rec['started_at'])}',
-    );
-    final summary = (rec['summary'] as String?)?.trim();
-    if (includeSummary && summary != null && summary.isNotEmpty) {
-      buffer.writeln();
-      buffer.writeln(summary.length > 1800 ? '${summary.substring(0, 1800)}…' : summary);
-    }
-    buffer.writeln();
-    buffer.writeln('The MP3 was downloaded to this device — attach it to this message.');
-    return buffer.toString();
-  }
-
-  Future<void> _share(
-    Map<String, dynamic> rec, {
-    required _ShareTarget target,
-  }) async {
-    final result = await showDialog<_ShareDetails>(
-      context: context,
-      builder: (context) => _SharePromptDialog(
-        target: target,
-        recordingLabel:
-            (rec['label'] as String?)?.trim().isNotEmpty == true ? rec['label'] as String : 'this recording',
-        hasSummary: (rec['summary'] as String?)?.trim().isNotEmpty == true,
-      ),
-    );
-    if (result == null || !mounted) return;
-
-    setState(() {
-      _busy = 'share-${target.name}';
-      _error = null;
-      _notice = null;
-    });
-
-    try {
-      // Browsers cannot attach a local file to wa.me or mailto links, so the
-      // MP3 is saved first and the message tells the recipient to attach it.
-      final saved = await _save(rec, 'mp3');
-      if (!saved || !mounted) return;
-      final body = _shareBody(rec, result.note, result.includeSummary);
-      final Uri uri;
-      if (target == _ShareTarget.whatsapp) {
-        final digits = result.address.replaceAll(RegExp(r'[^0-9]'), '');
-        uri = Uri.https('wa.me', digits.isEmpty ? '/' : '/$digits', {'text': body});
-      } else {
-        final subject = (rec['label'] as String?)?.trim();
-        uri = Uri(
-          scheme: 'mailto',
-          path: result.address.trim(),
-          queryParameters: {
-            'subject': 'Penrose ScholarMW recording — ${subject == null || subject.isEmpty ? 'meeting' : subject}',
-            'body': body,
-          },
-        );
-      }
-      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
-      if (!mounted) return;
-      setState(() {
-        _busy = null;
-        _notice = launched
-            ? (target == _ShareTarget.whatsapp
-                ? 'WhatsApp opened with the message. Attach the MP3 that was just downloaded.'
-                : 'Your email app opened with the message. Attach the MP3 that was just downloaded.')
-            : 'The MP3 was downloaded, but the browser blocked opening ${target == _ShareTarget.whatsapp ? 'WhatsApp' : 'your email app'}. '
-                'Open it manually and attach the file.';
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _busy = null;
-        _error = _message(e);
-      });
-    }
-  }
-
   Future<void> _delete(Map<String, dynamic> rec) async {
     final ok = await showDialog<bool>(
       context: context,
@@ -567,6 +701,42 @@ class _SystemRecorderPageState extends State<SystemRecorderPage> {
               onSelectionChanged: busy ? null : (value) => setState(() => _source = value.first),
             ),
             const SizedBox(height: 6),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Split into parts', style: VtcType.body(context).copyWith(fontSize: 12.5)),
+                      const SizedBox(height: 4),
+                      Text(
+                        _segmentMinutes == 0
+                            ? 'One file for the whole recording.'
+                            : 'A new file starts every $_segmentMinutes minutes and is compressed in the '
+                                'background, without interrupting the recording.',
+                        style: VtcType.body(context).copyWith(fontSize: 11.5),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 14),
+                DropdownButton<int>(
+                  value: _segmentMinutes,
+                  dropdownColor: VtcPalette.navyDeep,
+                  onChanged: busy ? null : (value) => setState(() => _segmentMinutes = value ?? 0),
+                  items: const [
+                    DropdownMenuItem(value: 0, child: Text('One file')),
+                    DropdownMenuItem(value: 10, child: Text('10 minutes')),
+                    DropdownMenuItem(value: 15, child: Text('15 minutes')),
+                    DropdownMenuItem(value: 20, child: Text('20 minutes')),
+                    DropdownMenuItem(value: 25, child: Text('25 minutes')),
+                    DropdownMenuItem(value: 30, child: Text('30 minutes')),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
             Text(
               _source == 'system'
                   ? 'Captures only what this computer plays (a Zoom/Meet call, a video). Your own voice is not recorded.'
@@ -612,6 +782,43 @@ class _SystemRecorderPageState extends State<SystemRecorderPage> {
                       : 'Silence so far. Check that the call or video is actually playing through the speakers/headphones.',
               style: VtcType.body(context).copyWith(fontSize: 12),
             ),
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                if (_source != 'mic')
+                  FilterChip(
+                    selected: _status?['mic_enabled'] == true,
+                    onSelected: _micBusy ? null : (value) => _toggleMic(value),
+                    avatar: Icon(
+                      _status?['mic_enabled'] == true ? Icons.mic_rounded : Icons.mic_off_rounded,
+                      size: 18,
+                    ),
+                    label: Text(
+                      _status?['mic_enabled'] == true ? 'Microphone on' : 'Microphone off',
+                    ),
+                  ),
+                _infoPill(
+                  Icons.timer_outlined,
+                  _segmentMinutes == 0 ? 'One file' : '$_segmentMinutes min parts',
+                ),
+                _infoPill(
+                  Icons.library_music_rounded,
+                  '${(_status?['segments_completed'] as num?)?.toInt() ?? 0} part(s) finished',
+                ),
+                if (((_status?['compressing'] as num?)?.toInt() ?? 0) > 0)
+                  _infoPill(Icons.compress_rounded, 'Compressing…'),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              _source == 'mic'
+                  ? 'Recording the microphone.'
+                  : 'Tap the microphone chip at any moment: system audio keeps recording and both sources are mixed into the file.',
+              style: VtcType.body(context).copyWith(fontSize: 12),
+            ),
           ],
           const SizedBox(height: 18),
           Wrap(
@@ -640,6 +847,300 @@ class _SystemRecorderPageState extends State<SystemRecorderPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _infoPill(IconData icon, String text) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: VtcPalette.ivory.withValues(alpha: 0.22)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14, color: VtcPalette.goldLight),
+            const SizedBox(width: 6),
+            Text(text, style: VtcType.body(context).copyWith(fontSize: 12)),
+          ],
+        ),
+      );
+
+  /// The parts that were written, with their durations and compressed sizes.
+  Widget _filesSection(Map<String, dynamic> rec) {
+    final parts = _segments(rec);
+    final compressing = ((rec['compressing'] as num?)?.toInt() ?? 0) > 0;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text('Files', style: VtcType.sectionHeading(context).copyWith(fontSize: 15)),
+            const SizedBox(width: 10),
+            Text(
+              parts.isEmpty
+                  ? '${_size(rec['wav_bytes'])} WAV · ${_size(rec['mp3_bytes'])} MP3'
+                  : '${parts.length} part(s) · ${_size(rec['wav_bytes'])} WAV · ${_size(rec['mp3_bytes'])} MP3',
+              style: VtcType.body(context).copyWith(fontSize: 11.5),
+            ),
+            const SizedBox(width: 10),
+            if (compressing)
+              Text('Compressing…', style: VtcType.body(context).copyWith(fontSize: 11.5))
+            else if (parts.isNotEmpty)
+              Text(
+                parts.every((part) => part['status'] == 'compressed') ? 'Compressed' : 'Compression issue',
+                style: VtcType.body(context).copyWith(
+                  fontSize: 11.5,
+                  color: parts.every((part) => part['status'] == 'compressed') ? VtcPalette.success : VtcPalette.danger,
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        if (parts.isEmpty)
+          Text('One file for the whole recording.', style: VtcType.body(context).copyWith(fontSize: 12))
+        else
+          for (final part in parts)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                children: [
+                  Text(
+                    'Part ${part['index']}',
+                    style: VtcType.bodyIvory(context).copyWith(fontSize: 12.5),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      '${_clock(((part['duration_seconds'] as num?) ?? 0).toDouble())} · '
+                      '${_size(part['wav_bytes'])} WAV · '
+                      '${part['status'] == 'compressed' ? _size(part['mp3_bytes']) : (part['status'] ?? 'pending').toString()} MP3',
+                      style: VtcType.body(context).copyWith(fontSize: 11.5),
+                    ),
+                  ),
+                  IconButton(
+                    tooltip:
+                        _playingKey == '${rec['id']}#${part['index']}' && _player.playing ? 'Stop' : 'Play this part',
+                    onPressed: () => _playPart(rec, (part['index'] as num).toInt()),
+                    icon: Icon(
+                      _playingKey == '${rec['id']}#${part['index']}' && _player.playing
+                          ? Icons.stop_rounded
+                          : Icons.play_arrow_rounded,
+                      size: 18,
+                    ),
+                    color: VtcPalette.ivoryDim,
+                    visualDensity: VisualDensity.compact,
+                    constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
+                    padding: EdgeInsets.zero,
+                  ),
+                  IconButton(
+                    tooltip: 'Download this part',
+                    onPressed: () => _downloadPart(rec, (part['index'] as num).toInt(), _format),
+                    icon: const Icon(Icons.download_rounded, size: 18),
+                    color: VtcPalette.ivoryDim,
+                    visualDensity: VisualDensity.compact,
+                    constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
+                    padding: EdgeInsets.zero,
+                  ),
+                ],
+              ),
+            ),
+      ],
+    );
+  }
+
+  /// Choose one or more destinations, then deliver: a folder on this machine,
+  /// WhatsApp and email. Each destination reports its own result.
+  Widget _deliverySection(Map<String, dynamic> rec) {
+    final busy = _busy != null;
+    final results = (_delivery?['results'] as List? ?? const []).whereType<Map<String, dynamic>>().toList();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Save & share', style: VtcType.sectionHeading(context).copyWith(fontSize: 15)),
+        const SizedBox(height: 4),
+        Text(
+          'Pick any combination. Files are copied to a folder on this machine; WhatsApp and email open '
+          'with the message ready and the files downloaded for attaching.',
+          style: VtcType.body(context).copyWith(fontSize: 11.5),
+        ),
+        const SizedBox(height: 8),
+        CheckboxListTile(
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          value: _toFolder,
+          onChanged: busy ? null : (value) => setState(() => _toFolder = value ?? false),
+          controlAffinity: ListTileControlAffinity.leading,
+          title: Text('Save to folder', style: VtcType.bodyIvory(context).copyWith(fontSize: 13)),
+        ),
+        if (_toFolder) ...[
+          TextField(
+            controller: _folder,
+            enabled: !busy,
+            decoration: InputDecoration(
+              labelText: 'Folder path',
+              hintText: _defaultFolder ?? r'C:\Users\You\Music\Penrose recordings',
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
+          ),
+          const SizedBox(height: 4),
+          CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            value: _createFolder,
+            onChanged: busy ? null : (value) => setState(() => _createFolder = value ?? true),
+            controlAffinity: ListTileControlAffinity.leading,
+            title: Text('Create the folder if it does not exist', style: VtcType.body(context).copyWith(fontSize: 12)),
+          ),
+        ],
+        const SizedBox(height: 4),
+        CheckboxListTile(
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          value: _toWhatsapp,
+          onChanged: busy ? null : (value) => setState(() => _toWhatsapp = value ?? false),
+          controlAffinity: ListTileControlAffinity.leading,
+          title: Text('Share via WhatsApp', style: VtcType.bodyIvory(context).copyWith(fontSize: 13)),
+        ),
+        if (_toWhatsapp)
+          TextField(
+            controller: _phone,
+            enabled: !busy,
+            keyboardType: TextInputType.phone,
+            decoration: const InputDecoration(
+              labelText: 'WhatsApp number with country code',
+              hintText: '+265 991 123 456',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+          ),
+        const SizedBox(height: 4),
+        CheckboxListTile(
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          value: _toEmail,
+          onChanged: busy ? null : (value) => setState(() => _toEmail = value ?? false),
+          controlAffinity: ListTileControlAffinity.leading,
+          title: Text('Send via email', style: VtcType.bodyIvory(context).copyWith(fontSize: 13)),
+        ),
+        if (_toEmail)
+          TextField(
+            controller: _emailTo,
+            enabled: !busy,
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(
+              labelText: 'Recipient email',
+              hintText: 'name@example.com',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+          ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Text('File format', style: VtcType.body(context).copyWith(fontSize: 12)),
+            const SizedBox(width: 10),
+            DropdownButton<String>(
+              value: _format,
+              dropdownColor: VtcPalette.navyDeep,
+              onChanged: busy ? null : (value) => setState(() => _format = value ?? 'mp3'),
+              items: const [
+                DropdownMenuItem(value: 'mp3', child: Text('MP3 (compressed)')),
+                DropdownMenuItem(value: 'wav', child: Text('WAV (original)')),
+              ],
+            ),
+            if ((rec['summary'] as String?)?.trim().isNotEmpty == true) ...[
+              const SizedBox(width: 8),
+              Flexible(
+                child: CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  value: _includeSummary,
+                  onChanged: busy ? null : (value) => setState(() => _includeSummary = value ?? true),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  title: Text('Include AI summary', style: VtcType.body(context).copyWith(fontSize: 12)),
+                ),
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: _note,
+          enabled: !busy,
+          maxLines: 2,
+          minLines: 1,
+          decoration: const InputDecoration(
+            labelText: 'Message (optional)',
+            hintText: 'e.g. Minutes from today\'s meeting',
+            border: OutlineInputBorder(),
+            isDense: true,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: FilledButton.icon(
+            style: FilledButton.styleFrom(
+              backgroundColor: VtcPalette.gold,
+              foregroundColor: VtcPalette.midnight,
+            ),
+            onPressed: busy ? null : () => _deliver(rec),
+            icon: _busy == 'deliver'
+                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Icon(Icons.ios_share_rounded),
+            label: const Text('Deliver files'),
+          ),
+        ),
+        if (results.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          for (final result in results)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    result['status'] == 'saved'
+                        ? Icons.check_circle_rounded
+                        : result['status'] == 'action_required'
+                            ? Icons.open_in_new_rounded
+                            : Icons.error_outline_rounded,
+                    size: 18,
+                    color: result['status'] == 'saved'
+                        ? VtcPalette.success
+                        : result['status'] == 'action_required'
+                            ? VtcPalette.gold
+                            : VtcPalette.danger,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${result['destination']} — ${result['detail']}',
+                          style: VtcType.body(context).copyWith(fontSize: 12),
+                        ),
+                        if ((result['link'] as String?) != null)
+                          TextButton(
+                            onPressed: () => launchUrl(
+                              Uri.parse(result['link'] as String),
+                              mode: LaunchMode.externalApplication,
+                            ),
+                            child: Text(
+                              result['destination'] == 'whatsapp' ? 'Open WhatsApp again' : 'Open email again',
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ],
     );
   }
 
@@ -678,7 +1179,7 @@ class _SystemRecorderPageState extends State<SystemRecorderPage> {
                     '${rec['status'] ?? 'ready'}${rec['silent'] == true ? ' · SILENT' : ''}',
                 onTap: () => _select(rec),
                 onPlay: ((rec['wav_bytes'] as num?) ?? 0) > 0 ? () => _play(rec) : null,
-                onDownload: ((rec['wav_bytes'] as num?) ?? 0) > 0 ? () => _save(rec, 'mp3') : null,
+                onDownload: ((rec['wav_bytes'] as num?) ?? 0) > 0 ? () => _downloadAll(rec) : null,
                 onDelete: _busy == null ? () => _delete(rec) : null,
               ),
         ],
@@ -732,16 +1233,6 @@ class _SystemRecorderPageState extends State<SystemRecorderPage> {
                 icon: const Icon(Icons.download_rounded),
                 label: const Text('Download MP3'),
               ),
-              OutlinedButton.icon(
-                onPressed: busy || !hasAudio ? null : () => _share(rec, target: _ShareTarget.whatsapp),
-                icon: const Icon(Icons.chat_rounded),
-                label: const Text('WhatsApp'),
-              ),
-              OutlinedButton.icon(
-                onPressed: busy || !hasAudio ? null : () => _share(rec, target: _ShareTarget.email),
-                icon: const Icon(Icons.mail_outline_rounded),
-                label: const Text('Email'),
-              ),
               FilledButton.icon(
                 onPressed: busy || !hasAudio ? null : () => _transcribe(rec),
                 icon: _busy == 'transcribe'
@@ -764,7 +1255,11 @@ class _SystemRecorderPageState extends State<SystemRecorderPage> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
+          _filesSection(rec),
+          const SizedBox(height: 18),
+          _deliverySection(rec),
+          const SizedBox(height: 16),
           Row(
             children: [
               Text('Summary style', style: VtcType.body(context).copyWith(fontSize: 12.5)),
@@ -917,142 +1412,6 @@ class _RecordingRow extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-enum _ShareTarget { whatsapp, email }
-
-class _ShareDetails {
-  const _ShareDetails(this.address, this.note, this.includeSummary);
-
-  final String address;
-  final String note;
-  final bool includeSummary;
-}
-
-/// Asks for the recipient's number/address before opening WhatsApp or the
-/// device's email app. Browsers cannot attach files to those links, so the
-/// dialog explains that the MP3 is downloaded and attached by the sender.
-class _SharePromptDialog extends StatefulWidget {
-  const _SharePromptDialog({
-    required this.target,
-    required this.recordingLabel,
-    required this.hasSummary,
-  });
-
-  final _ShareTarget target;
-  final String recordingLabel;
-  final bool hasSummary;
-
-  @override
-  State<_SharePromptDialog> createState() => _SharePromptDialogState();
-}
-
-class _SharePromptDialogState extends State<_SharePromptDialog> {
-  final TextEditingController _address = TextEditingController();
-  final TextEditingController _note = TextEditingController();
-  bool _includeSummary = true;
-  String? _error;
-
-  bool get _isWhatsApp => widget.target == _ShareTarget.whatsapp;
-
-  @override
-  void dispose() {
-    _address.dispose();
-    _note.dispose();
-    super.dispose();
-  }
-
-  void _submit() {
-    final value = _address.text.trim();
-    if (value.isEmpty) {
-      setState(
-          () => _error = _isWhatsApp ? 'Enter the WhatsApp number with country code.' : 'Enter the email address.');
-      return;
-    }
-    if (_isWhatsApp) {
-      final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
-      if (digits.length < 8) {
-        setState(() => _error = 'That number is too short — include the country code, e.g. 265991234567.');
-        return;
-      }
-    } else if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value)) {
-      setState(() => _error = 'That does not look like a valid email address.');
-      return;
-    }
-    Navigator.pop(context, _ShareDetails(value, _note.text, _includeSummary && widget.hasSummary));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: VtcPalette.navyDeep,
-      title: Text(_isWhatsApp ? 'Share to WhatsApp' : 'Share by email'),
-      content: SizedBox(
-        width: 420,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              _isWhatsApp
-                  ? 'Add the recipient number and an optional note. The MP3 is downloaded first so you can attach it in WhatsApp.'
-                  : 'Add the recipient address and an optional note. The MP3 is downloaded first so you can attach it to the email.',
-              style: VtcType.body(context).copyWith(fontSize: 12.5),
-            ),
-            const SizedBox(height: 14),
-            TextField(
-              controller: _address,
-              autofocus: true,
-              keyboardType: _isWhatsApp ? TextInputType.phone : TextInputType.emailAddress,
-              onSubmitted: (_) => _submit(),
-              decoration: InputDecoration(
-                labelText: _isWhatsApp ? 'WhatsApp number' : 'Email address',
-                hintText: _isWhatsApp ? '265991234567' : 'name@example.com',
-                errorText: _error,
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _note,
-              maxLines: 3,
-              minLines: 2,
-              decoration: const InputDecoration(
-                labelText: 'Message (optional)',
-                hintText: 'e.g. Minutes from today\'s biology meeting',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 4),
-            CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              value: _includeSummary,
-              onChanged: widget.hasSummary ? (value) => setState(() => _includeSummary = value ?? true) : null,
-              title: Text(
-                widget.hasSummary
-                    ? 'Include the AI summary in the message'
-                    : 'No AI summary yet — transcribe first to include one',
-                style: VtcType.body(context).copyWith(fontSize: 12.5),
-              ),
-              controlAffinity: ListTileControlAffinity.leading,
-            ),
-            Text(
-              'Sharing "${widget.recordingLabel}" · the MP3 is saved to your downloads.',
-              style: VtcType.body(context).copyWith(fontSize: 11.5),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-        FilledButton(
-          style: FilledButton.styleFrom(backgroundColor: VtcPalette.gold, foregroundColor: VtcPalette.midnight),
-          onPressed: _submit,
-          child: Text(_isWhatsApp ? 'Open WhatsApp' : 'Open email'),
-        ),
-      ],
     );
   }
 }

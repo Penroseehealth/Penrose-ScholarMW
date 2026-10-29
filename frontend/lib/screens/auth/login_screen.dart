@@ -38,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const PenroseTriangle(size: 96),
+                    const PenroseLogo(size: 104),
                     const SizedBox(height: 20),
                     const SilverGoldTitle('Penrose ScholarMw', fontSize: 30),
                     const SizedBox(height: 8),

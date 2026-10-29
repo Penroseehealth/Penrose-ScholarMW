@@ -9,6 +9,58 @@ const kSilverGoldMid = Color(0xFFEDE4C8);
 const kSilverGoldGold = Color(0xFFE8C15A);
 const kSilverGoldGoldBright = Color(0xFFFFE49A);
 
+/// The Penrose brand mark: the pangolin scholar mascot.
+///
+/// One widget for every place the app shows its logo — login, the lecturer
+/// sidebar and the Voice Training Center header — so the mark, its gold rim and
+/// its proportions stay identical wherever it appears.
+class PenroseLogo extends StatelessWidget {
+  const PenroseLogo({
+    super.key,
+    this.size = 72,
+    this.circular = false,
+    this.glow = true,
+  });
+
+  /// Asset master is 512px wide, which covers the largest in-app size (96) at 3x.
+  static const String asset = 'assets/brand/penrose_mascot.png';
+
+  final double size;
+
+  /// Circle mask (header avatars) instead of the rounded badge used on login.
+  final bool circular;
+  final bool glow;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+        image: true,
+        label: 'Penrose ScholarMW logo',
+        child: Container(
+          width: size,
+          height: size,
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            shape: circular ? BoxShape.circle : BoxShape.rectangle,
+            borderRadius: circular ? null : BorderRadius.circular(size * 0.24),
+            border: Border.all(
+              color: kSilverGoldGold.withValues(alpha: 0.55),
+              width: math.max(1, size * 0.02),
+            ),
+            boxShadow: glow
+                ? [
+                    BoxShadow(
+                      color: kSilverGoldGold.withValues(alpha: 0.22),
+                      blurRadius: size * 0.28,
+                      spreadRadius: -size * 0.04,
+                    ),
+                  ]
+                : null,
+          ),
+          child: Image.asset(asset, fit: BoxFit.cover),
+        ),
+      );
+}
+
 /// Renders the Silver-to-Gold brand wordmark in large bold type.
 class SilverGoldTitle extends StatelessWidget {
   const SilverGoldTitle(

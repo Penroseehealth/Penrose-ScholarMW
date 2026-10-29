@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../../widgets/brand/penrose_logo.dart';
 import 'vtc_theme.dart';
 
 /// Fixed premium header: brand lockup, the "Your Voice. A New World." tagline
@@ -86,17 +87,8 @@ class _BrandMark extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Champagne microphone emblem.
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: VtcPalette.goldGradient,
-              boxShadow: [BoxShadow(color: VtcPalette.gold.withValues(alpha: 0.35), blurRadius: 16, spreadRadius: -2)],
-            ),
-            child: const Icon(Icons.mic_rounded, size: 21, color: VtcPalette.navyDeep),
-          ),
+          // App logo: the same mark the login screen shows.
+          const PenroseLogo(size: 42, circular: true),
           const SizedBox(width: 12),
           // Scales the wordmark down rather than overflowing a narrow header.
           Flexible(

@@ -100,4 +100,16 @@ pre-commit run --files backend/app/path/to/file.py
   - `backend/app/main.py` serves the Flutter SPA from `frontend/build/web` and requires
     `main.dart.js` to exist. Run `flutter build web --release` (cwd `frontend/`) if the web
     build is missing or `main.dart.js` is absent, otherwise the app fails to import.
-- Local dev proxy: `tools/penrose_web_proxy.py` (port 8080, serves `tools/build/web`, forwards `/api/*` to :8000, timeout 60s)
+- Local dev proxy: `tools/penrose_web_proxy.py` (port 8080, serves `frontend/build/web`,
+  forwards `/api/*` to :8000, timeout 60s). The served directory is the `ROOT` constant at
+  the top of the file — it is **not** `tools/build/web`. Rebuilding `flutter build web` is
+  enough; no copy step is needed.
+- mathsdrill embed: the React app lives in the separate project
+  `..\mathsdrill` (Vite). Penrose only serves a copy in `frontend/web/mathsdrill/` and
+  `frontend/build/web/mathsdrill/`. **Never copy `mathsdrill/dist` by hand** — the raw
+  `index.html` uses absolute `/assets/...` URLs, which under `/mathsdrill/` resolve to the
+  Flutter app's assets and leave the embedded app dead. Use
+  `python tools/sync_mathsdrill.py` (rebuilds, copies both trees, rewrites asset URLs to
+  relative, and stamps `?v=<hash>` + `data-mathsdrill-build`); `--no-build` re-syncs the
+  existing `dist/`. Verify freshness at `/mathsdrill/index.html` — the stamp must match the
+  `?v=` on the requested `assets/index-*.js`.

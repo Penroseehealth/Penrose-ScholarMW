@@ -105,15 +105,13 @@ class _StudentHubState extends State<StudentHub> {
                   children: [
                     _buildQuickActions(),
                     const SizedBox(height: 20),
-                    _buildSectionTitle('My Courses'),
-                    const SizedBox(height: 8),
-                    if (_loading)
-                      const Center(child: CircularProgressIndicator())
-                    else if (_courses.isEmpty)
-                      _buildEmptyState('No courses yet', 'Enroll in courses to get started')
-                    else
-                      _buildResponsiveCourseGrid(),
-                    const SizedBox(height: 20),
+                    if (_courses.isNotEmpty) ...[
+                      _buildSectionTitle('My Courses'),
+                      const SizedBox(height: 8),
+                      if (!_loading) _buildResponsiveCourseGrid(),
+                      const SizedBox(height: 20),
+                    ],
+                    if (_courses.isEmpty) const SizedBox(height: 8),
                     _buildSectionTitle('Notifications'),
                     const SizedBox(height: 8),
                     if (_notifications.isEmpty)
@@ -133,17 +131,17 @@ class _StudentHubState extends State<StudentHub> {
   Widget _buildQuickActions() => Row(
         children: [
           _buildActionCard(
-            icon: Icons.smart_toy_outlined,
-            label: 'Penrose Learning Assistant',
-            color: context.colors.accent,
-            onTap: () => context.go('/ai-tutor'),
+            icon: Icons.science_rounded,
+            label: 'STEM Hub',
+            color: AppColors.primary,
+            onTap: () => context.go('/stem'),
           ),
           const SizedBox(width: 12),
           _buildActionCard(
             icon: Icons.quiz_outlined,
             label: 'Tasks',
             color: context.colors.secondary,
-            onTap: () {},
+            onTap: () => context.go('/assignments'),
           ),
           const SizedBox(width: 12),
           _buildActionCard(

@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from fastapi import APIRouter, Query
 from fastapi.responses import FileResponse
 
 from app.system_audio.schemas import (
+    DeliverRequest,
+    DeliverResult,
+    MicrophoneToggleRequest,
     ProcessRecordingRequest,
     RecordingStatus,
     RecordingView,
@@ -27,6 +32,7 @@ def start(data: StartRecordingRequest | None = None) -> dict:
         sample_rate=payload.sample_rate,
         channels=payload.channels,
         source=payload.source,
+        segment_seconds=payload.segment_seconds,
     )
 
 
@@ -38,6 +44,18 @@ def status() -> dict:
 @router.post("/stop", response_model=RecordingView)
 def stop() -> dict:
     return get_manager().stop()
+
+
+@router.get("/default-folder")
+def default_folder() -> dict:
+    """A sensible destination for saved recordings on this machine."""
+    return {"folder": str(Path.home() / "Penrose Recordings")}
+
+
+@router.post("/microphone", response_model=RecordingStatus)
+def microphone(data: MicrophoneToggleRequest) -> dict:
+    """Turn the microphone on or off without interrupting system recording."""
+    return get_manager().set_microphone(data.enabled)
 
 
 @router.get("/recordings", response_model=list[RecordingView])
@@ -59,6 +77,23 @@ def audio(recording_id: str, format: str = Query(default="wav", pattern="^(wav|m
     return FileResponse(
         path, media_type=media, filename=f"{safe or recording_id}.{format}"
     )
+
+
+@router.get("/recordings/{recording_id}/segments/{index}/audio")
+def segment_audio(
+    recording_id: str,
+    index: int,
+    format: str = Query(default="mp3", pattern="^(wav|mp3)$"),
+) -> FileResponse:
+    manager = get_manager()
+    path = manager.path_for_segment(recording_id, index, format)
+    media = "audio/wav" if format == "wav" else "audio/mpeg"
+    return FileResponse(path, media_type=media, filename=path.name)
+
+
+@router.post("/recordings/{recording_id}/deliver", response_model=DeliverResult)
+def deliver(recording_id: str, data: DeliverRequest) -> dict:
+    return get_manager().deliver(recording_id, **data.model_dump())
 
 
 @router.post("/recordings/{recording_id}/transcribe", response_model=RecordingView)
