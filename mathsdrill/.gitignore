@@ -1,0 +1,5 @@
+# MathDrill build output and local dev files
+node_modules/
+dist/
+dev.log
+dev.pid
