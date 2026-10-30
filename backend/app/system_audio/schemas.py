@@ -80,6 +80,27 @@ class RecordingView(BaseModel):
     provider: str | None = None
     model: str | None = None
     error: str | None = None
+    # Virtual (browser-captured) recordings share this library with the
+    # host-audio recorder. These fields describe the stored media so the UI
+    # can choose the right player and show the real format/size.
+    kind: str = "system"
+    media_type: str = "audio"
+    format: str | None = None
+    mime_type: str | None = None
+    size_bytes: int = 0
+    sources: list[str] = Field(default_factory=list)
+    file: str | None = None
+    translation: str | None = None
+    translation_language: str | None = None
+    playable: bool = True
+
+
+class RenameRecordingRequest(BaseModel):
+    label: str = Field(min_length=1, max_length=120)
+
+
+class TranslateRecordingRequest(BaseModel):
+    target_language: str = Field(min_length=2, max_length=40)
 
 
 class TranscribeRecordingRequest(BaseModel):

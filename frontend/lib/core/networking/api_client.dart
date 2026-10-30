@@ -214,14 +214,39 @@ class ApiClient {
     if (response.body.isEmpty) {
       return <String, dynamic>{};
     }
-    final decoded = jsonDecode(response.body);
-    if (decoded is Map<String, dynamic>) {
-      return decoded;
+    try {
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map<String, dynamic>) {
+        return decoded;
+      }
+      if (decoded is List) {
+        return <String, dynamic>{'items': decoded};
+      }
+      return <String, dynamic>{'value': decoded};
+    } on FormatException {
+      // The backend normally answers with JSON, but the SPA catch-all used to
+      // return index.html for an unmatched API path. Surface that as a typed
+      // error that names the real problem instead of leaking a raw
+      // FormatException into the UI (or pretending the call succeeded).
+      final contentType = response.headers['content-type'] ?? 'unknown content type';
+      final prefix = response.body
+          .replaceAll(RegExp(r'<[^>]*>'), ' ')
+          .replaceAll(RegExp(r'\s+'), ' ')
+          .trim();
+      final snippet = prefix.length > 140 ? '${prefix.substring(0, 140)}…' : prefix;
+      throw ApiException(
+        'The server returned $contentType instead of JSON '
+        '(HTTP ${response.statusCode}). This usually means the API path is '
+        'missing or the backend is serving the web page for it.'
+        '${snippet.isEmpty ? '' : ' Response started: "$snippet"'}',
+        code: 'invalid_response',
+        status: response.statusCode,
+        details: <String, dynamic>{
+          'content_type': contentType,
+          'body_prefix': snippet,
+        },
+      );
     }
-    if (decoded is List) {
-      return <String, dynamic>{'items': decoded};
-    }
-    return <String, dynamic>{'value': decoded};
   }
 
   ApiException _toApiException(int status, Map<String, dynamic> body) {

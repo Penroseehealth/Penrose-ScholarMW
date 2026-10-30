@@ -21,6 +21,11 @@ class VtcNavItem {
 const List<VtcNavItem> kVtcNavItems = <VtcNavItem>[
   VtcNavItem(id: 'home', label: 'Home', icon: Icons.home_outlined),
   VtcNavItem(id: 'voice_training', label: 'Voice Training', icon: Icons.graphic_eq_rounded),
+  VtcNavItem(
+    id: 'virtual_recording',
+    label: 'Virtual Recording',
+    icon: Icons.screen_share_outlined,
+  ),
   VtcNavItem(id: 'recorder', label: 'Record', icon: Icons.podcasts_rounded),
   VtcNavItem(id: 'my_voices', label: 'My Voices', icon: Icons.record_voice_over_outlined),
   // Progress and Settings have no backend surface yet, so they stay disabled

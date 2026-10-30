@@ -69,6 +69,25 @@ IDLE_GRACE_SECONDS = 0.5
 STT_BYTES_LIMIT = 24 * 1024 * 1024
 TRANSCRIPT_LIMIT = 48_000
 
+# Virtual recordings are captured in the browser and uploaded here. The browser
+# decides the container (WebM on Chromium/Firefox, MP4 on Safari), so the type
+# is recorded verbatim and never assumed.
+MAX_VIRTUAL_BYTES = 2 * 1024 * 1024 * 1024
+VIRTUAL_MIME_EXT: dict[str, str] = {
+    "audio/webm": "webm",
+    "video/webm": "webm",
+    "audio/ogg": "ogg",
+    "video/ogg": "ogv",
+    "audio/mp4": "m4a",
+    "audio/x-m4a": "m4a",
+    "video/mp4": "mp4",
+    "audio/mpeg": "mp3",
+    "audio/mp3": "mp3",
+    "audio/wav": "wav",
+    "audio/x-wav": "wav",
+    "video/quicktime": "mov",
+}
+
 SUMMARY_STYLES: dict[str, str] = {
     "minutes": (
         "meeting minutes with a short overview, the key discussion points, "
@@ -1114,12 +1133,154 @@ class SystemAudioManager:
             )
         return candidate
 
+    # -- virtual (browser-captured) recordings ------------------------------
+
+    def save_virtual(
+        self,
+        *,
+        data: bytes,
+        label: str | None,
+        duration_seconds: float,
+        mime_type: str,
+        media_type: str,
+        sources: list[str],
+        started_at: str | None = None,
+        speech_data: bytes | None = None,
+        speech_mime: str | None = None,
+    ) -> dict[str, Any]:
+        """Store one finished browser capture in the shared recordings store.
+
+        [data] is the exact blob the browser produced (audio or video). When a
+        video recording was captured, [speech_data] carries the parallel
+        audio-only track so transcription does not depend on the video
+        container being accepted by the speech provider.
+        """
+        if not data:
+            raise ValidationError("The browser produced an empty recording.")
+        if len(data) > MAX_VIRTUAL_BYTES:
+            raise ValidationError(
+                "The recording is larger than the 2 GB limit. Record a shorter "
+                "session or lower the browser capture quality."
+            )
+        base_mime = (mime_type or "").split(";")[0].strip().lower()
+        media = (media_type or "audio").strip().lower()
+        if media not in {"audio", "video"}:
+            raise ValidationError("Media type must be audio or video.")
+        if base_mime not in VIRTUAL_MIME_EXT:
+            raise ValidationError(
+                f"The browser reported an unsupported recording type '{mime_type}'. "
+                f"Supported formats: {', '.join(sorted(VIRTUAL_MIME_EXT))}."
+            )
+        if not base_mime.startswith(f"{media}/"):
+            raise ValidationError(
+                f"The recording type '{base_mime}' does not match a {media} recording."
+            )
+        duration = max(0.0, float(duration_seconds or 0.0))
+        if duration > MAX_SECONDS:
+            raise ValidationError(
+                "The recording is longer than the 90 minute limit. Save a shorter "
+                "session so the library stays usable."
+            )
+
+        recording_id = uuid.uuid4().hex[:12]
+        directory = self.root / recording_id
+        directory.mkdir(parents=True, exist_ok=False)
+        extension = VIRTUAL_MIME_EXT[base_mime]
+        main_name = f"media.{extension}"
+        try:
+            (directory / main_name).write_bytes(data)
+
+            speech_name: str | None = None
+            speech_type: str | None = None
+            if speech_data:
+                speech_base = (
+                    (speech_mime or "audio/webm").split(";")[0].strip().lower()
+                )
+                speech_ext = VIRTUAL_MIME_EXT.get(speech_base, "webm")
+                speech_name = f"speech.{speech_ext}"
+                speech_type = speech_base
+                (directory / speech_name).write_bytes(speech_data)
+            elif media == "audio":
+                speech_name = main_name
+                speech_type = base_mime
+
+            now = _utc_now()
+            meta: dict[str, Any] = {
+                "id": recording_id,
+                "label": _clean_label(label, "Virtual recording"),
+                "status": "ready",
+                "kind": "virtual",
+                "media_type": media,
+                "format": extension,
+                "mime_type": base_mime,
+                "size_bytes": len(data),
+                "sources": sources,
+                "file": main_name,
+                "speech_file": speech_name,
+                "speech_mime": speech_type,
+                "started_at": started_at or now,
+                "ended_at": now,
+                "duration_seconds": round(duration, 3),
+                "sample_rate": 0,
+                "channels": 0,
+                "device": "Browser capture",
+                "source": "virtual",
+                "silent": False,
+                "wav_bytes": 0,
+                "mp3_bytes": 0,
+                "segmentation_seconds": 0,
+                "segments": [],
+                "compressing": 0,
+                "mic_enabled": "mic" in sources,
+                "mic_error": None,
+                "transcript": None,
+                "summary": None,
+                "summary_style": None,
+                "provider": None,
+                "model": None,
+                "error": None,
+                "translation": None,
+                "translation_language": None,
+                "playable": True,
+            }
+            _write_json(directory / "meta.json", meta)
+            return meta
+        except Exception:
+            # A partially written directory would show up in the library as a
+            # broken recording, so remove it and let the caller report failure.
+            shutil.rmtree(directory, ignore_errors=True)
+            raise
+
+    def path_for_media(self, recording_id: str) -> tuple[Path, str]:
+        """The playable file for any recording and its real content type."""
+        meta = self.get(recording_id)
+        if meta.get("kind") == "virtual":
+            name = meta.get("file")
+            if isinstance(name, str) and name:
+                path = self._directory(recording_id) / name
+                if path.exists():
+                    mime = str(
+                        meta.get("mime_type") or "application/octet-stream"
+                    ).split(";")[0]
+                    return path, mime
+            raise NotFoundError("Recording media", recording_id)
+        return self.path_for(recording_id, "mp3"), "audio/mpeg"
+
+    def rename(self, recording_id: str, label: str) -> dict[str, Any]:
+        cleaned = (label or "").strip()
+        if not cleaned:
+            raise ValidationError("Enter a name for the recording.")
+        return self._update_meta(recording_id, label=cleaned[:120])
+
     def _delivery_files(
         self, recording_id: str, formats: list[str]
     ) -> list[tuple[str, Path]]:
         """The exact files to copy or send, in part order."""
         directory = self._directory(recording_id)
         meta = self.get(recording_id)
+        if meta.get("kind") == "virtual":
+            path, _ = self.path_for_media(recording_id)
+            return [(path.name, path)]
         files: list[tuple[str, Path]] = []
         for entry in meta.get("segments") or []:
             stem = Path(str(entry.get("file") or "audio.wav")).stem
@@ -1347,13 +1508,13 @@ class SystemAudioManager:
     ) -> dict[str, Any]:
         meta = self._finalize_if_needed(recording_id)
         directory = self._directory(recording_id)
-        sources = self._speech_sources(recording_id)
+        sources = self._speech_media(recording_id)
         if not sources:
             raise ValidationError("This recording has no audio to transcribe.")
         parts: list[str] = []
         provider: str | None = None
         model: str | None = None
-        for index, source in enumerate(sources, start=1):
+        for index, (source, mime) in enumerate(sources, start=1):
             if source.stat().st_size > STT_BYTES_LIMIT:
                 raise ValidationError(
                     f"{source.name} is too long for one transcription request "
@@ -1361,7 +1522,7 @@ class SystemAudioManager:
                     "each part stays under the limit."
                 )
             result = SpeechService().transcribe(
-                source.read_bytes(), "audio/mpeg", language=language
+                source.read_bytes(), mime, language=language
             )
             transcript_part = (result.get("transcript") or "").strip()
             provider = provider or result.get("provider")
@@ -1386,11 +1547,33 @@ class SystemAudioManager:
         )
         return meta
 
-    def _speech_sources(self, recording_id: str) -> list[Path]:
-        """The compressed speech files for a recording, one per part."""
+    def _speech_media(self, recording_id: str) -> list[tuple[Path, str]]:
+        """The speech files for a recording, one per part, with their real type.
+
+        Browser captures store a parallel audio-only track when the main media
+        is video, so the provider receives a format it accepts instead of a
+        video container.
+        """
         directory = self._directory(recording_id)
-        segments = self.get(recording_id).get("segments") or []
-        sources: list[Path] = []
+        meta = self.get(recording_id)
+        if meta.get("kind") == "virtual":
+            name = meta.get("speech_file")
+            if isinstance(name, str) and name:
+                path = directory / name
+                if path.exists():
+                    mime = str(meta.get("speech_mime") or "")
+                    if not mime:
+                        mime = {
+                            "webm": "audio/webm",
+                            "ogg": "audio/ogg",
+                            "m4a": "audio/mp4",
+                            "mp3": "audio/mpeg",
+                            "wav": "audio/wav",
+                        }.get(path.suffix.lstrip(".").lower(), "audio/webm")
+                    return [(path, mime.split(";")[0].strip())]
+            return []
+        segments = meta.get("segments") or []
+        sources: list[tuple[Path, str]] = []
         if segments:
             for entry in segments:
                 stem = Path(str(entry.get("file") or "audio.wav")).stem
@@ -1399,13 +1582,13 @@ class SystemAudioManager:
                     directory / f"{stem}.mp3",
                 ):
                     if candidate.exists():
-                        sources.append(candidate)
+                        sources.append((candidate, "audio/mpeg"))
                         break
             return sources
         for name in ("speech.mp3", "audio.speech.mp3", "audio.mp3"):
             candidate = directory / name
             if candidate.exists():
-                sources.append(candidate)
+                sources.append((candidate, "audio/mpeg"))
                 break
         return sources
 
@@ -1471,6 +1654,66 @@ class SystemAudioManager:
             status="summarised",
             summary=summary,
             summary_style=style_key,
+            error=None,
+        )
+
+    async def translate(
+        self, recording_id: str, target_language: str
+    ) -> dict[str, Any]:
+        """Translate the stored transcript with the configured AI service.
+
+        Translation only ever works from a transcript that already exists, so
+        the UI cannot imply that capturing media performed speech recognition
+        or translation by itself.
+        """
+        meta = self.get(recording_id)
+        transcript = (meta.get("transcript") or "").strip()
+        if not transcript:
+            raise ValidationError("Transcribe the recording before translating it.")
+        language = (target_language or "").strip()
+        if len(language) < 2:
+            raise ValidationError("Choose the language to translate into.")
+        excerpt = transcript[:TRANSCRIPT_LIMIT]
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are an accurate translator. Translate the transcript "
+                    "faithfully into the requested language. Preserve names, "
+                    "numbers and meaning; never add commentary. Output only the "
+                    "translated text in Markdown."
+                ),
+            },
+            {
+                "role": "user",
+                "content": (
+                    f"Translate this transcript into {language}.\n\n{excerpt}"
+                    + (
+                        "\n\n[Transcript truncated for length.]"
+                        if len(transcript) > TRANSCRIPT_LIMIT
+                        else ""
+                    )
+                ),
+            },
+        ]
+        try:
+            translation = await call_ai_text(
+                messages, max_tokens=2400, temperature=0.2, timeout=120.0
+            )
+        except Exception as exc:
+            raise ServiceUnavailableError(
+                f"The translation could not be generated: {exc}"
+            ) from exc
+        translation = translation.strip()
+        if not translation:
+            raise ServiceUnavailableError("The AI returned an empty translation.")
+        (self._directory(recording_id) / "translation.md").write_text(
+            translation, encoding="utf-8"
+        )
+        return self._update_meta(
+            recording_id,
+            translation=translation,
+            translation_language=language,
             error=None,
         )
 

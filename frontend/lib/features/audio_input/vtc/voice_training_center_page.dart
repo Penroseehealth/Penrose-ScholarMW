@@ -13,6 +13,8 @@ import 'my_voices_page.dart';
 import 'penrose_header.dart';
 import 'scenic_backdrop.dart';
 import 'system_recorder_page.dart';
+import 'virtual_recording/virtual_recording_controller.dart';
+import 'virtual_recording/virtual_recording_page.dart';
 import 'voice_hero.dart';
 import 'voice_sidebar.dart';
 import 'vtc_controller.dart';
@@ -34,9 +36,13 @@ import 'widgets/vtc_status_widgets.dart';
 /// `/speech/clones`; when it does not, the page says so plainly and the sample
 /// capture and transcription still work.
 class VoiceTrainingCenterPage extends StatefulWidget {
-  const VoiceTrainingCenterPage({super.key, required this.apiClient});
+  const VoiceTrainingCenterPage({super.key, required this.apiClient, this.initialTab = 'voice_training'});
 
   final ApiClient apiClient;
+
+  /// Destination to show on first build. The Virtual Recording route passes
+  /// `virtual_recording` so its URL deep-links straight to that workspace.
+  final String initialTab;
 
   @override
   State<VoiceTrainingCenterPage> createState() => _VoiceTrainingCenterPageState();
@@ -68,13 +74,31 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
   /// and both read the same backend.
   String _tab = 'voice_training';
 
+  /// The Virtual Recording workspace's state machine. The shell owns it (and
+  /// passes it to the page) so switching VCT tabs - or moving between the two
+  /// VTC routes - never tears down a capture that is still running.
+  late final VirtualRecordingController _virtual;
+
   @override
   void initState() {
     super.initState();
+    _tab = widget.initialTab;
     _pulse = AnimationController(vsync: this, duration: const Duration(seconds: 5))..repeat();
     _controller = VtcController(apiClient: widget.apiClient)..addListener(_onControllerChanged);
     _clones = CloneController(apiClient: widget.apiClient)..addListener(_onControllerChanged);
+    _virtual = VirtualRecordingController(apiClient: widget.apiClient);
     _loadStatus();
+  }
+
+  @override
+  void didUpdateWidget(covariant VoiceTrainingCenterPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Both VTC routes share one page key, so a route change updates this widget
+    // instead of rebuilding the state. Follow the new destination without
+    // releasing a live capture.
+    if (oldWidget.initialTab != widget.initialTab) {
+      setState(() => _tab = widget.initialTab);
+    }
   }
 
   Future<void> _loadStatus() async {
@@ -95,6 +119,7 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
     _controller.dispose();
     _clones.removeListener(_onControllerChanged);
     _clones.dispose();
+    _virtual.dispose();
     _composer.dispose();
     _voiceName.dispose();
     _composerFocus.dispose();
@@ -313,7 +338,17 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
       context.go('/');
       return;
     }
-    setState(() => _tab = item.id);
+    _showTab(item.id);
+  }
+
+  /// Switches destination and keeps the URL honest. Both VTC routes share one
+  /// page key (see `AppRouter`), so this route change updates the widgets in
+  /// place and a running Virtual Recording capture is not disposed.
+  void _showTab(String id) {
+    if (_tab != id) setState(() => _tab = id);
+    final String target =
+        id == 'virtual_recording' ? '/voice-training-center/virtual-recording' : '/voice-training-center';
+    if (GoRouterState.of(context).uri.path != target) context.go(target);
   }
 
   bool get _showingLibrary => _tab == 'my_voices';
@@ -321,6 +356,10 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
   /// The system-audio recorder is its own workspace: it records what the
   /// computer is playing, then transcribes and summarises that audio.
   bool get _showingRecorder => _tab == 'recorder';
+
+  /// The browser-capture workspace: it records a tab/screen/camera plus the
+  /// microphone, and saves into the same shared recordings library.
+  bool get _showingVirtualRecording => _tab == 'virtual_recording';
 
   // -- pulse state -----------------------------------------------------------
 
@@ -417,31 +456,33 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
               ? _myVoices()
               : _showingRecorder
                   ? _systemRecorder()
-                  : SingleChildScrollView(
-                      padding: EdgeInsets.fromLTRB(28, 8, 40, 48),
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 940),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              VoiceHero(animation: _pulse, pulse: _pulseState),
-                              const SizedBox(height: 6),
-                              Center(
-                                child: Text(
-                                  'Standard voices from the configured engine',
-                                  style: VtcType.body(context).copyWith(fontSize: 12.5),
-                                ),
+                  : _showingVirtualRecording
+                      ? _virtualRecording()
+                      : SingleChildScrollView(
+                          padding: EdgeInsets.fromLTRB(28, 8, 40, 48),
+                          child: Center(
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 940),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  VoiceHero(animation: _pulse, pulse: _pulseState),
+                                  const SizedBox(height: 6),
+                                  Center(
+                                    child: Text(
+                                      'Standard voices from the configured engine',
+                                      style: VtcType.body(context).copyWith(fontSize: 12.5),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 14),
+                                  _workspaceCard(),
+                                  const SizedBox(height: 22),
+                                  _footerStatements(),
+                                ],
                               ),
-                              const SizedBox(height: 14),
-                              _workspaceCard(),
-                              const SizedBox(height: 22),
-                              _footerStatements(),
-                            ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
         ),
       ],
     );
@@ -453,7 +494,7 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
     return MyVoicesPage(
       key: const ValueKey('my-voices-tab'),
       apiClient: widget.apiClient,
-      onOpenTrainingCenter: () => setState(() => _tab = 'voice_training'),
+      onOpenTrainingCenter: () => _showTab('voice_training'),
     );
   }
 
@@ -465,10 +506,20 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
     );
   }
 
+  /// The Virtual Recording tab. The shell owns the controller so a live
+  /// capture survives tab and route changes.
+  Widget _virtualRecording() => VirtualRecordingPage(
+        key: const ValueKey('virtual-recording-tab'),
+        apiClient: widget.apiClient,
+        controller: _virtual,
+        onOpenLibrary: () => _showTab('recorder'),
+      );
+
   // -- mobile ----------------------------------------------------------------
 
   Widget _mobileBody() {
     if (_showingLibrary) return _myVoices();
+    if (_showingVirtualRecording) return _virtualRecording();
     if (_showingRecorder) {
       return Padding(
         padding: const EdgeInsets.only(left: 8, right: 8),

@@ -38,6 +38,50 @@ class VtcPalette {
   static const Color danger = Color(0xFFFF8A80);
   static const Color success = Color(0xFF9BE7C4);
 
+  // -- Virtual Recording specification tokens -------------------------------
+  // Exact values from the implementation brief. Kept in the same palette so
+  // the new page extends the VTC look instead of introducing a second theme.
+  static const Color appBg = Color(0xFF050B20);
+  static const Color headerBg = Color(0xFF080D2B);
+  static const Color sidebarBg = Color(0xFF070D28);
+  static const Color workspace = Color(0xFF071632);
+  static const Color card = Color(0xFF091B3B);
+  static const Color input = Color(0xFF0D2147);
+  static const Color elevated = Color(0xFF101F4A);
+  static const Color border = Color(0xFF123C78);
+  static const Color borderActive = Color(0xFF1768B7);
+  static const Color divider = Color(0xFF1A3159);
+  static const Color focus = Color(0xFF58D9FF);
+  static const Color penroseViolet = Color(0xFF5126D8);
+  static const Color brightViolet = Color(0xFF693BFF);
+  static const Color indigo = Color(0xFF243FDB);
+  static const Color cyan = Color(0xFF00D8F5);
+  static const Color blue = Color(0xFF258BFF);
+  static const Color textPrimary = Color(0xFFF4F7FF);
+  static const Color textSecondary = Color(0xFFB9C8E5);
+  static const Color textMuted = Color(0xFF8296BC);
+  static const Color recording = Color(0xFFF52F67);
+  static const Color successBright = Color(0xFF00E5A0);
+  static const Color warning = Color(0xFFFFC857);
+  static const Color error = Color(0xFFFF526D);
+  static const Color disabled = Color(0xFF52617E);
+  static const Color info = Color(0xFF60B9FF);
+
+  /// Indigo-to-violet fill for primary actions.
+  static const LinearGradient actionGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [indigo, penroseViolet],
+  );
+
+  /// Green/teal fill reserved for "this meeting is live" status, never for a
+  /// recording state.
+  static const LinearGradient liveGradient = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [successBright, Color(0xFF00C2B2)],
+  );
+
   /// Gold gradient used by the primary call to action and the active nav pill.
   static const LinearGradient goldGradient = LinearGradient(
     begin: Alignment.topLeft,

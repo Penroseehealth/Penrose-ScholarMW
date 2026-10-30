@@ -300,7 +300,12 @@ if WEB_DIR.is_dir():
     import hashlib
     import time
 
-    from starlette.responses import FileResponse, HTMLResponse, Response
+    from starlette.responses import (
+        FileResponse,
+        HTMLResponse,
+        JSONResponse,
+        Response,
+    )
 
     _main_js_path = WEB_DIR / "main.dart.js"
     _startup_version = str(int(time.time()))
@@ -388,6 +393,19 @@ if WEB_DIR.is_dir():
 
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
+        # The SPA catch-all must never answer for the API namespace. Returning
+        # index.html here is what made the Flutter client throw
+        # "FormatException: ... is not valid JSON" whenever an endpoint was
+        # missing or mistyped: the client received HTML with a 200.
+        if full_path == "api" or full_path.startswith("api/"):
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "detail": f"No API route matches '/{full_path}'.",
+                    "code": "not_found",
+                },
+                headers=_no_cache_headers,
+            )
         file_path = WEB_DIR / full_path
         if full_path == "" or full_path == "index.html":
             return HTMLResponse(

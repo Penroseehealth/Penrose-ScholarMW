@@ -180,6 +180,19 @@ class AppRouter {
         ),
       );
 
+  /// A Voice Training Center destination. Every VTC route shares one page key so
+  /// moving between the workspace and Virtual Recording updates the existing
+  /// state instead of rebuilding it - a live browser capture must not be torn
+  /// down just because the URL changed.
+  GoRoute _vtcRoute(String path, String initialTab) => GoRoute(
+        path: path,
+        pageBuilder: (context, state) => CustomTransitionPage<void>(
+          key: const ValueKey<String>('voice-training-center'),
+          child: _selectable(VoiceTrainingCenterPage(apiClient: _voiceApiClient, initialTab: initialTab)),
+          transitionsBuilder: _slideTransition,
+        ),
+      );
+
   late final GoRouter router = GoRouter(
     initialLocation: '/',
     refreshListenable: authProvider,
@@ -228,7 +241,10 @@ class AppRouter {
       // The Voice Training Center owns its whole viewport: it has its own
       // sidebar, so the app-wide rail (Dashboard / ScholarAI / Past Papers…)
       // must not be reserved next to it.
-      _route('/voice-training-center', (_) => VoiceTrainingCenterPage(apiClient: _voiceApiClient)),
+      _vtcRoute('/voice-training-center', 'voice_training'),
+      // Virtual Recording has its own address so it can be linked to directly;
+      // it renders the same shell with that workspace already open.
+      _vtcRoute('/voice-training-center/virtual-recording', 'virtual_recording'),
       ShellRoute(
         builder: (_, __, child) => _selectable(HomeShell(child: child)),
         routes: [
