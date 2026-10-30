@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -11,6 +10,7 @@ import '../../core/constants/api_constants.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/safe_secure_storage.dart';
 import '../../widgets/stem_text.dart';
 
 class CollaborationChatScreen extends StatefulWidget {
@@ -22,7 +22,7 @@ class CollaborationChatScreen extends StatefulWidget {
 }
 
 class _CollaborationChatScreenState extends State<CollaborationChatScreen> {
-  static const _secureStorage = FlutterSecureStorage();
+  static const _secureStorage = SafeSecureStorage();
   WebSocketChannel? _channel;
   final _msgCtl = TextEditingController();
   final _scrollCtl = ScrollController();

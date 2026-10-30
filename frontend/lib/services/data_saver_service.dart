@@ -1,12 +1,13 @@
 import 'dart:convert';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import 'safe_secure_storage.dart';
 
 class DataSaverService {
   static final DataSaverService _instance = DataSaverService._();
   factory DataSaverService() => _instance;
   DataSaverService._();
 
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final SafeSecureStorage _storage = const SafeSecureStorage();
   bool _enabled = false;
   bool _imagesEnabled = false;
 

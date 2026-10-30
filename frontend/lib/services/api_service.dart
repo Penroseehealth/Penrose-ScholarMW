@@ -2,18 +2,18 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import '../core/constants/api_constants.dart';
 import 'cache_service.dart';
 import 'data_saver_service.dart';
+import 'safe_secure_storage.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._();
   factory ApiService() => _instance;
   ApiService._();
 
-  static const _secureStorage = FlutterSecureStorage();
+  static const _secureStorage = SafeSecureStorage();
 
   String? _accessToken;
   String? _refreshToken;

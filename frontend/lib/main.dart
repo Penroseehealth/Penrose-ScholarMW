@@ -43,6 +43,21 @@ Future<void> _initializeStartupService(String name, Future<void> Function() init
   }
 }
 
+/// Creates [provider] and runs its startup step without letting a failure
+/// escape.
+///
+/// Provider startup is fire-and-forget from `create:`, so a throw inside it is
+/// reported outside Flutter's error zones. On web that becomes an uncaught
+/// JavaScript error and takes down whatever route was building — in practice
+/// the login screen, before the student can sign in. A failed initialisation
+/// now only leaves that provider at its defaults.
+T _started<T extends ChangeNotifier>(T provider, Future<void> Function(T) start) {
+  unawaited(start(provider).catchError((Object error, StackTrace stack) {
+    unawaited(reportClientError('provider-startup', error, stack));
+  }));
+  return provider;
+}
+
 class PenroseScholarApp extends StatefulWidget {
   const PenroseScholarApp({super.key});
 
@@ -56,11 +71,11 @@ class _PenroseScholarAppState extends State<PenroseScholarApp> {
   @override
   Widget build(BuildContext context) => MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_) => AuthProvider()..init()),
+          ChangeNotifierProvider(create: (_) => _started(AuthProvider(), (p) async => p.init())),
           ChangeNotifierProvider(create: (_) => LocaleProvider()),
-          ChangeNotifierProvider(create: (_) => ThemeProvider()..init()),
-          ChangeNotifierProvider(create: (_) => ConnectivityManager()..startMonitoring()),
-          ChangeNotifierProvider(create: (_) => SyllabusSelectionProvider()..init()),
+          ChangeNotifierProvider(create: (_) => _started(ThemeProvider(), (p) async => p.init())),
+          ChangeNotifierProvider(create: (_) => _started(ConnectivityManager(), (p) async { p.startMonitoring(); })),
+          ChangeNotifierProvider(create: (_) => _started(SyllabusSelectionProvider(), (p) async => p.init())),
         ],
         child: Consumer3<AuthProvider, LocaleProvider, ThemeProvider>(
           builder: (context, auth, localeProvider, themeProvider, _) {

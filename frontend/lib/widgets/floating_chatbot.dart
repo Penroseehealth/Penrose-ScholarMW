@@ -117,9 +117,32 @@ class _FloatingChatbotState extends State<FloatingChatbot> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    _voiceSession.createSession();
-    _tts.initialize();
-    _restoreMemory();
+    unawaited(_startVoiceStack());
+  }
+
+  /// Boots the voice stack and the restored conversation.
+  ///
+  /// These futures are unawaited, so anything that escapes them is reported
+  /// outside Flutter's error zones: on web that surfaces as an uncaught
+  /// JavaScript error and takes down the route that was building. Each step is
+  /// contained on its own, so a missing microphone, an unreachable backend or
+  /// blocked browser storage only disables that one feature.
+  Future<void> _startVoiceStack() async {
+    try {
+      _voiceSession.createSession();
+    } catch (error) {
+      debugPrint('FloatingChatbot: voice session failed to start: $error');
+    }
+    try {
+      await _tts.initialize();
+    } catch (error) {
+      debugPrint('FloatingChatbot: text-to-speech unavailable: $error');
+    }
+    try {
+      await _restoreMemory();
+    } catch (error, stack) {
+      debugPrint('FloatingChatbot: could not restore the chat: $error\n$stack');
+    }
   }
 
   @override
