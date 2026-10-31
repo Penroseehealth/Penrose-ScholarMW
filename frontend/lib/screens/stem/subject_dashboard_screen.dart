@@ -519,6 +519,16 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
     );
   }
 
+  /// Route for the Smart Board, carrying the topic the student is currently
+  /// working on so the board (and its Ask panel) opens with that context.
+  /// Without one, the board loads its magnesium demonstration lesson.
+  String get _smartBoardRoute {
+    final current = _dashboard?['current_learning'] as Map<String, dynamic>?;
+    final topic = ((current?['topic_title'] ?? current?['concept_title'] ?? '') as String).trim();
+    if (topic.isEmpty) return '/smart-board';
+    return '/smart-board?topic=${Uri.encodeComponent(topic)}';
+  }
+
   Widget _buildModuleGrid(Color accent) {
     final slug = widget.slug;
     String syllabusRoute;
@@ -537,6 +547,13 @@ class _SubjectDashboardScreenState extends State<SubjectDashboardScreen> {
           'Chemistry Laboratory. Photo Match',
           'Interactive photo-match 3D laboratory',
           '/chem-lab',
+        ),
+      if (slug == 'chemistry')
+        _ModuleItem(
+          Icons.co_present_outlined,
+          'Smart Board',
+          'Virtual classroom whiteboard',
+          _smartBoardRoute,
         ),
       if (slug == 'mathematics')
         const _ModuleItem(

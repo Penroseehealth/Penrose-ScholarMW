@@ -2,27 +2,26 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
       try {
-        var stored = localStorage.getItem('mathdrill.theme');
-        document.documentElement.dataset.theme = stored === 'light' ? 'light' : 'dark';
-      } catch (e) {
-        document.documentElement.dataset.theme = 'dark';
-      }
+        document.documentElement.dataset.theme =
+          localStorage.getItem('mathdrill.theme') === 'dark' ? 'dark' : 'light';
+      } catch (e) {}
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Caveat:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
-    <title>Penrose MathDrill — Solve</title>
-    <script type="module" crossorigin src="./assets/index-m5FJ-XVT.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-C3E5jn-h.css">
+    <title>Penrose MathDrill — Smart Learning for a Brighter Future</title>
+    <script type="module" crossorigin src="assets/index-CzFi6NRZ.js?v=ee0ad493dd67"></script>
+    <link rel="stylesheet" crossorigin href="assets/index-Cd9SU2xC.css?v=ee0ad493dd67">
   </head>
-  <body data-mathsdrill-build="9285d14a1de0">
+  <body data-mathsdrill-build="ee0ad493dd67">
     <div id="root"></div>
+
   </body>
 </html>

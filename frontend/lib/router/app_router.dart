@@ -7,6 +7,7 @@ import '../core/networking/api_client.dart';
 import '../features/audio_input/vtc/voice_training_center_page.dart';
 import '../features/msce_papers/msce_papers_page.dart';
 import '../modules/chemistry_lab/screens/chemistry_lab_screen.dart';
+import '../modules/smartboard/screens/smart_board_screen.dart';
 import '../modules/mathsdrill/screens/mathsdrill_progress_screen.dart';
 import '../modules/mathsdrill/screens/mathsdrill_screen.dart';
 import '../providers/auth_provider.dart';
@@ -267,6 +268,7 @@ class AppRouter {
           _route('/smart-notifications', (_) => const SmartNotificationsScreen()),
           _route('/search', (_) => const GlobalSearchScreen()),
           _route('/offline-sync', (_) => const OfflineSyncScreen()),
+          _route('/smart-board', (state) => SmartBoardScreen(initialTopic: state.uri.queryParameters['topic'])),
           _route('/stem', (_) => const StemHub()),
           GoRoute(
             path: '/stem-subject/:slug',

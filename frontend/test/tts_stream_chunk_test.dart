@@ -68,6 +68,9 @@ class _FakeStreaming implements StreamingChatService {
     List<String> fileIds = const [],
     String? preferredResponseMode,
     dynamic connectivity,
+    DateTime? clientTime,
+    bool resumed = false,
+    String? timezone,
   }) async* {
     for (final c in chunks) {
       yield StreamChunk(type: 'chunk', content: c);
