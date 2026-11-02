@@ -21,6 +21,7 @@ from pptx.util import Inches, Pt
 from sqlalchemy import select
 
 from app.config.ai_client import call_ai_json, call_ai_text
+from app.retrieval.orchestrator import search
 from app.models.stem import (
     SyllabusCoreElement,
     SyllabusLearningObjective,
@@ -481,7 +482,29 @@ async def collect_sources(config, vault_docs: list[dict], db=None) -> dict:
         text = (doc.get("content") or "").strip()
         if text:
             vault_sources.append(f"[VAULT {doc['id']}] {doc.get('title', '')}\n{text}")
+    # Load seeded syllabus when no syllabus file was uploaded.
+    if not syllabus_blob.strip() and db is not None:
+        try:
+            syllabus_blob = await load_seeded_syllabus(db, config)
+        except Exception:
+            log.exception("Could not load seeded syllabus")
 
+    # Retrieve academic sources when web research is enabled.
+    research_blob = ""
+    if config.web_research:
+        query = " ".join(filter(None, [
+            config.course,
+            config.topic,
+            config.subtopic,
+            " ".join(config.learning_objectives or []),
+        ]))
+        if query.strip():
+            try:
+                research_result = await search(query, max_items=6)
+                research_blob = research_result.grounding_prompt_block()
+            except Exception:
+                log.exception("Academic retrieval failed during presentation generation")
+                
     hierarchy = [
         ("SYLLABUS", syllabus_blob),
         ("LECTURER NOTES", notes_blob),
@@ -494,6 +517,8 @@ async def collect_sources(config, vault_docs: list[dict], db=None) -> dict:
         if vault_sources
         else ""
     )
+    if research_blob:
+        merged += "\n\n[SOURCE: WEB AND ACADEMIC RESEARCH]\n" + research_blob
     return {
         "syllabus": syllabus_blob,
         "notes": notes_blob,
@@ -629,13 +654,15 @@ def _item_dict(s) -> dict:
         "purpose": getattr(s, "purpose", ""),
         "learning_objective": getattr(s, "learning_objective", ""),
     }
-
-
 async def generate_slides(
-    config, outline_items, previous: list[dict] | None = None, db=None
+    config,
+    outline_items,
+    previous: list[dict] | None = None,
+    db=None,
+    vault_docs: list[dict] | None = None,
 ) -> list[dict]:
     outline_items = [_item_dict(s) for s in outline_items]
-    sources = await collect_sources(config, [], db)
+    sources = await collect_sources(config, vault_docs or [], db)
 
     system = (
         "You are Penrose ScholarMW, an academic slide writer. Convert the given "

@@ -166,7 +166,14 @@ async def generate_endpoint(
 ):
     """Build slide text + speaker notes from an approved outline; store for editing."""
     try:
-        slides = await engine.generate_slides(body.config, body.outline, [], db)
+        vault_docs = await _resolve_vault_docs(db, user, body.config.vault_doc_ids)
+        slides = await engine.generate_slides(
+            body.config,
+            body.outline,
+            [],
+            db,
+            vault_docs=vault_docs,
+        )
         presentation_id = uuid.uuid4().hex[:12]
         engine._engine.put(
             presentation_id,
@@ -193,11 +200,19 @@ async def quality_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        slides = (
-            [s.model_dump() for s in body.slides]
-            if body.slides
-            else await engine.generate_slides(body.config, body.outline, [], db)
-        )
+        if body.slides:
+            slides = [s.model_dump() for s in body.slides]
+        else:
+            vault_docs = await _resolve_vault_docs(
+                db, user, body.config.vault_doc_ids
+            )
+            slides = await engine.generate_slides(
+                body.config,
+                body.outline,
+                [],
+                db,
+                vault_docs=vault_docs,
+            )
         report = engine.compute_quality_report(slides, body.config)
         return QualityReport(
             id=uuid.uuid4().hex[:8],
@@ -237,17 +252,25 @@ async def export_pptx(
 ):
     """Generate a real, editable .pptx from the current slide data."""
     try:
-        slides = (
-            [s.model_dump() for s in body.slides]
-            if body.slides
-            else await engine.generate_slides(body.config, body.outline, [], db)
-        )
+        if body.slides:
+            slides = [s.model_dump() for s in body.slides]
+        else:
+            vault_docs = await _resolve_vault_docs(
+                db, user, body.config.vault_doc_ids
+            )
+            slides = await engine.generate_slides(
+                body.config,
+                body.outline,
+                [],
+                db,
+                vault_docs=vault_docs,
+            )
+
         pptx_bytes = engine.build_pptx(body.config, slides)
         return _pptx_response(body.config.topic, pptx_bytes)
     except Exception as e:
         log.exception("PPTX generation failed")
         raise HTTPException(status_code=500, detail=f"PPTX generation failed: {e}")
-
 
 @router.post("/regenerate-slide")
 async def regenerate_slide_endpoint(
