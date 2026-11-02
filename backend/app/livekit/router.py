@@ -29,6 +29,10 @@ router = APIRouter(prefix="/livekit", tags=["livekit"])
 class LiveKitTokenRequest(BaseModel):
     room_name: str | None = None
     identity: str | None = None
+    # Display name shown to other participants (e.g. "Aminiology Ma"). Only a
+    # label: the stable identity above is what LiveKit uses to de-duplicate
+    # participants, so this can never be used to take over someone else's seat.
+    name: str | None = None
     ttl_seconds: int = 3600  # 1 hour default, max 24h
 
 
@@ -37,6 +41,7 @@ class LiveKitTokenResponse(BaseModel):
     url: str
     room_name: str
     identity: str
+    name: str | None = None
     expires_in: int
 
 
@@ -60,10 +65,23 @@ def _require_livekit():
         )
 
 
+def _clean_name(name: str | None) -> str | None:
+    """Normalise an optional display name.
+
+    LiveKit caps participant names at 128 characters, so overly long names are
+    trimmed rather than rejected - the client always sees a usable label.
+    """
+    if name is None:
+        return None
+    cleaned = " ".join(name.split())
+    return cleaned[:128] or None
+
+
 def _generate_token(
     identity: str,
     room_name: str,
     *,
+    name: str | None = None,
     ttl_seconds: int = 3600,
 ) -> str:
     """Generate a LiveKit access token using the server-side secret."""
@@ -87,9 +105,15 @@ def _generate_token(
                 can_publish=True,
                 can_subscribe=True,
                 can_publish_data=True,
+                # Lets the client publish a display name and hand-raise
+                # attributes (participant attributes). Nothing else.
+                can_update_own_metadata=True,
             )
         )
     )
+
+    if name:
+        token = token.with_name(name)
 
     return token.to_jwt()
 
@@ -114,12 +138,14 @@ async def get_livekit_token(
 
     identity = body.identity or f"user_{user.id}"
     room_name = body.room_name or f"session_{user.id}"
+    display_name = _clean_name(body.name) or user.full_name
     ttl = min(max(body.ttl_seconds, 60), 86400)
 
     try:
         token = _generate_token(
             identity=identity,
             room_name=room_name,
+            name=display_name,
             ttl_seconds=ttl,
         )
     except Exception as e:
@@ -136,6 +162,7 @@ async def get_livekit_token(
         url=settings.LIVEKIT_URL,
         room_name=room_name,
         identity=identity,
+        name=display_name,
         expires_in=ttl,
     )
 

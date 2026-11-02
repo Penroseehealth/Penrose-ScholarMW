@@ -246,6 +246,9 @@ class AppRouter {
       // Virtual Recording has its own address so it can be linked to directly;
       // it renders the same shell with that workspace already open.
       _vtcRoute('/voice-training-center/virtual-recording', 'virtual_recording'),
+      // The live classroom is its own address too, so it can be linked to and
+      // survives a browser refresh.
+      _vtcRoute('/voice-training-center/live-classroom', 'live_classroom'),
       ShellRoute(
         builder: (_, __, child) => _selectable(HomeShell(child: child)),
         routes: [

@@ -9,6 +9,7 @@ import '../../../core/networking/api_client.dart';
 import '../../../providers/auth_provider.dart';
 import 'accent_selector.dart';
 import 'clone_controller.dart';
+import 'live_classroom_page.dart';
 import 'my_voices_page.dart';
 import 'penrose_header.dart';
 import 'scenic_backdrop.dart';
@@ -346,8 +347,11 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
   /// place and a running Virtual Recording capture is not disposed.
   void _showTab(String id) {
     if (_tab != id) setState(() => _tab = id);
-    final String target =
-        id == 'virtual_recording' ? '/voice-training-center/virtual-recording' : '/voice-training-center';
+    final String target = switch (id) {
+      'virtual_recording' => '/voice-training-center/virtual-recording',
+      'live_classroom' => '/voice-training-center/live-classroom',
+      _ => '/voice-training-center',
+    };
     if (GoRouterState.of(context).uri.path != target) context.go(target);
   }
 
@@ -360,6 +364,9 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
   /// The browser-capture workspace: it records a tab/screen/camera plus the
   /// microphone, and saves into the same shared recordings library.
   bool get _showingVirtualRecording => _tab == 'virtual_recording';
+
+  /// The Live Classroom: real participants over LiveKit, framed inside the VTC.
+  bool get _showingLiveClassroom => _tab == 'live_classroom';
 
   // -- pulse state -----------------------------------------------------------
 
@@ -458,31 +465,33 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
                   ? _systemRecorder()
                   : _showingVirtualRecording
                       ? _virtualRecording()
-                      : SingleChildScrollView(
-                          padding: EdgeInsets.fromLTRB(28, 8, 40, 48),
-                          child: Center(
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 940),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  VoiceHero(animation: _pulse, pulse: _pulseState),
-                                  const SizedBox(height: 6),
-                                  Center(
-                                    child: Text(
-                                      'Standard voices from the configured engine',
-                                      style: VtcType.body(context).copyWith(fontSize: 12.5),
-                                    ),
+                      : _showingLiveClassroom
+                          ? _liveClassroom()
+                          : SingleChildScrollView(
+                              padding: EdgeInsets.fromLTRB(28, 8, 40, 48),
+                              child: Center(
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(maxWidth: 940),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      VoiceHero(animation: _pulse, pulse: _pulseState),
+                                      const SizedBox(height: 6),
+                                      Center(
+                                        child: Text(
+                                          'Standard voices from the configured engine',
+                                          style: VtcType.body(context).copyWith(fontSize: 12.5),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 14),
+                                      _workspaceCard(),
+                                      const SizedBox(height: 22),
+                                      _footerStatements(),
+                                    ],
                                   ),
-                                  const SizedBox(height: 14),
-                                  _workspaceCard(),
-                                  const SizedBox(height: 22),
-                                  _footerStatements(),
-                                ],
+                                ),
                               ),
                             ),
-                          ),
-                        ),
         ),
       ],
     );
@@ -515,11 +524,16 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
         onOpenLibrary: () => _showTab('recorder'),
       );
 
+  /// The Live Classroom tab. The embedded classroom fills the workspace, so it
+  /// deliberately sits outside the training page's scroll view.
+  Widget _liveClassroom() => const LiveClassroomPage(key: ValueKey('live-classroom-tab'));
+
   // -- mobile ----------------------------------------------------------------
 
   Widget _mobileBody() {
     if (_showingLibrary) return _myVoices();
     if (_showingVirtualRecording) return _virtualRecording();
+    if (_showingLiveClassroom) return _liveClassroom();
     if (_showingRecorder) {
       return Padding(
         padding: const EdgeInsets.only(left: 8, right: 8),

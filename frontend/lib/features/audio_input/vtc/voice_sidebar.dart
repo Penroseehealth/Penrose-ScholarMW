@@ -21,6 +21,7 @@ class VtcNavItem {
 const List<VtcNavItem> kVtcNavItems = <VtcNavItem>[
   VtcNavItem(id: 'home', label: 'Home', icon: Icons.home_outlined),
   VtcNavItem(id: 'voice_training', label: 'Voice Training', icon: Icons.graphic_eq_rounded),
+  VtcNavItem(id: 'live_classroom', label: 'Live Classroom', icon: Icons.video_camera_front_outlined),
   VtcNavItem(
     id: 'virtual_recording',
     label: 'Virtual Recording',
