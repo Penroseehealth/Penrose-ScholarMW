@@ -1,0 +1,330 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Map Reading</title>
+<style>
+:root{color-scheme:light;--bg:#f1f3f1;--fg:#202925;--pn:#fff;--bd:#d5ddd7;--muted:#69766f;--ct:#986642;--ix:#54351f;--rv:#2879ad;--gr:#aab1ad;--ac:#17674f;--grid-major:#79877f;--grid-minor:#c5cdc7;--grid-border:#44554b;--shadow:0 12px 32px #07140d20}
+:root[data-theme=dark]{color-scheme:dark;--bg:#171d1c;--fg:#e8eee9;--pn:#202826;--bd:#384440;--muted:#a0ada5;--ct:#d5a878;--ix:#f0c48a;--rv:#55b9ed;--gr:#86948c;--ac:#43b88f;--grid-major:#9aa8a0;--grid-minor:#5b6961;--grid-border:#e4c38e;--shadow:0 12px 32px #0007}
+*{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden}body{background:var(--bg);color:var(--fg);font:13px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select{background:var(--pn);color:var(--fg);border:1px solid var(--bd);border-radius:7px;padding:7px 9px;font:inherit;transition:border-color .15s,background-color .15s,box-shadow .15s}button{cursor:pointer}button:hover{border-color:var(--ac);box-shadow:0 2px 8px #17674f20}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ac);outline-offset:2px}button:disabled,input:disabled,select:disabled{opacity:.5;cursor:not-allowed}button.p,.active{background:var(--ac);color:#fff;border-color:var(--ac)}
+#studio{display:flex;width:100%;height:100%;min-height:0;background:var(--bg)}#sidebar{counter-reset:panel;width:288px;flex:none;display:flex;flex-direction:column;overflow:auto;background:var(--pn);border-right:1px solid var(--bd);scrollbar-color:var(--bd) transparent;scrollbar-width:thin}
+.brand{position:sticky;top:0;z-index:2;padding:17px 18px 14px;border-bottom:1px solid var(--bd);background:var(--pn)}.brand b{font-size:13px;letter-spacing:.1em}.brand small{display:block;margin-top:3px;color:var(--muted);font-size:10px;letter-spacing:.11em}
+#sidebar details{counter-increment:panel;border-bottom:1px solid var(--bd)}#sidebar summary{position:sticky;top:62px;z-index:1;list-style:none;padding:12px 16px;background:var(--pn);font-size:12px;font-weight:650;letter-spacing:.015em;cursor:pointer}#sidebar summary::-webkit-details-marker{display:none}#sidebar summary:before{content:counter(panel);display:inline-grid;place-items:center;width:20px;height:20px;margin-right:9px;border:1px solid var(--bd);border-radius:6px;color:var(--muted);font-size:10px}#sidebar summary:after{content:'⌄';float:right;color:var(--muted)}#sidebar details[open] summary:after{content:'⌃'}
+.section{display:grid;gap:11px;padding:2px 16px 16px}.field{display:grid;gap:5px;color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.015em}.field input,.field select{width:100%;min-width:0;color:var(--fg);font-size:12px}.field input[type=range]{padding:0;accent-color:var(--ac)}.field input[type=color]{height:34px;padding:3px}.field input[type=number]{font-variant-numeric:tabular-nums}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:9px}.checks{display:grid;grid-template-columns:1fr 1fr;gap:10px 8px}.check{display:flex;align-items:center;gap:7px;min-width:0;font-size:11px}.check input{accent-color:var(--ac);width:15px;height:15px;flex:none}
+.actions{display:flex;gap:7px}.actions>*{flex:1}.note{font-size:10px;line-height:1.5;color:var(--muted)}
+#stage{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0}.toolbar{height:54px;flex:none;display:flex;align-items:center;gap:8px;padding:0 14px;background:var(--pn);border-bottom:1px solid var(--bd)}.toolbar .spacer{flex:1}.toolbar button{min-width:38px}.mode{display:flex;padding:3px;background:var(--bg);border:1px solid var(--bd);border-radius:9px}.mode button{border:0;background:transparent;color:var(--muted)}.mode button.active{border-radius:6px;background:var(--ac);color:#fff}
+#main{position:relative;flex:1;display:flex;min-height:0;background:var(--bg)}.v{position:absolute;inset:0;min-width:0;min-height:0}.v canvas,#t{display:block;width:100%;height:100%}#c2{touch-action:manipulation}#an{position:absolute;inset:0;pointer-events:none}#an.on{pointer-events:auto;cursor:crosshair}
+body.v2d #t3,body.v3d #t2{display:none}.tag{position:absolute;top:12px;left:15px;z-index:1;padding:5px 9px;border-radius:6px;background:var(--pn);border:1px solid var(--bd);font-size:11px}
+#info{height:76px;flex:none;display:flex;align-items:center;gap:14px;padding:8px 14px;border-top:1px solid var(--bd);background:var(--pn)}#txt{flex:1;max-height:60px;overflow:auto;line-height:1.5}#pf{width:min(36%,360px);height:60px}
+#toolbar .icon,.toolbar .icon{min-width:36px;padding:7px}.tool-panel{display:none;position:absolute;z-index:4;top:8px;left:8px;right:8px;max-height:92px;overflow:auto;gap:6px;align-items:center;flex-wrap:wrap;padding:7px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--pn)}.tool-panel.on{display:flex}
+#tb{display:none;gap:6px;align-items:center;flex-wrap:wrap;padding:7px 10px;background:var(--pn);border-bottom:1px solid var(--bd)}#tb.on{display:flex}
+#qp{display:none;position:fixed;inset:0;z-index:9;background:var(--bg);overflow:auto;padding:16px 24px}#qp.on{display:block}#qp .row{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}#qp .q{background:var(--pn);border:1px solid var(--bd);border-radius:8px;padding:10px 14px;margin:8px 0}#qp details{margin:4px 0 8px 14px}#qp summary{cursor:pointer;color:var(--ac)}#qp .m{float:right;opacity:.7}
+#dm{display:none;position:absolute;top:12px;right:12px;width:min(330px,45%);max-height:82%;overflow:auto;background:var(--pn);border:1px solid var(--bd);border-radius:9px;padding:10px 12px;font-size:12px;z-index:3}#dm.on{display:block}#dm .row2{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}#dm li{margin:2px 0;opacity:.55}#dm li.cur{opacity:1;font-weight:600}#dm .ans{color:var(--ac);font-weight:700;margin-top:6px}
+#vw{display:none}#studio.fullscreen{position:fixed;inset:0;z-index:9999;width:100vw;height:100vh}#studio.fullscreen #sidebar{display:none}#studio.fullscreen #info{height:58px}#studio:fullscreen{background:var(--bg)}#studio:fullscreen #sidebar{display:none}
+@media(max-width:820px){#sidebar{width:255px}.toolbar{height:48px;padding:0 8px;gap:5px}#info{height:66px;padding:6px 9px}#pf{width:32%;height:52px}}
+body.sidebar-collapsed #sidebar{display:none}
+@media(max-width:600px){#sidebar{position:absolute;z-index:5;top:44px;bottom:0;left:0;width:min(300px,88vw);box-shadow:var(--shadow)}.brand{top:0}.toolbar{height:44px}.toolbar .optional{display:none}#info{height:58px}#pf{display:none}}
+@media print{html,body{overflow:visible;height:auto}body.print-map #studio{height:auto;display:block;background:#fff;color:#000}body.print-map #sidebar,body.print-map .toolbar,body.print-map #info,body.print-map #t3,body.print-map #qp,body.print-map #tb{display:none!important}body.print-map #stage,body.print-map #main{height:94vh;display:block}body.print-map #t2{position:static!important;display:block!important}body.print-map #c2,body.print-map #an{width:100%!important;height:94vh!important}body.print-map{background:#fff;color:#000}}
+</style></head><body class="v2d">
+<div id="studio">
+<aside id="sidebar">
+ <div class="brand"><b>MAPREADS STUDIO</b><small>MALAWI · MSCE GEOGRAPHY</small></div>
+ <details open><summary>Map generation</summary><div class="section">
+  <div class="pair"><label class="field">Random seed<input id="seed" type="number" value="7"></label><label class="field">Number of hills<input id="hills" type="number" min="1" max="6" value="3"></label></div>
+  <div class="pair"><label class="field">Contour interval<select id="iv"><option>10</option><option selected>20</option><option>50</option></select></label><label class="field">Map scale<select id="rf"><option value="25000">1:25 000</option><option value="50000" selected>1:50 000</option></select></label></div>
+  <label class="field">Terrain complexity <select id="complexity"><option value="1">Gentle</option><option value="2" selected>Varied</option><option value="3">Complex</option></select></label>
+  <label class="field">Landform<select id="tp"><option value="hills">Hills and ridges</option><option value="escarp">Escarpment</option><option value="uvalley">U-valley</option><option value="mixed">Mixed relief</option></select></label>
+  <div class="actions"><button class="p" id="gen">Generate map</button><button id="rnd">Random terrain</button></div>
+ </div></details>
+ <details open><summary>Cartographic appearance</summary><div class="section">
+  <label class="field">Contour preset<select id="palette"><option value="brown">Traditional brown</option><option value="exam">Black &amp; white examination</option><option value="elevation">Multicolour elevation</option><option value="earth">Earth tones</option><option value="teaching">High-contrast teaching</option></select></label>
+  <div class="pair"><label class="field">Index contour<input id="indexColor" type="color" value="#54351f"></label><label class="field">Intermediate<input id="intermediateColor" type="color" value="#986642"></label></div>
+  <div class="pair"><label class="field">Minor contour<input id="minorColor" type="color" value="#c6a887"></label><label class="field">Depression<input id="depressionColor" type="color" value="#587985"></label></div>
+  <div class="pair"><label class="field">Label colour<input id="labelColor" type="color" value="#54351f"></label><label class="field">Print style<select id="pm"><option value="std">Standard</option><option value="hc">High contrast</option><option value="gray">Grayscale</option></select></label></div>
+  <label class="field">Contour thickness <input id="lineWidth" type="range" min="0.5" max="2.5" step="0.1" value="1"></label>
+  <label class="field">Contour opacity <input id="contourOpacity" type="range" min="0.25" max="1" step="0.05" value="1"></label>
+  <label class="field">Contour emphasis <input id="contourEmphasis" type="range" min="1" max="2.5" step="0.1" value="1.8"></label>
+  <div class="checks"><label class="check"><input id="showLabels" type="checkbox" checked>Elevation labels</label><label class="check"><input id="showGrid" type="checkbox" checked>Grid lines</label><label class="check"><input id="showRefs" type="checkbox" checked>Grid references</label><label class="check"><input id="showDepressions" type="checkbox" checked>Depression hachures</label></div>
+ </div></details>
+ <details><summary>Geographical features</summary><div class="section">
+  <div class="checks"><label class="check"><input id="fRiver" type="checkbox" checked>Rivers &amp; streams</label><label class="check"><input id="fr" type="checkbox" checked>Roads &amp; tracks</label><label class="check"><input id="fs" type="checkbox" checked>Settlements</label><label class="check"><input id="fSchools" type="checkbox" checked>Schools</label><label class="check"><input id="fMarkets" type="checkbox" checked>Markets</label><label class="check"><input id="fBridges" type="checkbox" checked>Bridges</label><label class="check"><input id="fBoreholes" type="checkbox" checked>Boreholes</label><label class="check"><input id="fv" type="checkbox" checked>Land cover</label><label class="check"><input id="fWood" type="checkbox" checked>Forest reserves</label><label class="check"><input id="fCrop" type="checkbox" checked>Cultivated land</label><label class="check"><input id="fWet" type="checkbox" checked>Swamps &amp; wetlands</label><label class="check"><input id="fb" type="checkbox" checked>Study-area boundary</label></div>
+ </div></details>
+ <details><summary>Terrain controls</summary><div class="section">
+  <label class="field">Elevation exaggeration <input id="ve" type="range" min="1" max="6" step="0.5" value="2"></label>
+  <label class="field">Relief intensity <input id="relief" type="range" min="0.4" max="1.8" step="0.1" value="1"></label>
+  <label class="field">Terrain surface<select id="surface"><option value="hypsometric">Hypsometric tint</option><option value="monochrome">Monochrome</option></select></label>
+  <label class="check"><input id="hillShade" type="checkbox" checked>Hill shading &amp; directional light</label>
+ </div></details>
+ <details><summary>Map presentation</summary><div class="section">
+  <label class="field">Scale &amp; print layout<select id="printSize"><option value="a4">A4 landscape</option><option value="a3">A3 landscape</option></select></label>
+  <div class="actions"><button id="printMap">Print / save PDF</button><button id="top">Top view</button></div>
+  <div class="actions"><button id="rst">Reset camera</button><button id="clr">Clear points</button></div>
+  <div class="note">Select the browser print dialog’s “Save as PDF” option. The map is prepared without studio controls.</div>
+ </div></details>
+ <details><summary>Learning tools</summary><div class="section">
+  <button id="qbtn">Practice questions</button><button id="tbt">Teach &amp; annotate</button>
+  <label class="field">Guided demonstration<select id="dsel"><option value="hill">Identify a hill</option><option value="valley">Valley</option><option value="ridge">Ridge</option><option value="gradient">Gradient</option><option value="bearing">Bearing</option><option value="distance">Ground distance</option><option value="gridref">Grid reference</option><option value="section">Cross-section</option><option value="intervis">Intervisibility</option></select></label>
+  <button class="p" id="dgo">Start demonstration</button>
+ </div></details>
+ <div class="note" style="padding:14px">Terrain, drainage, contours and spot heights are generated from one shared elevation model. Place two points to inspect grid references, bearing, gradient and relief.</div>
+</aside>
+<section id="stage">
+ <header class="toolbar">
+  <button id="sidebarToggle" class="icon" title="Show or hide map controls" aria-label="Show or hide map controls">☰</button>
+  <div class="mode" role="group" aria-label="Map view"><button id="mode2d" class="active" aria-pressed="true">2D map</button><button id="mode3d" aria-pressed="false">3D terrain</button></div>
+  <select id="vw" aria-hidden="true"><option value="v2d" selected>2D</option><option value="v3d">3D</option></select>
+  <button id="qbtnTop" class="optional" title="Practice questions">Questions</button><button id="teachTop" class="optional" title="Teaching tools">Teach</button>
+  <span class="spacer"></span><button id="fullscreen" class="icon" title="Full screen" aria-label="Full screen">⛶</button>
+ </header>
+ <div id="tb"><b>Annotation tools</b><button data-t="pen">Pen</button><button data-t="hl">Highlight</button><button data-t="line">Line</button><button data-t="arrow">Arrow</button><button data-t="text">Text</button><button data-t="mark">Marker</button><button data-t="dist">Measure</button><select id="tc"><option value="r">Red</option><option value="b">Blue</option><option value="g">Green</option><option value="a">Amber</option><option value="k">Black</option></select><button id="tu">Undo</button><button id="tr">Redo</button><button id="tcl">Clear</button></div>
+ <div id="main"><div class="v" id="t2"><span class="tag">TOPOGRAPHIC MAP · NORTH UP</span><canvas id="c2"></canvas><canvas id="an"></canvas><div id="dm"><b id="dt"></b><div id="dq"></div><ol id="dl"></ol><div class="row2"><button id="dp">◀ Back</button><button id="dn" class="p">Next step ▶</button><button id="da">Reveal answer</button><button id="dr">Reset</button><button id="dnew">New example</button><button id="dx">Close</button></div><div id="dans" class="ans"></div></div></div><div class="v" id="t3"><span class="tag">INTERACTIVE TERRAIN · ORBIT / ZOOM / SHIFT-DRAG TO PAN</span><div id="t"></div></div></div>
+ <div id="info"><div id="txt">Select a point on the map or terrain. Two points enable grid reference, distance, bearing, gradient, profile and intervisibility exercises.</div><canvas id="pf"></canvas></div>
+</section>
+</div>
+<div id="qp"><div class="row"><b>Practice questions</b><select id="ql"><option value="basic">Basic</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option><option value="msce" selected>MSCE style</option></select><label>Paper seed<input id="qs" type="number" value="1"></label><button class="p" id="qg">Generate paper</button><label><input type="checkbox" id="qa">Show all answers</label><button id="qpr">Print</button><button id="qx">Close</button></div><div id="qo"></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="engine.js"></script>
+<script src="features.js"></script>
+<script src="questions.js"></script>
+<script src="annotate.js"></script>
+<script src="demo.js"></script>
+<script src="smartboard-bridge.js"></script>
+<script>
+const $=id=>document.getElementById(id),M=MapEngine,E0=30000,N0=70000;
+let g,pts=[],ren,scn,cam,mesh,lines,marks=[],featureObjects=[],dirLight,ang={th:.8,ph:1},dist3=1,tgt=new THREE.Vector3(),plot={x:40,y:40,size:500},sideLegend=false,css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function setTheme(t){document.documentElement.dataset.theme=t;if(g){draw2d();if(scn)scn.background=new THREE.Color(css('--bg'));draw3dRefresh();showInfo()}}
+window.setTheme=setTheme;
+const q=new URLSearchParams(location.search);setTheme(q.get('theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+function generate(cfg){paper=null;store.clear();demo=null;$('dm').classList.remove('on');g=M.generate({...cfg,complexity:+$('complexity').value});g.F=Feat.build(g);g.cc={};pts=[];build3d(true);draw2d();showInfo()}
+window.MapReading={generate,getGrid:()=>g,setTheme,pick:(x,y)=>pick({x,y})};
+// ---------- 2D ----------
+const c2=$('c2'),A=()=>plot.size;
+function toPx(x,y){const s=A()/g.size;return[plot.x+x*s,plot.y+A()-y*s]}
+function fromPx(px,py){const s=A()/g.size;return{x:(px-plot.x)/s,y:(plot.y+A()-py)/s}}
+function pal(){const m=$('pm').value,d=document.documentElement.dataset.theme==='dark';
+ const p=$('palette').value,brighten=(c,fallback)=>{if(!d)return c;const rgb=c.match(/^#([0-9a-f]{6})$/i);if(!rgb)return fallback;const v=rgb[1].match(/../g).map(n=>parseInt(n,16)),l=v[0]*.2126+v[1]*.7152+v[2]*.0722;if(l>110)return c;return'#'+v.map(n=>Math.round(n+(255-n)*.58).toString(16).padStart(2,'0')).join('')};
+ const custom=brighten($('indexColor').value,'#f0c48a');
+ const base={pn:d?'#1d2523':'#fffefa',fg:d?'#e7ece8':'#24241f',ix:custom,ct:brighten($('intermediateColor').value,'#d5a878'),minor:brighten($('minorColor').value,'#c6a887'),depression:brighten($('depressionColor').value,'#61b4c6'),label:brighten($('labelColor').value,'#f4ddb9'),rv:d?'#55b9ed':'#2879ad',rd:d?'#d8d1c5':'#24241f',gr:d?'#748179':'#aab1ad',gridMajor:d?'#9aa8a0':'#79877f',gridMinor:d?'#5b6961':'#c5cdc7',gridBorder:d?'#e4c38e':'#44554b',wd:d?'#315846':'#d4e8c6',cr:d?'#70683d':'#f3eec6',wt:d?'#27636a':'#cfe3ee',tr:d?'#83b879':'#3a7a3a',lake:d?'#145a76':'#9bc8d4',legendBorder:d?'#45544c':'#c9c3b6',w:+$('lineWidth').value,opacity:+$('contourOpacity').value,emphasis:+$('contourEmphasis').value};
+ if(m==='gray'||p==='exam')return{...base,ix:d?'#f4f4f1':'#111',ct:d?'#c2c7c4':'#555',minor:d?'#858d89':'#999',depression:d?'#d58c9b':'#333',label:d?'#fff':'#111',rv:d?'#8cd4ff':'#111',rd:d?'#e6e9e7':'#111',wd:d?'#46534c':'#e4e4e4',cr:d?'#55554c':'#f4f4f4',wt:d?'#374d52':'#c8c8c8',tr:d?'#9db69f':'#444',lake:d?'#223f4c':'#d0dce0',w:1.15};
+ if(m==='hc'||p==='teaching')return{...base,ix:d?'#fff':'#111',ct:d?'#71b9ff':'#345b8c',minor:d?'#9fd3ff':'#558cc2',depression:d?'#ff8b9c':'#992f43',label:d?'#fff':'#111',rv:d?'#66caff':'#0050d0',rd:d?'#f2f4f3':'#101820',wd:d?'#33664a':'#b9e2c2',cr:d?'#77702a':'#f7e66a',wt:d?'#24566c':'#9fd9f3',tr:d?'#8bdd70':'#1a6b1a',lake:d?'#174b73':'#90cbe7',w:1.25};
+ const palette={
+  brown:{ix:'#54351f',ct:'#986642',minor:'#c6a887',depression:'#587985',wd:'#d4e8c6',cr:'#f3eec6',wt:'#cfe3ee',tr:'#3a7a3a'},
+  elevation:{ix:'#7d2838',ct:'#df6c35',minor:'#e9bd42',depression:'#344b9a',wd:'#c8e4a8',cr:'#efdc82',wt:'#a9dce6',tr:'#397346'},
+  earth:{ix:'#49352a',ct:'#806145',minor:'#b89a72',depression:'#486c75',wd:'#c8d1a2',cr:'#e8d1a0',wt:'#b4d2d0',tr:'#43623d'}
+ }[p]||null;
+ return{...base,ix:brighten($('indexColor').value||palette.ix,palette.ix),ct:brighten($('intermediateColor').value||palette.ct,palette.ct),minor:brighten($('minorColor').value||palette.minor,palette.minor),depression:brighten($('depressionColor').value||palette.depression,palette.depression),label:brighten($('labelColor').value,'#f4ddb9'),wd:d?'#315846':palette.wd,cr:d?'#70683d':palette.cr,wt:d?'#27636a':palette.wt,tr:d?'#83b879':palette.tr}}
+function draw2d(scale=1){const r=$('t2').getBoundingClientRect(),w=Math.max(1,Math.floor(r.width)),h=Math.max(1,Math.floor(r.height));c2.width=w*scale;c2.height=h*scale;c2.style.width='100%';c2.style.height='100%';
+ sideLegend=w>h+260;const size=Math.max(120,Math.floor(Math.min(w-(sideLegend?360:44),h-(sideLegend?62:136))));plot={size,x:sideLegend?24:Math.floor((w-size)/2),y:sideLegend?24:Math.max(24,Math.floor((h-size-92)/2))};
+ const x=c2.getContext('2d'),iv=+$('iv').value,P=pal(),N=g.N,F=g.F,on=id=>$(id).checked,cs=g.cell*A()/g.size,S=A(),[x0,y1]=toPx(0,0),[x1,y0]=toPx(g.size,g.size);
+ x.setTransform(scale,0,0,scale,0,0);x.fillStyle=P.pn;x.fillRect(0,0,w,h);x.font='11px sans-serif';x.textAlign='center';
+ if(on('fv')&&(on('fWood')||on('fCrop')||on('fWet'))){const res=Math.round(A()),key=res+P.wd+P.cr+P.wt+on('fWood')+on('fCrop')+on('fWet');
+  if(!g.lcc||g.lcc.key!==key){const m=Feat.smoothLC(g,F.lc,res),cv=document.createElement('canvas');cv.width=cv.height=res;const cx=cv.getContext('2d'),im=cx.createImageData(res,res),col=[null,on('fWood')?P.wd:null,on('fCrop')?P.cr:null,on('fWet')?P.wt:null].map(c=>{if(!c)return null;cx.fillStyle=c;cx.fillRect(0,0,1,1);return cx.getImageData(0,0,1,1).data});
+   for(let k=0;k<m.length;k++){const c=col[m[k]];if(c)im.data.set([c[0],c[1],c[2],255],k*4)}cx.putImageData(im,0,0);g.lcc={key,cv}}
+  x.drawImage(g.lcc.cv,plot.x,plot.y,A(),A());
+  for(let j=0;j<N;j+=3)for(let i=0;i<N;i+=3){const c=F.lc[j*N+i],[px,py]=toPx(i*g.cell,j*g.cell);
+   if(c===3){x.strokeStyle=P.rv;x.lineWidth=1;x.beginPath();x.moveTo(px-4,py);x.lineTo(px+4,py);for(const o of[-2.5,0,2.5]){x.moveTo(px+o,py);x.lineTo(px+o,py-3)}x.stroke()}
+   if(c===1){x.fillStyle=P.tr;x.beginPath();x.arc(px,py,1.8,0,7);x.fill()}}}
+ const path=p=>{x.moveTo(...p[0]);for(let i=1;i<p.length-1;i++)x.quadraticCurveTo(p[i][0],p[i][1],(p[i][0]+p[i+1][0])/2,(p[i][1]+p[i+1][1])/2);x.lineTo(...p[p.length-1])};
+ for(const lake of g.lakes||[]){x.beginPath();lake.points.forEach((p,i)=>{const q=toPx(p.x,p.y);if(i)x.lineTo(...q);else x.moveTo(...q)});x.closePath();x.fillStyle=P.lake;x.fill();x.strokeStyle=P.rv;x.lineWidth=1.2;x.stroke()}
+ if($('showGrid').checked){x.save();x.beginPath();x.rect(x0,y0,x1-x0,y1-y0);x.clip();
+  for(let d=Math.ceil(E0/500)*500;d<=E0+g.size;d+=500){const major=d%1000===0,px=toPx(d-E0,0)[0];x.strokeStyle=major?P.gridMajor:P.gridMinor;x.lineWidth=major?1.15:.65;x.beginPath();x.moveTo(px,y0);x.lineTo(px,y1);x.stroke()}
+  for(let d=Math.ceil(N0/500)*500;d<=N0+g.size;d+=500){const major=d%1000===0,py=toPx(0,d-N0)[1];x.strokeStyle=major?P.gridMajor:P.gridMinor;x.lineWidth=major?1.15:.65;x.beginPath();x.moveTo(x0,py);x.lineTo(x1,py);x.stroke()}
+  x.restore()}
+ if($('showRefs').checked){x.fillStyle=P.fg;x.textAlign='center';for(let d=Math.ceil(E0/1000)*1000;d<=E0+g.size;d+=1000)x.fillText(String((d/1000)%100).padStart(2,'0'),toPx(d-E0,0)[0],y0-6);
+  x.textAlign='right';for(let d=Math.ceil(N0/1000)*1000;d<=N0+g.size;d+=1000)x.fillText(String((d/1000)%100).padStart(2,'0'),x0-8,toPx(0,d-N0)[1]+4)}
+ if($('fRiver').checked){x.lineCap='round';
+  for(let k=0;k<N*N;k++){if(g.acc[k]<24||g.flow[k]<0)continue;const a=[(k%N)*g.cell,((k/N)|0)*g.cell],f=g.flow[k],b=[(f%N)*g.cell,((f/N)|0)*g.cell];if(M.isWater(g,(a[0]+b[0])/2,(a[1]+b[1])/2))continue;const width=Math.min(3.5,.65+Math.log2(g.acc[k])*.28)*P.w;
+   x.strokeStyle=document.documentElement.dataset.theme==='dark'?'#102a34':'#eaf4f5';x.lineWidth=width+1.25;x.beginPath();x.moveTo(...toPx(...a));x.lineTo(...toPx(...b));x.stroke();x.strokeStyle=g.acc[k]>=Feat.RIVER?P.rv:(document.documentElement.dataset.theme==='dark'?'#70c6e7':'#6dabc0');x.lineWidth=width;x.beginPath();x.moveTo(...toPx(...a));x.lineTo(...toPx(...b));x.stroke()}}
+ const contourParts=pts=>{const out=[];let part=[];for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],m=fromPx((a[0]+b[0])/2,(a[1]+b[1])/2);if(M.isWater(g,m.x,m.y)){if(part.length>1)out.push(part);part=[]}else{if(!part.length)part.push(a);part.push(b)}}if(part.length>1)out.push(part);return out};
+ const cacheKey=`${S}:${plot.x}:${plot.y}`;if(g.ccS!==cacheKey){g.cc={};g.ccS=cacheKey}const cc=g.cc[iv]=g.cc[iv]||M.levels(g,iv).map(L=>({L,l:Feat.chain(M.contour(g,L)).map(c=>({...c,px:c.pts.map(p=>toPx(p[0],p[1]))}))}));
+ for(const{L,l}of cc)for(const c of l){if(c.px.length<2)continue;const parts=contourParts(c.px);if(!parts.length)continue;
+  const idx=L%(iv*5)===0,mid=L%(iv*2)===0,center=c.pts.reduce((a,p)=>[a[0]+p[0],a[1]+p[1]],[0,0]).map(v=>v/c.pts.length);
+  const dep=$('showDepressions').checked&&c.closed&&M.elev(g,center[0],center[1])<L;
+  x.globalAlpha=P.opacity??1;x.strokeStyle=dep?P.depression:idx?P.ix:mid?P.ct:P.minor;x.lineWidth=(idx?(P.emphasis??1.8):mid?1:.7)*P.w;
+  x.setLineDash(dep?[3,3]:[]);for(const part of parts){x.beginPath();path(part);x.stroke()}x.setLineDash([]);
+  if(dep&&$('showDepressions').checked){x.strokeStyle=P.depression;x.lineWidth=.7;for(const part of parts)for(let i=8;i<part.length-1;i+=12){const p=part[i],q=toPx(center[0],center[1]),dx=q[0]-p[0],dy=q[1]-p[1],d=Math.hypot(dx,dy)||1;x.beginPath();x.moveTo(...p);x.lineTo(p[0]+dx/d*5,p[1]+dy/d*5);x.stroke()}}
+  x.globalAlpha=1}
+ if($('showLabels').checked)for(const{L,l}of cc){if(L%(iv*5))continue;x.font='bold 10px sans-serif';for(const c of l){if(c.px.length<45||M.isWater(g,...c.pts[Math.floor(c.pts.length/2)]))continue;const i=Math.floor(c.px.length/2),a=c.px[i-2],b=c.px[i+2];let t=Math.atan2(b[1]-a[1],b[0]-a[0]);if(Math.abs(t)>Math.PI/2)t+=Math.PI;
+  x.save();x.translate(...c.px[i]);x.rotate(t);x.fillStyle=P.pn;x.fillRect(-11,-6,22,12);x.fillStyle=P.label;x.fillText(L,0,4);x.restore()}}
+ x.font='11px sans-serif';
+ if(on('fr')){F.roads.forEach(R=>{const p=R.pts.map(q=>toPx(q.x,q.y));x.lineJoin='round';
+  if(R.type==='main'){x.strokeStyle=P.pn;x.lineWidth=5;x.beginPath();path(p);x.stroke();x.strokeStyle=P.rd;x.lineWidth=2.6*P.w;x.beginPath();path(p);x.stroke()}
+  else{x.strokeStyle=P.rd;x.lineWidth=1.6*P.w;x.setLineDash([6,4]);x.beginPath();path(p);x.stroke();x.setLineDash([])}});
+  if($('fBridges').checked)F.bridges.forEach(b=>{const[px,py]=toPx(b.x,b.y);x.fillStyle=P.pn;x.strokeStyle=P.rd;x.lineWidth=1.5;x.fillRect(px-4,py-4,8,8);x.strokeRect(px-4,py-4,8,8)})}
+ if(on('fs')){x.fillStyle=P.fg;F.settlements.forEach(s=>s.b.forEach(b=>{const[px,py]=toPx(b.x,b.y);x.fillRect(px-2,py-2,4,4)}));
+  x.textAlign='center';x.lineWidth=3;x.lineJoin='round';F.settlements.forEach((s,i)=>{const[px,py]=toPx(s.x,s.y);x.font=(i?'11px':'bold 12px')+' sans-serif';x.strokeStyle=P.pn;x.strokeText(s.name,px,py-16);x.fillStyle=P.fg;x.fillText(s.name,px,py-16)})}
+ if(on('fb')){x.strokeStyle=P.fg;x.lineWidth=1.6;x.setLineDash([10,3,2,3]);x.beginPath();path(F.boundary.map(q=>toPx(q.x,q.y)));x.stroke();x.setLineDash([])}
+ if($('fSchools').checked)F.schools.forEach(s=>{const[px,py]=toPx(s.x,s.y);x.strokeStyle=P.fg;x.lineWidth=1.4;x.beginPath();x.arc(px,py,4,0,7);x.moveTo(px-3,py);x.lineTo(px+3,py);x.moveTo(px,py-3);x.lineTo(px,py+3);x.stroke()});
+ if($('fMarkets').checked)F.markets.forEach(m=>{const[px,py]=toPx(m.x,m.y);x.fillStyle=P.pn;x.strokeStyle=P.fg;x.lineWidth=1.4;x.fillRect(px-4,py-4,8,8);x.strokeRect(px-4,py-4,8,8)});
+ if($('fBoreholes').checked)F.boreholes.forEach(b=>{const[px,py]=toPx(b.x,b.y);x.strokeStyle=P.rv;x.lineWidth=1.4;x.beginPath();x.arc(px,py,3.5,0,7);x.stroke();x.fillStyle=P.rv;x.fillRect(px-1,py-1,2,2)});
+ x.font='11px sans-serif';x.textAlign='left';x.lineWidth=3;
+ for(const m of F.marks){const[px,py]=toPx(m.x,m.y),t=m.kind==='TP'?String(m.z):m.kind==='BM'?'BM '+m.z:'.'+m.z;x.strokeStyle=P.pn;x.strokeText(t,px+7,py+4);x.fillStyle=x.strokeStyle=P.fg;x.lineWidth=1.3;
+  if(m.kind==='TP'){x.beginPath();x.moveTo(px,py-5);x.lineTo(px-4.5,py+3);x.lineTo(px+4.5,py+3);x.closePath();x.stroke();x.beginPath();x.arc(px,py,1,0,7);x.fill()}
+  else if(m.kind==='BM'){x.beginPath();x.moveTo(px-3,py-3);x.lineTo(px+3,py+3);x.moveTo(px+3,py-3);x.lineTo(px-3,py+3);x.stroke()}else{x.beginPath();x.arc(px,py,1.6,0,7);x.fill()}
+  x.fillStyle=P.fg;x.fillText(t,px+7,py+4);x.lineWidth=3}
+ x.strokeStyle=P.gridBorder;x.lineWidth=1.4;x.strokeRect(x0-4,y0-4,x1-x0+8,y1-y0+8);x.lineWidth=1;x.strokeRect(x0+4,y0+4,x1-x0-8,y1-y0-8);x.fillStyle=P.fg;x.textAlign='left';const rf=+$('rf').value;
+ x.font='bold 13px sans-serif';x.fillText('N',x1-22,y0+34);x.beginPath();x.moveTo(x1-18,y0+8);x.lineTo(x1-24,y0+26);x.lineTo(x1-12,y0+26);x.fill();
+ const sb=toPx(1000,0)[0]-toPx(0,0)[0];x.fillRect(x0+10,y1-18,sb*2,4);x.font='11px sans-serif';x.fillText('0',x0+8,y1-24);x.fillText('1',x0+10+sb-3,y1-24);x.fillText('2 km',x0+10+sb*2-8,y1-24);
+ x.textAlign='center';x.font='bold 12px sans-serif';x.fillText(`MALAWI · MSCE GEOGRAPHY · STUDY AREA ${String(g.cfg.seed).padStart(3,'0')}`,(x0+x1)/2,y0-10);x.textAlign='left';x.font='11px sans-serif';
+ const footer=sideLegend?`1:${rf.toLocaleString('en')} | CI ${iv} m`:`1:${rf.toLocaleString('en')} | CI ${iv} m | Grid 500 m / 1 km`;
+ x.fillText(footer,x0,y1+16,x1-x0);
+ const it=[['l',P.ix,'Index contour'],['l',P.ct,'Intermediate'],['l',P.minor,'Minor contour'],['d',P.depression,'Depression'],['l',P.gridMajor,'1 km grid'],['l',P.gridMinor,'500 m grid'],['l',P.rv,'River'],['f',P.lake,'Lake'],['l',P.rd,'Road'],['d',P.rd,'Track'],['b',P.fg,'Bridge'],['s',P.fg,'Building'],['sc',P.fg,'School'],['mk',P.fg,'Market'],['bh',P.rv,'Borehole'],['f',P.wd,'Woodland'],['f',P.cr,'Cultivation'],['f',P.wt,'Marsh'],['bd',P.fg,'Study boundary'],['tp',P.fg,'Trig point'],['bm',P.fg,'Benchmark'],['sh',P.fg,'Spot height']],legendX=sideLegend?x0:12,legendWidth=sideLegend?x1-x0:w-24,cw=legendWidth/5;
+ const drawSymbol=([t,c,n],px,py)=>{x.fillStyle=x.strokeStyle=c;x.lineWidth=1.6;
+  if(t==='f'){x.fillRect(px,py-8,16,10);x.strokeStyle=P.fg;x.lineWidth=.5;x.strokeRect(px,py-8,16,10)}else if(t==='s')x.fillRect(px+6,py-6,4,4);else if(t==='b'||t==='mk'){x.fillStyle=P.pn;x.fillRect(px+4,py-8,8,8);x.strokeRect(px+4,py-8,8,8)}
+  else if(t==='sc'){x.beginPath();x.arc(px+8,py-4,4,0,7);x.moveTo(px+5,py-4);x.lineTo(px+11,py-4);x.moveTo(px+8,py-7);x.lineTo(px+8,py-1);x.stroke()}
+  else if(t==='bh'){x.beginPath();x.arc(px+8,py-4,3.5,0,7);x.stroke()}
+  else if(t==='tp'){x.beginPath();x.moveTo(px+8,py-9);x.lineTo(px+3,py-1);x.lineTo(px+13,py-1);x.closePath();x.stroke();x.beginPath();x.arc(px+8,py-4,1,0,7);x.fill()}
+  else if(t==='bm'){x.beginPath();x.moveTo(px+5,py-8);x.lineTo(px+11,py-2);x.moveTo(px+11,py-8);x.lineTo(px+5,py-2);x.stroke()}else if(t==='sh'){x.beginPath();x.arc(px+8,py-4,1.6,0,7);x.fill()}
+  else{x.setLineDash(t==='d'?[5,3]:t==='bd'?[8,3,2,3]:[]);x.beginPath();x.moveTo(px,py-3);x.lineTo(px+16,py-3);x.stroke();x.setLineDash([])}};
+ if(sideLegend){const lx=x1+18,top=y0+14,width=Math.max(150,c2.width/scale-lx-12);x.fillStyle=P.pn;x.strokeStyle=P.legendBorder;x.lineWidth=1;x.fillRect(lx,top,width,Math.min(h-top-16,it.length*22+46));x.strokeRect(lx,top,width,Math.min(h-top-16,it.length*22+46));x.fillStyle=P.fg;x.font='bold 12px sans-serif';x.fillText('CONVENTIONAL SIGNS',lx+12,top+20);x.font='11px sans-serif';
+  it.forEach((item,i)=>{const py=top+42+i*22;if(py>h-14)return;drawSymbol(item,lx+12,py);x.fillStyle=P.fg;x.fillText(item[2],lx+36,py)})}
+ else it.forEach((item,i)=>{const px=legendX+(i%5)*cw,py=y1+34+((i/5)|0)*18;drawSymbol(item,px,py);x.fillStyle=P.fg;x.fillText(item[2],px+22,py)});
+ pts.forEach((p,i)=>{const[px,py]=toPx(p.x,p.y);x.fillStyle=i?'#d33':'#27a';x.beginPath();x.arc(px,py,5,0,7);x.fill();x.fillStyle=P.fg;x.fillText('AB'[i],px+9,py-7)});renderAn()}
+c2.addEventListener('click',e=>{const b=c2.getBoundingClientRect(),p=fromPx((e.clientX-b.left)*c2.width/b.width,(e.clientY-b.top)*c2.height/b.height);if(p.x>=0&&p.y>=0&&p.x<=g.size&&p.y<=g.size)pick(p)});
+function pick(p){if(pts.length>=2)pts=[];pts.push({x:p.x,y:p.y});draw2d();marks3d();showInfo()}
+// ---------- analysis ----------
+function showInfo(){const T=$('txt'),pf=$('pf'),cx=pf.getContext('2d');pf.width=pf.clientWidth;pf.height=pf.clientHeight;cx.clearRect(0,0,pf.width,pf.height);
+ if(!pts.length){T.textContent='Click the map (or terrain) to pick point A, then point B.';return}
+ const r=p=>`${Math.round(M.elev(g,p.x,p.y))} m, GR ${M.gridRef(p.x,p.y,E0,N0,6)}`;let h=`<b>A</b>: ${r(pts[0])}`;
+ if(pts.length<2){T.innerHTML=h;return}const[a,b]=pts,d=M.dist(a,b),dz=M.elev(g,b.x,b.y)-M.elev(g,a.x,a.y),rf=+$('rf').value,bg=M.bearing(a,b),gr=M.gradient(dz,d),iv=M.intervisible(g,a,b);
+ T.innerHTML=`${h}<br><b>B</b>: ${r(b)}<br>Ground distance ${d.toFixed(0)} m (${(M.mapFromGround(d,rf)).toFixed(1)} cm on map) | Bearing A→B ${bg}° (${M.compass(bg)})<br>Height difference ${Math.abs(dz).toFixed(1)} m ${dz>=0?'rise':'fall'} | Gradient ${gr.ratio} (${gr.percent}%)<br>Intervisible (eye 1.7 m): <b>${iv.visible?'Yes':'No — blocked at '+Math.round(iv.blockedAt.z)+' m'}</b>`;
+ const P=M.profile(g,a,b,120),zs=P.map(p=>p.z),lo=Math.min(...zs)-10,hi=Math.max(...zs)+10,w=pf.width,ht=pf.height,L=40,B=20,X=d=>L+d/P[120].d*(w-L-10),Y=z=>ht-B-(z-lo)/(hi-lo)*(ht-B-10);
+ cx.strokeStyle=css('--fg');cx.fillStyle=css('--fg');cx.font='10px sans-serif';cx.beginPath();cx.moveTo(L,5);cx.lineTo(L,ht-B);cx.lineTo(w-5,ht-B);cx.stroke();
+ cx.fillText(Math.round(lo)+' m',2,ht-B);cx.fillText(Math.round(hi)+' m',2,14);cx.fillText('0',L,ht-5);cx.fillText(Math.round(P[120].d)+' m',w-50,ht-5);
+ cx.fillText('Cross-section A–B (V.E. '+(((ht-B-10)/(hi-lo))/((w-L-10)/P[120].d)).toFixed(1)+'×)',L+10,14);
+ cx.strokeStyle=css('--ix');cx.lineWidth=2;cx.beginPath();P.forEach((p,i)=>i?cx.lineTo(X(p.d),Y(p.z)):cx.moveTo(X(p.d),Y(p.z)));cx.stroke();
+ cx.strokeStyle=iv.visible?'#2a2':'#d33';cx.setLineDash([4,3]);cx.lineWidth=1;cx.beginPath();cx.moveTo(X(0),Y(zs[0]+1.7));cx.lineTo(X(P[120].d),Y(zs[120]+1.7));cx.stroke();cx.setLineDash([])}
+// ---------- 3D ----------
+function hyps(t){const s=[[0,[.25,.5,.25]],[.35,[.55,.65,.3]],[.65,[.7,.55,.35]],[1,[.95,.93,.9]]];for(let i=1;i<4;i++)if(t<=s[i][0]){const u=(t-s[i-1][0])/(s[i][0]-s[i-1][0]);return s[i][1].map((v,k)=>s[i-1][1][k]+(v-s[i-1][1][k])*u)}return s[3][1]}
+function init3d(){const el=$('t');ren=new THREE.WebGLRenderer({antialias:true,powerPreference:'low-power'});ren.setPixelRatio(Math.min(devicePixelRatio,1.5));ren.shadowMap.enabled=true;ren.shadowMap.type=THREE.PCFSoftShadowMap;el.appendChild(ren.domElement);
+ scn=new THREE.Scene();cam=new THREE.PerspectiveCamera(45,1,10,50000);dirLight=new THREE.DirectionalLight(0xffffff,1);dirLight.castShadow=true;dirLight.shadow.mapSize.width=1024;dirLight.shadow.mapSize.height=1024;dirLight.shadow.bias=-.0002;dirLight.shadow.radius=3;scn.add(dirLight,new THREE.HemisphereLight(0xe8f2f1,0x514b3d,.65));
+ let dn=null,mv=0;const c=ren.domElement;c.onpointerdown=e=>{dn=e;mv=0;c.setPointerCapture(e.pointerId)};
+ c.onpointermove=e=>{if(!dn)return;const dx=e.clientX-dn.clientX,dy=e.clientY-dn.clientY;mv+=Math.abs(dx)+Math.abs(dy);dn=e;
+  if(e.shiftKey||e.buttons&2){const s=dist3*.002;tgt.x-=Math.cos(ang.th)*dx*s;tgt.z-=Math.sin(ang.th)*dx*s}else{ang.th-=dx*.006;ang.ph=Math.min(1.55,Math.max(.05,ang.ph-dy*.006))}};
+ c.onpointerup=e=>{if(mv<4){const b=c.getBoundingClientRect(),rc=new THREE.Raycaster();rc.setFromCamera(new THREE.Vector2((e.clientX-b.left)/b.width*2-1,-(e.clientY-b.top)/b.height*2+1),cam);
+  const h=rc.intersectObject(mesh)[0];if(h)pick({x:h.point.x+g.size/2,y:g.size/2-h.point.z})}dn=null};
+ c.onwheel=e=>{e.preventDefault();dist3=Math.min(g.size*4,Math.max(300,dist3*(1+e.deltaY*.001)))};c.oncontextmenu=e=>e.preventDefault();
+ (function loop(){requestAnimationFrame(loop);if($('t3').offsetParent===null)return;const b=$('t').getBoundingClientRect();if(c.width!==Math.floor(b.width*ren.getPixelRatio()))ren.setSize(b.width,b.height);cam.aspect=b.width/b.height;cam.updateProjectionMatrix();
+  cam.position.set(tgt.x+dist3*Math.sin(ang.ph)*Math.cos(ang.th),tgt.y+dist3*Math.cos(ang.ph),tgt.z+dist3*Math.sin(ang.ph)*Math.sin(ang.th));cam.lookAt(tgt);ren.render(scn,cam)})()}
+function dispose(o){if(!o)return;scn.remove(o);o.geometry.dispose();o.material.dispose()}
+function terrainRamp(t){const dark=document.documentElement.dataset.theme==='dark',p=$('palette').value,s=$('surface').value;
+ if(s==='monochrome'||p==='exam'){const v=dark?.24+.62*t:.96-.72*t;return new THREE.Color(v,v,v)}
+ const ramps=dark?{brown:['#263b38','#596c4d','#9c8158','#d1b881'],elevation:['#214c4a','#64874e','#c3bd4d','#b9554b'],earth:['#333c38','#70614a','#9a805d','#c3ae83'],teaching:['#203c55','#287b9b','#70b8b2','#e1d58a']}:
+  {brown:['#e4dfcf','#b3c58e','#819261','#79533b'],elevation:['#b9d8b8','#73aa78','#d1c44c','#8d2b37'],earth:['#ded3b6','#b0a078','#88704e','#485940'],teaching:['#d7efff','#8ccce0','#36a7d8','#153f89']};
+ const ramp=ramps[p]||ramps.brown,u=Math.max(0,Math.min(1,t)),segment=u*3,index=Math.min(2,Math.floor(segment));return new THREE.Color(ramp[index]).lerp(new THREE.Color(ramp[index+1]),segment-index)}
+function build3d(reset){if(!ren)init3d();dispose(mesh);dispose(lines);featureObjects.forEach(dispose);featureObjects=[];scn.background=new THREE.Color(css('--bg'));const N=g.N,ve=+$('ve').value*+$('relief').value,hf=g.size/2,P=new Float32Array(N*N*3),C=new Float32Array(N*N*3),lo=g.cfg.min,hi=g.cfg.max,dark=document.documentElement.dataset.theme==='dark',light=new THREE.Vector3(-.48,.78,.4).normalize();
+ dirLight.intensity=$('hillShade').checked?1:.5;dirLight.position.set(-hf*.72,g.size*1.8,hf*.62);dirLight.shadow.camera.left=-hf;dirLight.shadow.camera.right=hf;dirLight.shadow.camera.top=hf;dirLight.shadow.camera.bottom=-hf;dirLight.shadow.camera.near=1;dirLight.shadow.camera.far=g.size*4;dirLight.shadow.camera.updateProjectionMatrix();
+ for(let j=0;j<N;j++)for(let i=0;i<N;i++){const k=j*N+i,z=g.h[k],c=terrainRamp((z-lo)/(hi-lo)),cover=g.F.lc[k];
+  if(cover===1)c.lerp(new THREE.Color(dark?0x315846:0x9ebd86),.25);else if(cover===2)c.lerp(new THREE.Color(dark?0x766c42:0xc9b976),.2);else if(cover===3)c.lerp(new THREE.Color(dark?0x28616a:0x8db7aa),.32);
+  const il=Math.max(i-1,0),ir=Math.min(i+1,N-1),jb=Math.max(j-1,0),jt=Math.min(j+1,N-1),dx=(g.h[j*N+ir]-g.h[j*N+il])*ve/(Math.max(1,ir-il)*g.cell),dz=(g.h[jt*N+i]-g.h[jb*N+i])*ve/(Math.max(1,jt-jb)*g.cell),normal=new THREE.Vector3(-dx,1,dz).normalize();
+  const neighborMean=(g.h[j*N+il]+g.h[j*N+ir]+g.h[jb*N+i]+g.h[jt*N+i])*.25,occlusion=Math.min(.22,Math.max(0,(neighborMean-z)/65)*.12),shade=$('hillShade').checked?.76+Math.max(0,normal.dot(light))*.4:1;c.multiplyScalar(shade*(1-occlusion));
+  P.set([i*g.cell-hf,(z-lo)*ve,hf-j*g.cell],k*3);C.set([c.r,c.g,c.b],k*3)}
+ const I=[];for(let j=0;j<N-1;j++)for(let i=0;i<N-1;i++){const a=j*N+i,b=a+1,c=a+N,d=c+1;I.push(a,b,c,b,d,c)}
+ const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.BufferAttribute(P,3));G.setAttribute('color',new THREE.BufferAttribute(C,3));G.setIndex(I);G.computeVertexNormals();
+ mesh=new THREE.Mesh(G,new THREE.MeshLambertMaterial({vertexColors:true}));mesh.castShadow=true;mesh.receiveShadow=true;scn.add(mesh);
+ const makeLines=(segments,color,opacity=.8)=>{if(!segments.length)return;const points=new Float32Array(segments),geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(points,3));const object=new THREE.LineSegments(geo,new THREE.LineBasicMaterial({color,transparent:opacity<1,opacity}));object.renderOrder=2;scn.add(object);featureObjects.push(object)};
+ const linePoint=(x,y,lift=2)=>[x-hf,(M.elev(g,x,y)-lo)*ve+lift,hf-y],minorGrid=[],majorGrid=[],frame=[];
+ const addGridPath=(out,coords)=>{for(let q=1;q<coords.length;q++){out.push(...linePoint(...coords[q-1]),...linePoint(...coords[q]))}};
+ if($('showGrid').checked){for(let d=Math.ceil(E0/500)*500;d<=E0+g.size;d+=500){const x=d-E0,out=d%1000===0?majorGrid:minorGrid,coords=[];for(let y=0;y<=g.size;y+=g.cell)coords.push([x,y]);addGridPath(out,coords)}
+  for(let d=Math.ceil(N0/500)*500;d<=N0+g.size;d+=500){const y=d-N0,out=d%1000===0?majorGrid:minorGrid,coords=[];for(let x=0;x<=g.size;x+=g.cell)coords.push([x,y]);addGridPath(out,coords)}}
+  const rectangle=(start,end)=>{const top=[],bottom=[],left=[],right=[];for(let q=start;q<=end;q+=g.cell){top.push([q,start]);bottom.push([q,end]);left.push([start,q]);right.push([end,q])}addGridPath(frame,top);addGridPath(frame,bottom);addGridPath(frame,left);addGridPath(frame,right)};
+  rectangle(0,g.size);rectangle(g.cell,g.size-g.cell);
+  makeLines(minorGrid,dark?0x66756d:0x8e9b91,.42);makeLines(majorGrid,dark?0xb7c2bb:0x65746b,.78);makeLines(frame,dark?0xf0cd91:0x42534a,.96);
+ const V=[],colors=[],iv=+$('iv').value,style=pal(),lineColor=c=>new THREE.Color(c);
+ for(const L of M.levels(g,iv))for(const c of Feat.chain(M.contour(g,L))){const center=c.pts.reduce((a,p)=>[a[0]+p[0],a[1]+p[1]],[0,0]).map(v=>v/c.pts.length),dep=c.closed&&M.elev(g,center[0],center[1])<L,idx=L%(iv*5)===0,mid=L%(iv*2)===0,col=lineColor(dep?style.depression:idx?style.ix:mid?style.ct:style.minor);
+  for(let i=1;i<c.pts.length;i++){const a=c.pts[i-1],b=c.pts[i];if(M.isWater(g,(a[0]+b[0])/2,(a[1]+b[1])/2))continue;for(const p of[a,b]){V.push(p[0]-hf,(L-lo)*ve+.35,hf-p[1]);colors.push(col.r,col.g,col.b)}}}
+ const LG=new THREE.BufferGeometry();LG.setAttribute('position',new THREE.BufferAttribute(new Float32Array(V),3));LG.setAttribute('color',new THREE.BufferAttribute(new Float32Array(colors),3));lines=new THREE.LineSegments(LG,new THREE.LineBasicMaterial({vertexColors:true,transparent:(style.opacity??1)<1,opacity:style.opacity??1,linewidth:style.w*(style.emphasis??1.8)}));lines.renderOrder=3;scn.add(lines);
+ for(const lake of g.lakes||[]){const positions=[lake.x-hf,(lake.level-lo)*ve+1.5,hf-lake.y],indices=[];for(const p of lake.points)positions.push(p.x-hf,(lake.level-lo)*ve+1.5,hf-p.y);for(let i=1;i<lake.points.length;i++)indices.push(0,i,i+1);indices.push(0,lake.points.length,1);const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geo.setIndex(indices);geo.computeVertexNormals();const water=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:dark?0x277d98:0x528fa5,roughness:.28,metalness:.06,side:THREE.DoubleSide}));water.renderOrder=1;scn.add(water);featureObjects.push(water)}
+ const drape=(segments,color)=>{if(!segments.length)return;const data=[];for(const[a,b]of segments)for(const p of[a,b])data.push(...linePoint(p.x,p.y,3));const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(data,3));const object=new THREE.LineSegments(geo,new THREE.LineBasicMaterial({color,transparent:true,opacity:.92}));object.renderOrder=5;scn.add(object);featureObjects.push(object)};
+ if($('fRiver').checked){const pos=[],idx=[],riverColor=new THREE.Color(dark?0x59c7ed:0x267d9e);let vertex=0;for(let k=0;k<N*N;k++){const aAcc=g.acc[k],f=g.flow[k];if(aAcc<24||f<0)continue;const x=(k%N)*g.cell,y=((k/N)|0)*g.cell,tx=(f%N)*g.cell,ty=((f/N)|0)*g.cell;if(M.isWater(g,(x+tx)/2,(y+ty)/2))continue;const dx=tx-x,dy=ty-y,len=Math.hypot(dx,dy)||1,w=(aAcc>=Feat.RIVER?7+Math.min(17,Math.log2(aAcc)*1.1):3+Math.min(5,Math.log2(aAcc)*.45)),ox=-dy/len*w/2,oy=dx/len*w/2;
+   pos.push(...linePoint(x+ox,y+oy,3),...linePoint(x-ox,y-oy,3),...linePoint(tx+ox,ty+oy,3),...linePoint(tx-ox,ty-oy,3));idx.push(vertex,vertex+1,vertex+2,vertex+1,vertex+3,vertex+2);vertex+=4}
+  if(pos.length){const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setIndex(idx);geo.computeVertexNormals();const water=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:riverColor,roughness:.24,metalness:.03,side:THREE.DoubleSide}));water.renderOrder=4;scn.add(water);featureObjects.push(water)}}
+ if($('fr').checked)for(const road of g.F.roads)drape(road.pts.slice(1).map((p,i)=>[road.pts[i],p]),style.rd);
+ const points=(items,color,size)=>{if(!items.length)return;const data=[];for(const p of items)data.push(...linePoint(p.x,p.y,g.size/160));const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(data,3));const object=new THREE.Points(geo,new THREE.PointsMaterial({color,size, sizeAttenuation:true}));scn.add(object);featureObjects.push(object)};
+ if($('fs').checked)points(g.F.settlements,style.fg,g.size/75);
+ if($('fSchools').checked)points(g.F.schools,dark?0xffdc86:0x263e60,g.size/105);
+ if($('fMarkets').checked)points(g.F.markets,dark?0xffb875:0x7d3525,g.size/85);
+ if($('fBoreholes').checked)points(g.F.boreholes,dark?0x65cefa:0x2879ad,g.size/110);
+ marks3d();if(reset)resetCam()}
+function draw3dRefresh(){if(g&&ren)build3d()}
+function marks3d(){marks.forEach(m=>{scn.remove(m);m.geometry.dispose();m.material.dispose()});marks=[];const ve=+$('ve').value*+$('relief').value,hf=g.size/2;
+ pts.forEach((p,i)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(g.size/90,12,8),new THREE.MeshBasicMaterial({color:i?0xdd3333:0x2277aa}));m.position.set(p.x-hf,(M.elev(g,p.x,p.y)-g.cfg.min)*ve+g.size/90,hf-p.y);scn.add(m);marks.push(m)})}
+function resetCam(top){tgt.set(0,(g.cfg.max-g.cfg.min)*+$('ve').value*+$('relief').value*.3,0);dist3=g.size*1.3;ang={th:Math.PI/2+.0001,ph:top?0.01:1}}
+$('gen').onclick=()=>generate({seed:+$('seed').value,hills:+$('hills').value,terrain:$('tp').value});
+$('rnd').onclick=()=>{$('seed').value=Math.floor(Math.random()*99999);$('gen').click()};
+$('iv').onchange=()=>{draw2d();build3d()};$('rf').onchange=()=>{draw2d();showInfo()};
+$('ve').oninput=()=>{build3d()};$('relief').oninput=()=>{build3d()};
+$('vw').onchange=e=>{const mode=e.target.value==='split'?'v2d':e.target.value;document.body.classList.toggle('v2d',mode==='v2d');document.body.classList.toggle('v3d',mode==='v3d');$('mode2d').classList.toggle('active',mode==='v2d');$('mode3d').classList.toggle('active',mode==='v3d');$('mode2d').setAttribute('aria-pressed',mode==='v2d');$('mode3d').setAttribute('aria-pressed',mode==='v3d');draw2d();if(mode==='v3d')requestAnimationFrame(()=>build3d())};
+$('mode2d').onclick=()=>{$('vw').value='v2d';$('vw').dispatchEvent(new Event('change'))};
+$('mode3d').onclick=()=>{$('vw').value='v3d';$('vw').dispatchEvent(new Event('change'))};
+['fr','fs','fv','fb','fRiver','fBridges','fSchools','fMarkets','fBoreholes','fWood','fCrop','fWet','showLabels','showGrid','showRefs','showDepressions'].forEach(i=>$(i).onchange=()=>{draw2d();build3d()});
+const styleInputs=['indexColor','intermediateColor','minorColor','depressionColor','labelColor','lineWidth','contourOpacity','contourEmphasis'];
+styleInputs.forEach(i=>$(i).oninput=()=>{draw2d();build3d()});
+const presetColors={brown:['#54351f','#986642','#c6a887','#587985','#54351f'],exam:['#111111','#555555','#999999','#333333','#111111'],elevation:['#7d2838','#df6c35','#e9bd42','#344b9a','#7d2838'],earth:['#49352a','#806145','#b89a72','#486c75','#49352a'],teaching:['#111111','#345b8c','#558cc2','#992f43','#111111']};
+$('palette').onchange=()=>{presetColors[$('palette').value].forEach((c,i)=>$(styleInputs[i]).value=c);draw2d();build3d()};
+['pm','surface','hillShade'].forEach(i=>$(i).onchange=()=>{draw2d();build3d()});
+$('complexity').onchange=()=>{generate({seed:+$('seed').value,hills:+$('hills').value,terrain:$('tp').value,complexity:+$('complexity').value})};
+$('top').onclick=()=>resetCam(true);$('rst').onclick=()=>resetCam();$('clr').onclick=()=>{pts=[];draw2d();marks3d();showInfo()};
+$('sidebarToggle').onclick=()=>document.body.classList.toggle('sidebar-collapsed');
+$('qbtnTop').onclick=()=>$('qbtn').click();$('teachTop').onclick=()=>$('tbt').click();
+$('printMap').onclick=()=>window.MapReading.printMap();
+$('fullscreen').onclick=async()=>{const studio=$('studio');if(document.fullscreenElement){await document.exitFullscreen();return}
+ if(studio.classList.contains('fullscreen')){studio.classList.remove('fullscreen');$('fullscreen').textContent='⛶';$('fullscreen').title='Full screen';draw2d();return}
+ try{await studio.requestFullscreen()}catch(error){studio.classList.add('fullscreen');$('fullscreen').textContent='Exit full screen';$('fullscreen').title='Exit full screen';draw2d()}};
+document.addEventListener('fullscreenchange',()=>{const full=document.fullscreenElement===$('studio');$('studio').classList.toggle('fullscreen',full);$('fullscreen').textContent=full?'Exit full screen':'⛶';$('fullscreen').title=full?'Exit full screen':'Full screen';requestAnimationFrame(draw2d)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('studio').classList.contains('fullscreen')){$('studio').classList.remove('fullscreen');$('fullscreen').textContent='⛶';$('fullscreen').title='Full screen';requestAnimationFrame(draw2d)}});
+addEventListener('resize',()=>{draw2d();showInfo()});
+
+// ---------- questions ----------
+let paper=null;
+const esc=t=>String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function renderPaper(){const o=$('qo'),all=$('qa').checked;if(!paper){o.innerHTML='';return}
+ o.innerHTML=`<p><i>${esc(paper.note)}</i><br>Map seed ${paper.mapSeed} · 1:${paper.rf} · C.I. ${paper.iv} m · <b>Total ${paper.total} marks</b></p>`+paper.questions.map((q,qi)=>`<div class="q"><b>${q.id}. ${esc(q.cat)}</b><span class="m">[${q.marks}]</span>`+q.parts.map((p,pi)=>`<p>${q.parts.length>1?'('+'abcdefgh'[pi]+') ':''}${esc(p.text)} <span class="m">[${p.marks}]</span>${p.in.a||p.in.p?` <button data-q="${qi}" data-p="${pi}" class="sh">Show on map</button>`:''}</p><details ${all?'open':''}><summary>Answer and marking guide</summary><b>${esc(p.ans)}</b><ol>${p.steps.map(t=>'<li>'+esc(t)+'</li>').join('')}</ol></details>`).join('')+'</div>').join('');
+ o.querySelectorAll('.sh').forEach(b=>b.onclick=()=>{const p=paper.questions[+b.dataset.q].parts[+b.dataset.p].in;pts=p.a?[{x:p.a.x,y:p.a.y},{x:p.b.x,y:p.b.y}]:[{x:p.p.x,y:p.p.y}];$('qp').classList.remove('on');draw2d();marks3d();showInfo()})}
+function newPaper(){paper=Questions.build(g,g.F,{level:$('ql').value,seed:+$('qs').value,iv:+$('iv').value,rf:+$('rf').value,e0:E0,n0:N0});const v=Questions.verify(g,g.F,paper,{e0:E0,n0:N0});if(!v.ok)$('qo').textContent='Verification failed: '+v.bad.join(', ');else renderPaper()}
+$('qbtn').onclick=()=>{$('qp').classList.add('on');if(!paper)newPaper()};$('qx').onclick=()=>$('qp').classList.remove('on');$('qg').onclick=newPaper;$('qa').onchange=renderPaper;$('qpr').onclick=()=>{$('qa').checked=false;renderPaper();print()};
+window.MapReading.paper=()=>paper;
+
+// ---------- teaching: annotation + demonstrations ----------
+const store=new Annot.Store(),an=$('an');let tool=null,tcol='r',cur=null,demo=null,dstep=0,dans=false,dseed=1;
+function renderAn(scale=1){an.width=c2.width;an.height=c2.height;an.style.width=c2.style.width;an.style.height=c2.style.height;const x=an.getContext('2d');x.clearRect(0,0,an.width,an.height);x.setTransform(scale,0,0,scale,0,0);
+ if(demo)Annot.draw(x,Demo.itemsUpTo(demo,dstep,dans),toPx);Annot.draw(x,store.items.concat(cur?[cur]:[]),toPx)}
+const ev=e=>{const b=an.getBoundingClientRect();return fromPx((e.clientX-b.left)*an.width/b.width,(e.clientY-b.top)*an.height/b.height)};
+an.onpointerdown=e=>{if(!tool)return;const p=ev(e);an.setPointerCapture(e.pointerId);
+ if(tool==='mark'){store.add({t:'mark',x:p.x,y:p.y,c:tcol,s:''});renderAn();return}
+ if(tool==='text'){const s=prompt('Label text');if(s){store.add({t:'text',x:p.x,y:p.y,s,c:tcol});renderAn()}return}
+ cur=tool==='pen'||tool==='hl'?{t:tool,pts:[[p.x,p.y]],c:tcol}:{t:tool,a:p,b:p,c:tcol};renderAn()};
+an.onpointermove=e=>{if(!cur)return;const p=ev(e);if(cur.pts)cur.pts.push([p.x,p.y]);else cur.b=p;renderAn()};
+an.onpointerup=()=>{if(!cur)return;if(!cur.pts||cur.pts.length>1)store.add(cur);cur=null;renderAn()};
+document.querySelectorAll('#tb [data-t]').forEach(b=>b.onclick=()=>{tool=tool===b.dataset.t?null:b.dataset.t;document.querySelectorAll('#tb [data-t]').forEach(x=>x.classList.toggle('act',x.dataset.t===tool));an.classList.toggle('on',!!tool)});
+$('tbt').onclick=()=>{$('tb').classList.toggle('on');if(!$('tb').classList.contains('on')){tool=null;an.classList.remove('on')}draw2d()};
+$('tc').onchange=e=>tcol=e.target.value;$('tu').onclick=()=>{store.undo();renderAn()};$('tr').onclick=()=>{store.redo();renderAn()};$('tcl').onclick=()=>{store.clear();renderAn()};
+function showDemo(){const D=demo,dm=$('dm');dm.classList.add('on');$('dt').textContent=D.title;$('dq').textContent='Question: '+D.question;
+ $('dl').innerHTML=D.steps.slice(0,D.answerIndex).map((s,i)=>`<li class="${i===dstep-1?'cur':''}">${esc(s.text)}</li>`).join('');
+ $('dans').textContent=dans?'Answer: '+D.steps[D.answerIndex].answer:'';$('da').textContent=dans?'Hide answer':'Reveal answer';
+ pts=dstep>=1&&D.pts?D.pts.map(p=>({x:p.x,y:p.y})):[];draw2d();marks3d();showInfo()}
+function startDemo(){demo=Demo.make(g,g.F,$('dsel').value,{seed:dseed,iv:+$('iv').value,rf:+$('rf').value,e0:E0,n0:N0});dstep=0;dans=false;showDemo()}
+$('dgo').onclick=()=>{dseed=1;startDemo()};$('dnew').onclick=()=>{dseed++;startDemo()};
+$('dn').onclick=()=>{if(demo&&dstep<demo.answerIndex){dstep++;showDemo()}};$('dp').onclick=()=>{if(demo&&dstep>0){dstep--;showDemo()}};
+$('da').onclick=()=>{if(demo){dans=!dans;showDemo()}};$('dr').onclick=()=>{if(demo){dstep=0;dans=false;showDemo()}};$('dx').onclick=()=>{demo=null;$('dm').classList.remove('on');pts=[];draw2d();marks3d();showInfo()};
+window.MapReading.annotations=()=>store.toJSON();window.MapReading.loadAnnotations=j=>{store.load(j);renderAn()};
+const layerConfig={fr:'roads',fs:'settlements',fv:'landCover',fb:'boundary',fRiver:'rivers',fSchools:'schools',fMarkets:'markets',fBridges:'bridges',fBoreholes:'boreholes',fWood:'woodland',fCrop:'cultivation',fWet:'wetlands'};
+window.MapReading.getState=()=>({config:{seed:g.cfg.seed,hills:g.cfg.hills,terrain:g.cfg.terrain,complexity:g.cfg.complexity,interval:+$('iv').value,scale:+$('rf').value,view:$('vw').value,verticalExaggeration:+$('ve').value,reliefIntensity:+$('relief').value,palette:$('palette').value,indexColor:$('indexColor').value,intermediateColor:$('intermediateColor').value,minorColor:$('minorColor').value,depressionColor:$('depressionColor').value,labelColor:$('labelColor').value,lineWidth:+$('lineWidth').value,contourOpacity:+$('contourOpacity').value,contourEmphasis:+$('contourEmphasis').value,showLabels:$('showLabels').checked,showGrid:$('showGrid').checked,showRefs:$('showRefs').checked,showDepressions:$('showDepressions').checked,hillShading:$('hillShade').checked,surface:$('surface').value,printSize:$('printSize').value,layers:Object.fromEntries(Object.entries(layerConfig).map(([id,key])=>[key,$(id).checked]))},theme:document.documentElement.dataset.theme||'light',annotations:JSON.parse(store.toJSON())});
+window.MapReading.setState=s=>{const c=s.config||s,hasConfig=Object.keys(c).length>0;
+ if(hasConfig){const fields=[['seed','seed'],['hills','hills'],['tp','terrain'],['complexity','complexity'],['iv','interval'],['rf','scale'],['vw','view'],['ve','verticalExaggeration'],['relief','reliefIntensity'],['palette','palette'],['indexColor','indexColor'],['intermediateColor','intermediateColor'],['minorColor','minorColor'],['depressionColor','depressionColor'],['labelColor','labelColor'],['lineWidth','lineWidth'],['contourOpacity','contourOpacity'],['contourEmphasis','contourEmphasis'],['showLabels','showLabels'],['showGrid','showGrid'],['showRefs','showRefs'],['showDepressions','showDepressions'],['hillShade','hillShading'],['surface','surface'],['printSize','printSize']];
+  for(const[id,key]of fields)if(c[key]!==undefined){const input=$(id);if(input.type==='checkbox')input.checked=!!c[key];else input.value=String(c[key])}
+  if(c.layers)for(const[id,key]of Object.entries(layerConfig))if(c.layers[key]!==undefined)$(id).checked=!!c.layers[key];
+  if(c.view==='split')$('vw').value='v2d'}
+ if(s.theme)setTheme(s.theme);
+ if(hasConfig){generate({seed:+$('seed').value,hills:+$('hills').value,terrain:$('tp').value,complexity:+$('complexity').value});$('vw').dispatchEvent(new Event('change'))}
+ if(s.annotations)window.MapReading.loadAnnotations(JSON.stringify(s.annotations));return window.MapReading.getState()};
+window.MapReading.getPng=()=>{const previous=$('vw').value,$studio=$('studio'),bounds=$('main').getBoundingClientRect(),pixelArea=Math.max(1,bounds.width*bounds.height),scale=Math.max(1,Math.min(3,Math.floor(Math.sqrt(12000000/pixelArea))));
+ try{$('vw').value='v2d';$('vw').dispatchEvent(new Event('change'));draw2d(scale);renderAn(scale);const out=document.createElement('canvas');out.width=c2.width;out.height=c2.height;const x=out.getContext('2d');x.drawImage(c2,0,0);x.drawImage(an,0,0);return out.toDataURL('image/png')}
+ finally{$('vw').value=previous;$('vw').dispatchEvent(new Event('change'));$studio.focus()}};
+window.MapReading.printMap=()=>{const previous=$('vw').value,bounds=$('main').getBoundingClientRect(),area=Math.max(1,bounds.width*bounds.height),scale=Math.max(1,Math.min(3,Math.floor(Math.sqrt(12000000/area)))),style=document.createElement('style');style.id='print-layout';style.textContent=`@media print{@page{size:${$('printSize').value.toUpperCase()} landscape;margin:8mm}}`;document.head.appendChild(style);
+ $('vw').value='v2d';$('vw').dispatchEvent(new Event('change'));draw2d(scale);renderAn(scale);document.body.classList.add('print-map');
+ const restore=()=>{document.body.classList.remove('print-map');style.remove();$('vw').value=previous;$('vw').dispatchEvent(new Event('change'));window.removeEventListener('afterprint',restore)};
+ window.addEventListener('afterprint',restore);window.print();setTimeout(restore,1000)};
+window.MapReading.calculate=(a,b)=>({distance:M.dist(a,b),bearing:M.bearing(a,b),gradient:M.gradient(M.elev(g,b.x,b.y)-M.elev(g,a.x,a.y),M.dist(a,b)),gridReferences:[M.gridRef(a.x,a.y,E0,N0,6),M.gridRef(b.x,b.y,E0,N0,6)],profile:M.profile(g,a,b,100),intervisibility:M.intervisible(g,a,b)});
+window.MapReadsBridge.attach(window.MapReading);
+generate({seed:7,hills:3});
+</script></body></html>

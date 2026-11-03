@@ -1,0 +1,13 @@
+{
+  "name": "map-reading-module",
+  "version": "0.1.0",
+  "description": "Penrose ScholarMW - Map Reading module (engine, smartboard, questions, teaching tools)",
+  "private": true,
+  "scripts": {
+    "test": "node test.js",
+    "smoke": "node smoke.js",
+    "check": "node test.js && node smoke.js",
+    "serve": "python -m http.server 8000"
+  },
+  "engines": { "node": ">=16" }
+}
