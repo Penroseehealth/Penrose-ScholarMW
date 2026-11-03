@@ -16,7 +16,8 @@ class AuthProvider extends ChangeNotifier {
   bool get isAuthenticated => _user != null;
   String? get error => _error;
   String get userRole => (_user?['role'] ?? 'student') as String;
-  String get userName => (_user?['display_name'] ?? _user?['full_name'] ?? '') as String;
+  String get userName =>
+      (_user?['display_name'] ?? _user?['full_name'] ?? '') as String;
 
   Future<void> init() async {
     _isLoading = true;
@@ -34,8 +35,12 @@ class AuthProvider extends ChangeNotifier {
           notifyListeners();
           return;
         }
+        // Do not keep retrying a token that the server has rejected. This
+        // clears stale browser state before the fresh session is established.
+        await _api.clearTokens();
       }
-      final result = await _authService.login('student@scholar.mw', 'student123');
+      final result =
+          await _authService.login('student@scholar.mw', 'student123');
       if (result['success'] == true) {
         _user = result['user'] as Map<String, dynamic>?;
       }

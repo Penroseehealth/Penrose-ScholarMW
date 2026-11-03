@@ -174,6 +174,16 @@ PRESENTATION_TYPES = {
 }
 
 DEFAULT_TEMPLATES = {
+    "Ocean Academic": {"accent": "#1769AA", "background": "#F6FAFF", "text": "#102A43"},
+    "Midnight Aurora": {"accent": "#7DD3FC", "background": "#101827", "text": "#F1F5F9"},
+    "Sage Research": {"accent": "#2F855A", "background": "#F2FAF5", "text": "#173B2A"},
+    "Terracotta Studio": {"accent": "#C05640", "background": "#FFF8F4", "text": "#3B211B"},
+    "Royal Indigo": {"accent": "#5B5BD6", "background": "#F7F6FF", "text": "#20204A"},
+    "Citrus STEM": {"accent": "#B7791F", "background": "#FFFDF0", "text": "#332B13"},
+    "Rose Clinical": {"accent": "#C53060", "background": "#FFF5F8", "text": "#401526"},
+    "Slate Editorial": {"accent": "#334E68", "background": "#F5F7FA", "text": "#1F2933"},
+    "Golden Lecture": {"accent": "#A16207", "background": "#FFFBEB", "text": "#3D2B0B"},
+    "Teal Modern": {"accent": "#0F766E", "background": "#F0FDFA", "text": "#123A36"},
     "Minimal Academic": {
         "accent": "#1F4E79",
         "background": "#FFFFFF",
@@ -307,6 +317,20 @@ def _norm(s: str) -> str:
     return re.sub(r"[^a-z0-9]+", " ", (s or "").lower()).strip()
 
 
+def _topic_names(config) -> list[str]:
+    values = list(getattr(config, "topics", []) or [])
+    if not values and getattr(config, "topic", ""):
+        values = [config.topic]
+    return [value.strip() for value in values if value and value.strip()]
+
+
+def _subtopic_names(config) -> list[str]:
+    values = list(getattr(config, "subtopics", []) or [])
+    if not values and getattr(config, "subtopic", ""):
+        values = [config.subtopic]
+    return [value.strip() for value in values if value and value.strip()]
+
+
 def _choose_subject(course: str, course_code: str, subjects: list) -> object | None:
     """Pick the seeded SyllabusSubject best matching the course title/code.
 
@@ -377,7 +401,9 @@ async def load_seeded_syllabus(db, config) -> str:
     if not topics:
         return f"[SUBJECT] {subject.name} (seeded syllabus — no aligned topics found)\n{subject.description or ''}"
 
-    needles = [t for t in (_norm(config.topic), _norm(config.subtopic)) if t]
+    needles = [_norm(t) for t in _topic_names(config) + _subtopic_names(config)]
+    selected_topic_ids = set(getattr(config, "topic_ids", []) or [])
+    selected_subtopic_ids = set(getattr(config, "subtopic_ids", []) or [])
     if not needles:
         needles = None  # topic/subtopic blank -> include the whole syllabus
 
@@ -397,7 +423,10 @@ async def load_seeded_syllabus(db, config) -> str:
 
     scored = [(score_topic(t), t) for t in topics]
     blank = needles is None
-    selected = [t for sc, t in scored if blank or sc > 0]
+    if selected_topic_ids:
+        selected = [t for t in topics if t.id in selected_topic_ids]
+    else:
+        selected = [t for sc, t in scored if blank or sc > 0]
     if not selected:
         selected = topics[:5]
 
@@ -420,6 +449,8 @@ async def load_seeded_syllabus(db, config) -> str:
             .all()
         )
         for st in subtopics:
+            if selected_subtopic_ids and st.id not in selected_subtopic_ids:
+                continue
             chunk.append(
                 f"  - {st.title}" + (f": {st.description}" if st.description else "")
             )
@@ -568,8 +599,8 @@ async def build_outline(config, vault_docs: list[dict], db=None) -> dict:
         "references, statistics or learning outcomes. Only derive from the provided "
         "source material. Preserve syllabus requirements over anything else.\n\n"
         f"Course: {config.course} ({config.course_code})\n"
-        f"Topic: {config.topic}\n"
-        f"Subtopic: {config.subtopic}\n"
+        f"Topics: {', '.join(_topic_names(config)) or '(not specified)'}\n"
+        f"Subtopics: {', '.join(_subtopic_names(config)) or '(not specified)'}\n"
         f"Level: {config.academic_level or 'n/a'} / Programme: {config.programme or 'n/a'}\n"
         f"Presentation type: {config.presentation_type}\n"
         f"Slide count target: {slide_count}\n"
@@ -696,7 +727,8 @@ async def generate_slides(
 
     user = (
         f"COURSE: {config.course} ({config.course_code})\n"
-        f"TOPIC: {config.topic} / {config.subtopic}\n"
+        f"TOPICS: {', '.join(_topic_names(config)) or '(not specified)'}\n"
+        f"SUBTOPICS: {', '.join(_subtopic_names(config)) or '(not specified)'}\n"
         f"PRESENTATION TYPE: {config.presentation_type}\n"
         f"LEARNING OBJECTIVES: {objective_text}\n\n"
         f"OUTLINE:\n{outline_lines}\n\n"

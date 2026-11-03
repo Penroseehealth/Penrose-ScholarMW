@@ -23,6 +23,9 @@ class SyllabusSelectionProvider extends ChangeNotifier {
   Map<String, dynamic>? _subtopic;
   List<dynamic> _objectives = [];
   bool _objectivesTried = false;
+  final List<Map<String, dynamic>> _selectedTopics = [];
+  final Map<int, List<dynamic>> _subtopicsByTopic = {};
+  final List<Map<String, dynamic>> _selectedSubtopics = [];
 
   bool get initialized => _initialized;
   bool get busy => _busy;
@@ -42,6 +45,22 @@ class SyllabusSelectionProvider extends ChangeNotifier {
   Map<String, dynamic>? get subtopic => _subtopic;
   List<dynamic> get objectives => _objectives;
   bool get objectivesTried => _objectivesTried;
+  List<Map<String, dynamic>> get selectedTopics =>
+      List.unmodifiable(_selectedTopics);
+  List<Map<String, dynamic>> get selectedSubtopics =>
+      List.unmodifiable(_selectedSubtopics);
+
+  List<dynamic> subtopicsForTopic(int topicId) =>
+      _subtopicsByTopic[topicId] ?? const [];
+
+  bool hasLoadedSubtopicsForTopic(int topicId) =>
+      _subtopicsByTopic.containsKey(topicId);
+
+  bool isTopicSelected(int topicId) =>
+      _selectedTopics.any((t) => t['id'] == topicId);
+
+  bool isSubtopicSelected(int subtopicId) =>
+      _selectedSubtopics.any((s) => s['id'] == subtopicId);
 
   bool get hasSelection => _subjectSlug != null;
   bool get hasForm => _form != null;
@@ -78,6 +97,9 @@ class SyllabusSelectionProvider extends ChangeNotifier {
     _form = null;
     _topic = null;
     _subtopic = null;
+    _selectedTopics.clear();
+    _selectedSubtopics.clear();
+    _subtopicsByTopic.clear();
     _objectives = [];
     _topics = [];
     _subtopics = [];
@@ -114,6 +136,9 @@ class SyllabusSelectionProvider extends ChangeNotifier {
     _form = form;
     _topic = null;
     _subtopic = null;
+    _selectedTopics.clear();
+    _selectedSubtopics.clear();
+    _subtopicsByTopic.clear();
     _objectives = [];
     _topics = [];
     _subtopics = [];
@@ -148,6 +173,12 @@ class SyllabusSelectionProvider extends ChangeNotifier {
       (t) => (t['id'] as int?) == topicId,
       orElse: () => const {},
     );
+    _selectedTopics
+      ..clear()
+      ..add(Map<String, dynamic>.from(_topic ?? const {}));
+    _selectedTopics.removeWhere((topic) => topic.isEmpty);
+    _selectedSubtopics.clear();
+    _subtopicsByTopic.clear();
     _subtopic = null;
     _objectives = [];
     _subtopics = [];
@@ -155,6 +186,27 @@ class SyllabusSelectionProvider extends ChangeNotifier {
     _objectivesTried = false;
     _error = null;
     await loadSubtopics();
+  }
+
+  Future<void> toggleTopic(int topicId) async {
+    final topic = _topics.firstWhere(
+      (t) => (t['id'] as int?) == topicId,
+      orElse: () => <String, dynamic>{},
+    );
+    if (topic.isEmpty) return;
+    final index = _selectedTopics.indexWhere((t) => t['id'] == topicId);
+    if (index >= 0) {
+      _selectedTopics.removeAt(index);
+      _selectedSubtopics.removeWhere((s) => s['topic_id'] == topicId);
+    } else {
+      _selectedTopics.add(Map<String, dynamic>.from(topic));
+      await loadSubtopicsForTopic(topicId);
+    }
+    _topic = _selectedTopics.isNotEmpty ? _selectedTopics.first : null;
+    _subtopic = _selectedSubtopics.isNotEmpty ? _selectedSubtopics.first : null;
+    _objectives = [];
+    _objectivesTried = false;
+    notifyListeners();
   }
 
   Future<void> loadSubtopics() async {
@@ -175,15 +227,56 @@ class SyllabusSelectionProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> loadSubtopicsForTopic(int topicId) async {
+    if (_subtopicsByTopic.containsKey(topicId)) return;
+    _busy = true;
+    _error = null;
+    notifyListeners();
+    try {
+      _subtopicsByTopic[topicId] =
+          List<dynamic>.from(await _api.getSubtopics(topicId));
+    } catch (e) {
+      _error = 'Could not load subtopics: $e';
+      _subtopicsByTopic[topicId] = [];
+    } finally {
+      _busy = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> selectSubtopic(int subtopicId) async {
     _subtopic = _subtopics.firstWhere(
       (s) => (s['id'] as int?) == subtopicId,
       orElse: () => const {},
     );
+    _selectedSubtopics
+      ..clear()
+      ..add(Map<String, dynamic>.from(_subtopic ?? const {}));
+    _selectedSubtopics.removeWhere((subtopic) => subtopic.isEmpty);
     _objectives = [];
     _objectivesTried = false;
     _error = null;
     await loadObjectives();
+  }
+
+  Future<void> toggleSubtopic(int topicId, int subtopicId) async {
+    final options = _subtopicsByTopic[topicId] ?? const [];
+    final subtopic = options.firstWhere(
+      (s) => (s['id'] as int?) == subtopicId,
+      orElse: () => <String, dynamic>{},
+    );
+    if (subtopic.isEmpty) return;
+    final index = _selectedSubtopics.indexWhere((s) => s['id'] == subtopicId);
+    if (index >= 0) {
+      _selectedSubtopics.removeAt(index);
+    } else {
+      final selected = Map<String, dynamic>.from(subtopic);
+      selected['topic_id'] = topicId;
+      _selectedSubtopics.add(selected);
+    }
+    _topic = _selectedTopics.isNotEmpty ? _selectedTopics.first : null;
+    _subtopic = _selectedSubtopics.isNotEmpty ? _selectedSubtopics.first : null;
+    await loadObjectivesForSelectedSubtopics();
   }
 
   Future<void> loadObjectives() async {
@@ -204,12 +297,40 @@ class SyllabusSelectionProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> loadObjectivesForSelectedSubtopics() async {
+    _objectivesTried = true;
+    _busy = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final values = <dynamic>[];
+      for (final subtopic in _selectedSubtopics) {
+        final id = subtopic['id'] as int?;
+        if (id == null) continue;
+        values.addAll(await _api.getObjectives(id));
+      }
+      final seen = <String>{};
+      _objectives = values.where((value) {
+        final text = (value['objective'] as String?) ?? '';
+        return text.isNotEmpty && seen.add(text);
+      }).toList();
+    } catch (e) {
+      _error = 'Could not load objectives: $e';
+    } finally {
+      _busy = false;
+      notifyListeners();
+    }
+  }
+
   void reset() {
     _subjectSlug = null;
     _subject = const {};
     _form = null;
     _topic = null;
     _subtopic = null;
+    _selectedTopics.clear();
+    _selectedSubtopics.clear();
+    _subtopicsByTopic.clear();
     _objectives = [];
     _forms = [];
     _topics = [];
@@ -227,13 +348,32 @@ class SyllabusSelectionProvider extends ChangeNotifier {
       'subject_slug': _subjectSlug ?? '',
       'form': _form,
       'form_label': _form != null ? 'Form $_form' : '',
-      'topic': (_topic?['title'] as String?) ?? '',
+      'topic': _selectedTopics
+          .map((t) => t['title'] as String? ?? '')
+          .where((v) => v.isNotEmpty)
+          .join(' • '),
       'topic_id': _topic?['id'] as int?,
-      'subtopic': (_subtopic?['title'] as String?) ?? '',
+      'topics': _selectedTopics
+          .map((t) => t['title'] as String? ?? '')
+          .where((v) => v.isNotEmpty)
+          .toList(),
+      'topic_ids':
+          _selectedTopics.map((t) => t['id']).whereType<int>().toList(),
+      'subtopic': _selectedSubtopics
+          .map((s) => s['title'] as String? ?? '')
+          .where((v) => v.isNotEmpty)
+          .join(' • '),
       'subtopic_id': _subtopic?['id'] as int?,
+      'subtopics': _selectedSubtopics
+          .map((s) => s['title'] as String? ?? '')
+          .where((v) => v.isNotEmpty)
+          .toList(),
+      'subtopic_ids':
+          _selectedSubtopics.map((s) => s['id']).whereType<int>().toList(),
       'learning_objectives': <String>[
         for (final lo in _objectives)
-          if ((lo['objective'] as String?)?.isNotEmpty ?? false) lo['objective'] as String,
+          if ((lo['objective'] as String?)?.isNotEmpty ?? false)
+            lo['objective'] as String,
       ],
     };
   }

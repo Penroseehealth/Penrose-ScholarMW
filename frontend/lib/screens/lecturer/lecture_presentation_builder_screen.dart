@@ -12,11 +12,76 @@ class LecturePresentationBuilderScreen extends StatefulWidget {
   const LecturePresentationBuilderScreen({super.key});
 
   @override
-  State<LecturePresentationBuilderScreen> createState() => _LecturePresentationBuilderScreenState();
+  State<LecturePresentationBuilderScreen> createState() =>
+      _LecturePresentationBuilderScreenState();
 }
 
-class _LecturePresentationBuilderScreenState extends State<LecturePresentationBuilderScreen> {
+class _LecturePresentationBuilderScreenState
+    extends State<LecturePresentationBuilderScreen> {
   final PresentationBuilderService _api = PresentationBuilderService();
+
+  static const List<Map<String, String>> _designs = [
+    {
+      'name': 'Ocean Academic',
+      'accent': '#1769AA',
+      'background': '#F6FAFF',
+      'text': '#102A43'
+    },
+    {
+      'name': 'Midnight Aurora',
+      'accent': '#7DD3FC',
+      'background': '#101827',
+      'text': '#F1F5F9'
+    },
+    {
+      'name': 'Sage Research',
+      'accent': '#2F855A',
+      'background': '#F2FAF5',
+      'text': '#173B2A'
+    },
+    {
+      'name': 'Terracotta Studio',
+      'accent': '#C05640',
+      'background': '#FFF8F4',
+      'text': '#3B211B'
+    },
+    {
+      'name': 'Royal Indigo',
+      'accent': '#5B5BD6',
+      'background': '#F7F6FF',
+      'text': '#20204A'
+    },
+    {
+      'name': 'Citrus STEM',
+      'accent': '#B7791F',
+      'background': '#FFFDF0',
+      'text': '#332B13'
+    },
+    {
+      'name': 'Rose Clinical',
+      'accent': '#C53060',
+      'background': '#FFF5F8',
+      'text': '#401526'
+    },
+    {
+      'name': 'Slate Editorial',
+      'accent': '#334E68',
+      'background': '#F5F7FA',
+      'text': '#1F2933'
+    },
+    {
+      'name': 'Golden Lecture',
+      'accent': '#A16207',
+      'background': '#FFFBEB',
+      'text': '#3D2B0B'
+    },
+    {
+      'name': 'Teal Modern',
+      'accent': '#0F766E',
+      'background': '#F0FDFA',
+      'text': '#123A36'
+    },
+  ];
 
   int _step = 0;
   int _genPhase = 0; // within Generate step: 0 = outline, 1 = slides review
@@ -38,7 +103,7 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
 
   // Design
   String _presentationType = 'Lecture Presentation';
-  String _template = 'Minimal Academic';
+  String _template = 'Ocean Academic';
   String _bodyFont = 'Calibri';
   String _citationStyle = 'APA 7';
   int _bodySize = 24;
@@ -72,14 +137,24 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
   }
 
   List<String> _splitObjectives() {
-    return _objectiveCtrl.text.split('\n').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    return _objectiveCtrl.text
+        .split('\n')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
   }
 
   List<String> _combinedObjectives(Map<String, dynamic> ctx) {
-    final lo = (ctx['learning_objectives'] as List<dynamic>? ?? const []).whereType<String>().toList();
+    final lo = (ctx['learning_objectives'] as List<dynamic>? ?? const [])
+        .whereType<String>()
+        .toList();
     lo.addAll(_splitObjectives());
     return lo;
   }
+
+  Map<String, String> get _selectedDesign =>
+      _designs.firstWhere((design) => design['name'] == _template,
+          orElse: () => _designs.first);
 
   Map<String, dynamic> get _config {
     final s = Provider.of<SyllabusSelectionProvider>(context, listen: false);
@@ -89,6 +164,13 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
       'course_code': _codeCtrl.text.trim(),
       'topic': (ctx['topic'] as String?) ?? '',
       'subtopic': (ctx['subtopic'] as String?) ?? '',
+      'topics': List<String>.from(ctx['topics'] as List<dynamic>? ?? const []),
+      'topic_ids':
+          List<int>.from(ctx['topic_ids'] as List<dynamic>? ?? const []),
+      'subtopics':
+          List<String>.from(ctx['subtopics'] as List<dynamic>? ?? const []),
+      'subtopic_ids':
+          List<int>.from(ctx['subtopic_ids'] as List<dynamic>? ?? const []),
       'academic_level': (ctx['form_label'] as String?) ?? '',
       'programme': _programmeCtrl.text.trim(),
       'institution': _institutionCtrl.text.trim(),
@@ -110,9 +192,9 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
       'max_bullets': _maxBullets,
       'max_words_per_slide': _maxBullets * _maxLines,
       'columns': _columns,
-      'accent_hex': '#1F4E79',
-      'background_hex': '#FFFFFF',
-      'text_hex': '#1A1A1A',
+      'accent_hex': _selectedDesign['accent'],
+      'background_hex': _selectedDesign['background'],
+      'text_hex': _selectedDesign['text'],
       'citation_style': _citationStyle,
       'web_research': _webResearch,
       'sections': <Map<String, dynamic>>[],
@@ -143,7 +225,8 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
             'label': data['label'] ?? label,
             'size': data['size'] ?? 0,
           });
-          _uploadedText = '$_uploadedText\n[FILE: ${data['filename'] ?? file.name}]\n$text';
+          _uploadedText =
+              '$_uploadedText\n[FILE: ${data['filename'] ?? file.name}]\n$text';
         });
       } else {
         setState(() => _error = res['error'] as String?);
@@ -157,10 +240,13 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
 
   Future<void> _buildOutline() async {
     final s = Provider.of<SyllabusSelectionProvider>(context, listen: false);
-    final hasContent = (s.topic?['title'] as String?)?.trim().isNotEmpty ?? false;
-    final hasSub = (s.subtopic?['title'] as String?)?.trim().isNotEmpty ?? false;
+    final hasContent = s.selectedTopics.isNotEmpty ||
+        ((s.topic?['title'] as String?)?.trim().isNotEmpty ?? false);
+    final hasSub = s.selectedSubtopics.isNotEmpty ||
+        ((s.subtopic?['title'] as String?)?.trim().isNotEmpty ?? false);
     if (!hasContent && !hasSub) {
-      setState(() => _error = 'Please select a Topic (or Subtopic) from the syllabus.');
+      setState(() =>
+          _error = 'Please select a Topic (or Subtopic) from the syllabus.');
       return;
     }
     setState(() {
@@ -174,7 +260,9 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
       if (res['success'] == true) {
         final data = res['data'] as Map<String, dynamic>;
         _outline = (data['slides'] as List<dynamic>? ?? []);
-        _outlineWarnings = (data['warnings'] as List<dynamic>? ?? []).map((e) => {'text': e as String}).toList();
+        _outlineWarnings = (data['warnings'] as List<dynamic>? ?? [])
+            .map((e) => {'text': e as String})
+            .toList();
         _genPhase = 0;
         _step = 6;
       } else {
@@ -194,7 +282,9 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
       _busy = false;
       if (res['success'] == true) {
         final data = res['data'] as Map<String, dynamic>;
-        _slides = (data['slides'] as List<dynamic>? ?? []).map((e) => Map<String, dynamic>.from(e as Map)).toList();
+        _slides = (data['slides'] as List<dynamic>? ?? [])
+            .map((e) => Map<String, dynamic>.from(e as Map))
+            .toList();
         _genPhase = 1;
       } else {
         _error = res['error'] as String?;
@@ -214,7 +304,10 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
       if (res['success'] == true) {
         _quality = (res['data'] as Map<String, dynamic>)
             .entries
-            .where((e) => e.key.endsWith('_pct') || e.key == 'checks' || e.key == 'warnings')
+            .where((e) =>
+                e.key.endsWith('_pct') ||
+                e.key == 'checks' ||
+                e.key == 'warnings')
             .map((e) => {'key': e.key, 'value': e.value})
             .toList();
       } else {
@@ -239,7 +332,8 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
           '${res['name']}.pptx',
           'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         );
-        _exportStatus = 'Downloaded ${res['name']}.pptx — open it in PowerPoint to edit.';
+        _exportStatus =
+            'Downloaded ${res['name']}.pptx — open it in PowerPoint to edit.';
       } else {
         _error = res['error'] as String?;
       }
@@ -258,8 +352,8 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
       backgroundColor: context.colors.background,
       appBar: AppBar(
         backgroundColor: context.colors.surface,
-        title:
-            const Text('AI Lecture Presentation Builder', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+        title: const Text('AI Lecture Presentation Builder',
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/lecturer'),
@@ -292,7 +386,15 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
   }
 
   Widget _stepIndicator() {
-    const labels = ['Subject', 'Class', 'Topic', 'Subtopic', 'Objectives', 'Configure', 'Generate'];
+    const labels = [
+      'Subject',
+      'Class',
+      'Topic',
+      'Subtopic',
+      'Objectives',
+      'Configure',
+      'Generate'
+    ];
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
       child: Row(
@@ -302,11 +404,15 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
               children: [
                 CircleAvatar(
                   radius: 12,
-                  backgroundColor: i <= _step ? context.colors.primary : context.colors.surfaceHighest,
+                  backgroundColor: i <= _step
+                      ? context.colors.primary
+                      : context.colors.surfaceHighest,
                   child: Text('${i + 1}',
                       style: TextStyle(
                           fontSize: 11,
-                          color: i <= _step ? context.colors.textOnPrimary : context.colors.textSecondary)),
+                          color: i <= _step
+                              ? context.colors.textOnPrimary
+                              : context.colors.textSecondary)),
                 ),
                 const SizedBox(width: 4),
                 Expanded(
@@ -315,15 +421,20 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                           fontSize: 11,
-                          fontWeight: i == _step ? FontWeight.w700 : FontWeight.w400,
-                          color: i <= _step ? context.colors.textPrimary : context.colors.textMuted)),
+                          fontWeight:
+                              i == _step ? FontWeight.w700 : FontWeight.w400,
+                          color: i <= _step
+                              ? context.colors.textPrimary
+                              : context.colors.textMuted)),
                 ),
                 if (i < 6) ...[
                   const SizedBox(width: 2),
                   Expanded(
                     child: Container(
                       height: 2,
-                      color: i < _step ? context.colors.primary : context.colors.border,
+                      color: i < _step
+                          ? context.colors.primary
+                          : context.colors.border,
                     ),
                   ),
                 ],
@@ -344,7 +455,9 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
         children: [
           Icon(Icons.error_outline, size: 18, color: context.colors.error),
           const SizedBox(width: 8),
-          Expanded(child: Text(_error!, style: TextStyle(fontSize: 12, color: context.colors.error))),
+          Expanded(
+              child: Text(_error!,
+                  style: TextStyle(fontSize: 12, color: context.colors.error))),
           InkWell(
             onTap: () => setState(() => _error = null),
             child: Icon(Icons.close, size: 16, color: context.colors.error),
@@ -416,7 +529,11 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
           value: value,
           isExpanded: true,
           isDense: true,
-          hint: hint.isEmpty ? null : Text(hint, style: TextStyle(fontSize: 13, color: context.colors.textMuted)),
+          hint: hint.isEmpty
+              ? null
+              : Text(hint,
+                  style:
+                      TextStyle(fontSize: 13, color: context.colors.textMuted)),
           style: TextStyle(fontSize: 14, color: context.colors.textPrimary),
           items: items,
           onChanged: enabled ? onChanged : null,
@@ -426,7 +543,8 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
   }
 
   Widget _loadHint(SyllabusSelectionProvider s,
-      {required Future<void> Function() onRetry, required String emptyMessage}) {
+      {required Future<void> Function() onRetry,
+      required String emptyMessage}) {
     if (s.busy) {
       return Padding(
         padding: const EdgeInsets.only(top: 10),
@@ -438,7 +556,9 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
             const SizedBox(width: 8),
-            Text('Loading…', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+            Text('Loading…',
+                style:
+                    TextStyle(fontSize: 12, color: context.colors.textMuted)),
           ],
         ),
       );
@@ -451,13 +571,15 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
         children: [
           Icon(Icons.error_outline, size: 15, color: context.colors.error),
           Flexible(
-            child: Text('${s.error}', style: TextStyle(fontSize: 12, color: context.colors.error)),
+            child: Text('${s.error}',
+                style: TextStyle(fontSize: 12, color: context.colors.error)),
           ),
           TextButton(onPressed: onRetry, child: const Text('Retry')),
         ],
       );
     } else if (emptyMessage.isNotEmpty) {
-      child = Text(emptyMessage, style: TextStyle(fontSize: 12, color: context.colors.textMuted));
+      child = Text(emptyMessage,
+          style: TextStyle(fontSize: 12, color: context.colors.textMuted));
     } else {
       child = const SizedBox.shrink();
     }
@@ -465,7 +587,10 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
   }
 
   Widget _stepNav(
-      {required String nextLabel, required VoidCallback? onNext, required bool nextEnabled, bool showBack = true}) {
+      {required String nextLabel,
+      required VoidCallback? onNext,
+      required bool nextEnabled,
+      bool showBack = true}) {
     return Row(
       children: [
         if (showBack) ...[
@@ -495,7 +620,8 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
   /// so users don't need to press Next on the syllabus steps.
   void _autoAdvance(int targetStep) {
     Future.delayed(const Duration(milliseconds: 220), () {
-      if (mounted && _step == targetStep - 1) setState(() => _step = targetStep);
+      if (mounted && _step == targetStep - 1)
+        setState(() => _step = targetStep);
     });
   }
 
@@ -509,10 +635,15 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Step 1 · Choose the subject',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary)),
               const SizedBox(height: 4),
-              Text('Select a subject from the national syllabus. The presentation will be aligned to its curriculum.',
-                  style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+              Text(
+                  'Select a subject from the national syllabus. The presentation will be aligned to its curriculum.',
+                  style:
+                      TextStyle(fontSize: 12, color: context.colors.textMuted)),
               const SizedBox(height: 14),
               _syllabusDropdown<String>(
                 label: 'Subject',
@@ -522,7 +653,8 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                   for (final sub in s.subjects)
                     DropdownMenuItem<String>(
                       value: sub['slug'] as String? ?? '',
-                      child: Text(sub['name'] as String? ?? 'Unknown', overflow: TextOverflow.ellipsis),
+                      child: Text(sub['name'] as String? ?? 'Unknown',
+                          overflow: TextOverflow.ellipsis),
                     ),
                 ],
                 onChanged: (v) {
@@ -533,10 +665,12 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                 },
                 enabled: !s.busy,
               ),
-              if ((s.subject['description'] as String?)?.isNotEmpty ?? false) ...[
+              if ((s.subject['description'] as String?)?.isNotEmpty ??
+                  false) ...[
                 const SizedBox(height: 10),
                 Text('${s.subject['description']}',
-                    style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
+                    style: TextStyle(
+                        fontSize: 12, color: context.colors.textSecondary)),
               ],
               if (s.subjects.isEmpty && !s.busy) ...[
                 const SizedBox(height: 12),
@@ -564,7 +698,8 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
   Widget _formStep() {
     final s = context.watch<SyllabusSelectionProvider>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!s.busy && s.hasSelection && s.forms.isEmpty && !s.formsTried) s.loadForms();
+      if (!s.busy && s.hasSelection && s.forms.isEmpty && !s.formsTried)
+        s.loadForms();
     });
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -574,10 +709,15 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Step 2 · Class (Form)',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary)),
               const SizedBox(height: 4),
-              Text('${s.subject['name'] ?? 'Selected subject'} — choose the class level for this lecture.',
-                  style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+              Text(
+                  '${s.subject['name'] ?? 'Selected subject'} — choose the class level for this lecture.',
+                  style:
+                      TextStyle(fontSize: 12, color: context.colors.textMuted)),
               const SizedBox(height: 14),
               _syllabusDropdown<int>(
                 label: 'Class',
@@ -598,7 +738,10 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                 },
                 enabled: !s.busy && s.hasSelection && s.forms.isNotEmpty,
               ),
-              _loadHint(s, onRetry: s.loadForms, emptyMessage: 'No class levels are available for this subject.'),
+              _loadHint(s,
+                  onRetry: s.loadForms,
+                  emptyMessage:
+                      'No class levels are available for this subject.'),
             ],
           ),
         ),
@@ -615,7 +758,8 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
   Widget _topicStep() {
     final s = context.watch<SyllabusSelectionProvider>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!s.busy && s.hasForm && s.topics.isEmpty && !s.topicsTried) s.loadTopics();
+      if (!s.busy && s.hasForm && s.topics.isEmpty && !s.topicsTried)
+        s.loadTopics();
     });
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -625,35 +769,54 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Step 3 · Topic',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary)),
               const SizedBox(height: 4),
-              Text('${s.subject['name'] ?? ''} · Form ${s.form ?? ''} — choose a topic from the syllabus.',
-                  style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+              Text(
+                  '${s.subject['name'] ?? ''} · Form ${s.form ?? ''} — select one or more topics.',
+                  style:
+                      TextStyle(fontSize: 12, color: context.colors.textMuted)),
               const SizedBox(height: 14),
-              _syllabusDropdown<int>(
-                label: 'Topic',
-                hint: s.topics.isEmpty ? 'No topics found' : 'Choose a topic',
-                value: s.topic?['id'] as int?,
-                items: [
-                  for (final t in s.topics)
-                    DropdownMenuItem<int>(value: t['id'] as int? ?? 0, child: Text(t['title'] as String? ?? 'Unknown')),
-                ],
-                onChanged: (v) {
-                  if (v != null) {
-                    s.selectTopic(v);
-                    _autoAdvance(3);
-                  }
-                },
-                enabled: !s.busy && s.hasForm && s.topics.isNotEmpty,
-              ),
-              _loadHint(s, onRetry: s.loadTopics, emptyMessage: 'No topics are listed for this class level.'),
+              if (s.topics.isNotEmpty)
+                ...s.topics.map((topic) {
+                  final id = topic['id'] as int?;
+                  final title = topic['title'] as String? ?? 'Unknown';
+                  if (id == null) return const SizedBox.shrink();
+                  return CheckboxListTile(
+                    value: s.isTopicSelected(id),
+                    dense: true,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    title: Text(title,
+                        style: TextStyle(
+                            fontSize: 13, color: context.colors.textPrimary)),
+                    subtitle:
+                        (topic['description'] as String?)?.isNotEmpty == true
+                            ? Text(topic['description'] as String,
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    color: context.colors.textMuted))
+                            : null,
+                    onChanged: s.busy ? null : (_) => s.toggleTopic(id),
+                  );
+                }),
+              _loadHint(s,
+                  onRetry: s.loadTopics,
+                  emptyMessage: 'No topics are listed for this class level.'),
+              if (s.selectedTopics.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text('${s.selectedTopics.length} topic(s) selected',
+                    style:
+                        TextStyle(fontSize: 12, color: context.colors.primary)),
+              ],
             ],
           ),
         ),
         const SizedBox(height: 18),
         _stepNav(
           nextLabel: 'NEXT: SUB-TOPIC',
-          nextEnabled: s.hasTopic,
+          nextEnabled: s.selectedTopics.isNotEmpty || s.hasTopic,
           onNext: () => setState(() => _step = 3),
         ),
       ],
@@ -662,10 +825,14 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
 
   Widget _subtopicStep() {
     final s = context.watch<SyllabusSelectionProvider>();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!s.busy && s.hasTopic && s.subtopics.isEmpty && !s.subtopicsTried) s.loadSubtopics();
-    });
-    final canContinueWithout = s.hasTopic && s.subtopicsTried && s.subtopics.isEmpty && !s.busy;
+    for (final topic in s.selectedTopics) {
+      final id = topic['id'] as int?;
+      if (id != null && !s.busy && !s.hasLoadedSubtopicsForTopic(id)) {
+        WidgetsBinding.instance
+            .addPostFrameCallback((_) => s.loadSubtopicsForTopic(id));
+      }
+    }
+    final canContinueWithout = s.selectedTopics.isNotEmpty && !s.busy;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -674,32 +841,70 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Step 4 · Sub-topic',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary)),
               const SizedBox(height: 4),
-              Text('${s.topic?['title'] ?? 'Selected topic'} — narrow the lecture to a sub-topic (optional).',
-                  style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+              Text('Choose sub-topics for any selected topic (optional).',
+                  style:
+                      TextStyle(fontSize: 12, color: context.colors.textMuted)),
               const SizedBox(height: 14),
-              _syllabusDropdown<int>(
-                label: 'Subtopic',
-                hint: s.subtopics.isEmpty ? 'No sub-topics listed' : 'Choose a sub-topic',
-                value: s.subtopic?['id'] as int?,
-                items: [
-                  for (final st in s.subtopics)
-                    DropdownMenuItem<int>(
-                        value: st['id'] as int? ?? 0, child: Text(st['title'] as String? ?? 'Unknown')),
-                ],
-                onChanged: (v) {
-                  if (v != null) {
-                    s.selectSubtopic(v);
-                    _autoAdvance(4);
-                  }
-                },
-                enabled: !s.busy && s.hasTopic && s.subtopics.isNotEmpty,
-              ),
+              ...s.selectedTopics.map((topic) {
+                final topicId = topic['id'] as int?;
+                final options = topicId == null
+                    ? const <dynamic>[]
+                    : s.subtopicsForTopic(topicId);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6, bottom: 3),
+                      child: Text(topic['title'] as String? ?? 'Topic',
+                          style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: context.colors.textPrimary)),
+                    ),
+                    if (options.isEmpty && s.busy)
+                      const Padding(
+                          padding: EdgeInsets.all(8),
+                          child: LinearProgressIndicator())
+                    else if (options.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Text(
+                            'No sub-topics listed; the topic will still be included.',
+                            style: TextStyle(
+                                fontSize: 12, color: context.colors.textMuted)),
+                      )
+                    else
+                      ...options.map((subtopic) {
+                        final subtopicId = subtopic['id'] as int?;
+                        if (subtopicId == null || topicId == null)
+                          return const SizedBox.shrink();
+                        return CheckboxListTile(
+                          value: s.isSubtopicSelected(subtopicId),
+                          dense: true,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          title: Text(subtopic['title'] as String? ?? 'Unknown',
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  color: context.colors.textPrimary)),
+                          onChanged: s.busy
+                              ? null
+                              : (_) => s.toggleSubtopic(topicId, subtopicId),
+                        );
+                      }),
+                  ],
+                );
+              }),
               if (canContinueWithout) ...[
                 const SizedBox(height: 10),
-                Text('This topic has no sub-topics in the syllabus. You can continue with the topic as-is.',
-                    style: TextStyle(fontSize: 12, color: context.colors.warning)),
+                Text(
+                    'This topic has no sub-topics in the syllabus. You can continue with the topic as-is.',
+                    style:
+                        TextStyle(fontSize: 12, color: context.colors.warning)),
               ],
             ],
           ),
@@ -707,7 +912,8 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
         const SizedBox(height: 18),
         _stepNav(
           nextLabel: 'NEXT: OBJECTIVES',
-          nextEnabled: s.hasSubtopic || canContinueWithout,
+          nextEnabled:
+              s.selectedTopics.isNotEmpty || s.hasTopic || canContinueWithout,
           onNext: () => setState(() => _step = 4),
         ),
       ],
@@ -717,7 +923,10 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
   Widget _objectivesStep() {
     final s = context.watch<SyllabusSelectionProvider>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!s.busy && s.hasSubtopic && s.objectives.isEmpty && !s.objectivesTried) s.loadObjectives();
+      if (!s.busy &&
+          s.hasSubtopic &&
+          s.objectives.isEmpty &&
+          !s.objectivesTried) s.loadObjectives();
     });
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -727,17 +936,23 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Step 5 · Learning objectives',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary)),
               const SizedBox(height: 4),
               Text(
                   'Review the syllabus objectives for "${s.subtopic?['title'] ?? s.topic?['title'] ?? ''}". '
                   'These will guide the AI presentation.',
-                  style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+                  style:
+                      TextStyle(fontSize: 12, color: context.colors.textMuted)),
               const SizedBox(height: 12),
-              if (s.objectives.isEmpty && !s.busy) _loadHint(s, onRetry: s.loadObjectives, emptyMessage: ''),
+              if (s.objectives.isEmpty && !s.busy)
+                _loadHint(s, onRetry: s.loadObjectives, emptyMessage: ''),
               if (s.objectives.isEmpty)
                 Text('No learning objectives found for this selection.',
-                    style: TextStyle(fontSize: 12, color: context.colors.textMuted))
+                    style: TextStyle(
+                        fontSize: 12, color: context.colors.textMuted))
               else
                 ...s.objectives.asMap().entries.map((e) {
                   final lo = e.value;
@@ -746,7 +961,8 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.check_circle_outline, size: 18, color: context.colors.primary),
+                        Icon(Icons.check_circle_outline,
+                            size: 18, color: context.colors.primary),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Column(
@@ -754,11 +970,17 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                             children: [
                               Text(
                                 '${e.key + 1}. ${lo['objective']}',
-                                style: TextStyle(fontSize: 13, color: context.colors.textPrimary),
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    color: context.colors.textPrimary),
                               ),
-                              if ((lo['cognitive_level'] as String?)?.isNotEmpty ?? false)
+                              if ((lo['cognitive_level'] as String?)
+                                      ?.isNotEmpty ??
+                                  false)
                                 Text('• ${lo['cognitive_level']}',
-                                    style: TextStyle(fontSize: 11, color: context.colors.primary)),
+                                    style: TextStyle(
+                                        fontSize: 11,
+                                        color: context.colors.primary)),
                             ],
                           ),
                         ),
@@ -767,7 +989,9 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                   );
                 }),
               const SizedBox(height: 10),
-              _txtField(_objectiveCtrl, 'Additional objectives (one per line, optional)', lines: 3),
+              _txtField(_objectiveCtrl,
+                  'Additional objectives (one per line, optional)',
+                  lines: 3),
             ],
           ),
         ),
@@ -792,14 +1016,16 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Presentation type', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+              const Text('Presentation type',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 initialValue: _presentationType,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: context.colors.background,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
                 ),
                 items: const [
                   'Lecture Presentation',
@@ -816,36 +1042,33 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                   'Student Presentation',
                   'Laboratory Practical',
                   'Mixed Mode',
-                ].map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 13)))).toList(),
-                onChanged: (v) => setState(() => _presentationType = v ?? _presentationType),
+                ]
+                    .map((e) => DropdownMenuItem(
+                        value: e,
+                        child: Text(e, style: const TextStyle(fontSize: 13))))
+                    .toList(),
+                onChanged: (v) =>
+                    setState(() => _presentationType = v ?? _presentationType),
               ),
               const SizedBox(height: 16),
-              const Text('Design template', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+              const Text('Design template',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 initialValue: _template,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: context.colors.background,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
                 ),
-                items: const [
-                  'Minimal Academic',
-                  'Modern University',
-                  'Medical/Health Sciences',
-                  'STEM',
-                  'Biology',
-                  'Chemistry',
-                  'Physics',
-                  'Mathematics',
-                  'Public Health',
-                  'Clinical',
-                  'Research',
-                  'Corporate Academic',
-                  'Dark Professional',
-                  'Light Professional',
-                  'Institutional',
-                ].map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 13)))).toList(),
+                items: _designs
+                    .map((design) => DropdownMenuItem(
+                          value: design['name'],
+                          child: Text(design['name']!,
+                              style: const TextStyle(fontSize: 13)),
+                        ))
+                    .toList(),
                 onChanged: (v) => setState(() => _template = v ?? _template),
               ),
             ],
@@ -856,7 +1079,8 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Typography', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+              const Text('Typography',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 initialValue: _bodyFont,
@@ -864,7 +1088,8 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                   labelText: 'Body / heading font',
                   filled: true,
                   fillColor: context.colors.background,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
                 ),
                 items: const [
                   'Calibri',
@@ -875,20 +1100,32 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                   'Georgia',
                   'Verdana',
                   'Tahoma'
-                ].map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 13)))).toList(),
+                ]
+                    .map((e) => DropdownMenuItem(
+                        value: e,
+                        child: Text(e, style: const TextStyle(fontSize: 13))))
+                    .toList(),
                 onChanged: (v) => setState(() => _bodyFont = v ?? _bodyFont),
               ),
               const SizedBox(height: 12),
               Row(children: [
-                Expanded(child: _numberField('Body size (pt)', _bodySize, (v) => _bodySize = v)),
+                Expanded(
+                    child: _numberField(
+                        'Body size (pt)', _bodySize, (v) => _bodySize = v)),
                 const SizedBox(width: 10),
-                Expanded(child: _numberField('Heading size (pt)', _headingSize, (v) => _headingSize = v)),
+                Expanded(
+                    child: _numberField('Heading size (pt)', _headingSize,
+                        (v) => _headingSize = v)),
               ]),
               const SizedBox(height: 12),
               Row(children: [
-                Expanded(child: _numberField('Max lines/slide', _maxLines, (v) => _maxLines = v)),
+                Expanded(
+                    child: _numberField(
+                        'Max lines/slide', _maxLines, (v) => _maxLines = v)),
                 const SizedBox(width: 10),
-                Expanded(child: _numberField('Max bullets', _maxBullets, (v) => _maxBullets = v)),
+                Expanded(
+                    child: _numberField(
+                        'Max bullets', _maxBullets, (v) => _maxBullets = v)),
               ]),
               const SizedBox(height: 12),
               Row(children: [
@@ -910,7 +1147,8 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Citations', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+              const Text('Citations',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 initialValue: _citationStyle,
@@ -918,12 +1156,23 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                   labelText: 'Citation style',
                   filled: true,
                   fillColor: context.colors.background,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
                 ),
-                items: const ['APA 7', 'Vancouver', 'Harvard', 'IEEE', 'MLA', 'Custom']
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 13))))
+                items: const [
+                  'APA 7',
+                  'Vancouver',
+                  'Harvard',
+                  'IEEE',
+                  'MLA',
+                  'Custom'
+                ]
+                    .map((e) => DropdownMenuItem(
+                        value: e,
+                        child: Text(e, style: const TextStyle(fontSize: 13))))
                     .toList(),
-                onChanged: (v) => setState(() => _citationStyle = v ?? _citationStyle),
+                onChanged: (v) =>
+                    setState(() => _citationStyle = v ?? _citationStyle),
               ),
               const SizedBox(height: 8),
               Row(children: [
@@ -933,7 +1182,8 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                   activeColor: context.colors.primary,
                 ),
                 const Expanded(
-                    child: Text('Enable web research (supplement when needed)', style: TextStyle(fontSize: 13))),
+                    child: Text('Enable web research (supplement when needed)',
+                        style: TextStyle(fontSize: 13))),
               ]),
             ],
           ),
@@ -944,12 +1194,16 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Course details',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary)),
               const SizedBox(height: 14),
               Row(children: [
                 Expanded(child: _txtField(_programmeCtrl, 'Programme')),
                 const SizedBox(width: 10),
-                SizedBox(width: 110, child: _txtField(_codeCtrl, 'Course code')),
+                SizedBox(
+                    width: 110, child: _txtField(_codeCtrl, 'Course code')),
               ]),
               const SizedBox(height: 10),
               Row(children: [
@@ -972,7 +1226,10 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Source material (priority: syllabus > notes > uploads)',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary)),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 8,
@@ -981,7 +1238,8 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                   _uploadChip(Icons.school_outlined, 'Syllabus', 'syllabus'),
                   _uploadChip(Icons.notes_rounded, 'Notes', 'notes'),
                   _uploadChip(Icons.menu_book_rounded, 'Textbook', 'textbook'),
-                  _uploadChip(Icons.folder_copy_outlined, 'Reference', 'reference'),
+                  _uploadChip(
+                      Icons.folder_copy_outlined, 'Reference', 'reference'),
                 ],
               ),
               if (_uploads.isNotEmpty) ...[
@@ -990,9 +1248,12 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                       dense: true,
                       contentPadding: EdgeInsets.zero,
                       leading: const Icon(Icons.description_outlined, size: 20),
-                      title: Text(u['filename'], style: TextStyle(fontSize: 13, color: context.colors.textPrimary)),
+                      title: Text(u['filename'],
+                          style: TextStyle(
+                              fontSize: 13, color: context.colors.textPrimary)),
                       subtitle: Text('${u['label']}  •  ${u['size']} B',
-                          style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
+                          style: TextStyle(
+                              fontSize: 11, color: context.colors.textMuted)),
                       trailing: InkWell(
                         onTap: () => setState(() => _uploads.remove(u)),
                         child: const Icon(Icons.close, size: 16),
@@ -1008,15 +1269,20 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Presentation length',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary)),
               const SizedBox(height: 12),
               Row(children: [
                 Checkbox(
                   value: _autoSlideCount,
-                  onChanged: (v) => setState(() => _autoSlideCount = v ?? false),
+                  onChanged: (v) =>
+                      setState(() => _autoSlideCount = v ?? false),
                   activeColor: context.colors.primary,
                 ),
-                const Text('AI determine optimal slide count', style: TextStyle(fontSize: 13)),
+                const Text('AI determine optimal slide count',
+                    style: TextStyle(fontSize: 13)),
               ]),
               if (!_autoSlideCount) ...[
                 const SizedBox(height: 8),
@@ -1065,13 +1331,21 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Syllabus selection',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: context.colors.textPrimary)),
           const SizedBox(height: 8),
-          _summaryRow(Icons.menu_book_outlined, 'Subject', s.subject['name'] as String? ?? ''),
-          _summaryRow(Icons.school_outlined, 'Class', s.form != null ? 'Form ${s.form}' : ''),
-          _summaryRow(Icons.article_outlined, 'Topic', s.topic?['title'] as String? ?? ''),
-          _summaryRow(Icons.account_tree_outlined, 'Subtopic', s.subtopic?['title'] as String? ?? ''),
-          _summaryRow(Icons.checklist_rounded, 'Objectives', '${s.objectives.length} syllabus objectives'),
+          _summaryRow(Icons.menu_book_outlined, 'Subject',
+              s.subject['name'] as String? ?? ''),
+          _summaryRow(Icons.school_outlined, 'Class',
+              s.form != null ? 'Form ${s.form}' : ''),
+          _summaryRow(Icons.article_outlined, 'Topic',
+              s.topic?['title'] as String? ?? ''),
+          _summaryRow(Icons.account_tree_outlined, 'Subtopic',
+              s.subtopic?['title'] as String? ?? ''),
+          _summaryRow(Icons.checklist_rounded, 'Objectives',
+              '${s.objectives.length} syllabus objectives'),
         ],
       ),
     );
@@ -1088,10 +1362,15 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
           SizedBox(
             width: 90,
             child: Text(label,
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.textSecondary)),
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: context.colors.textSecondary)),
           ),
           Expanded(
-            child: Text(value.isEmpty ? '—' : value, style: TextStyle(fontSize: 12, color: context.colors.textPrimary)),
+            child: Text(value.isEmpty ? '—' : value,
+                style:
+                    TextStyle(fontSize: 12, color: context.colors.textPrimary)),
           ),
         ],
       ),
@@ -1114,7 +1393,9 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
           children: [
             Icon(icon, size: 16, color: context.colors.primary),
             const SizedBox(width: 6),
-            Text('+ $label', style: TextStyle(fontSize: 12, color: context.colors.textPrimary)),
+            Text('+ $label',
+                style:
+                    TextStyle(fontSize: 12, color: context.colors.textPrimary)),
           ],
         ),
       ),
@@ -1140,6 +1421,170 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
     );
   }
 
+  void _previewDesign(Map<String, String> design) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(design['name']!),
+        content: SizedBox(
+          width: 520,
+          child: _designPreview(design, large: true),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Close')),
+          FilledButton(
+            onPressed: () {
+              setState(() => _template = design['name']!);
+              Navigator.pop(dialogContext);
+            },
+            child: const Text('Use this design'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _designPreview(Map<String, String> design, {bool large = false}) {
+    final background = Color(
+        int.parse(design['background']!.substring(1), radix: 16) | 0xFF000000);
+    final accent = Color(
+        int.parse(design['accent']!.substring(1), radix: 16) | 0xFF000000);
+    final text =
+        Color(int.parse(design['text']!.substring(1), radix: 16) | 0xFF000000);
+    return Container(
+      height: large ? 230 : 112,
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: accent.withValues(alpha: 0.55)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: large ? 18 : 9,
+              child: ColoredBox(color: accent)),
+          Positioned(
+              left: large ? 36 : 18,
+              top: large ? 30 : 16,
+              right: 18,
+              child: Container(height: large ? 14 : 8, color: accent)),
+          Positioned(
+              left: large ? 36 : 18,
+              top: large ? 70 : 38,
+              right: large ? 80 : 38,
+              child: Container(
+                  height: large ? 22 : 12,
+                  color: text.withValues(alpha: 0.88))),
+          Positioned(
+              left: large ? 36 : 18,
+              top: large ? 112 : 62,
+              right: large ? 58 : 28,
+              child: Column(children: [
+                Container(
+                    height: large ? 8 : 5, color: text.withValues(alpha: 0.28)),
+                SizedBox(height: large ? 10 : 5),
+                Container(
+                    height: large ? 8 : 5, color: text.withValues(alpha: 0.2)),
+                SizedBox(height: large ? 10 : 5),
+                Container(
+                    height: large ? 8 : 5, color: text.withValues(alpha: 0.14)),
+              ])),
+          Positioned(
+              left: large ? 36 : 18,
+              bottom: large ? 18 : 9,
+              child: Text(design['name']!,
+                  style: TextStyle(
+                      fontSize: large ? 14 : 9,
+                      fontWeight: FontWeight.w700,
+                      color: accent))),
+        ],
+      ),
+    );
+  }
+
+  Widget _designGallery() {
+    return _sectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Choose a professional slide design',
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: context.colors.textPrimary)),
+          const SizedBox(height: 4),
+          Text(
+              'Select a preview or open it larger before generating. The selected design is applied to every slide and the PPTX export.',
+              style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+          const SizedBox(height: 12),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _designs.length,
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 220,
+              mainAxisExtent: 156,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+            ),
+            itemBuilder: (context, index) {
+              final design = _designs[index];
+              final selected = design['name'] == _template;
+              return InkWell(
+                onTap: () => setState(() => _template = design['name']!),
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: selected
+                          ? context.colors.primary
+                          : context.colors.border,
+                      width: selected ? 2 : 1,
+                    ),
+                    color: context.colors.background,
+                  ),
+                  child: Column(
+                    children: [
+                      Expanded(child: _designPreview(design)),
+                      Row(
+                        children: [
+                          Expanded(
+                              child: Text(design['name']!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: context.colors.textPrimary))),
+                          IconButton(
+                            tooltip: 'Preview design',
+                            visualDensity: VisualDensity.compact,
+                            iconSize: 17,
+                            onPressed: () => _previewDesign(design),
+                            icon: Icon(Icons.visibility_outlined,
+                                color: context.colors.primary),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _outlineStep() {
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -1149,10 +1594,15 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Presentation outline — ${_outline.length} slides',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary)),
               const SizedBox(height: 4),
-              Text('Approve the outline before generating the full presentation. You can edit slide titles below.',
-                  style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+              Text(
+                  'Approve the outline before generating the full presentation. You can edit slide titles below.',
+                  style:
+                      TextStyle(fontSize: 12, color: context.colors.textMuted)),
               const SizedBox(height: 12),
               if (_outlineWarnings.isNotEmpty)
                 ..._outlineWarnings.map((w) => Padding(
@@ -1160,10 +1610,14 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.warning_amber_rounded, size: 16, color: context.colors.warning),
+                          Icon(Icons.warning_amber_rounded,
+                              size: 16, color: context.colors.warning),
                           const SizedBox(width: 6),
                           Expanded(
-                              child: Text(w['text'], style: TextStyle(fontSize: 12, color: context.colors.warning))),
+                              child: Text(w['text'],
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: context.colors.warning))),
                         ],
                       ),
                     )),
@@ -1174,13 +1628,16 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
                     CircleAvatar(
                       radius: 12,
                       backgroundColor: context.colors.primaryMuted,
-                      child: Text('${i + 1}', style: TextStyle(fontSize: 11, color: context.colors.primary)),
+                      child: Text('${i + 1}',
+                          style: TextStyle(
+                              fontSize: 11, color: context.colors.primary)),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: TextFormField(
                         initialValue: (sl['title'] as String?) ?? '',
-                        style: TextStyle(fontSize: 13, color: context.colors.textPrimary),
+                        style: TextStyle(
+                            fontSize: 13, color: context.colors.textPrimary),
                         decoration: InputDecoration(
                           isDense: true,
                           hintText: 'Slide ${i + 1} title',
@@ -1196,6 +1653,8 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
             ],
           ),
         ),
+        const SizedBox(height: 14),
+        _designGallery(),
         const SizedBox(height: 18),
         Row(children: [
           Expanded(
@@ -1214,9 +1673,10 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
           const SizedBox(width: 10),
           Expanded(
             child: ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: context.colors.primary),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: context.colors.primary),
               onPressed: _busy ? null : _generate,
-              child: const Text('APPROVE & GENERATE'),
+              child: const Text('GENERATE PRESENTATION'),
             ),
           ),
         ]),
@@ -1239,7 +1699,10 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
             child: Row(children: [
               Icon(Icons.check_circle, color: context.colors.success, size: 18),
               const SizedBox(width: 8),
-              Expanded(child: Text(_exportStatus!, style: TextStyle(fontSize: 12, color: context.colors.success))),
+              Expanded(
+                  child: Text(_exportStatus!,
+                      style: TextStyle(
+                          fontSize: 12, color: context.colors.success))),
             ]),
           ),
         _sectionCard(
@@ -1247,10 +1710,15 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Editable slides — ${_slides.length}',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary)),
               const SizedBox(height: 4),
-              Text('Review and edit each slide. speaker notes are included in the exported file.',
-                  style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+              Text(
+                  'Review and edit each slide. speaker notes are included in the exported file.',
+                  style:
+                      TextStyle(fontSize: 12, color: context.colors.textMuted)),
               const SizedBox(height: 12),
               ...List.generate(_slides.length, (i) => _slideEditor(i)),
             ],
@@ -1262,20 +1730,30 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Academic quality check',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.colors.textPrimary)),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.textPrimary)),
               const SizedBox(height: 10),
               if (_quality.isNotEmpty)
                 ..._quality.map((q) => Padding(
                       padding: const EdgeInsets.symmetric(vertical: 3),
                       child: Row(children: [
                         Expanded(
-                            child: Text(q['key'], style: TextStyle(fontSize: 12, color: context.colors.textSecondary))),
-                        Text('${q['value']}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                            child: Text(q['key'],
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: context.colors.textSecondary))),
+                        Text('${q['value']}',
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.w700)),
                       ]),
                     ))
               else
-                Text('Run the quality check to validate syllabus coverage, citations, density and accessibility.',
-                    style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+                Text(
+                    'Run the quality check to validate syllabus coverage, citations, density and accessibility.',
+                    style: TextStyle(
+                        fontSize: 12, color: context.colors.textMuted)),
             ],
           ),
         ),
@@ -1295,7 +1773,8 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
               label: const Text('Quality check'),
             ),
             ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(backgroundColor: context.colors.primary),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: context.colors.primary),
               onPressed: _busy ? null : _export,
               icon: const Icon(Icons.download_rounded, size: 16),
               label: const Text('DOWNLOAD PPTX'),
@@ -1320,11 +1799,17 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Slide ${index + 1}  •  ${s['slide_type'] ?? 'content'}',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: context.colors.primary)),
+              style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: context.colors.primary)),
           const SizedBox(height: 8),
           TextFormField(
             initialValue: (s['title'] as String?) ?? '',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
+            style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: context.colors.textPrimary),
             decoration: const InputDecoration(isDense: true),
             onChanged: (v) => _editSlide(index, 'title', v),
           ),
@@ -1332,7 +1817,8 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
           ...((s['bullets'] as List<dynamic>?) ?? []).asMap().entries.map((e) {
             return TextFormField(
               initialValue: (e.value as String?) ?? '',
-              style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
+              style:
+                  TextStyle(fontSize: 12, color: context.colors.textSecondary),
               decoration: const InputDecoration(isDense: true),
               onChanged: (v) {
                 final b = (s['bullets'] as List<dynamic>? ?? []);
@@ -1355,7 +1841,9 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
           if ((s['citation'] as String?)?.isNotEmpty ?? false)
             Padding(
               padding: const EdgeInsets.only(top: 6),
-              child: Text('${s['citation']}', style: TextStyle(fontSize: 10, color: context.colors.primary)),
+              child: Text('${s['citation']}',
+                  style:
+                      TextStyle(fontSize: 10, color: context.colors.primary)),
             ),
         ],
       ),
@@ -1364,7 +1852,8 @@ class _LecturePresentationBuilderScreenState extends State<LecturePresentationBu
 }
 
 class LoadingOverlay extends StatelessWidget {
-  const LoadingOverlay({super.key, required this.isLoading, required this.child});
+  const LoadingOverlay(
+      {super.key, required this.isLoading, required this.child});
   final bool isLoading;
   final Widget child;
 

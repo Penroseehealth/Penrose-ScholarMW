@@ -38,6 +38,13 @@ class BuilderConfig(BaseModel):
     # Learning objectives typed by the lecturer (optional — else derived).
     learning_objectives: list[str] = Field(default_factory=list)
 
+    # Multiple syllabus topics/subtopics selected by the lecturer. Singular
+    # fields remain for backwards compatibility with older clients.
+    topics: list[str] = Field(default_factory=list)
+    topic_ids: list[int] = Field(default_factory=list)
+    subtopics: list[str] = Field(default_factory=list)
+    subtopic_ids: list[int] = Field(default_factory=list)
+
     # Source material
     uploaded_text: str = ""  # merged extracted text from uploaded files
     vault_doc_ids: list[int] = Field(default_factory=list)
