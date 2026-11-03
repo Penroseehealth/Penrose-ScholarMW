@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 
 import '../../../features/audio_input/stt/speech_input.dart';
 import '../../../services/services.dart';
+import '../../../services/voice_catalog_service.dart';
+import '../../../widgets/text_to_speech_player.dart';
 import '../state/smart_board_controller.dart';
 
 class _AskTurn {
@@ -322,27 +324,53 @@ class _AskPanelState extends State<AskPanel> {
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 8, 6, 6),
-            child: Row(
-              children: <Widget>[
-                const Icon(Icons.forum_outlined, size: 17, color: Color(0xFF12294A)),
-                const SizedBox(width: 8),
-                const Expanded(
-                  child: Text('Ask / Input',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF12294A))),
-                ),
-                IconButton(
-                  tooltip: 'Expand conversation',
-                  onPressed: _openExpandedChat,
-                  icon: const Icon(Icons.open_in_full_rounded, size: 16),
-                  visualDensity: VisualDensity.compact,
-                ),
-                IconButton(
-                  tooltip: 'Collapse panel',
-                  onPressed: widget.onToggle,
-                  icon: const Icon(Icons.chevron_right_rounded, size: 20),
-                  visualDensity: VisualDensity.compact,
-                ),
-              ],
+            // While the panel animates open its width passes through values
+            // too small for the full header; show a bare chevron until there
+            // is room, so the squeeze never overflows.
+            child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints box) {
+                // At the first frame of the expand animation the container is
+                // still 44px wide, so the inner row only has 26px — too small
+                // even for the bare chevron. Show nothing until it fits.
+                if (box.maxWidth < 32) return const SizedBox(height: 28);
+                if (box.maxWidth < 110) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      InkWell(
+                        onTap: widget.onToggle,
+                        borderRadius: BorderRadius.circular(6),
+                        child: const Padding(
+                          padding: EdgeInsets.all(4),
+                          child: Icon(Icons.chevron_right_rounded, size: 20, color: Color(0xFF12294A)),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+                return Row(
+                  children: <Widget>[
+                    const Icon(Icons.forum_outlined, size: 17, color: Color(0xFF12294A)),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text('Ask / Input',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF12294A))),
+                    ),
+                    IconButton(
+                      tooltip: 'Expand conversation',
+                      onPressed: _openExpandedChat,
+                      icon: const Icon(Icons.open_in_full_rounded, size: 16),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    IconButton(
+                      tooltip: 'Collapse panel',
+                      onPressed: widget.onToggle,
+                      icon: const Icon(Icons.chevron_right_rounded, size: 20),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ],
+                );
+              },
             ),
           ),
           const Divider(height: 1),
@@ -367,6 +395,14 @@ class _AskPanelState extends State<AskPanel> {
                     ),
                   ],
                 ),
+              ),
+            ),
+          if (_turns.where((turn) => !turn.fromStudent).isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+              child: TextToSpeechPlayer(
+                text: _turns.where((turn) => !turn.fromStudent).last.text,
+                voiceId: VoiceCatalogService.defaultVoiceId,
               ),
             ),
           Expanded(

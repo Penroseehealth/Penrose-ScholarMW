@@ -101,3 +101,4 @@ class VoiceHealthResponse(BaseModel):
     stt_available: bool
     session_count: int
     default_voice_id: str = DEFAULT_VOICE_ID
+    provider: str = "browser"

@@ -106,12 +106,17 @@ async def text_to_speech(
     body: TTSRequest,
     user: User = Depends(get_current_user),
 ):
+    voice_id = body.voice_id.strip() if isinstance(body.voice_id, str) else ""
+    if voice_id.lower() == "default" or voice_id == "":
+        from app.voice.voice_catalog import resolve_default_voice_id
+
+        voice_id = resolve_default_voice_id()
     tts_service.set_speed(body.speed)
     result = await tts_service.synthesize(
         body.text,
         speed=body.speed,
         language=body.language,
-        voice_id=body.voice_id,
+        voice_id=voice_id,
     )
     return TTSResponse(
         audio_base64=result["audio_base64"],
@@ -143,9 +148,13 @@ async def list_voices():
 
 @router.get("/health", response_model=VoiceHealthResponse)
 async def voice_health():
+    from app.voice.voice_catalog import resolve_default_voice_id
+
     return VoiceHealthResponse(
         status="ok",
         tts_available=tts_service.is_available,
         stt_available=True,
         session_count=len(orchestrator._sessions),
+        default_voice_id=resolve_default_voice_id(),
+        provider="edge" if tts_service.is_available else "browser",
     )

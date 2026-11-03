@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/theme_colors.dart';
+import '../../services/voice_catalog_service.dart';
+import '../../widgets/text_to_speech_player.dart';
 
 const Color _bioGreen = Color(0xFF10B981);
 const Color _bioGreenDark = Color(0xFF059669);
@@ -270,6 +272,12 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
                   Text(
                       '${_experiments.length} experiments covering diffusion, osmosis, photosynthesis, enzymes, and more.',
                       style: TextStyle(fontSize: 12, color: context.colors.textMuted, height: 1.4)),
+                  const SizedBox(height: 12),
+                  TextToSpeechPlayer(
+                    text:
+                        'Welcome to the virtual biology lab. The lab includes ${_experiments.length} experiments covering diffusion, osmosis, photosynthesis, enzymes, microscopy, and respiration.',
+                    voiceId: VoiceCatalogService.defaultVoiceId,
+                  ),
                 ],
               ),
             ),

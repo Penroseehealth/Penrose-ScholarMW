@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 
 import '../../../core/networking/api_client.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../services/voice_catalog_service.dart';
+import '../../../widgets/text_to_speech_player.dart';
 import 'accent_selector.dart';
 import 'clone_controller.dart';
 import 'live_classroom_page.dart';
@@ -600,6 +602,13 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
                 ),
                 const SizedBox(height: 12),
                 TextComposer(controller: _composer, onChanged: (_) => setState(() {}), enabled: c.ttsConfigured),
+                if (_composer.text.trim().isNotEmpty) ...[
+                  const SizedBox(height: 14),
+                  TextToSpeechPlayer(
+                    text: _composer.text.trim(),
+                    voiceId: _controller.selectedVoice?.id ?? VoiceCatalogService.defaultVoiceId,
+                  ),
+                ],
                 const SizedBox(height: 22),
 
                 // 2 — voice
