@@ -34,8 +34,8 @@ class OfflineError(Exception):
 
 
 # ---------------------------------------------------------------------------
-# Provider chain: HuggingFace (primary) → Groq (fallback)
-# Cloudflare is kept as an optional extra if already configured.
+# Provider chain: Hugging Face → Cloudflare → OpenAI → Groq.
+# Hugging Face is preferred; the other configured providers are fallbacks.
 # ---------------------------------------------------------------------------
 
 
@@ -43,14 +43,29 @@ def _build_providers() -> list[tuple[str, AsyncOpenAI, str]]:
     """Return ordered list of (name, client, model) for available providers.
 
     Provider priority:
-    1. Cloudflare Workers AI (primary — reliable, key already provisioned)
-    2. HuggingFace (fallback — needs credits/PRO on the account)
-    3. Groq (fallback)
+    1. Hugging Face (preferred)
+    2. Cloudflare Workers AI
+    3. OpenAI
+    4. Groq
     """
     s = get_settings()
     providers: list[tuple[str, AsyncOpenAI, str]] = []
 
-    # 1. Cloudflare Workers AI — PRIMARY
+    # 1. Hugging Face — PRIMARY
+    if s.HUGGINGFACE_API_TOKEN:
+        providers.append(
+            (
+                "huggingface",
+                AsyncOpenAI(
+                    api_key=s.HUGGINGFACE_API_TOKEN,
+                    base_url="https://router.huggingface.co/v1",
+                    timeout=60.0,
+                ),
+                s.HUGGINGFACE_MODEL,
+            )
+        )
+
+    # 2. Cloudflare Workers AI — FALLBACK
     if s.CLOUDFLARE_ACCOUNT_ID and s.CLOUDFLARE_API_TOKEN:
         base_url = (
             f"https://api.cloudflare.com/client/v4/accounts/"
@@ -68,21 +83,20 @@ def _build_providers() -> list[tuple[str, AsyncOpenAI, str]]:
             )
         )
 
-    # 2. HuggingFace — FALLBACK
-    if s.HUGGINGFACE_API_TOKEN:
+    # 3. OpenAI — FALLBACK
+    if s.OPENAI_API_KEY:
         providers.append(
             (
-                "huggingface",
+                "openai",
                 AsyncOpenAI(
-                    api_key=s.HUGGINGFACE_API_TOKEN,
-                    base_url="https://router.huggingface.co/v1",
+                    api_key=s.OPENAI_API_KEY,
                     timeout=60.0,
                 ),
-                s.HUGGINGFACE_MODEL,
+                s.OPENAI_MODEL,
             )
         )
 
-    # 3. Groq — FALLBACK
+    # 4. Groq — FALLBACK
     if s.GROQ_API_KEY:
         providers.append(
             (
@@ -104,8 +118,8 @@ def get_ai_client() -> tuple[AsyncOpenAI, str]:
     providers = _build_providers()
     if not providers:
         raise RuntimeError(
-            "No AI provider configured. Set HUGGINGFACE_API_TOKEN or "
-            "GROQ_API_KEY in .env."
+            "No AI provider configured. Set HUGGINGFACE_API_TOKEN, "
+            "CLOUDFLARE_API_TOKEN, OPENAI_API_KEY, or GROQ_API_KEY in .env."
         )
     name, client, model = providers[0]
     log.info("AI primary provider: %s (%s)", name, model)
@@ -125,7 +139,7 @@ async def call_ai_chat(
     timeout: float = 30.0,
     **kwargs,
 ) -> tuple[ChatCompletion, str]:
-    """Try providers in order (HuggingFace → Groq → Cloudflare).
+    """Try providers in order (Hugging Face → Cloudflare → OpenAI → Groq).
     Returns (completion, provider_name).
     Raises AIProviderError if all fail."""
     providers = _build_providers()
@@ -230,14 +244,33 @@ async def call_ai_json(
             {"role": "system", "content": json_instruction},
             *messages,
         ]
-    raw = await call_ai_text(
-        styled_messages,
-        max_tokens=max_tokens,
-        temperature=temperature,
-        timeout=timeout,
-        **kwargs,
-    )
-    return _extract_json(raw)
+    providers = _build_providers()
+    if not providers:
+        raise RuntimeError("No AI provider configured.")
+
+    errors: list[tuple[str, Exception]] = []
+    for name, client, model in providers:
+        try:
+            log.info("Trying structured AI provider: %s (%s)", name, model)
+            completion = await asyncio.wait_for(
+                client.chat.completions.create(
+                    model=model,
+                    messages=styled_messages,
+                    max_tokens=max_tokens,
+                    temperature=temperature,
+                    **kwargs,
+                ),
+                timeout=timeout,
+            )
+            raw = completion.choices[0].message.content or ""
+            result = _extract_json(raw)
+            log.info("Structured AI provider %s succeeded", name)
+            return result
+        except (APIStatusError, Exception, asyncio.TimeoutError) as exc:
+            log.warning("Structured AI provider %s failed: %s", name, exc)
+            errors.append((name, exc))
+
+    raise AIProviderError(errors)
 
 
 # ---------------------------------------------------------------------------

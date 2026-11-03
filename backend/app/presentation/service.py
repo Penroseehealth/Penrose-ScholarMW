@@ -524,6 +524,7 @@ async def collect_sources(config, vault_docs: list[dict], db=None) -> dict:
         "notes": notes_blob,
         "uploaded": other_blob,
         "vault": vault_sources,
+        "research": research_blob,
         "merged": _truncate(merged),
         "has_syllabus": bool(syllabus_blob.strip()),
     }
