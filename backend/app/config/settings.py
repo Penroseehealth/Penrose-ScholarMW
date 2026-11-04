@@ -104,6 +104,12 @@ class Settings(BaseSettings):
     STT_PROVIDER: str = ""
     CLOUDFLARE_AI_BASE_URL: str = "https://api.cloudflare.com/client/v4"
     CLOUDFLARE_STT_MODEL: str = "@cf/openai/whisper"
+    # Text-to-speech providers tried in order. Cloudflare Workers AI runs
+    # MeloTTS on its free tier (a single built-in voice), so it leads; Groq's
+    # Orpheus is the fallback and is the one that offers named voices.
+    TTS_PROVIDER_PRIORITY: list[str] = ["cloudflare", "groq"]
+    CLOUDFLARE_TTS_MODEL: str = "@cf/myshell-ai/melotts"
+    CLOUDFLARE_TTS_LANG: str = "en"
     TTS_VOICE: str = "hannah"
     TTS_SPEED: float = 1.0
     TTS_PROVIDER_FALLBACK_ORDER: list[str] = ["groq", "freeai"]

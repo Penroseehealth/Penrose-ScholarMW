@@ -76,6 +76,9 @@ _ORPHEUS_VOICES_BY_MODEL: dict[str, frozenset[str]] = {
 _ORPHEUS_VOICES = frozenset().union(*_ORPHEUS_VOICES_BY_MODEL.values())
 
 _ORPHEUS_CHUNK_CHARS = 200
+# MeloTTS accepts a longer prompt, so a classroom reply costs far fewer billable
+# calls than it would at Orpheus's 200-character limit.
+_CLOUDFLARE_CHUNK_CHARS = 900
 
 _WAV_FMT_EXTENSIBLE = 0xFFFE
 # ffmpeg (the muxer behind Groq's Orpheus TTS) cannot back-patch the length of
@@ -94,15 +97,17 @@ class SpeechService:
 
     def status(self, default_voice: str | None = None) -> dict:
         settings = get_settings()
-        chain = _stt_order()
+        stt_chain = _stt_order()
+        tts_chain = _tts_order()
         return {
             "enabled": True,
-            "stt_provider": chain[0] if chain else "",
-            "stt_configured": bool(chain),
-            "tts_configured": _tts_configured(),
-            "stt_models": _stt_models(chain),
-            "tts_models": _tts_models(),
-            "tts_voices": available_voices(),
+            "stt_provider": stt_chain[0] if stt_chain else "",
+            "stt_configured": bool(stt_chain),
+            "tts_provider": tts_chain[0] if tts_chain else "",
+            "tts_configured": bool(tts_chain),
+            "stt_models": _stt_models(stt_chain),
+            "tts_models": _tts_models(tts_chain),
+            "tts_voices": available_voices(tts_chain),
             # Resolved by the caller so a MY VOICES selection wins over the
             # process-wide configured default without this proxy touching the DB.
             "default_voice": default_voice or settings.tts_voice,
@@ -303,21 +308,130 @@ class SpeechService:
         voice: str | None = None,
         speed: float | None = None,
     ) -> dict:
-        if not text.strip():
-            raise ValidationError("Text to synthesise cannot be empty")
-        if not _tts_configured():
+        """Speak text with the first configured provider that answers.
+
+        Providers run in ``TTS_PROVIDER_PRIORITY`` order; one that fails falls
+        through to the next, so an expired key on one account does not leave the
+        classroom mute while another free provider is configured.
+        """
+        chain = _tts_order()
+        if not chain:
             raise ServiceUnavailableError(
-                "Speech synthesis is not configured. Set GROQ_API_KEY.",
+                "Speech synthesis is not configured. Set CLOUDFLARE_ACCOUNT_ID "
+                "and CLOUDFLARE_API_TOKEN (free MeloTTS), or GROQ_API_KEY, then "
+                "list the provider in TTS_PROVIDER_PRIORITY.",
                 details={"status": self.status()},
             )
-        settings = get_settings()
+        if not text.strip():
+            raise ValidationError("Text to synthesise cannot be empty")
         spoken = clean_for_tts(text)
         if not spoken:
             raise ValidationError(
                 "Text to synthesise contains only citations, URLs or markdown"
             )
+        errors: list[tuple[str, Exception]] = []
+        for name in chain:
+            try:
+                if name == "cloudflare":
+                    return self._synthesize_cloudflare(spoken)
+                if name == "groq":
+                    return self._synthesize_groq(spoken, voice, speed)
+                raise ServiceUnavailableError(
+                    f"Unknown synthesis provider '{name}'",
+                    code="tts_provider_error",
+                )
+            except (ServiceUnavailableError, RateLimitedError) as exc:
+                log.warning("TTS provider %s failed: %s", name, exc)
+                errors.append((name, exc))
+        if errors and all(isinstance(exc, RateLimitedError) for _, exc in errors):
+            # Every usable provider reached its own quota. A 429 tells the
+            # client to back off instead of claiming voice is unconfigured.
+            raise errors[0][1]
+        raise ServiceUnavailableError(
+            "Speech synthesis failed on every configured provider: "
+            + "; ".join(f"{name}: {str(exc)[:160]}" for name, exc in errors),
+            code="tts_provider_error",
+            details={"providers": [name for name, _ in errors]},
+        )
+
+    def _synthesize_cloudflare(self, spoken: str) -> dict:
+        """Synthesise on Cloudflare Workers AI (MeloTTS, free daily tier).
+
+        MeloTTS exposes one built-in voice per language and no speaking-rate
+        control, so those controls are reported as ignored rather than echoed
+        back as if the provider had applied them.
+        """
+        settings = get_settings()
+        service = settings.cloudflare_tts_model
+        url = (
+            f"{settings.cloudflare_ai_base_url.rstrip('/')}"
+            f"/accounts/{settings.cloudflare_account_id}"
+            f"/ai/run/{service}"
+        )
+        segments: list[bytes] = []
+        for chunk in _tts_chunks(spoken, _CLOUDFLARE_CHUNK_CHARS):
+            with self._client_factory() as http:
+                response = http.post(
+                    url,
+                    headers={
+                        "Authorization": f"Bearer {settings.cloudflare_api_token}"
+                    },
+                    json={"prompt": chunk, "lang": settings.cloudflare_tts_lang},
+                )
+            if response.status_code == 429:
+                # The free plan's own daily allowance, not a fault in this
+                # service. Let the chain try the next provider before the client
+                # is told to wait.
+                raise RateLimitedError(
+                    "Cloudflare's free speech quota has been reached, so this "
+                    "reply could not be spoken.",
+                    code="tts_rate_limited",
+                    details={
+                        "provider": "cloudflare",
+                        "retry_after": response.headers.get("retry-after"),
+                    },
+                )
+            if response.status_code != 200:
+                raise ServiceUnavailableError(
+                    f"Synthesis provider error ({response.status_code}): "
+                    f"{response.text[:200]}",
+                    code="tts_provider_error",
+                )
+            payload = response.json()
+            audio_b64 = (payload.get("result") or {}).get("audio")
+            if not audio_b64:
+                raise ServiceUnavailableError(
+                    "Synthesis provider returned no audio",
+                    code="tts_provider_error",
+                )
+            segments.append(base64.b64decode(audio_b64))
+        audio = _merge_wav_segments(segments)
+        return {
+            "audio_base64": base64.b64encode(audio).decode("ascii"),
+            "mime": "audio/wav",
+            "provider": "cloudflare",
+            "model": service,
+            "voice": "default",
+            "speed": 1.0,
+            "applied": {
+                "voice": "default",
+                "speed": 1.0,
+                "voice_ignored": (
+                    "Cloudflare MeloTTS speaks with one built-in voice per language"
+                ),
+                "speed_ignored": "Cloudflare MeloTTS has no speaking-rate control",
+            },
+        }
+
+    def _synthesize_groq(
+        self,
+        spoken: str,
+        voice: str | None,
+        speed: float | None,
+    ) -> dict:
+        settings = get_settings()
         model = settings.groq_tts_model
-        selected_voice = _selected_voice(voice)
+        selected_voice = _selected_voice(voice, "groq")
         selected_speed = speed if speed is not None else settings.tts_speed
         is_orpheus = model in _ORPHEUS_MODELS
         url = f"{settings.groq_base_url.rstrip('/')}/audio/speech"
@@ -361,7 +475,8 @@ class SpeechService:
                 )
             if response.status_code != 200:
                 raise ServiceUnavailableError(
-                    f"Synthesis provider error ({response.status_code}): {response.text[:200]}",
+                    f"Synthesis provider error ({response.status_code}): "
+                    f"{response.text[:200]}",
                     code="tts_provider_error",
                 )
             segments.append(response.content)
@@ -419,13 +534,24 @@ def _stt_provider_configured(name: str) -> bool:
     return False
 
 
-def _stt_configured() -> bool:
-    return bool(_stt_order())
-
-
-def _tts_configured() -> bool:
+def _tts_order() -> list[str]:
+    """Configured text-to-speech providers, in the order they will be tried."""
     settings = get_settings()
-    return bool(settings.groq_api_key)
+    order: list[str] = []
+    for raw in settings.tts_provider_priority:
+        name = (raw or "").strip().lower()
+        if name and name not in order and _tts_provider_configured(name):
+            order.append(name)
+    return order
+
+
+def _tts_provider_configured(name: str) -> bool:
+    settings = get_settings()
+    if name == "cloudflare":
+        return bool(settings.cloudflare_account_id and settings.cloudflare_api_token)
+    if name == "groq":
+        return bool(settings.groq_api_key)
+    return False
 
 
 def _freeai_fallback(text: str, voice: str, speed: float) -> dict | None:
@@ -601,17 +727,35 @@ def _normalise_segments(raw) -> list[dict]:
     return out
 
 
-def _tts_models() -> list[str]:
-    return ["canopylabs/orpheus-v1-english"]
+def _tts_models(chain: list[str] | None = None) -> list[str]:
+    """Models the leading text-to-speech provider will actually use."""
+    settings = get_settings()
+    providers = chain if chain is not None else _tts_order()
+    if not providers:
+        return []
+    if providers[0] == "cloudflare":
+        return [settings.cloudflare_tts_model]
+    return [settings.groq_tts_model]
 
 
-def available_voices() -> list[str]:
+def available_voices(chain: list[str] | None = None) -> list[str]:
     """Every voice the *configured* engine and model can actually synthesize.
 
-    Scoped to the configured model, so the MY VOICES picker never offers a
-    voice the provider would reject.
+    Scoped to the leading configured provider, so the MY VOICES picker never
+    offers a voice the engine would reject. MeloTTS has one built-in voice per
+    language and no voice ids, so it advertises none rather than inventing a
+    name the request would ignore.
     """
-    model = (get_settings().groq_tts_model or "").strip()
+    providers = chain if chain is not None else _tts_order()
+    return _voices_for(providers[0] if providers else "")
+
+
+def _voices_for(provider: str) -> list[str]:
+    """Named voices one provider exposes (empty when it has none)."""
+    if provider != "groq":
+        return []
+    settings = get_settings()
+    model = (settings.groq_tts_model or "").strip()
     voices = _ORPHEUS_VOICES_BY_MODEL.get(model)
     if voices is None:
         # An unrecognised model: offer the union rather than nothing, and let
@@ -624,26 +768,31 @@ def is_available_voice(voice: str | None) -> bool:
     return (voice or "").strip().lower() in set(available_voices())
 
 
-def _selected_voice(voice: str | None) -> str:
+def _selected_voice(voice: str | None, provider: str = "groq") -> str:
     settings = get_settings()
-    supported = set(available_voices())
+    supported = set(_voices_for(provider))
     requested = (voice or "").strip().lower()
     if requested in supported:
         return requested
+    if not supported:
+        # The active engine has no named voices (MeloTTS); "default" is the
+        # honest label for what will speak, not a made-up engine id.
+        return "default"
     default = (settings.tts_voice or "hannah").strip().lower()
     return default if default in supported else sorted(supported)[0]
 
 
-def _tts_chunks(text: str) -> list[str]:
-    """Split prose into word-aligned pieces of at most 200 characters.
+def _tts_chunks(text: str, limit: int = _ORPHEUS_CHUNK_CHARS) -> list[str]:
+    """Split prose into word-aligned pieces of at most ``limit`` characters.
 
-    Orpheus caps each synthesis request at 200 characters.
+    Orpheus caps each synthesis request at 200 characters; MeloTTS accepts more,
+    so the caller passes its own limit to avoid one request per sentence.
     """
     chunks: list[str] = []
     buffer = ""
     for word in text.split():
         candidate = f"{buffer} {word}".strip() if buffer else word
-        if len(candidate) > _ORPHEUS_CHUNK_CHARS:
+        if len(candidate) > limit:
             if buffer:
                 chunks.append(buffer)
             buffer = word

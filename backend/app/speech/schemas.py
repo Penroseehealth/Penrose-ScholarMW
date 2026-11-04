@@ -12,6 +12,7 @@ class SpeechStatusView(BaseModel):
     enabled: bool
     stt_provider: str = ""
     stt_configured: bool = False
+    tts_provider: str = ""
     tts_configured: bool = False
     stt_models: list[str] = []
     tts_models: list[str] = []

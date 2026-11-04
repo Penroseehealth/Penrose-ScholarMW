@@ -65,7 +65,7 @@ def effective_default_voice(repo: VoiceProfileRepository | None) -> str:
     if is_available_voice(configured):
         return configured
     supported = available_voices()
-    return supported[0] if supported else "hannah"
+    return supported[0] if supported else "default"
 
 
 class VoiceLibraryService:

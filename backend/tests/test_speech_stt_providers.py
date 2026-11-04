@@ -50,6 +50,9 @@ def _settings(**overrides) -> SimpleNamespace:
         "groq_base_url": "https://groq.test/openai/v1",
         "groq_stt_model": "whisper-large-v3-turbo",
         "groq_tts_model": "canopylabs/orpheus-v1-english",
+        "tts_provider_priority": ["cloudflare", "groq"],
+        "cloudflare_tts_model": "@cf/myshell-ai/melotts",
+        "cloudflare_tts_lang": "en",
         "tts_voice": "hannah",
     }
     values.update(overrides)
