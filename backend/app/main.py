@@ -205,6 +205,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_middleware(RateLimitMiddleware, requests_per_minute=60, requests_per_hour=500)
+# Added last so CORS is the outermost layer: a 429 produced by the rate limiter
+# must still carry Access-Control-Allow-Origin, otherwise the browser reports it
+# as a CORS failure instead of the real rate-limit response.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -217,7 +221,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.add_middleware(RateLimitMiddleware, requests_per_minute=60, requests_per_hour=500)
 
 # Speech module domain errors (422/429/503 JSON) — registered before the SPA
 # catch-all so provider failures don't get swallowed as HTML.

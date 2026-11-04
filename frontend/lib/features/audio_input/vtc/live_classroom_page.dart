@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/constants/api_constants.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../services/api_service.dart';
 import 'live_classroom/live_classroom_view.dart';
@@ -39,6 +40,7 @@ String liveClassroomEmbedUrl({
   required String token,
   String? identity,
   String room = kLiveClassroomRoom,
+  String? apiOrigin,
 }) {
   final uri = Uri.parse(kLiveClassroomUrl);
   final params = <String, String>{
@@ -52,7 +54,26 @@ String liveClassroomEmbedUrl({
   if (participant.isNotEmpty) params['identity'] = participant;
   final jwt = token.trim();
   if (jwt.isNotEmpty) params['token'] = jwt;
+  // The classroom may be served by the Flutter dev server rather than the
+  // backend, so tell it where `/api/v1` actually lives. Omitted when the API is
+  // already same-origin.
+  final api = apiOrigin?.trim() ?? '';
+  if (api.isNotEmpty) params['api'] = api;
   return uri.replace(queryParameters: params).toString();
+}
+
+/// Absolute API origin for the classroom, or null when it is same-origin.
+///
+/// `apiBaseUrl` is normally `/api/v1` (production, served by the backend) but
+/// is an absolute URL during local web development. The embedded React app can
+/// only resolve relative calls against its own origin, which is the Flutter
+/// dev server, so the real origin has to be handed over explicitly.
+String? liveClassroomApiOrigin() {
+  final base = apiBaseUrl.trim();
+  final uri = Uri.tryParse(base);
+  if (uri == null || !uri.hasScheme || uri.host.isEmpty) return null;
+  if (uri.scheme != 'http' && uri.scheme != 'https') return null;
+  return uri.origin;
 }
 
 /// The Voice Training Center's Live Classroom tab.
@@ -140,6 +161,7 @@ class _LiveClassroomPageState extends State<LiveClassroomPage> {
           userName: auth.userName,
           token: token,
           identity: _identityOf(auth),
+          apiOrigin: liveClassroomApiOrigin(),
         );
 
         return Padding(
