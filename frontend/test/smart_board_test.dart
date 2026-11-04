@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:penrose_scholar/modules/smartboard/models/board_models.dart';
 import 'package:penrose_scholar/modules/smartboard/screens/smart_board_screen.dart';
 import 'package:penrose_scholar/modules/smartboard/state/smart_board_controller.dart';
 import 'package:penrose_scholar/modules/smartboard/widgets/magnesium_diagram.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Verifies the Chemistry AI Tutor Smart Board: magnesium lesson content and
 /// scientific accuracy, board chrome, panel behaviour, controller state
@@ -55,7 +54,8 @@ void main() {
       expect(find.text('Electron arrangement: 2, 8, 2'), findsOneWidget);
       expect(find.text('12 protons · 12 electrons · neutral atom'), findsOneWidget);
 
-      expect(find.text('How many electrons are in the last orbit?'), findsOneWidget);
+      expect(find.text('How many electrons are in the last orbit?'), findsWidgets,
+          reason: 'lesson heading and ask-panel quick question share the wording');
       expect(find.text('Atomic number of Mg = 12'), findsOneWidget);
       expect(find.text('Electron-shell distribution: 2, 8, 2'), findsOneWidget);
       expect(find.text('Total electrons: 2 + 8 + 2 = 12'), findsOneWidget);
@@ -118,30 +118,36 @@ void main() {
     testWidgets('ask panel collapses to a handle and expands again without losing the board',
         (WidgetTester tester) async {
       final handle = tester.ensureSemantics();
-      addTearDown(handle.dispose);
-      await pumpBoard(tester, const Size(1600, 900));
+      try {
+        await pumpBoard(tester, const Size(1600, 900));
 
-      // Expanded by default: input, modes and quick questions are visible.
-      expect(find.text('Ask / Input'), findsOneWidget);
-      expect(find.text('Type'), findsOneWidget);
-      expect(find.text('Paste'), findsOneWidget);
-      expect(find.text('Voice'), findsOneWidget);
-      expect(find.text('Quick questions'), findsOneWidget);
-      expect(find.text('How many electrons are in the last orbit?'), findsOneWidget);
-      expect(find.text('Balance: Mg + O₂ → MgO.'), findsOneWidget);
+        // Expanded by default: input, modes and quick questions are visible.
+        expect(find.text('Ask / Input'), findsOneWidget);
+        expect(find.text('Type'), findsOneWidget);
+        expect(find.text('Paste'), findsOneWidget);
+        expect(find.text('Voice'), findsOneWidget);
+        expect(find.text('Quick questions'), findsOneWidget);
+        expect(find.text('How many electrons are in the last orbit?'), findsWidgets,
+            reason: 'lesson heading and ask-panel quick question share the wording');
+        expect(find.text('Balance: Mg + O₂ → MgO.'), findsOneWidget);
 
-      // Collapse.
-      await tester.tap(find.byTooltip('Collapse panel'));
-      await tester.pump(const Duration(milliseconds: 320));
-      expect(find.bySemanticsLabel('Open Ask / Input panel'), findsOneWidget);
-      // The lesson is still on the board while the panel is collapsed.
-      expect(find.text('Magnesium (Mg)'), findsOneWidget);
+        // Collapse.
+        await tester.tap(find.byTooltip('Collapse panel'));
+        await tester.pump(const Duration(milliseconds: 320));
+        expect(find.bySemanticsLabel(RegExp('Open Ask / Input panel')), findsOneWidget);
+        // The lesson is still on the board while the panel is collapsed.
+        expect(find.text('Magnesium (Mg)'), findsOneWidget);
 
-      // Expand again.
-      await tester.tap(find.bySemanticsLabel('Open Ask / Input panel'));
-      await tester.pump(const Duration(milliseconds: 320));
-      expect(find.text('Quick questions'), findsOneWidget);
-      expect(find.text('Magnesium (Mg)'), findsOneWidget);
+        // Expand again.
+        await tester.tap(find.bySemanticsLabel(RegExp('Open Ask / Input panel')));
+        await tester.pump(const Duration(milliseconds: 320));
+        expect(find.text('Quick questions'), findsOneWidget);
+        expect(find.text('Magnesium (Mg)'), findsOneWidget);
+      } finally {
+        // Disposed inline: testWidgets verifies handle disposal before any
+        // addTearDown callback would get the chance to run.
+        handle.dispose();
+      }
     });
   });
 

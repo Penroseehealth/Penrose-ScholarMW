@@ -13,20 +13,18 @@ class MagnesiumLesson extends StatelessWidget {
   static const Color _surface = Color(0xFFF8FBFE);
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: _surface,
-      padding: const EdgeInsets.fromLTRB(64, 52, 64, 44),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Expanded(flex: 5, child: _leftColumn()),
-          Container(width: 1, color: kInk.withValues(alpha: 0.12)),
-          Expanded(flex: 6, child: Padding(padding: const EdgeInsets.only(left: 44), child: _rightColumn())),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Container(
+        color: _surface,
+        padding: const EdgeInsets.fromLTRB(64, 52, 64, 44),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Expanded(flex: 5, child: _leftColumn()),
+            Container(width: 1, color: kInk.withValues(alpha: 0.12)),
+            Expanded(flex: 6, child: Padding(padding: const EdgeInsets.only(left: 44), child: _rightColumn())),
+          ],
+        ),
+      );
 
   Widget _leftColumn() => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,7 +48,7 @@ class MagnesiumLesson extends StatelessWidget {
               ),
             ),
           ),
-          Text(
+          const Text(
             'Electron arrangement: 2, 8, 2',
             style: TextStyle(
               fontSize: 24,
@@ -72,9 +70,9 @@ class MagnesiumLesson extends StatelessWidget {
         children: <Widget>[
           const Text(
             'How many electrons are in the last orbit?',
-            style: TextStyle(fontSize: 40, height: 1.22, fontWeight: FontWeight.w700, color: kInk),
+            style: TextStyle(fontSize: 36, height: 1.18, fontWeight: FontWeight.w700, color: kInk),
           ),
-          const SizedBox(height: 26),
+          const SizedBox(height: 18),
           _step('Atomic number of Mg = 12'),
           _step('Neutral atom: 12 protons and 12 electrons'),
           _step('Electron-shell distribution: 2, 8, 2'),
@@ -84,18 +82,18 @@ class MagnesiumLesson extends StatelessWidget {
           const Spacer(),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 16),
             decoration: BoxDecoration(
               color: kEmphasis.withValues(alpha: 0.07),
               borderRadius: BorderRadius.circular(6),
-              border: Border(left: BorderSide(color: kEmphasis, width: 5)),
+              border: const Border(left: BorderSide(color: kEmphasis, width: 5)),
             ),
             child: const Text(
               'There are 2 electrons in the last orbit of Mg.',
-              style: TextStyle(fontSize: 32, height: 1.25, fontWeight: FontWeight.w700, color: kEmphasis),
+              style: TextStyle(fontSize: 30, height: 1.2, fontWeight: FontWeight.w700, color: kEmphasis),
             ),
           ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 14),
           Text(
             'Shells fill K first, then L, then M — 2 · 8 · 2.',
             style: TextStyle(fontSize: 19, color: kInkMuted.withValues(alpha: 0.9), fontStyle: FontStyle.italic),
@@ -104,12 +102,12 @@ class MagnesiumLesson extends StatelessWidget {
       );
 
   Widget _step(String text) => Padding(
-        padding: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.only(bottom: 10),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.only(top: 9, right: 12),
+              padding: const EdgeInsets.only(top: 8, right: 12),
               child: Container(
                 width: 8,
                 height: 8,
@@ -119,7 +117,7 @@ class MagnesiumLesson extends StatelessWidget {
             Expanded(
               child: Text(
                 text,
-                style: const TextStyle(fontSize: 26, height: 1.35, color: kInk, fontWeight: FontWeight.w500),
+                style: const TextStyle(fontSize: 24, height: 1.3, color: kInk, fontWeight: FontWeight.w500),
               ),
             ),
           ],
