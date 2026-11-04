@@ -17,12 +17,12 @@ from app.examinations_builder.math_validate import (
     validate_math_question,
     validation_status,
 )
+from app.examinations_builder.schemas import ExamBuilderConfig
 from app.examinations_builder.service import (
     MathGenerationError,
     _normalise_ai_question,
     generate_questions,
 )
-from app.examinations_builder.schemas import ExamBuilderConfig
 
 DEFECTIVE_SEMICIRCLE = (
     "Carry out a calculation related to the theorem: the angle in a semicircle "

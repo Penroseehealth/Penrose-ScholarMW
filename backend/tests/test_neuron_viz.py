@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 # Import-register the biology_viz ORM models so `Base.metadata.create_all` in
 # conftest creates their tables before the API tests run.
 import app.models.biology_viz  # noqa: F401
-
 from app.biology_viz.engine import build_spec
 from app.biology_viz.specs import build_neuron_spec
 from tests.conftest import auth_header
