@@ -130,7 +130,10 @@ class WebSpeechServiceImpl implements WebSpeechService {
   }
 
   @override
-  Future<void> speak(String text, {String lang = 'en-US'}) async {
+  Future<void> speak(String text, {String lang = 'en-US'}) => speakWithRate(text, lang: lang);
+
+  @override
+  Future<void> speakWithRate(String text, {String lang = 'en-US', double rate = 1.0}) async {
     cancelSpeech();
     try {
       final synth = globalContext.getProperty<JSObject?>('speechSynthesis'.toJS);
@@ -142,6 +145,7 @@ class WebSpeechServiceImpl implements WebSpeechService {
       final utt = ctor.callAsConstructor<JSObject>();
       utt.setProperty('text'.toJS, text.toJS);
       utt.setProperty('lang'.toJS, lang.toJS);
+      utt.setProperty('rate'.toJS, rate.clamp(0.5, 2.0).toJS);
 
       _speechCompleter = Completer<void>();
       final completer = _speechCompleter!;

@@ -602,11 +602,30 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
                 ),
                 const SizedBox(height: 12),
                 TextComposer(controller: _composer, onChanged: (_) => setState(() {}), enabled: c.ttsConfigured),
+                const SizedBox(height: 10),
+                DropdownButtonFormField<String>(
+                  value: c.deliveryStyle,
+                  decoration: const InputDecoration(
+                    labelText: 'Delivery style',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'clean_natural', child: Text('Clean natural')),
+                    DropdownMenuItem(value: 'conversational', child: Text('Conversational')),
+                    DropdownMenuItem(value: 'highly_expressive', child: Text('Highly expressive')),
+                    DropdownMenuItem(value: 'professional', child: Text('Professional')),
+                  ],
+                  onChanged: (style) {
+                    if (style != null) _controller.setDeliveryStyle(style);
+                  },
+                ),
                 if (_composer.text.trim().isNotEmpty) ...[
                   const SizedBox(height: 14),
                   TextToSpeechPlayer(
                     text: _composer.text.trim(),
                     voiceId: _controller.selectedVoice?.id ?? VoiceCatalogService.defaultVoiceId,
+                    scenario: 'natural_conversation',
                   ),
                 ],
                 const SizedBox(height: 22),

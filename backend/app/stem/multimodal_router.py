@@ -30,6 +30,8 @@ from app.services.voice_service import (
     get_voice,
     get_voice_library,
 )
+from app.voice.tts_service import tts_service
+from app.voice.voice_catalog import resolve_default_voice_id
 
 log = logging.getLogger(__name__)
 
@@ -211,10 +213,32 @@ async def synthesize_tts(
     body: TTSRequest,
     user: User = Depends(get_current_user),
 ):
+    voice_id = (
+        resolve_default_voice_id()
+        if body.voice_id.strip().lower() in {"", "default"}
+        else body.voice_id.strip()
+    )
+    result = await tts_service.synthesize(
+        body.text,
+        speed=body.speed,
+        language=body.language,
+        voice_id=voice_id,
+        scenario=body.scenario,
+        delivery_style=body.delivery_style,
+        mode=body.mode,
+    )
+    if not result["audio_base64"]:
+        raise HTTPException(
+            status_code=503,
+            detail="No server-side speech provider is available for this request.",
+        )
     return TTSResponse(
-        audio_url=f"/api/v1/ai/multimodal/tts/audio/{uuid.uuid4().hex[:8]}",
-        duration_seconds=len(body.text) * 0.05,
-        voice_id=body.voice_id,
+        audio_url=None,
+        duration_seconds=result["duration_ms"] / 1000,
+        voice_id=voice_id,
+        audio_base64=result["audio_base64"],
+        provider=result["provider"],
+        applied_controls=result.get("applied_controls", {}),
     )
 
 

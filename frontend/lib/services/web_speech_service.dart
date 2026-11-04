@@ -15,6 +15,8 @@ abstract class WebSpeechService {
 
   Future<void> speak(String text, {String lang});
 
+  Future<void> speakWithRate(String text, {String lang = 'en-US', double rate = 1.0}) => speak(text, lang: lang);
+
   void cancelSpeech();
 
   void dispose();

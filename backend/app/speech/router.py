@@ -109,12 +109,15 @@ def synthesize(
     # reaches every existing TTS caller (voice chat, the training centre,
     # document narration) without a second engine or a second code path.
     if data.voice_id is not None:
-        return clones.synthesize(
-            data.voice_id,
-            data.text,
-            speed=data.speed,
-            style=data.style,
-            language=data.language,
+        return _annotate_clone_delivery(
+            clones.synthesize(
+                data.voice_id,
+                data.text,
+                speed=data.speed,
+                style=data.style or _clone_style_for_delivery(data.delivery_style),
+                language=data.language,
+            ),
+            data.delivery_style,
         )
     # Nothing was chosen explicitly. If the user marked a trained voice as
     # default, it is what they expect to hear, so it reaches callers that never
@@ -124,12 +127,15 @@ def synthesize(
     if data.voice is None:
         default_clone = clones.resolve_default()
         if default_clone is not None:
-            return clones.synthesize(
-                default_clone.id,
-                data.text,
-                speed=data.speed,
-                style=data.style,
-                language=data.language,
+            return _annotate_clone_delivery(
+                clones.synthesize(
+                    default_clone.id,
+                    data.text,
+                    speed=data.speed,
+                    style=data.style or _clone_style_for_delivery(data.delivery_style),
+                    language=data.language,
+                ),
+                data.delivery_style,
             )
     voice = data.voice or effective_default_voice(VoiceProfileRepository(db))
     result = service.synthesize(data.text, voice=voice, speed=data.speed)
@@ -139,6 +145,34 @@ def synthesize(
         result.setdefault("applied", {})["style_ignored"] = (
             "the built-in engine has no speaking styles"
         )
+    result.setdefault("applied", {}).update(
+        delivery_style_ignored="the built-in engine has no delivery-style control",
+        scenario_ignored="the configured speech provider has no scenario control",
+    )
+    if data.mode == "faithful_reading":
+        result["applied"]["mode_note"] = (
+            "The provider receives the complete cleaned text, but markdown and "
+            "citation cleanup still applies."
+        )
+    return result
+
+
+def _clone_style_for_delivery(delivery_style: str) -> str:
+    return {
+        "clean_natural": "calm",
+        "conversational": "conversational",
+        "highly_expressive": "enthusiastic",
+        "professional": "formal",
+    }.get(delivery_style, "calm")
+
+
+def _annotate_clone_delivery(result: dict, delivery_style: str) -> dict:
+    applied = result.setdefault("applied", {})
+    if "style_ignored" not in applied:
+        applied["delivery_style"] = delivery_style
+    applied["scenario_ignored"] = (
+        "the selected cloned-voice provider has no scenario instructions"
+    )
     return result
 
 

@@ -154,11 +154,16 @@ class LiveKitSpeechService implements WebSpeechService {
 
   @override
   Future<void> speak(String text, {String lang = 'en-US'}) async {
+    await speakWithRate(text, lang: lang);
+  }
+
+  @override
+  Future<void> speakWithRate(String text, {String lang = 'en-US', double rate = 1.0}) async {
     // This service is STT-only, but speech output must still work when it is
     // the active WebSpeechService. Delegate to the browser fallback.
     final fallback = _fallback;
     if (fallback != null) {
-      await fallback.speak(text, lang: lang);
+      await fallback.speakWithRate(text, lang: lang, rate: rate);
     }
   }
 

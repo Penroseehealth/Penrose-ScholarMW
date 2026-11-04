@@ -49,11 +49,36 @@ class VoiceTranscriptResponse(BaseModel):
     created_at: datetime
 
 
+class SpeechScenario(str, Enum):
+    NATURAL_CONVERSATION = "natural_conversation"
+    CLASSROOM_TEACHING = "classroom_teaching"
+    ACADEMIC_PRESENTATION = "academic_presentation"
+    ONE_TO_ONE_TUTORING = "one_to_one_tutoring"
+    STORYTELLING = "storytelling"
+    SCIENTIFIC_EXPLANATION = "scientific_explanation"
+    PODCAST_DISCUSSION = "podcast_discussion"
+
+
+class SpeechDeliveryStyle(str, Enum):
+    CLEAN_NATURAL = "clean_natural"
+    CONVERSATIONAL = "conversational"
+    HIGHLY_EXPRESSIVE = "highly_expressive"
+    PROFESSIONAL = "professional"
+
+
+class SpeechMode(str, Enum):
+    CONVERSATION = "conversation"
+    FAITHFUL_READING = "faithful_reading"
+
+
 class TTSRequest(BaseModel):
-    text: str
+    text: str = Field(min_length=1)
     voice_id: str = "default"
-    speed: float = 1.0
+    speed: float = Field(default=1.0, ge=0.5, le=2.0)
     language: str = "en"
+    scenario: SpeechScenario = SpeechScenario.NATURAL_CONVERSATION
+    delivery_style: SpeechDeliveryStyle = SpeechDeliveryStyle.CLEAN_NATURAL
+    mode: SpeechMode = SpeechMode.CONVERSATION
 
 
 class TTSResponse(BaseModel):
@@ -61,6 +86,10 @@ class TTSResponse(BaseModel):
     duration_ms: int
     sample_rate: int = 24000
     provider: str = "browser"
+    scenario: SpeechScenario = SpeechScenario.NATURAL_CONVERSATION
+    delivery_style: SpeechDeliveryStyle = SpeechDeliveryStyle.CLEAN_NATURAL
+    mode: SpeechMode = SpeechMode.CONVERSATION
+    applied_controls: dict[str, str | float | bool] = Field(default_factory=dict)
 
 
 class VoiceInterruptRequest(BaseModel):

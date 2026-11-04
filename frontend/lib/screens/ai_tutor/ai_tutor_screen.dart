@@ -55,6 +55,8 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
   String _selectedVoiceId = VoiceCatalogService.defaultVoiceId;
   double _playbackSpeed = 1.0;
   bool _autoRead = false;
+  String _deliveryStyle = 'conversational';
+  String _speechScenario = 'one_to_one_tutoring';
   int? _typewriterMessageIndex;
 
   // Shared local memory + the tutor's own speech engine (auto-read).
@@ -89,6 +91,8 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
     final voiceId = await VoiceCatalogService.loadPreferredVoiceId();
     final speed = await VoiceCatalogService.loadPreferredSpeed();
     final autoRead = await VoiceCatalogService.loadPreferredAutoRead();
+    final deliveryStyle = await VoiceCatalogService.loadPreferredDeliveryStyle();
+    final scenario = await VoiceCatalogService.loadPreferredScenario();
     final memory = await AssistantMemory.load();
     if (!mounted) return;
 
@@ -98,9 +102,8 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
     int? sessionId;
     if (memory.canResume && memory.transcript.isNotEmpty) {
       sessionId = memory.resumableSessionId;
-      final recent = memory.transcript.length > 10
-          ? memory.transcript.sublist(memory.transcript.length - 10)
-          : memory.transcript;
+      final recent =
+          memory.transcript.length > 10 ? memory.transcript.sublist(memory.transcript.length - 10) : memory.transcript;
       for (final entry in recent) {
         restored.add({'role': entry.role, 'content': entry.content, 'restored': true});
       }
@@ -110,6 +113,8 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
       _selectedVoiceId = voiceId;
       _playbackSpeed = speed;
       _autoRead = autoRead;
+      _deliveryStyle = deliveryStyle;
+      _speechScenario = scenario;
       _memory = memory;
       if (_messages.isEmpty) {
         _sessionId = sessionId;
@@ -129,6 +134,20 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
 
   void _setSpeed(double speed) {
     setState(() => _playbackSpeed = speed);
+  }
+
+  void _setDeliveryStyle(String style) {
+    setState(() => _deliveryStyle = style);
+    _tts.deliveryStyle = style;
+    _voiceEngine?.tts.deliveryStyle = style;
+    VoiceCatalogService.savePreferredDeliveryStyle(style);
+  }
+
+  void _setSpeechScenario(String scenario) {
+    setState(() => _speechScenario = scenario);
+    _tts.scenario = scenario;
+    _voiceEngine?.tts.scenario = scenario;
+    VoiceCatalogService.savePreferredScenario(scenario);
   }
 
   void _setAutoRead(bool value) {
@@ -184,6 +203,10 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
           onSpeedChanged: _setSpeed,
           autoRead: _autoRead,
           onAutoReadChanged: _setAutoRead,
+          deliveryStyle: _deliveryStyle,
+          onDeliveryStyleChanged: _setDeliveryStyle,
+          scenario: _speechScenario,
+          onScenarioChanged: _setSpeechScenario,
         ),
         body: Stack(
           children: [
@@ -1282,6 +1305,8 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
   Future<void> _speakReply(String text) async {
     if (text.trim().isEmpty) return;
     _tts.voiceId = _selectedVoiceId;
+    _tts.deliveryStyle = _deliveryStyle;
+    _tts.scenario = _speechScenario;
     await _tts.speak(text, lang: 'en-US', speed: _playbackSpeed);
   }
 
@@ -1300,6 +1325,8 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
     );
     // Keep the hands-free engine on the same voice/speed as the picker.
     _voiceEngine!.tts.voiceId = _selectedVoiceId;
+    _voiceEngine!.tts.deliveryStyle = _deliveryStyle;
+    _voiceEngine!.tts.scenario = _speechScenario;
     _voiceEngine!.session.playbackSpeed = _playbackSpeed;
 
     _voiceEngine!.session.addListener(() {

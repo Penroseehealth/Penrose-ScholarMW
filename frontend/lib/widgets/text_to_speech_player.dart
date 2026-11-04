@@ -15,6 +15,7 @@ class TextToSpeechPlayer extends StatefulWidget {
     super.key,
     required this.text,
     this.voiceId,
+    this.scenario = 'natural_conversation',
     this.apiService,
     this.speechService,
     this.audioPlayer,
@@ -22,6 +23,7 @@ class TextToSpeechPlayer extends StatefulWidget {
 
   final String text;
   final String? voiceId;
+  final String scenario;
   final ApiService? apiService;
   final WebSpeechService? speechService;
   final TtsAudioPlayer? audioPlayer;
@@ -39,9 +41,32 @@ class _TextToSpeechPlayerState extends State<TextToSpeechPlayer> {
   bool _isPaused = false;
   double _speed = 1.0;
   double _progress = 0.0;
+  late String _scenario = _scenarios.containsKey(widget.scenario) ? widget.scenario : 'natural_conversation';
+  String _deliveryStyle = 'clean_natural';
+  String _mode = 'conversation';
+  String? _capabilityNote;
   Timer? _progressTimer;
 
   final List<double> _speedOptions = [0.75, 1.0, 1.25, 1.5, 2.0];
+  static const Map<String, String> _deliveryStyles = {
+    'clean_natural': 'Clean natural',
+    'conversational': 'Conversational',
+    'highly_expressive': 'Highly expressive',
+    'professional': 'Professional',
+  };
+  static const Map<String, String> _speechModes = {
+    'conversation': 'Spoken conversation',
+    'faithful_reading': 'Faithful reading',
+  };
+  static const Map<String, String> _scenarios = {
+    'natural_conversation': 'Conversation',
+    'classroom_teaching': 'Classroom teaching',
+    'academic_presentation': 'Academic presentation',
+    'one_to_one_tutoring': 'One-to-one tutoring',
+    'storytelling': 'Storytelling',
+    'scientific_explanation': 'Scientific explanation',
+    'podcast_discussion': 'Podcast / discussion',
+  };
 
   @override
   void dispose() {
@@ -72,7 +97,72 @@ class _TextToSpeechPlayerState extends State<TextToSpeechPlayer> {
                 _speedChip(),
               ],
             ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 10,
+              runSpacing: 4,
+              children: [
+                _settingDropdown(
+                  label: 'Scenario',
+                  value: _scenario,
+                  options: _scenarios,
+                  onChanged: (value) => setState(() => _scenario = value),
+                ),
+                _settingDropdown(
+                  label: 'Delivery',
+                  value: _deliveryStyle,
+                  options: _deliveryStyles,
+                  onChanged: (value) => setState(() => _deliveryStyle = value),
+                ),
+                _settingDropdown(
+                  label: 'Mode',
+                  value: _mode,
+                  options: _speechModes,
+                  onChanged: (value) => setState(() => _mode = value),
+                ),
+              ],
+            ),
+            if (_capabilityNote != null) ...[
+              const SizedBox(height: 4),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  _capabilityNote!,
+                  style: TextStyle(fontSize: 10, color: context.colors.textMuted),
+                ),
+              ),
+            ],
           ],
+        ),
+      );
+
+  Widget _settingDropdown({
+    required String label,
+    required String value,
+    required Map<String, String> options,
+    required ValueChanged<String>? onChanged,
+  }) =>
+      SizedBox(
+        width: 150,
+        child: DropdownButtonFormField<String>(
+          initialValue: value,
+          isDense: true,
+          decoration: InputDecoration(
+            labelText: label,
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+          style: TextStyle(fontSize: 11, color: context.colors.textSecondary),
+          items: options.entries
+              .map((entry) =>
+                  DropdownMenuItem(value: entry.key, child: Text(entry.value, overflow: TextOverflow.ellipsis)))
+              .toList(),
+          onChanged: onChanged == null
+              ? null
+              : (next) {
+                  if (next != null) onChanged(next);
+                },
         ),
       );
 
@@ -179,11 +269,23 @@ class _TextToSpeechPlayerState extends State<TextToSpeechPlayer> {
           'speed': _speed,
           'voice_id': (widget.voiceId ?? VoiceCatalogService.defaultVoiceId).trim(),
           'language': 'en',
+          'scenario': _scenario,
+          'delivery_style': _deliveryStyle,
+          'mode': _mode,
         },
       );
 
       if (response.statusCode == 200 && mounted) {
         final payload = jsonDecode(response.body) as Map<String, dynamic>;
+        final controls = payload['applied_controls'];
+        if (controls is Map<String, dynamic> && controls['scenario_instructions'] == false) {
+          setState(() {
+            _capabilityNote =
+                'This provider applies available voice controls but does not support scenario instructions.';
+          });
+        } else {
+          setState(() => _capabilityNote = null);
+        }
         final base64Audio = payload['audio_base64'] as String? ?? '';
         if (base64Audio.isNotEmpty) {
           await _audioPlayer.playBase64(base64Audio);
@@ -193,17 +295,25 @@ class _TextToSpeechPlayerState extends State<TextToSpeechPlayer> {
       }
 
       if (mounted) {
-        await _speech.speak(text, lang: 'en-US');
+        await _speakBrowserFallback(text);
       }
     } catch (_) {
       if (mounted) {
-        await _speech.speak(text, lang: 'en-US');
+        await _speakBrowserFallback(text);
       }
     } finally {
       if (mounted) {
         _finishPlayback();
       }
     }
+  }
+
+  Future<void> _speakBrowserFallback(String text) async {
+    setState(() {
+      _capabilityNote =
+          'Browser fallback applies speed only; voice, scenario, and expressiveness controls are unavailable.';
+    });
+    await _speech.speakWithRate(text, lang: 'en-US', rate: _speed);
   }
 
   void _startProgressLoop() {

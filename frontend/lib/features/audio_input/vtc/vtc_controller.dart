@@ -119,6 +119,7 @@ class VtcController extends ChangeNotifier {
   SynthesisState _synthesis = SynthesisState.idle;
   GeneratedSpeech? _speech;
   String? _synthesisError;
+  String _deliveryStyle = 'conversational';
 
   // -- sample ----------------------------------------------------------------
   SampleStage _stage = SampleStage.empty;
@@ -154,6 +155,7 @@ class VtcController extends ChangeNotifier {
   GeneratedSpeech? get speech => _speech;
   String? get synthesisError => _synthesisError;
   bool get synthesizing => _synthesis == SynthesisState.working;
+  String get deliveryStyle => _deliveryStyle;
 
   SampleStage get stage => _stage;
   VoiceSample? get sample => _sample;
@@ -278,6 +280,11 @@ class VtcController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setDeliveryStyle(String style) {
+    _deliveryStyle = style;
+    notifyListeners();
+  }
+
   // -- synthesis -------------------------------------------------------------
 
   Future<void> synthesize(String text) async {
@@ -300,6 +307,9 @@ class VtcController extends ChangeNotifier {
         '/speech/synthesize',
         body: {
           'text': trimmed,
+          'delivery_style': _deliveryStyle,
+          'scenario': 'natural_conversation',
+          'mode': 'conversation',
           // A trained voice is addressed by its own id; only an engine voice
           // goes through `voice`. Sending the selector key `clone:<id>` as
           // `voice` would name a voice the engine does not have.
@@ -307,6 +317,13 @@ class VtcController extends ChangeNotifier {
           if (selected != null && !selected.isTrained) 'voice': selected.id,
         },
       );
+      final applied = res['applied'];
+      if (applied is Map<String, dynamic>) {
+        final ignored = applied['delivery_style_ignored'] ?? applied['style_ignored'];
+        if (ignored is String) {
+          _notice = 'The selected delivery style was not applied: $ignored';
+        }
+      }
       final base64 = (res['audio_base64'] as String?) ?? '';
       if (base64.isEmpty) {
         // The backend returned no audio: report failure, never a fake success.

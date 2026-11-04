@@ -277,6 +277,7 @@ class _BiologyVirtualLabScreenState extends State<BiologyVirtualLabScreen> {
                     text:
                         'Welcome to the virtual biology lab. The lab includes ${_experiments.length} experiments covering diffusion, osmosis, photosynthesis, enzymes, microscopy, and respiration.',
                     voiceId: VoiceCatalogService.defaultVoiceId,
+                    scenario: 'scientific_explanation',
                   ),
                 ],
               ),

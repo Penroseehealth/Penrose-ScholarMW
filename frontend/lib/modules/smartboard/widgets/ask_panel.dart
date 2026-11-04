@@ -403,6 +403,7 @@ class _AskPanelState extends State<AskPanel> {
               child: TextToSpeechPlayer(
                 text: _turns.where((turn) => !turn.fromStudent).last.text,
                 voiceId: VoiceCatalogService.defaultVoiceId,
+                scenario: 'classroom_teaching',
               ),
             ),
           Expanded(

@@ -48,6 +48,9 @@ class PenroseTtsService {
 
   /// Catalog voice id (accent + gender) requested from the server engine.
   String? voiceId;
+  String deliveryStyle = 'conversational';
+  String scenario = 'one_to_one_tutoring';
+  String mode = 'conversation';
 
   /// Initialize and check server TTS availability.
   Future<void> initialize() async {
@@ -62,10 +65,10 @@ class PenroseTtsService {
     }
   }
 
-  /// Speak text with sentence-level streaming.
+  /// Speak text in short groups of sentences for connected prosody.
   ///
-  /// Segments the text into sentences and speaks each one individually
-  /// to minimize latency. Supports interruption via VoiceSessionManager.
+  /// Bounded groups retain interruption/resume while avoiding a voice reset for
+  /// every sentence. Supports interruption via VoiceSessionManager.
   Future<void> speak(String text, {String lang = 'en-US', double speed = 1.0}) async {
     if (text.isEmpty || !isAvailable) return;
 
@@ -105,7 +108,14 @@ class PenroseTtsService {
     try {
       final response = await _api.post(
         '/voice/tts',
-        body: {'text': text, 'speed': speed, if (voiceId != null) 'voice_id': voiceId},
+        body: {
+          'text': text,
+          'speed': speed,
+          'delivery_style': deliveryStyle,
+          'scenario': scenario,
+          'mode': mode,
+          if (voiceId != null) 'voice_id': voiceId,
+        },
       );
       if (response.statusCode != 200) return false;
       final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -153,7 +163,7 @@ class PenroseTtsService {
         final next = _chunkQueue.removeAt(0);
         final playedViaServer = await _speakServerSegment(next, speed: speed);
         if (!playedViaServer && _speech.isSupported) {
-          await _speech.speak(next, lang: lang);
+          await _speech.speakWithRate(next, lang: lang, rate: speed);
         }
       }
     } finally {
@@ -177,7 +187,7 @@ class PenroseTtsService {
     _isSpeaking = true;
     final playedViaServer = await _speakServerSegment(text, speed: speed);
     if (!playedViaServer && _speech.isSupported) {
-      await _speech.speak(text, lang: lang);
+      await _speech.speakWithRate(text, lang: lang, rate: speed);
     }
     _isSpeaking = false;
     return playedViaServer;
@@ -259,22 +269,37 @@ class PenroseTtsService {
   /// Check if the session wants us to stop (user interrupted).
   bool _shouldStop() => _session.state == VoiceEngineState.interrupted || _session.state == VoiceEngineState.listening;
 
-  /// Segment text into sentences/clauses for streaming TTS - more natural flow.
+  /// Group nearby sentences so synthesis can preserve connected prosody.
   List<String> _segmentText(String text) {
-    final segments = <String>[];
+    final sentences = <String>[];
     final buffer = StringBuffer();
     for (var i = 0; i < text.length; i++) {
       buffer.write(text[i]);
       if (_isSentenceBoundary(text, i) && buffer.isNotEmpty) {
         final s = buffer.toString().trim();
-        if (s.isNotEmpty) segments.add(s);
+        if (s.isNotEmpty) sentences.add(s);
         buffer.clear();
       }
     }
     if (buffer.isNotEmpty) {
       final remaining = buffer.toString().trim();
-      if (remaining.isNotEmpty) segments.add(remaining);
+      if (remaining.isNotEmpty) sentences.add(remaining);
     }
+
+    final segments = <String>[];
+    final current = StringBuffer();
+    var sentencesInChunk = 0;
+    for (final sentence in sentences) {
+      if (current.isNotEmpty && (sentencesInChunk >= 2 || current.length + sentence.length > 420)) {
+        segments.add(current.toString());
+        current.clear();
+        sentencesInChunk = 0;
+      }
+      if (current.isNotEmpty) current.write(' ');
+      current.write(sentence);
+      sentencesInChunk++;
+    }
+    if (current.isNotEmpty) segments.add(current.toString());
     return segments.isNotEmpty ? segments : [text];
   }
 
@@ -301,7 +326,7 @@ class PenroseTtsService {
       final seg = _segments[i];
       final playedViaServer = await _speakServerSegment(seg, speed: speed);
       if (!playedViaServer && _speech.isSupported) {
-        await _speech.speak(seg, lang: lang);
+        await _speech.speakWithRate(seg, lang: lang, rate: speed);
       }
 
       // Natural pause between sentences based on punctuation

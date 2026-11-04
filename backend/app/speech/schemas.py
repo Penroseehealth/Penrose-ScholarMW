@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -31,7 +32,7 @@ class TranscriptionResult(BaseModel):
 
 
 class SynthesisRequest(BaseModel):
-    text: str = Field(min_length=1, max_length=4000)
+    text: str = Field(min_length=1, max_length=100000)
     voice: str | None = None
     # A cloned voice from MY VOICES, identified by its own id. Takes precedence
     # over `voice`/`default_voice`, which only address the engine's fixed list.
@@ -39,6 +40,19 @@ class SynthesisRequest(BaseModel):
     speed: float | None = Field(default=None, gt=0.25, le=4.0)
     style: str | None = Field(default=None, max_length=40)
     language: str | None = Field(default=None, max_length=40)
+    delivery_style: Literal[
+        "clean_natural", "conversational", "highly_expressive", "professional"
+    ] = "clean_natural"
+    scenario: Literal[
+        "natural_conversation",
+        "classroom_teaching",
+        "academic_presentation",
+        "one_to_one_tutoring",
+        "storytelling",
+        "scientific_explanation",
+        "podcast_discussion",
+    ] = "natural_conversation"
+    mode: Literal["conversation", "faithful_reading"] = "conversation"
 
 
 class SynthesisResult(BaseModel):

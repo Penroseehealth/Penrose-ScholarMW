@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -41,16 +42,32 @@ class VoiceUploadRequest(BaseModel):
 
 
 class TTSRequest(BaseModel):
-    text: str
+    text: str = Field(min_length=1)
     voice_id: str = "default"
-    speed: float = 1.0
+    speed: float = Field(default=1.0, ge=0.5, le=2.0)
     language: str = "en"
+    scenario: Literal[
+        "natural_conversation",
+        "classroom_teaching",
+        "academic_presentation",
+        "one_to_one_tutoring",
+        "storytelling",
+        "scientific_explanation",
+        "podcast_discussion",
+    ] = "natural_conversation"
+    delivery_style: Literal[
+        "clean_natural", "conversational", "highly_expressive", "professional"
+    ] = "clean_natural"
+    mode: Literal["conversation", "faithful_reading"] = "conversation"
 
 
 class TTSResponse(BaseModel):
-    audio_url: str
+    audio_url: str | None = None
     duration_seconds: float
     voice_id: str
+    audio_base64: str
+    provider: str
+    applied_controls: dict[str, str | float | bool] = Field(default_factory=dict)
 
 
 class VoiceListItem(BaseModel):

@@ -24,6 +24,9 @@ class WebSpeechServiceStub implements WebSpeechService {
   Future<void> speak(String text, {String lang = 'en-US'}) async {}
 
   @override
+  Future<void> speakWithRate(String text, {String lang = 'en-US', double rate = 1.0}) async {}
+
+  @override
   void cancelSpeech() {}
 
   @override

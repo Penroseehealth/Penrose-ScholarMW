@@ -25,6 +25,8 @@ class _FakeSpeech implements WebSpeechService {
   @override
   Future<void> speak(String text, {String lang = 'en-US'}) async => spoken.add(text);
   @override
+  Future<void> speakWithRate(String text, {String lang = 'en-US', double rate = 1.0}) async => spoken.add(text);
+  @override
   void cancelSpeech() {}
   @override
   void dispose() {}

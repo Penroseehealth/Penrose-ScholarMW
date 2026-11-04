@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-4o"
+    OPENAI_TTS_MODEL: str = "gpt-4o-mini-tts"
     CHROMA_PERSIST_DIR: str = _DEFAULT_CHROMA_PERSIST_DIR
     MEDIA_DIR: str = _DEFAULT_MEDIA_DIR
     # Max upload size (in MB) for the knowledge vault and OCR uploads.

@@ -47,6 +47,8 @@ class VoiceCatalogService {
   static const String voicePrefsKey = 'penrose.tutor.voice_id';
   static const String speedPrefsKey = 'penrose.tutor.speech_speed';
   static const String autoReadPrefsKey = 'penrose.tutor.auto_read';
+  static const String deliveryStylePrefsKey = 'penrose.tutor.delivery_style';
+  static const String scenarioPrefsKey = 'penrose.tutor.speech_scenario';
 
   static const List<String> accents = <String>['American', 'British', 'Indian'];
   static const List<String> genders = <String>['male', 'female'];
@@ -202,5 +204,25 @@ class VoiceCatalogService {
   static Future<void> savePreferredAutoRead(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(autoReadPrefsKey, value);
+  }
+
+  static Future<String> loadPreferredDeliveryStyle() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(deliveryStylePrefsKey) ?? 'conversational';
+  }
+
+  static Future<void> savePreferredDeliveryStyle(String style) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(deliveryStylePrefsKey, style);
+  }
+
+  static Future<String> loadPreferredScenario() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(scenarioPrefsKey) ?? 'one_to_one_tutoring';
+  }
+
+  static Future<void> savePreferredScenario(String scenario) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(scenarioPrefsKey, scenario);
   }
 }

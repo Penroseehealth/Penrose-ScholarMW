@@ -117,12 +117,19 @@ async def text_to_speech(
         speed=body.speed,
         language=body.language,
         voice_id=voice_id,
+        scenario=body.scenario.value,
+        delivery_style=body.delivery_style.value,
+        mode=body.mode.value,
     )
     return TTSResponse(
         audio_base64=result["audio_base64"],
         duration_ms=result["duration_ms"],
         sample_rate=result["sample_rate"],
         provider=result.get("provider", "browser"),
+        scenario=body.scenario,
+        delivery_style=body.delivery_style,
+        mode=body.mode,
+        applied_controls=result.get("applied_controls", {}),
     )
 
 
@@ -156,5 +163,5 @@ async def voice_health():
         stt_available=True,
         session_count=len(orchestrator._sessions),
         default_voice_id=resolve_default_voice_id(),
-        provider="edge" if tts_service.is_available else "browser",
+        provider=tts_service.preferred_provider,
     )

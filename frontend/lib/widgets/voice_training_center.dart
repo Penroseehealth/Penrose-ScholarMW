@@ -14,6 +14,10 @@ class VoiceTrainingCenter extends StatefulWidget {
   final void Function(double) onSpeedChanged;
   final bool autoRead;
   final void Function(bool) onAutoReadChanged;
+  final String deliveryStyle;
+  final void Function(String) onDeliveryStyleChanged;
+  final String scenario;
+  final void Function(String) onScenarioChanged;
 
   const VoiceTrainingCenter({
     super.key,
@@ -23,6 +27,10 @@ class VoiceTrainingCenter extends StatefulWidget {
     required this.onSpeedChanged,
     this.autoRead = false,
     required this.onAutoReadChanged,
+    this.deliveryStyle = 'conversational',
+    required this.onDeliveryStyleChanged,
+    this.scenario = 'one_to_one_tutoring',
+    required this.onScenarioChanged,
   });
 
   @override
@@ -69,6 +77,8 @@ class _VoiceTrainingCenterState extends State<VoiceTrainingCenter> {
     if (_previewingId != null) return;
     setState(() => _previewingId = voice.id);
     _tts.voiceId = voice.id;
+    _tts.deliveryStyle = widget.deliveryStyle;
+    _tts.scenario = widget.scenario;
     try {
       await _tts.speak(
         voice.previewText.isNotEmpty
@@ -103,6 +113,14 @@ class _VoiceTrainingCenterState extends State<VoiceTrainingCenter> {
                       _buildSectionTitle('Playback Speed'),
                       const SizedBox(height: 8),
                       _buildSpeedSelector(),
+                      const SizedBox(height: 20),
+                      _buildSectionTitle('Delivery Style'),
+                      const SizedBox(height: 8),
+                      _buildDeliveryStyleSelector(),
+                      const SizedBox(height: 20),
+                      _buildSectionTitle('Speaking Scenario'),
+                      const SizedBox(height: 8),
+                      _buildScenarioSelector(),
                       const SizedBox(height: 20),
                       _buildSectionTitle('Auto-Read'),
                       const SizedBox(height: 8),
@@ -378,6 +396,43 @@ class _VoiceTrainingCenterState extends State<VoiceTrainingCenter> {
       }).toList(),
     );
   }
+
+  Widget _buildDeliveryStyleSelector() => DropdownButtonFormField<String>(
+        initialValue: widget.deliveryStyle,
+        decoration: const InputDecoration(
+          border: OutlineInputBorder(),
+          isDense: true,
+        ),
+        items: const [
+          DropdownMenuItem(value: 'clean_natural', child: Text('Clean natural')),
+          DropdownMenuItem(value: 'conversational', child: Text('Conversational')),
+          DropdownMenuItem(value: 'highly_expressive', child: Text('Highly expressive')),
+          DropdownMenuItem(value: 'professional', child: Text('Professional')),
+        ],
+        onChanged: (value) {
+          if (value != null) widget.onDeliveryStyleChanged(value);
+        },
+      );
+
+  Widget _buildScenarioSelector() => DropdownButtonFormField<String>(
+        initialValue: widget.scenario,
+        decoration: const InputDecoration(
+          border: OutlineInputBorder(),
+          isDense: true,
+        ),
+        items: const [
+          DropdownMenuItem(value: 'natural_conversation', child: Text('Natural conversation')),
+          DropdownMenuItem(value: 'classroom_teaching', child: Text('Classroom teaching')),
+          DropdownMenuItem(value: 'academic_presentation', child: Text('Academic presentation')),
+          DropdownMenuItem(value: 'one_to_one_tutoring', child: Text('One-to-one tutoring')),
+          DropdownMenuItem(value: 'storytelling', child: Text('Storytelling')),
+          DropdownMenuItem(value: 'scientific_explanation', child: Text('Scientific explanation')),
+          DropdownMenuItem(value: 'podcast_discussion', child: Text('Podcast / discussion')),
+        ],
+        onChanged: (value) {
+          if (value != null) widget.onScenarioChanged(value);
+        },
+      );
 
   Widget _buildAutoReadToggle() => GestureDetector(
         onTap: () {
