@@ -1,9 +1,13 @@
-"""Speech provider proxy â€” STT (Groq Whisper) and TTS (Groq Canopy Orpheus).
+"""Speech provider proxy — STT (Cloudflare/Groq Whisper) and TTS (Groq Orpheus).
 
 Stateless passthrough: no persistence. Everything is gated on provider
-configuration; when `stt_provider` is empty or no API key is set the module
+configuration; when no speech-to-text provider is configured the module
 answers HTTP 503 (`service_unavailable`), keeping the UI honest instead of
 silently returning nothing. Keys never leave the server.
+
+STT runs providers in order (``STT_PROVIDER_PRIORITY``): Cloudflare Workers AI
+Whisper leads because its free tier needs no credits, and Groq is the fallback.
+A provider that fails falls through to the next configured one.
 
 TTS: Groq decommissioned `playai-tts`; the live models are the Canopy Orpheus
 pair. Orpheus caps each request at 200 characters and returns WAV, so long
@@ -14,6 +18,7 @@ into one WAV stream.
 from __future__ import annotations
 
 import base64
+import logging
 from collections.abc import Callable, Iterator
 
 import httpx
@@ -25,6 +30,8 @@ from app.speech.exceptions import (
     ValidationError,
 )
 from app.speech.tts_text import clean_for_tts
+
+log = logging.getLogger(__name__)
 
 _AUDIO_EXT = {
     "audio/webm": "webm",
@@ -87,12 +94,13 @@ class SpeechService:
 
     def status(self, default_voice: str | None = None) -> dict:
         settings = get_settings()
+        chain = _stt_order()
         return {
             "enabled": True,
-            "stt_provider": settings.stt_provider or "",
-            "stt_configured": _stt_configured(),
+            "stt_provider": chain[0] if chain else "",
+            "stt_configured": bool(chain),
             "tts_configured": _tts_configured(),
-            "stt_models": _stt_models(),
+            "stt_models": _stt_models(chain),
             "tts_models": _tts_models(),
             "tts_voices": available_voices(),
             # Resolved by the caller so a MY VOICES selection wins over the
@@ -118,10 +126,17 @@ class SpeechService:
 
         ``with_segments`` requests timestamped spans. Those are what a reviewer
         needs to see *which* part of a long answer the model was unsure about.
+
+        Providers run in order (see ``STT_PROVIDER_PRIORITY``); a provider that
+        fails falls through to the next configured one, so an expired key on one
+        account does not silently disable transcription while another works.
         """
-        if not _stt_configured():
+        chain = _stt_order()
+        if not chain:
             raise ServiceUnavailableError(
-                "Speech-to-text is not configured. Set STT_PROVIDER and GROQ_API_KEY.",
+                "Speech-to-text is not configured. Set CLOUDFLARE_ACCOUNT_ID and "
+                "CLOUDFLARE_API_TOKEN (free Whisper), or GROQ_API_KEY, then list "
+                "the provider in STT_PROVIDER_PRIORITY.",
                 details={"status": self.status()},
             )
         if len(content) > _MAX_AUDIO_SIZE:
@@ -133,6 +148,120 @@ class SpeechService:
             raise ValidationError(
                 f"Unsupported audio content type '{content_type}'. Use webm/ogg/mp3/wav/m4a/flac."
             )
+        errors: list[tuple[str, ServiceUnavailableError]] = []
+        for name in chain:
+            try:
+                return self._transcribe_with(
+                    name,
+                    content,
+                    content_type,
+                    ext,
+                    language=language,
+                    with_segments=with_segments,
+                )
+            except ServiceUnavailableError as exc:
+                log.warning("STT provider %s failed: %s", name, exc)
+                errors.append((name, exc))
+        raise ServiceUnavailableError(
+            "Transcription failed on every configured provider: "
+            + "; ".join(f"{name}: {str(exc)[:160]}" for name, exc in errors),
+            code="stt_provider_error",
+            details={"providers": [name for name, _ in errors]},
+        )
+
+    def _transcribe_with(
+        self,
+        provider: str,
+        content: bytes,
+        content_type: str,
+        ext: str,
+        *,
+        language: str | None,
+        with_segments: bool,
+    ) -> dict:
+        if provider == "cloudflare":
+            return self._transcribe_cloudflare(
+                content,
+                content_type,
+                ext,
+                language=language,
+                with_segments=with_segments,
+            )
+        if provider == "groq":
+            return self._transcribe_groq(
+                content,
+                content_type,
+                ext,
+                language=language,
+                with_segments=with_segments,
+            )
+        raise ServiceUnavailableError(
+            f"Unknown transcription provider '{provider}'",
+            code="stt_provider_error",
+        )
+
+    def _transcribe_cloudflare(
+        self,
+        content: bytes,
+        content_type: str,
+        ext: str,
+        *,
+        language: str | None,
+        with_segments: bool,
+    ) -> dict:
+        """Transcribe on Cloudflare Workers AI (Whisper, free daily tier)."""
+        settings = get_settings()
+        url = (
+            f"{settings.cloudflare_ai_base_url.rstrip('/')}"
+            f"/accounts/{settings.cloudflare_account_id}"
+            f"/ai/run/{settings.cloudflare_stt_model}"
+        )
+        form: dict[str, str] = {}
+        if language:
+            form["language"] = language
+        with self._client_factory() as http:
+            response = http.post(
+                url,
+                headers={"Authorization": f"Bearer {settings.cloudflare_api_token}"},
+                files={"audio": (f"audio.{ext}", content, content_type)},
+                data=form,
+            )
+        if response.status_code != 200:
+            raise ServiceUnavailableError(
+                f"Transcription provider error ({response.status_code}): "
+                f"{response.text[:200]}",
+                code="stt_provider_error",
+            )
+        payload = response.json()
+        result = payload.get("result") or {}
+        text = (result.get("text") or "").strip()
+        if not text:
+            raise ServiceUnavailableError(
+                "Transcription provider returned empty text",
+                code="stt_provider_error",
+            )
+        out: dict = {
+            "transcript": text,
+            "provider": "cloudflare",
+            "model": settings.cloudflare_stt_model,
+        }
+        if language:
+            out["language"] = language
+        words = result.get("words")
+        if with_segments:
+            out["segments"] = _segments_from_words(words)
+            out["duration"] = _words_duration(words)
+        return out
+
+    def _transcribe_groq(
+        self,
+        content: bytes,
+        content_type: str,
+        ext: str,
+        *,
+        language: str | None,
+        with_segments: bool,
+    ) -> dict:
         settings = get_settings()
         url = f"{settings.groq_base_url.rstrip('/')}/audio/transcriptions"
         form: dict[str, str] = {"model": settings.groq_stt_model}
@@ -258,9 +387,40 @@ class SpeechService:
         }
 
 
-def _stt_configured() -> bool:
+def _stt_order() -> list[str]:
+    """Configured speech-to-text providers, in the order they will be tried.
+
+    ``stt_provider`` (when set) is tried first, then ``stt_provider_priority``;
+    duplicates and providers without credentials are dropped. Returning only
+    usable providers keeps the status honest and makes the first entry the
+    provider a request would actually reach.
+    """
     settings = get_settings()
-    return bool(settings.stt_provider == "groq" and settings.groq_api_key)
+    preferred = (settings.stt_provider or "").strip().lower()
+    candidates = (
+        [preferred, *settings.stt_provider_priority]
+        if preferred
+        else list(settings.stt_provider_priority)
+    )
+    order: list[str] = []
+    for raw in candidates:
+        name = (raw or "").strip().lower()
+        if name and name not in order and _stt_provider_configured(name):
+            order.append(name)
+    return order
+
+
+def _stt_provider_configured(name: str) -> bool:
+    settings = get_settings()
+    if name == "cloudflare":
+        return bool(settings.cloudflare_account_id and settings.cloudflare_api_token)
+    if name == "groq":
+        return bool(settings.groq_api_key)
+    return False
+
+
+def _stt_configured() -> bool:
+    return bool(_stt_order())
 
 
 def _tts_configured() -> bool:
@@ -354,8 +514,61 @@ def _openvoice_fallback(text: str, speed: float) -> dict | None:
     return envelope
 
 
-def _stt_models() -> list[str]:
-    return ["whisper-large-v3", "whisper-large-v3-turbo"]
+def _stt_models(chain: list[str] | None = None) -> list[str]:
+    """Models the active speech-to-text provider will actually use.
+
+    The status view pairs this with ``stt_provider``, so it lists only the
+    leading provider's model rather than every model any provider could offer —
+    a label that named a model the request will not reach would be misleading.
+    """
+    settings = get_settings()
+    providers = chain if chain is not None else _stt_order()
+    models: list[str] = []
+    for name in providers:
+        if name == "cloudflare":
+            models.append(settings.cloudflare_stt_model)
+        elif name == "groq":
+            models.append(settings.groq_stt_model)
+        if models:
+            break
+    return models
+
+
+def _segments_from_words(raw) -> list[dict]:
+    """Reduce Cloudflare's word timings to the segment shape the UI expects.
+
+    Workers AI returns words rather than phrases, and no confidence at all.
+    Confidence stays ``None`` (unknown) instead of a fabricated 0.0.
+    """
+    if not isinstance(raw, list):
+        return []
+    segments: list[dict] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            continue
+        text = str(item.get("word") or item.get("text") or "").strip()
+        if not text:
+            continue
+        segments.append(
+            {
+                "start": float(item.get("start") or 0.0),
+                "end": float(item.get("end") or 0.0),
+                "text": text,
+                "confidence": None,
+            }
+        )
+    return segments
+
+
+def _words_duration(raw) -> float:
+    if not isinstance(raw, list):
+        return 0.0
+    ends = [
+        float(item.get("end") or 0.0)
+        for item in raw
+        if isinstance(item, dict) and item.get("end") is not None
+    ]
+    return max(ends) if ends else 0.0
 
 
 def _normalise_segments(raw) -> list[dict]:

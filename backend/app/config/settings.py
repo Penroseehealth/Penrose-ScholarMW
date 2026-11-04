@@ -95,7 +95,15 @@ class Settings(BaseSettings):
     # --- Speech / Voice Training Center (TTS, STT, voice cloning) ---------
     ENABLE_SPEECH: bool = True
     SPEECH_UPLOAD_DIR: str = str(_BACKEND_DIR / "storage" / "uploads")
-    STT_PROVIDER: str = ""  # e.g. "groq" when GROQ_API_KEY is set
+    # Speech-to-text providers tried in order. Cloudflare Workers AI runs
+    # Whisper on its free tier, so it leads; Groq is the fallback for accounts
+    # with a working key. A failing provider falls through to the next one.
+    STT_PROVIDER_PRIORITY: list[str] = ["cloudflare", "groq"]
+    # Optional single-provider override. When set and configured, it is tried
+    # before the priority list (the list still supplies the fallbacks).
+    STT_PROVIDER: str = ""
+    CLOUDFLARE_AI_BASE_URL: str = "https://api.cloudflare.com/client/v4"
+    CLOUDFLARE_STT_MODEL: str = "@cf/openai/whisper"
     TTS_VOICE: str = "hannah"
     TTS_SPEED: float = 1.0
     TTS_PROVIDER_FALLBACK_ORDER: list[str] = ["groq", "freeai"]

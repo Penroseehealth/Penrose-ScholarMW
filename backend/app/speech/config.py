@@ -17,6 +17,11 @@ def get_settings() -> SimpleNamespace:
     return SimpleNamespace(
         upload_dir=s.SPEECH_UPLOAD_DIR,
         stt_provider=s.STT_PROVIDER,
+        stt_provider_priority=s.STT_PROVIDER_PRIORITY,
+        cloudflare_account_id=s.CLOUDFLARE_ACCOUNT_ID,
+        cloudflare_api_token=s.CLOUDFLARE_API_TOKEN,
+        cloudflare_ai_base_url=s.CLOUDFLARE_AI_BASE_URL,
+        cloudflare_stt_model=s.CLOUDFLARE_STT_MODEL,
         tts_voice=s.TTS_VOICE,
         tts_speed=s.TTS_SPEED,
         tts_provider_fallback_order=s.TTS_PROVIDER_FALLBACK_ORDER,
