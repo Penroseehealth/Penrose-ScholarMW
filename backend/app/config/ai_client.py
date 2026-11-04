@@ -34,19 +34,24 @@ class OfflineError(Exception):
 
 
 # ---------------------------------------------------------------------------
-# Provider chain: Hugging Face → Cloudflare → OpenAI → Groq.
-# Hugging Face is preferred; the other configured providers are fallbacks.
+# Provider chain: Cloudflare → Hugging Face → OpenAI → Groq by default.
+# Cloudflare's free tier leads; Hugging Face takes over once the account has
+# Inference Providers credits. AI_PROVIDER_PRIORITY can reorder the chain.
 # ---------------------------------------------------------------------------
 
 
 def _build_providers() -> list[tuple[str, AsyncOpenAI, str]]:
     """Return ordered list of (name, client, model) for available providers.
 
-    Provider priority:
-    1. Hugging Face (preferred)
-    2. Cloudflare Workers AI
+    Default priority:
+    1. Cloudflare Workers AI (free tier, no credits needed)
+    2. Hugging Face (needs Inference Providers credits)
     3. OpenAI
     4. Groq
+
+    ``AI_PROVIDER_PRIORITY`` may reorder this list so a working provider can
+    lead without a code change. Names not listed there keep their relative
+    order after the listed ones.
     """
     s = get_settings()
     providers: list[tuple[str, AsyncOpenAI, str]] = []
@@ -110,6 +115,11 @@ def _build_providers() -> list[tuple[str, AsyncOpenAI, str]]:
             )
         )
 
+    priority = {name: index for index, name in enumerate(s.AI_PROVIDER_PRIORITY)}
+    # Stable sort: providers missing from the configured priority keep their
+    # built-in relative order and run after the ones that are listed.
+    providers.sort(key=lambda provider: priority.get(provider[0], len(priority)))
+
     return providers
 
 
@@ -139,8 +149,8 @@ async def call_ai_chat(
     timeout: float = 30.0,
     **kwargs,
 ) -> tuple[ChatCompletion, str]:
-    """Try providers in order (Hugging Face → Cloudflare → OpenAI → Groq).
-    Returns (completion, provider_name).
+    """Try providers in the configured order (Cloudflare → Hugging Face →
+    OpenAI → Groq by default). Returns (completion, provider_name).
     Raises AIProviderError if all fail."""
     providers = _build_providers()
     if not providers:

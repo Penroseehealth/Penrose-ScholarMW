@@ -44,6 +44,17 @@ class Settings(BaseSettings):
         "http://localhost:8000",
     ]
     ENVIRONMENT: str = "development"
+    # Order in which AI providers are attempted. Cloudflare Workers AI leads
+    # because its free tier needs no credits; Hugging Face is next so it takes
+    # over as soon as the account has Inference Providers credits. Names must
+    # match the providers built in app/config/ai_client.py; unlisted providers
+    # run last.
+    AI_PROVIDER_PRIORITY: list[str] = [
+        "cloudflare",
+        "huggingface",
+        "openai",
+        "groq",
+    ]
     CLOUDFLARE_ACCOUNT_ID: str = ""
     CLOUDFLARE_API_TOKEN: str = ""
     CLOUDFLARE_AI_MODEL: str = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
