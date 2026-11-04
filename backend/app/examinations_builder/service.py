@@ -716,8 +716,7 @@ async def _repair_math_questions(config, context, defect_map) -> list[dict]:
     items = []
     for idx, (q, problems) in enumerate(defect_map.values(), 1):
         items.append(
-            f"{idx}. ORIGINAL: {q['question_text']}\n"
-            f"   DEFECTS: {'; '.join(problems)}"
+            f"{idx}. ORIGINAL: {q['question_text']}\n   DEFECTS: {'; '.join(problems)}"
         )
     raw = await call_ai_json(
         messages=[
@@ -742,8 +741,7 @@ async def _repair_math_questions(config, context, defect_map) -> list[dict]:
                     "information. Never mention a theorem without the actual "
                     "task. Return ONLY a JSON object: "
                     '{"questions": [{...same schema as before...}]} with the '
-                    "same number of items, in order.\n\n"
-                    + "\n\n".join(items)
+                    "same number of items, in order.\n\n" + "\n\n".join(items)
                 ),
             },
         ],
@@ -783,7 +781,9 @@ async def _math_generate_with_validation(
         if not defect_map or len(valid) >= count:
             break
         log.info(
-            "Math validation: repairing %d question(s) (round %d)", len(defect_map), round_no
+            "Math validation: repairing %d question(s) (round %d)",
+            len(defect_map),
+            round_no,
         )
         repaired = await _repair_math_questions(config, context, defect_map)
         new_defects: dict[str, tuple[dict, list[str]]] = {}
@@ -979,9 +979,7 @@ async def regenerate_question(
                             "Regenerated mathematics question failed "
                             "validation: " + "; ".join(problems)
                         )
-                    rebuilt.setdefault(
-                        "validation_status", validation_status(rebuilt)
-                    )
+                    rebuilt.setdefault("validation_status", validation_status(rebuilt))
                 return rebuilt
         except (AIProviderError, ValueError) as e:
             log.warning("Question regeneration failed (%s); using fallback", e)

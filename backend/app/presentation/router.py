@@ -203,9 +203,7 @@ async def quality_endpoint(
         if body.slides:
             slides = [s.model_dump() for s in body.slides]
         else:
-            vault_docs = await _resolve_vault_docs(
-                db, user, body.config.vault_doc_ids
-            )
+            vault_docs = await _resolve_vault_docs(db, user, body.config.vault_doc_ids)
             slides = await engine.generate_slides(
                 body.config,
                 body.outline,
@@ -255,9 +253,7 @@ async def export_pptx(
         if body.slides:
             slides = [s.model_dump() for s in body.slides]
         else:
-            vault_docs = await _resolve_vault_docs(
-                db, user, body.config.vault_doc_ids
-            )
+            vault_docs = await _resolve_vault_docs(db, user, body.config.vault_doc_ids)
             slides = await engine.generate_slides(
                 body.config,
                 body.outline,
@@ -271,6 +267,7 @@ async def export_pptx(
     except Exception as e:
         log.exception("PPTX generation failed")
         raise HTTPException(status_code=500, detail=f"PPTX generation failed: {e}")
+
 
 @router.post("/regenerate-slide")
 async def regenerate_slide_endpoint(

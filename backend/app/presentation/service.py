@@ -21,7 +21,6 @@ from pptx.util import Inches, Pt
 from sqlalchemy import select
 
 from app.config.ai_client import call_ai_json, call_ai_text
-from app.retrieval.orchestrator import search
 from app.models.stem import (
     SyllabusCoreElement,
     SyllabusLearningObjective,
@@ -30,6 +29,7 @@ from app.models.stem import (
     SyllabusTopic,
     SyllabusVersion,
 )
+from app.retrieval.orchestrator import search
 
 log = logging.getLogger(__name__)
 
@@ -175,13 +175,25 @@ PRESENTATION_TYPES = {
 
 DEFAULT_TEMPLATES = {
     "Ocean Academic": {"accent": "#1769AA", "background": "#F6FAFF", "text": "#102A43"},
-    "Midnight Aurora": {"accent": "#7DD3FC", "background": "#101827", "text": "#F1F5F9"},
+    "Midnight Aurora": {
+        "accent": "#7DD3FC",
+        "background": "#101827",
+        "text": "#F1F5F9",
+    },
     "Sage Research": {"accent": "#2F855A", "background": "#F2FAF5", "text": "#173B2A"},
-    "Terracotta Studio": {"accent": "#C05640", "background": "#FFF8F4", "text": "#3B211B"},
+    "Terracotta Studio": {
+        "accent": "#C05640",
+        "background": "#FFF8F4",
+        "text": "#3B211B",
+    },
     "Royal Indigo": {"accent": "#5B5BD6", "background": "#F7F6FF", "text": "#20204A"},
     "Citrus STEM": {"accent": "#B7791F", "background": "#FFFDF0", "text": "#332B13"},
     "Rose Clinical": {"accent": "#C53060", "background": "#FFF5F8", "text": "#401526"},
-    "Slate Editorial": {"accent": "#334E68", "background": "#F5F7FA", "text": "#1F2933"},
+    "Slate Editorial": {
+        "accent": "#334E68",
+        "background": "#F5F7FA",
+        "text": "#1F2933",
+    },
     "Golden Lecture": {"accent": "#A16207", "background": "#FFFBEB", "text": "#3D2B0B"},
     "Teal Modern": {"accent": "#0F766E", "background": "#F0FDFA", "text": "#123A36"},
     "Minimal Academic": {
@@ -523,19 +535,26 @@ async def collect_sources(config, vault_docs: list[dict], db=None) -> dict:
     # Retrieve academic sources when web research is enabled.
     research_blob = ""
     if config.web_research:
-        query = " ".join(filter(None, [
-            config.course,
-            config.topic,
-            config.subtopic,
-            " ".join(config.learning_objectives or []),
-        ]))
+        query = " ".join(
+            filter(
+                None,
+                [
+                    config.course,
+                    config.topic,
+                    config.subtopic,
+                    " ".join(config.learning_objectives or []),
+                ],
+            )
+        )
         if query.strip():
             try:
                 research_result = await search(query, max_items=6)
                 research_blob = research_result.grounding_prompt_block()
             except Exception:
-                log.exception("Academic retrieval failed during presentation generation")
-                
+                log.exception(
+                    "Academic retrieval failed during presentation generation"
+                )
+
     hierarchy = [
         ("SYLLABUS", syllabus_blob),
         ("LECTURER NOTES", notes_blob),
@@ -686,6 +705,8 @@ def _item_dict(s) -> dict:
         "purpose": getattr(s, "purpose", ""),
         "learning_objective": getattr(s, "learning_objective", ""),
     }
+
+
 async def generate_slides(
     config,
     outline_items,

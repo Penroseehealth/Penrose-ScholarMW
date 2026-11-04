@@ -152,14 +152,22 @@ def verify_with_sympy(question: dict) -> list[str]:
         defects.append("Equation supplied but no final_answer to verify.")
         return defects
 
-    transforms = standard_transformations + (implicit_multiplication_application, convert_xor)
+    transforms = standard_transformations + (
+        implicit_multiplication_application,
+        convert_xor,
+    )
     eqs = []
     free_symbols = set()
     for raw in equations:
         s = str(raw).strip().rstrip("?").strip()
         if not s:
             continue
-        s = s.replace("×", "*").replace("÷", "/").replace("²", "**2").replace("³", "**3")
+        s = (
+            s.replace("×", "*")
+            .replace("÷", "/")
+            .replace("²", "**2")
+            .replace("³", "**3")
+        )
         if "=" in s and not s.startswith(("y=", "f(", "<", ">")):
             left, _, right = s.partition("=")
             try:
@@ -168,13 +176,17 @@ def verify_with_sympy(question: dict) -> list[str]:
                     parse_expr(right, transformations=transforms),
                 )
             except Exception:
-                defects.append(f"Unparsable equation (not rejected on parse alone): {s}")
+                defects.append(
+                    f"Unparsable equation (not rejected on parse alone): {s}"
+                )
                 continue
         else:
             try:
                 eq = parse_expr(s, transformations=transforms)
             except Exception:
-                defects.append(f"Unparsable expression (not rejected on parse alone): {s}")
+                defects.append(
+                    f"Unparsable expression (not rejected on parse alone): {s}"
+                )
                 continue
         eqs.append(eq)
         try:
@@ -197,10 +209,9 @@ def verify_with_sympy(question: dict) -> list[str]:
         defects.append("Equation has no solution but the question expects one.")
         return defects
     # A well-posed MSCE question has a unique answer; multiple roots are
-    # allowed only if the question acknowledges them ("values of x").
-    if len(sols) > 1 and not re.search(r"\b(values|solutions|roots)\b", final_answer, re.I):
-        pass  # ambiguous but not provably wrong — leave to structural checks
-
+    # allowed only if the question acknowledges them ("values of x"). An
+    # unacknowledged ambiguity is not provably wrong, so it is left to the
+    # structural checks rather than flagged here.
     for sol in sols:
         agree = _answers_agree(final_answer, sol)
         if agree is True:
@@ -243,14 +254,11 @@ def validate_math_question(question: dict, topic: str = "") -> list[str]:
         return defects
 
     # 2. Mentions a theorem/formula but never says what to do with it.
-    mentions_theorem = bool(
-        re.search(r"\btheorem\b|\bformula\b|\brule\b", text, re.I)
-    )
+    mentions_theorem = bool(re.search(r"\btheorem\b|\bformula\b|\brule\b", text, re.I))
     has_ask = bool(_DETERMINATE_ASK.search(text))
     if mentions_theorem and not has_ask:
         defects.append(
-            "Names a theorem/formula without a concrete task the learner "
-            "must perform."
+            "Names a theorem/formula without a concrete task the learner must perform."
         )
 
     # 3. A calculation/structured arithmetic question needs actual data.
@@ -280,12 +288,15 @@ def validate_math_question(question: dict, topic: str = "") -> list[str]:
     # 4. Must contain a determinate ask somewhere in the stem.
     if not has_ask:
         defects.append(
-            "No specific unknown, quantity, or result for the learner to "
-            "determine."
+            "No specific unknown, quantity, or result for the learner to determine."
         )
 
     # 5. Units honesty: demanding units without any measurement context.
-    if _UNANSWERED_HINT.search(text) and not _UNIT_TOKENS.search(text) and q_type == "calculation":
+    if (
+        _UNANSWERED_HINT.search(text)
+        and not _UNIT_TOKENS.search(text)
+        and q_type == "calculation"
+    ):
         # The stem demands units but presents no measurable quantity at all.
         if not _DIGIT.search(text):
             defects.append("Asks for units but supplies no measurable quantities.")

@@ -591,9 +591,7 @@ def _msce_cover_story(c: "CoverData", paper: "ConstructedPaper") -> list:
     ]
     if meta_bits:
         story.append(
-            Paragraph(
-                "&nbsp;&nbsp;&nbsp;&nbsp;".join(_esc(b) for b in meta_bits), left
-            )
+            Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;".join(_esc(b) for b in meta_bits), left)
         )
     story.append(Spacer(1, 12))
 
@@ -782,8 +780,7 @@ def build_professional_pdf(paper: ConstructedPaper) -> io.BytesIO:
                 canvas.drawRightString(
                     size[0] - margin,
                     size[1] - margin - 4,
-                    f"Page {page_num} of {page_total}"
-                    + (f"   {code}" if code else ""),
+                    f"Page {page_num} of {page_total}" + (f"   {code}" if code else ""),
                 )
                 if page_num < page_total:
                     canvas.drawRightString(size[0] - margin, 28, "Continued/…")

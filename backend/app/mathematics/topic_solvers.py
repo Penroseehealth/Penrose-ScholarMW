@@ -809,8 +809,7 @@ def solve_function_value(problem: str, lowered: str) -> TutorSolution | None:
             ),
             narration=f"Replace every {variable_name} in the rule with {spoken_number(argument)}.",
             latex_lines=[
-                f"{name}({fmt(argument)}) = "
-                f"{sp.latex(body.subs(variable, argument))}"
+                f"{name}({fmt(argument)}) = {sp.latex(body.subs(variable, argument))}"
             ],
         ),
         TutorStep(
