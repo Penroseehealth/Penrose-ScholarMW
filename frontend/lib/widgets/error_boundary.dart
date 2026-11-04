@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../core/constants/api_constants.dart';
 import '../core/theme/theme_colors.dart';
 
 /// Posts a description of a client-side failure to the backend so browser-only
@@ -13,8 +14,10 @@ Future<void> reportClientError(String source, Object error, StackTrace? stack) a
       ..writeln(error.toString())
       ..writeln('URL=${Uri.base}');
     if (stack != null) buffer.writeln(stack.toString());
+    final apiUri = Uri.parse(apiBaseUrl);
+    final diagnosticUri = apiUri.hasScheme ? apiUri.resolve('/__diag') : Uri.base.resolve('/__diag');
     await http.post(
-      Uri.base.resolve('/__diag'),
+      diagnosticUri,
       body: buffer.toString(),
       headers: const <String, String>{'Content-Type': 'text/plain'},
     );

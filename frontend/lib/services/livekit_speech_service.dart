@@ -92,8 +92,8 @@ class LiveKitSpeechService implements WebSpeechService {
       debugPrint(
         'LiveKit STT connected: ${token.roomName} @ ${token.url}',
       );
-    } catch (e) {
-      debugPrint('LiveKit STT connect error: $e');
+    } catch (error) {
+      debugPrint('LiveKit STT connect error (${error.runtimeType})');
       _fallbackToBrowser(onError);
     }
   }
