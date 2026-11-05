@@ -305,6 +305,8 @@ class VtcController extends ChangeNotifier {
       final selected = _selected;
       final res = await _api.post(
         '/speech/synthesize',
+        // CPU synthesis can run for minutes; the backend allows 900 s.
+        timeout: speechSynthesisTimeout,
         body: {
           'text': trimmed,
           'delivery_style': _deliveryStyle,
@@ -342,9 +344,13 @@ class VtcController extends ChangeNotifier {
       _synthesis = SynthesisState.ready;
     } on ApiException catch (e) {
       _synthesis = SynthesisState.failed;
-      _synthesisError = e.status == 503
-          ? 'Speech synthesis is not configured on the backend: ${e.message}'
-          : 'Synthesis failed: ${e.message}';
+      _synthesisError = switch (e.code) {
+        'clone_provider_crashed' => 'The local voice service stopped unexpectedly: ${e.message}',
+        'clone_provider_unreachable' => 'The local voice service is not running: ${e.message}',
+        _ => e.status == 503
+            ? 'Speech synthesis is currently unavailable: ${e.message}'
+            : 'Synthesis failed: ${e.message}',
+      };
     } catch (e) {
       _synthesis = SynthesisState.failed;
       _synthesisError = 'Synthesis failed: $e';

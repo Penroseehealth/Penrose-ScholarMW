@@ -635,11 +635,7 @@ class OpenVoiceProvider:
                 code="clone_provider_timeout",
             ) from exc
         except httpx.HTTPError as exc:
-            raise ServiceUnavailableError(
-                f"Could not reach the local voice service ({exc}). Is the "
-                "OpenVoice sidecar running?",
-                code="clone_provider_unreachable",
-            ) from exc
+            raise _openvoice_transport_error(exc, "cloning your voice") from exc
         if response.status_code != 200:
             raise _openvoice_error("create clone", response)
         payload = _json(response)
@@ -674,10 +670,7 @@ class OpenVoiceProvider:
             with self._client_factory() as http:
                 response = http.delete(_openvoice_url(f"voice/{provider_voice_id}"))
         except httpx.HTTPError as exc:
-            raise ServiceUnavailableError(
-                f"Could not reach the local voice service to delete this voice ({exc}).",
-                code="clone_provider_unreachable",
-            ) from exc
+            raise _openvoice_transport_error(exc, "deleting this voice") from exc
         # 404 means it is already gone, which is the state the caller wanted.
         if response.status_code not in (200, 204, 404):
             raise _openvoice_error("delete clone", response)
@@ -698,10 +691,7 @@ class OpenVoiceProvider:
                     timeout=get_settings().openvoice_health_timeout_s,
                 )
         except httpx.HTTPError as exc:
-            raise ServiceUnavailableError(
-                f"Could not confirm your voice is available ({exc}).",
-                code="clone_provider_unreachable",
-            ) from exc
+            raise _openvoice_transport_error(exc, "confirming your voice") from exc
         if response.status_code == 404:
             return False
         if response.status_code != 200:
@@ -755,10 +745,7 @@ class OpenVoiceProvider:
                 code="clone_provider_timeout",
             ) from exc
         except httpx.HTTPError as exc:
-            raise ServiceUnavailableError(
-                f"Could not reach the local voice service ({exc}).",
-                code="clone_provider_unreachable",
-            ) from exc
+            raise _openvoice_transport_error(exc, "speaking in your voice") from exc
         if response.status_code == 404:
             raise VoiceUnavailableError(
                 "Your selected voice is unavailable; its embedding is no longer on disk.",
@@ -826,10 +813,7 @@ class OpenVoiceProvider:
                 code="clone_provider_timeout",
             ) from exc
         except httpx.HTTPError as exc:
-            raise ServiceUnavailableError(
-                f"Could not reach the local voice service ({exc}).",
-                code="clone_provider_unreachable",
-            ) from exc
+            raise _openvoice_transport_error(exc, "synthesizing speech") from exc
         if response.status_code == 422:
             raise ValidationError(
                 "There are no words to speak in that text.",
@@ -894,6 +878,45 @@ def _base_url() -> str:
 def _openvoice_url(path: str) -> str:
     base = get_settings().openvoice_sidecar_url.rstrip("/")
     return f"{base}/{path.lstrip('/')}"
+
+
+def _openvoice_transport_error(
+    exc: httpx.HTTPError, action: str
+) -> ServiceUnavailableError:
+    """Translate a transport failure into an accurate, actionable error.
+
+    A refused connection means the sidecar is not running. Any other transport
+    failure means it was running and stopped mid-request; on a CPU-only 8 GB
+    machine that is almost always memory exhaustion. Reporting both as "is the
+    sidecar running?" hides the crash and sends the user looking for the wrong
+    problem.
+    """
+    text = str(exc).lower()
+    stopped = isinstance(
+        exc, (httpx.RemoteProtocolError, httpx.ReadError, httpx.WriteError)
+    ) or any(
+        marker in text
+        for marker in (
+            "10053",
+            "10054",
+            "forcibly closed",
+            "connection reset",
+            "connection aborted",
+            "remote end closed",
+        )
+    )
+    if stopped:
+        return ServiceUnavailableError(
+            f"The local voice service stopped unexpectedly while {action} "
+            "(it may have run out of memory). Restart the OpenVoice sidecar "
+            "and try again.",
+            code="clone_provider_crashed",
+        )
+    return ServiceUnavailableError(
+        f"Could not reach the local voice service ({exc}). Is the OpenVoice "
+        "sidecar running?",
+        code="clone_provider_unreachable",
+    )
 
 
 def _json(response: httpx.Response) -> dict:

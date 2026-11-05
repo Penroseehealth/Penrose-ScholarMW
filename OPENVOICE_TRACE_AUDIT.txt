@@ -1,0 +1,9 @@
+﻿PENROSE SCHOLARMW - OPENVOICE TRACE
+Project: C:\Users\AMINILOGY\Documents\Default Project\Penrose-ScholarMW
+Generated: 11/05/2026 08:26:12
+
+========== RELEVANT FILE PATHS ==========
+
+========== SOURCE CODE MATCHES ==========
+
+========== OPENVOICE CONFIGURATION FILES ==========

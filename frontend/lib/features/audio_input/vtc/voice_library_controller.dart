@@ -231,7 +231,7 @@ class VoiceLibraryController extends ChangeNotifier {
     _previewError = null;
     notifyListeners();
     try {
-      final res = await _api.post('/speech/voices/$id/preview');
+      final res = await _api.post('/speech/voices/$id/preview', timeout: speechSynthesisTimeout);
       final base64 = (res['audio_base64'] as String?) ?? '';
       if (base64.isEmpty) {
         _previewError = 'The engine returned no audio for this voice. Try again or pick another.';
@@ -245,9 +245,13 @@ class VoiceLibraryController extends ChangeNotifier {
         );
       }
     } on ApiException catch (e) {
-      _previewError = e.status == 503
-          ? 'Voice synthesis is not configured on the backend: ${e.message}'
-          : 'Voice synthesis failed: ${e.message}';
+      _previewError = switch (e.code) {
+        'clone_provider_crashed' => 'The local voice service stopped unexpectedly: ${e.message}',
+        'clone_provider_unreachable' => 'The local voice service is not running: ${e.message}',
+        _ => e.status == 503
+            ? 'Voice synthesis is currently unavailable: ${e.message}'
+            : 'Voice synthesis failed: ${e.message}',
+      };
     } catch (e) {
       _previewError = 'Voice synthesis failed: $e';
     }

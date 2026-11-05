@@ -7,8 +7,17 @@ import 'package:http_parser/http_parser.dart' show MediaType;
 import '../errors/app_exception.dart';
 
 /// How long a single backend request may take before it is reported as
-/// unreachable. Generous because TTS/STT calls can be slow.
+/// unreachable. This is the default for ordinary calls only: CPU speech
+/// synthesis is far slower and must use [speechSynthesisTimeout].
 const Duration _apiTimeout = Duration(seconds: 120);
+
+/// Timeout for a request that renders speech on the local CPU engine.
+///
+/// The backend allows the OpenVoice sidecar 900 s to finish, and on a 2-core
+/// machine a single sentence can take several minutes. Using the generic
+/// 120 s timeout here made the browser give up while the backend was still
+/// working, so synthesis looked broken even though it completed.
+const Duration speechSynthesisTimeout = Duration(minutes: 15);
 
 /// One file attached to a multipart request.
 class MultipartFilePart {
@@ -90,8 +99,13 @@ class ApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> post(String path, {Map<String, dynamic>? body, Map<String, String>? headers}) =>
-      _send('POST', path, body: body, extra: headers);
+  Future<Map<String, dynamic>> post(
+    String path, {
+    Map<String, dynamic>? body,
+    Map<String, String>? headers,
+    Duration? timeout,
+  }) =>
+      _send('POST', path, body: body, extra: headers, timeout: timeout);
 
   /// GET returning raw bytes. Used for media downloads (e.g. recorded WAV/MP3)
   /// where decoding the body as text would corrupt it.
@@ -174,28 +188,30 @@ class ApiClient {
     Map<String, dynamic>? body,
     Map<String, String>? extra,
     Map<String, String>? query,
+    Duration? timeout,
   }) async {
     await _resolveToken();
     final uri = _uri(path, query);
     final headers = _headers(json: body != null, extra: extra);
+    final effectiveTimeout = timeout ?? _apiTimeout;
 
     try {
       final http.Response response;
       switch (method) {
         case 'GET':
-          response = await _client.get(uri, headers: headers).timeout(_apiTimeout);
+          response = await _client.get(uri, headers: headers).timeout(effectiveTimeout);
           break;
         case 'DELETE':
-          response = await _client.delete(uri, headers: headers).timeout(_apiTimeout);
+          response = await _client.delete(uri, headers: headers).timeout(effectiveTimeout);
           break;
         case 'PUT':
-          response = await _client.put(uri, headers: headers, body: jsonEncode(body)).timeout(_apiTimeout);
+          response = await _client.put(uri, headers: headers, body: jsonEncode(body)).timeout(effectiveTimeout);
           break;
         case 'PATCH':
-          response = await _client.patch(uri, headers: headers, body: jsonEncode(body)).timeout(_apiTimeout);
+          response = await _client.patch(uri, headers: headers, body: jsonEncode(body)).timeout(effectiveTimeout);
           break;
         default:
-          response = await _client.post(uri, headers: headers, body: jsonEncode(body)).timeout(_apiTimeout);
+          response = await _client.post(uri, headers: headers, body: jsonEncode(body)).timeout(effectiveTimeout);
       }
 
       final decoded = _decode(response);
@@ -229,10 +245,7 @@ class ApiClient {
       // error that names the real problem instead of leaking a raw
       // FormatException into the UI (or pretending the call succeeded).
       final contentType = response.headers['content-type'] ?? 'unknown content type';
-      final prefix = response.body
-          .replaceAll(RegExp(r'<[^>]*>'), ' ')
-          .replaceAll(RegExp(r'\s+'), ' ')
-          .trim();
+      final prefix = response.body.replaceAll(RegExp(r'<[^>]*>'), ' ').replaceAll(RegExp(r'\s+'), ' ').trim();
       final snippet = prefix.length > 140 ? '${prefix.substring(0, 140)}…' : prefix;
       throw ApiException(
         'The server returned $contentType instead of JSON '

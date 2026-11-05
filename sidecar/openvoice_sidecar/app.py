@@ -31,6 +31,7 @@ Run it (inside WSL2 Ubuntu, see ``setup.sh``):
 
 from __future__ import annotations
 
+import gc
 import json
 import logging
 import os
@@ -40,9 +41,26 @@ import threading
 import uuid
 from pathlib import Path
 
-import torch
+# Keep the native thread pools small on the 8 GB CPU-only machines this runs on.
+# Torch otherwise creates one OpenMP arena (plus native scratch buffers) per
+# logical core; this process reached ~3.8 GB commit during a short synthesis and
+# then crashed inside c10.dll. These must be set before torch is imported.
+_TORCH_THREADS = max(1, int(os.environ.get("OPENVOICE_TORCH_THREADS", "2")))
+os.environ.setdefault("OMP_NUM_THREADS", str(_TORCH_THREADS))
+os.environ.setdefault("MKL_NUM_THREADS", str(_TORCH_THREADS))
+
+import torch  # noqa: E402 - must follow the thread-limit env vars above
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse, Response
+
+try:
+    torch.set_num_threads(_TORCH_THREADS)
+    torch.set_num_interop_threads(1)
+except RuntimeError:
+    # Already initialised by an embedding host; the env vars still bound the
+    # native pools, so this is not worth failing startup over.
+    pass
 
 log = logging.getLogger("openvoice-sidecar")
 logging.basicConfig(level=logging.INFO)
@@ -66,11 +84,17 @@ FALLBACK_SPEAKER = "EN-US"
 # MeloTTS language ids for the base speakers we support here.
 _MELO_LANG = "EN"
 _MELO_SPEAKER_BY_BASE = {
+    "EN-US": "EN-US",
+    "EN_INDIA": "EN_INDIA",
+    "EN-AU": "EN-AU",
+    "EN-BR": "EN-BR",
+    "EN-Default": "EN-Default",
+}
+
+# OpenVoice embedding filenames are lowercase, unlike MeloTTS speaker IDs.
+_BASE_SE_FILENAME_BY_BASE = {
     "EN-US": "en-us",
     "EN_INDIA": "en-india",
-    "EN-AU": "en-au",
-    "EN-BR": "en-br",
-    "EN-Default": "en-default",
 }
 
 # A minimal pronounceability gate mirroring the backend's expectation that the
@@ -90,16 +114,46 @@ def _torch_load(path: str | Path) -> object:
     except Exception:  # noqa: BLE001 - older checkpoints need the unsafe path
         return torch.load(path, map_location=DEVICE)
 
+
+def _release_memory() -> None:
+    """Drop per-request references and native allocator slack.
+
+    Torch keeps freed blocks in its allocator, and the OpenMP pools keep
+    per-thread arenas, so the resident size otherwise stays at the peak of the
+    last synthesis. On an 8 GB box that peak is the difference between the next
+    request succeeding and the process being killed.
+    """
+    gc.collect()
+    if os.name == "nt":
+        # CPython's cyclic collector does not return freed malloc blocks to
+        # Windows; the CRT heap keeps them committed. _heapmin compacts it,
+        # which measurably lowers the commit charge between syntheses.
+        try:
+            import ctypes
+
+            ctypes.CDLL("msvcrt")._heapmin()
+        except Exception:  # noqa: BLE001 - best-effort memory hygiene
+            pass
+
+
 app = FastAPI(title="OpenVoice Sidecar", version="1.0.0")
 
 
 # --- Engine (lazy, single instance, thread-guarded) -------------------------
 
 class _Engine:
-    """Holds the OpenVoice models. Loaded once, reused for every request."""
+    """Holds the OpenVoice models. Loaded once, reused for every request.
+
+    Two locks, not one. ``_load_lock`` only guards the one-time model load;
+    ``_run_lock`` serialises clone extraction and synthesis. CPU inference uses
+    well over a gigabyte of scratch memory, so letting two requests overlap is
+    what exhausted the commit limit and killed the process. Serialising costs
+    nothing for a single user and keeps the footprint bounded.
+    """
 
     def __init__(self) -> None:
-        self._lock = threading.Lock()
+        self._load_lock = threading.Lock()
+        self._run_lock = threading.Lock()
         self._loaded = False
         self._voice_converter = None
         self._melotts: dict[str, object] = {}
@@ -112,7 +166,7 @@ class _Engine:
     def load(self) -> None:
         if self._loaded:
             return
-        with self._lock:
+        with self._load_lock:
             if self._loaded:
                 return
             from openvoice.api import ToneColorConverter
@@ -126,7 +180,7 @@ class _Engine:
             self._voice_converter = converter
 
             for base in BASE_SPEAKERS:
-                key = _MELO_SPEAKER_BY_BASE.get(base, "en-us")
+                key = _BASE_SE_FILENAME_BY_BASE.get(base, "en-us")
                 se_path = CHECKPOINTS_DIR / "base_speakers" / "ses" / f"{key}.pth"
                 if se_path.is_file():
                     self._base_ses[base] = _torch_load(se_path)
@@ -140,20 +194,24 @@ class _Engine:
     def _melo(self, base_speaker: str):
         from melo.api import TTS
 
-        key = _MELO_SPEAKER_BY_BASE.get(base_speaker, "en-us")
+        key = _MELO_SPEAKER_BY_BASE.get(base_speaker, "EN-US")
         if key not in self._melotts:
             log.info("Loading MeloTTS base speaker %s", key)
             self._melotts[key] = (TTS(language=_MELO_LANG, device=DEVICE), key)
         return self._melotts[key]
 
     def clone_from_sample(self, sample_path: Path) -> torch.Tensor:
-        self.load()
-        from openvoice import se_extractor
+        with self._run_lock:
+            self.load()
+            try:
+                from openvoice import se_extractor
 
-        target_se, _audio_name = se_extractor.get_se(
-            str(sample_path), self._voice_converter, vad=True
-        )
-        return target_se
+                target_se, _audio_name = se_extractor.get_se(
+                    str(sample_path), self._voice_converter, vad=True
+                )
+                return target_se
+            finally:
+                _release_memory()
 
     def synthesize(
         self,
@@ -164,36 +222,49 @@ class _Engine:
         speed: float,
     ) -> tuple[bytes, str]:
         """Return (wav_bytes, speaker_actually_used)."""
-        self.load()
-        model, melo_key = self._melo(base_speaker)
-        speaker_ids = model.hps.data.spk2id
-        speaker_id = speaker_ids.get(melo_key) or next(iter(speaker_ids.values()))
+        with self._run_lock:
+            self.load()
+            model, melo_key = self._melo(base_speaker)
+            speaker_ids = model.hps.data.spk2id
+            if melo_key not in speaker_ids:
+                raise RuntimeError(
+                    f"MeloTTS speaker {melo_key!r} is not available. "
+                    f"Configured speakers: {list(speaker_ids.keys())}"
+                )
+            speaker_id = speaker_ids[melo_key]
 
-        with tempfile.TemporaryDirectory() as tmp:
-            src_path = Path(tmp) / "base.wav"
-            out_path = Path(tmp) / "out.wav"
-            model.tts_to_file(text, speaker_id, str(src_path), speed=speed)
+            try:
+                with (
+                    torch.inference_mode(),
+                    tempfile.TemporaryDirectory() as tmp,
+                ):
+                    src_path = Path(tmp) / "base.wav"
+                    out_path = Path(tmp) / "out.wav"
+                    model.tts_to_file(text, speaker_id, str(src_path), speed=speed)
 
-            if target_se is None:
-                # Base-speaker-only synthesis (no clone): return the MeloTTS wav.
-                return src_path.read_bytes(), f"melo:{melo_key}"
+                    if target_se is None:
+                        # Base-speaker-only synthesis (no clone): return the
+                        # MeloTTS wav.
+                        return src_path.read_bytes(), f"melo:{melo_key}"
 
-            source_se = self._base_ses.get(base_speaker) or self._base_ses.get(
-                FALLBACK_SPEAKER
-            )
-            used = (
-                base_speaker
-                if base_speaker in self._base_ses
-                else f"{FALLBACK_SPEAKER} (fallback)"
-            )
-            self._voice_converter.convert(
-                audio_src_path=str(src_path),
-                src_se=source_se,
-                tgt_se=target_se,
-                output_path=str(out_path),
-                message="@Penrose",
-            )
-            return out_path.read_bytes(), used
+                    source_se = self._base_ses.get(base_speaker)
+                    if source_se is None:
+                        source_se = self._base_ses.get(FALLBACK_SPEAKER)
+                    used = (
+                        base_speaker
+                        if base_speaker in self._base_ses
+                        else f"{FALLBACK_SPEAKER} (fallback)"
+                    )
+                    self._voice_converter.convert(
+                        audio_src_path=str(src_path),
+                        src_se=source_se,
+                        tgt_se=target_se,
+                        output_path=str(out_path),
+                        message="@Penrose",
+                    )
+                    return out_path.read_bytes(), used
+            finally:
+                _release_memory()
 
 
 engine = _Engine()
@@ -249,7 +320,7 @@ async def clone(
     sample_path.write_bytes(data)
 
     try:
-        target_se = engine.clone_from_sample(sample_path)
+        target_se = await run_in_threadpool(engine.clone_from_sample, sample_path)
     except HTTPException:
         raise
     except Exception as exc:  # noqa: BLE001 - reported as a provider error
@@ -308,7 +379,12 @@ async def synthesize(request: Request) -> Response:
             ) from exc
 
     try:
-        audio, used_speaker = engine.synthesize(
+        # CPU inference takes minutes and holds hundreds of MB of activation
+        # memory. Running it in the threadpool keeps `/health` (and therefore
+        # the backend's availability probe) responsive during a synthesis,
+        # while `_run_lock` makes sure two requests never overlap.
+        audio, used_speaker = await run_in_threadpool(
+            engine.synthesize,
             text=text,
             target_se=target_se,
             base_speaker=base_speaker,
@@ -321,6 +397,11 @@ async def synthesize(request: Request) -> Response:
         raise HTTPException(
             status_code=500, detail=f"OpenVoice synthesis failed: {exc}"
         ) from exc
+    finally:
+        # Drop the per-request embedding reference too, so the collection below
+        # actually returns its memory.
+        target_se = None
+        _release_memory()
 
     return Response(
         content=audio,

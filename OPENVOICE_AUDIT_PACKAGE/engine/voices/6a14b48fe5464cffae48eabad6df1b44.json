@@ -1,0 +1,8 @@
+{
+  "created": "2026-10-02T05:58:24.462941+00:00",
+  "description": "Penrose cloned voice: raaain",
+  "embedding_dim": 256,
+  "model_version": "openvoice-v2",
+  "name": "raaain",
+  "source_file": "sample.wav"
+}

@@ -1,0 +1,8 @@
+
+# Local artifacts
+*.bak
+backend/storage/
+sidecar/openvoice_sidecar/processed/
+OPENVOICE_AUDIT_PACKAGE/
+OPENVOICE_AUDIT_PACKAGE.zip
+OPENVOICE_TRACE_AUDIT.txt

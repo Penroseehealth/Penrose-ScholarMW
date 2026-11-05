@@ -1,0 +1,10 @@
+
+FullName                                                                                        Length
+--------                                                                                        ------
+C:\Users\AMINILOGY\.penrose\openvoice\checkpoints\OpenVoiceV2\base_speakers\ses\en-india.pth      1701
+C:\Users\AMINILOGY\.penrose\openvoice\checkpoints\OpenVoiceV2\base_speakers\ses\en-us.pth         1701
+C:\Users\AMINILOGY\.penrose\openvoice\checkpoints\OpenVoiceV2\converter\checkpoint.pth       131320490
+C:\Users\AMINILOGY\.penrose\openvoice\checkpoints\OpenVoiceV2\converter\config.json                838
+
+
+

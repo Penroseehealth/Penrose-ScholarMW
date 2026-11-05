@@ -463,7 +463,7 @@ class CloneController extends ChangeNotifier {
     _previewError = null;
     notifyListeners();
     try {
-      final res = await _api.post('/speech/clones/$id/preview');
+      final res = await _api.post('/speech/clones/$id/preview', timeout: speechSynthesisTimeout);
       final base64 = (res['audio_base64'] as String?) ?? '';
       if (base64.isEmpty) {
         _previewError = 'The engine returned no audio for this voice.';
@@ -493,7 +493,7 @@ class CloneController extends ChangeNotifier {
     _actionError = null;
     notifyListeners();
     try {
-      final res = await _api.post('/speech/clones/$id/test');
+      final res = await _api.post('/speech/clones/$id/test', timeout: speechSynthesisTimeout);
       final clone = (res['clone'] as Map?)?.cast<String, dynamic>();
       final original = (res['original'] as Map?)?.cast<String, dynamic>();
       if (clone == null || original == null) {

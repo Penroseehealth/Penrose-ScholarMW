@@ -1,0 +1,8 @@
+{
+  "created": "2026-10-02T21:47:06.946457+00:00",
+  "description": "Penrose cloned voice: okkk",
+  "embedding_dim": 256,
+  "model_version": "openvoice-v2",
+  "name": "okkk",
+  "source_file": "sample.wav"
+}
