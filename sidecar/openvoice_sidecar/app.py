@@ -81,6 +81,16 @@ DEVICE = os.environ.get(
 BASE_SPEAKERS = ("EN-US", "EN_INDIA")
 FALLBACK_SPEAKER = "EN-US"
 
+# Tone-colour conversion strength. OpenVoice's own default is 0.3, but on the
+# CPU clone pipeline the speaker-encoder similarity keeps improving up to about
+# 0.6 and then plateaus; 0.6 keeps the target timbre strong without letting the
+# conversion smear the base speaker's prosody. Override with OPENVOICE_TAU.
+try:
+    DEFAULT_TAU = min(1.0, max(0.0, float(os.environ.get("OPENVOICE_TAU", "0.6"))))
+except ValueError:
+    log.warning("Ignoring invalid OPENVOICE_TAU; using 0.6")
+    DEFAULT_TAU = 0.6
+
 # MeloTTS language ids for the base speakers we support here.
 _MELO_LANG = "EN"
 _MELO_SPEAKER_BY_BASE = {
@@ -220,6 +230,7 @@ class _Engine:
         target_se: torch.Tensor | None,
         base_speaker: str,
         speed: float,
+        tau: float = DEFAULT_TAU,
     ) -> tuple[bytes, str]:
         """Return (wav_bytes, speaker_actually_used)."""
         with self._run_lock:
@@ -260,6 +271,7 @@ class _Engine:
                         src_se=source_se,
                         tgt_se=target_se,
                         output_path=str(out_path),
+                        tau=tau,
                         message="@Penrose",
                     )
                     return out_path.read_bytes(), used
@@ -294,6 +306,7 @@ async def health() -> dict:
         "engine_loaded": engine.loaded,
         "device": DEVICE,
         "base_speakers_available": list(BASE_SPEAKERS),
+        "tone_color_tau": DEFAULT_TAU,
     }
 
 
@@ -363,6 +376,12 @@ async def synthesize(request: Request) -> Response:
     except (TypeError, ValueError):
         speed = 1.0
 
+    try:
+        tau = float(body.get("tau", DEFAULT_TAU))
+    except (TypeError, ValueError):
+        tau = DEFAULT_TAU
+    tau = min(1.0, max(0.0, tau))
+
     target_se = None
     if voice_id:
         if not _voice_exists(voice_id):
@@ -389,6 +408,7 @@ async def synthesize(request: Request) -> Response:
             target_se=target_se,
             base_speaker=base_speaker,
             speed=speed,
+            tau=tau,
         )
     except HTTPException:
         raise

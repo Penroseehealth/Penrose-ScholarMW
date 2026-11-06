@@ -19,7 +19,7 @@ it over HTTP.
 |---|---|---|---|
 | GET | `/health` | — | `{"service":"openvoice-sidecar","engine_loaded":bool,"base_speakers_available":[...]}` |
 | POST | `/clone` | multipart `sample` (wav/flac), `name`, `description` | `{"voice_id","model_version","labels"}` |
-| POST | `/synthesize` | JSON `text`, optional `voice_id`, `base_speaker`, `speed` | `audio/wav` + `x-openvoice-source-embedding` header |
+| POST | `/synthesize` | JSON `text`, optional `voice_id`, `base_speaker`, `speed`, `tau` | `audio/wav` + `x-openvoice-source-embedding` header |
 | GET | `/voice/{id}` | — | `200` or `404` |
 | DELETE | `/voice/{id}` | — | `200` or `404` |
 
@@ -120,3 +120,4 @@ other containers up front with a clear message.
 | `OPENVOICE_CHECKPOINTS` | `checkpoints_v2` | Checkpoint directory |
 | `OPENVOICE_DATA_DIR` | `voice_store` | Where cloned embeddings are stored |
 | `OPENVOICE_DEVICE` | auto (`cuda:0` else `cpu`) | Torch device |
+| `OPENVOICE_TAU` | `0.6` | Tone-colour conversion strength (0-1). OpenVoice's own default is `0.3`; `0.6` measured closest to the cloned speaker on CPU and plateaus above it. Also reported by `/health`. |
