@@ -625,6 +625,7 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
                   TextToSpeechPlayer(
                     text: _composer.text.trim(),
                     voiceId: _controller.selectedVoice?.id ?? VoiceCatalogService.defaultVoiceId,
+                    useNarrationVoice: false,
                     scenario: 'natural_conversation',
                   ),
                 ],

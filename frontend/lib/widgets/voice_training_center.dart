@@ -47,6 +47,9 @@ class _VoiceTrainingCenterState extends State<VoiceTrainingCenter> {
   @override
   void initState() {
     super.initState();
+    // This drawer only plays catalog previews; AI replies use the trained
+    // narrator through the screen's own TTS service.
+    _tts.useNarrationVoice = false;
     _tts.initialize();
     _loadCatalog();
   }

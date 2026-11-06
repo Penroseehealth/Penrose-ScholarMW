@@ -15,6 +15,7 @@ class TextToSpeechPlayer extends StatefulWidget {
     super.key,
     required this.text,
     this.voiceId,
+    this.useNarrationVoice = true,
     this.scenario = 'natural_conversation',
     this.apiService,
     this.speechService,
@@ -22,7 +23,17 @@ class TextToSpeechPlayer extends StatefulWidget {
   });
 
   final String text;
+
+  /// Catalog voice to use for an explicit preview. Ignored when
+  /// [useNarrationVoice] is true.
   final String? voiceId;
+
+  /// Whether this player is reading an AI response.
+  ///
+  /// AI narration always asks the backend for its default trained voice, so a
+  /// tutor answer never comes back in a catalog voice. Preview surfaces set
+  /// this to false to hear the specific voice they list.
+  final bool useNarrationVoice;
   final String scenario;
   final ApiService? apiService;
   final WebSpeechService? speechService;
@@ -267,7 +278,8 @@ class _TextToSpeechPlayerState extends State<TextToSpeechPlayer> {
         body: {
           'text': text,
           'speed': _speed,
-          'voice_id': (widget.voiceId ?? VoiceCatalogService.defaultVoiceId).trim(),
+          'voice_id': (widget.useNarrationVoice ? 'default' : (widget.voiceId ?? VoiceCatalogService.defaultVoiceId))
+              .trim(),
           'language': 'en',
           'scenario': _scenario,
           'delivery_style': _deliveryStyle,

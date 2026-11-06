@@ -46,8 +46,20 @@ class PenroseTtsService {
   bool get isSpeaking => _isSpeaking;
   bool get isAvailable => _speech.isSupported || _audioPlayer.isSupported;
 
-  /// Catalog voice id (accent + gender) requested from the server engine.
+  /// Catalog voice id (accent + gender) requested from the server engine for
+  /// explicit previews. Ignored when [useNarrationVoice] is true.
   String? voiceId;
+
+  /// Whether this service is narrating an AI response.
+  ///
+  /// AI answers are always spoken by the app's trained/default narrator, so a
+  /// saved catalog preference cannot silently replace the clone. Only preview
+  /// players set this to false and request [voiceId] explicitly.
+  bool useNarrationVoice = true;
+
+  /// The backend's automatic voice id, resolved to the default trained clone.
+  static const String narrationVoiceId = 'default';
+
   String deliveryStyle = 'conversational';
   String scenario = 'one_to_one_tutoring';
   String mode = 'conversation';
@@ -114,7 +126,10 @@ class PenroseTtsService {
           'delivery_style': deliveryStyle,
           'scenario': scenario,
           'mode': mode,
-          if (voiceId != null) 'voice_id': voiceId,
+          if (useNarrationVoice)
+            'voice_id': narrationVoiceId
+          else if (voiceId != null)
+            'voice_id': voiceId,
         },
       );
       if (response.statusCode != 200) return false;

@@ -8,6 +8,8 @@ import '../../core/theme/theme_colors.dart';
 import '../../services/services.dart';
 import '../../services/tutor_preferences.dart';
 import '../../services/web_speech_service.dart';
+import '../../voice/tts_service.dart';
+import '../../voice/voice_session_manager.dart';
 import '../../widgets/error_state.dart';
 import '../../widgets/math_tutor/math_writing.dart';
 import '../../widgets/math_viz/ai_visual_parser.dart';
@@ -29,6 +31,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
   final ContextService _contextService = ContextService();
   final MultimodalService _multimodalService = MultimodalService();
   final WebSpeechService _speech = WebSpeechService();
+  final PenroseTtsService _tts = PenroseTtsService(session: VoiceSessionManager());
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   List<dynamic> _concepts = [];
@@ -78,6 +81,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
   void initState() {
     super.initState();
     _selectedConceptId = widget.conceptId;
+    _tts.initialize();
     _loadPreferences();
     _loadData();
   }
@@ -101,6 +105,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
   @override
   void dispose() {
     _requestSeq++;
+    _tts.dispose();
     _speech.cancelSpeech();
     _speech.dispose();
     _preferences.removeListener(_onPreferencesChanged);
@@ -154,13 +159,13 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
   /// Reads a tutor reply aloud, or stops it if this reply is already speaking.
   Future<void> _toggleSpeaking(int index, String text) async {
     if (_speakingMessageIndex == index) {
-      _speech.cancelSpeech();
+      _tts.stop();
       if (mounted) setState(() => _speakingMessageIndex = null);
       return;
     }
-    _speech.cancelSpeech();
+    _tts.stop();
     if (mounted) setState(() => _speakingMessageIndex = index);
-    await _speech.speak(text, lang: _preferences.voiceLanguage);
+    await _tts.speak(text, lang: _preferences.voiceLanguage);
     if (mounted && _speakingMessageIndex == index) setState(() => _speakingMessageIndex = null);
   }
 
@@ -438,7 +443,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
         _sending = false;
       });
       _scrollToBottom();
-      if (_preferences.speakReplies && _speech.isSupported) {
+      if (_preferences.speakReplies && _tts.isAvailable) {
         unawaited(_toggleSpeaking(_messages.length - 1, reply));
       }
     } catch (e) {
@@ -748,7 +753,7 @@ class _StemTutorScreenState extends State<StemTutorScreen> {
               ),
             // Read-aloud toggle lives on every tutor reply so a student can
             // replay any answer without asking the chat to repeat itself.
-            if (!isUser && !msg.isError && _speech.isSupported)
+            if (!isUser && !msg.isError && _tts.isAvailable)
               Align(
                 alignment: Alignment.centerRight,
                 child: IconButton(

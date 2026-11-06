@@ -6,6 +6,8 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 import '../../services/services.dart';
 import '../../services/web_speech_service.dart';
+import '../../voice/tts_service.dart';
+import '../../voice/voice_session_manager.dart';
 import '../../widgets/stem_text.dart';
 
 class KnowledgeRetrievalScreen extends StatefulWidget {
@@ -20,6 +22,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen> wit
   final TextEditingController _questionCtrl = TextEditingController();
   final ScrollController _scrollCtrl = ScrollController();
   final WebSpeechService _speech = WebSpeechService();
+  final PenroseTtsService _tts = PenroseTtsService(session: VoiceSessionManager());
 
   final List<_ChatMessage> _messages = [];
   bool _loading = false;
@@ -35,6 +38,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen> wit
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
+    _tts.initialize();
     _messages.add(const _ChatMessage(
       text: 'Hello! I am ScholarAI Knowledge Retrieval. Ask me anything '
           'from your vault and knowledge documents, and I will find '
@@ -47,6 +51,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen> wit
 
   @override
   void dispose() {
+    _tts.dispose();
     _speech.dispose();
     _pulseCtrl.dispose();
     _questionCtrl.dispose();
@@ -77,7 +82,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen> wit
       });
       _pulseCtrl.stop();
     }
-    _speech.cancelSpeech();
+    _tts.stop();
     if (_speakingIndex != null) {
       setState(() {
         _speakingIndex = null;
@@ -295,7 +300,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen> wit
 
   void _toggleTTS(String text, int index) {
     if (_speakingIndex == index) {
-      _speech.cancelSpeech();
+      _tts.stop();
       setState(() {
         _speakingIndex = null;
       });
@@ -303,7 +308,7 @@ class _KnowledgeRetrievalScreenState extends State<KnowledgeRetrievalScreen> wit
       setState(() {
         _speakingIndex = index;
       });
-      _speech.speak(text).then((_) {
+      _tts.speak(text).then((_) {
         if (mounted)
           setState(() {
             _speakingIndex = null;

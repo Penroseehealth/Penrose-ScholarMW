@@ -114,6 +114,9 @@ class _MathTutorScreenState extends State<MathTutorScreen> {
   }
 
   Future<void> _bootstrap() async {
+    // The picker's previews must use the listed catalog voice; the player and
+    // chat services keep their default narration policy (trained voice).
+    _previewTts.useNarrationVoice = false;
     _previewTts.initialize();
     _chatTts.initialize();
     await _catalog.load();
