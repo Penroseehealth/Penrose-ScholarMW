@@ -30,6 +30,12 @@ from app.services.voice_service import (
     get_voice,
     get_voice_library,
 )
+from app.speech.dependencies import DbSessionDep
+from app.voice.clone_narration import (
+    clone_applied_controls,
+    clone_audio_metadata,
+    synthesize_default_clone,
+)
 from app.voice.tts_service import tts_service
 from app.voice.voice_catalog import resolve_default_voice_id
 
@@ -211,12 +217,35 @@ async def remove_voice_clone(clone_id: str, user: User = Depends(get_current_use
 @router.post("/tts/synthesize")
 async def synthesize_tts(
     body: TTSRequest,
+    db: DbSessionDep,
     user: User = Depends(get_current_user),
 ):
+    requested_voice_id = body.voice_id.strip()
+
+    # Same precedence as the chat TTS route: the user's trained voice narrates
+    # unless they asked for a specific catalog voice.
+    clone = await synthesize_default_clone(
+        db,
+        text=body.text,
+        voice_id=requested_voice_id,
+        speed=body.speed,
+        language=body.language,
+    )
+    if clone is not None:
+        duration_ms, _ = clone_audio_metadata(clone)
+        return TTSResponse(
+            audio_url=None,
+            duration_seconds=duration_ms / 1000,
+            voice_id=str(clone.get("voice_id", "")),
+            audio_base64=clone["audio_base64"],
+            provider=clone.get("provider", "openvoice"),
+            applied_controls=clone_applied_controls(clone),
+        )
+
     voice_id = (
         resolve_default_voice_id()
-        if body.voice_id.strip().lower() in {"", "default"}
-        else body.voice_id.strip()
+        if requested_voice_id.lower() in {"", "default"}
+        else requested_voice_id
     )
     result = await tts_service.synthesize(
         body.text,

@@ -4,6 +4,12 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from app.dependencies.auth import get_current_user
 from app.models.models import User
+from app.speech.dependencies import DbSessionDep
+from app.voice.clone_narration import (
+    clone_applied_controls,
+    clone_audio_metadata,
+    synthesize_default_clone,
+)
 from app.voice.conversation_orchestrator import orchestrator
 from app.voice.models import (
     TTSRequest,
@@ -104,12 +110,35 @@ async def process_voice_transcript(
 @router.post("/tts", response_model=TTSResponse)
 async def text_to_speech(
     body: TTSRequest,
+    db: DbSessionDep,
     user: User = Depends(get_current_user),
 ):
-    voice_id = body.voice_id.strip() if isinstance(body.voice_id, str) else ""
-    if voice_id.lower() == "default" or voice_id == "":
-        from app.voice.voice_catalog import resolve_default_voice_id
+    requested_voice_id = body.voice_id.strip() if isinstance(body.voice_id, str) else ""
 
+    # A trained voice is the app's narrator when the caller has not chosen a
+    # specific catalog voice. An explicit voice still wins below.
+    clone = await synthesize_default_clone(
+        db,
+        text=body.text,
+        voice_id=requested_voice_id,
+        speed=body.speed,
+        language=body.language,
+    )
+    if clone is not None:
+        duration_ms, sample_rate = clone_audio_metadata(clone)
+        return TTSResponse(
+            audio_base64=clone["audio_base64"],
+            duration_ms=duration_ms,
+            sample_rate=sample_rate,
+            provider=clone.get("provider", "openvoice"),
+            scenario=body.scenario,
+            delivery_style=body.delivery_style,
+            mode=body.mode,
+            applied_controls=clone_applied_controls(clone),
+        )
+
+    voice_id = requested_voice_id
+    if voice_id.lower() == "default" or voice_id == "":
         voice_id = resolve_default_voice_id()
     tts_service.set_speed(body.speed)
     result = await tts_service.synthesize(
