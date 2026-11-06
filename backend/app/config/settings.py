@@ -92,6 +92,11 @@ class Settings(BaseSettings):
     LIVEKIT_API_KEY: str = ""
     LIVEKIT_API_SECRET: str = ""
 
+    # Shared secret for the internal presentation-session API used by the
+    # LiveKit agent worker (separate process). Loopback-only; never sent to
+    # Flutter or browser clients. Empty disables the internal routes.
+    INTERNAL_TOKEN: str = ""
+
     # --- Speech / Voice Training Center (TTS, STT, voice cloning) ---------
     ENABLE_SPEECH: bool = True
     SPEECH_UPLOAD_DIR: str = str(_BACKEND_DIR / "storage" / "uploads")

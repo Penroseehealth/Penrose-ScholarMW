@@ -166,6 +166,26 @@ class ApiService {
     }
     return response;
   }
+  Future<http.Response> patch(String path, {Map<String, dynamic>? body}) async {
+    final h = await headers;
+    var response = await http.patch(
+      Uri.parse('$apiBaseUrl$path'),
+      headers: h,
+      body: body != null ? jsonEncode(body) : null,
+    );
+    if (_isAuthFailure(response.statusCode) &&
+        _refreshToken?.isNotEmpty == true) {
+      final refreshed = await _tryRefresh();
+      if (refreshed) {
+        response = await http.patch(
+          Uri.parse('$apiBaseUrl$path'),
+          headers: await headers,
+          body: body != null ? jsonEncode(body) : null,
+        );
+      }
+    }
+    return response;
+  }
 
   Future<http.Response> delete(String path) async {
     final h = await headers;

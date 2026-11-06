@@ -14,8 +14,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.engine import get_db
 from app.dependencies.auth import require_lecturer
 from app.models.models import User, VaultDocument
+from app.presentation import repository as pres_repo
 from app.presentation import service as engine
 from app.presentation.schemas import (
+    BuilderConfig,
     GenerateRequest,
     GenerateResponse,
     OutlineRequest,
@@ -175,13 +177,15 @@ async def generate_endpoint(
             vault_docs=vault_docs,
         )
         presentation_id = uuid.uuid4().hex[:12]
-        engine._engine.put(
-            presentation_id,
-            {
-                "config": body.config,
-                "outline": [o.model_dump() for o in body.outline],
-                "slides": slides,
-            },
+        # Persist immediately: the database is the only source of truth.
+        await pres_repo.save_presentation(
+            db,
+            presentation_id=presentation_id,
+            owner_id=user.id,
+            title=body.config.topic or "Untitled Lecture",
+            config=body.config,
+            outline=[o.model_dump() for o in body.outline],
+            slides=slides,
         )
         return GenerateResponse(
             presentation_id=presentation_id,
@@ -275,12 +279,12 @@ async def regenerate_slide_endpoint(
     user: User = Depends(require_lecturer),
     db: AsyncSession = Depends(get_db),
 ):
-    rec = engine._engine.get(body.presentation_id)
+    rec = await pres_repo.load_presentation(db, body.presentation_id)
     if not rec:
         raise HTTPException(status_code=404, detail="Presentation not found")
     try:
         new_slide = await engine.regenerate_slide(
-            rec["config"], body.slide_id, body.focus, rec["slides"], db
+            BuilderConfig(**rec["config"]), body.slide_id, body.focus, rec["slides"], db
         )
         return {"slide": new_slide}
     except Exception as e:
@@ -294,12 +298,12 @@ async def regenerate_notes_endpoint(
     user: User = Depends(require_lecturer),
     db: AsyncSession = Depends(get_db),
 ):
-    rec = engine._engine.get(body.presentation_id)
+    rec = await pres_repo.load_presentation(db, body.presentation_id)
     if not rec:
         raise HTTPException(status_code=404, detail="Presentation not found")
     try:
         new_notes = await engine.regenerate_notes(
-            rec["config"], body.slide_id, body.prompt, rec["slides"], db
+            BuilderConfig(**rec["config"]), body.slide_id, body.prompt, rec["slides"], db
         )
         return {"speaker_notes": new_notes}
     except Exception as e:

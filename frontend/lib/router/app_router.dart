@@ -78,6 +78,8 @@ import '../screens/languages/languages_hub.dart';
 import '../screens/lecturer/assessment_studio.dart';
 import '../screens/lecturer/examination_builder_screen.dart';
 import '../screens/lecturer/lecture_presentation_builder_screen.dart';
+import '../screens/presentation/live_session_screen.dart';
+import '../screens/presentation/audience_session_screen.dart';
 import '../screens/lecturer/lecturer_centre.dart';
 import '../screens/lecturer/smart_marking.dart';
 import '../screens/mathematics/math_syllabus_screen.dart';
@@ -232,6 +234,12 @@ class AppRouter {
       ),
       _route('/lecturer', (_) => const LecturerCentre()),
       _route('/lecturer/presentation-builder', (_) => const LecturePresentationBuilderScreen()),
+      _route('/presentation-live', (state) => PresenterCockpitScreen(
+        sessionId: state.uri.queryParameters['session'] ?? '',
+      )),
+      _route('/presentation-join', (state) => AudienceSessionScreen(
+        joinCode: state.uri.queryParameters['code'],
+      )),
       _route('/lecturer/examination-builder', (_) => const ExaminationBuilderScreen()),
       _route('/bio-real-lab', (state) => BiologyRealLabScreen(experimentId: state.uri.queryParameters['experiment'])),
       // MathDrill runs full-screen: registered OUTSIDE HomeShell so the main

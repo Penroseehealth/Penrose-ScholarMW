@@ -7,6 +7,8 @@ import '../../core/theme/theme_colors.dart';
 import '../../providers/syllabus_selection_provider.dart';
 import '../../services/export_service.dart';
 import '../../services/services.dart';
+import '../../controllers/presentation_session_controller.dart';
+import '../../services/api_service.dart';
 
 class LecturePresentationBuilderScreen extends StatefulWidget {
   const LecturePresentationBuilderScreen({super.key});
@@ -117,6 +119,7 @@ class _LecturePresentationBuilderScreenState
   List<dynamic> _outline = [];
   List<Map<String, dynamic>> _outlineWarnings = [];
   List<Map<String, dynamic>> _slides = [];
+  String? _presentationId;
   List<Map<String, dynamic>> _quality = [];
   String? _exportStatus;
 
@@ -285,11 +288,32 @@ class _LecturePresentationBuilderScreenState
         _slides = (data['slides'] as List<dynamic>? ?? [])
             .map((e) => Map<String, dynamic>.from(e as Map))
             .toList();
+        // Persisted deck id (Phase 1 persistence) — needed to start a live
+        // presentation session later.
+        _presentationId = data['presentation_id'] as String?;
         _genPhase = 1;
       } else {
         _error = res['error'] as String?;
       }
     });
+  }
+
+  /// Phase 5: launch the live AI presentation cockpit for this deck.
+  Future<void> _startLiveSession() async {
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    final controller =
+        PresentationSessionController(api: ApiService());
+    final ok = await controller.createSession(_presentationId!);
+    if (!mounted) return;
+    setState(() => _busy = false);
+    if (!ok) {
+      setState(() => _error = 'Could not start the live session');
+      return;
+    }
+    context.go('/presentation-live?session=${controller.sessionId}');
   }
 
   Future<void> _runQuality() async {
@@ -1779,6 +1803,12 @@ class _LecturePresentationBuilderScreenState
               icon: const Icon(Icons.download_rounded, size: 16),
               label: const Text('DOWNLOAD PPTX'),
             ),
+            if (_presentationId != null)
+              FilledButton.icon(
+                onPressed: _busy ? null : _startLiveSession,
+                icon: const Icon(Icons.podcasts, size: 16),
+                label: const Text('START LIVE SESSION'),
+              ),
           ],
         ),
       ],

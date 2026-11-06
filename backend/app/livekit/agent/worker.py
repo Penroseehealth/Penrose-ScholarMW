@@ -71,6 +71,7 @@ VOSK_MODEL_NAME = "vosk-model-small-en-us-0.15"
 # loop).  Instead it transcribes the participant's microphone with vosk and
 # relays each final transcript back over a LiveKit data channel under STT_TOPIC.
 STT_RELAY_ROOM_PREFIX = "scholar-stt-"
+PRESENTATION_ROOM_PREFIX = "pres_"
 STT_RELAY_TOPIC = "scholar.stt"
 
 
@@ -828,6 +829,13 @@ async def _main() -> None:
     async def scholar_session(ctx: JobContext) -> None:
         if ctx.room.name.startswith(STT_RELAY_ROOM_PREFIX):
             await _run_stt_relay(ctx)
+        elif ctx.room.name.startswith(PRESENTATION_ROOM_PREFIX):
+            # Interactive AI Presentation Engine rooms (Phase 3): the agent
+            # becomes the AI co-presenter with lesson context, voice-lease
+            # arbitration and the cloned voice (EdgeTTS disclosed fallback).
+            from app.livekit.agent.presentation_session import run_presentation_session
+
+            await run_presentation_session(ctx)
         else:
             await _run_session(ctx)
 

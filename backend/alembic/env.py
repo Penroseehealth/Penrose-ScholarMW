@@ -8,6 +8,7 @@ from app.config.settings import get_settings
 from app.database.engine import Base
 from app.models import (
     models,  # noqa: F401 — ensure all models are registered
+    presentation,  # noqa: F401 — register presentation-engine models
     stem,  # noqa: F401 — register STEM models
 )
 

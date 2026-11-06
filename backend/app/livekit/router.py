@@ -9,10 +9,16 @@ from __future__ import annotations
 import logging
 from datetime import timedelta
 
+import hmac
+
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import Depends as _Dep
 from pydantic import BaseModel
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.settings import get_settings
+from app.database.engine import get_db
 from app.dependencies.auth import get_current_user
 from app.models.models import User
 
@@ -48,6 +54,14 @@ class LiveKitTokenResponse(BaseModel):
 class LiveKitRoomResponse(BaseModel):
     name: str
     url: str
+
+
+class SessionTokenRequest(BaseModel):
+    """Role-scoped token request. NO role/identity/room fields: the server
+    derives all of them from the participant record."""
+    session_id: str
+    participant_id: int | None = None
+    guest_token: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -121,6 +135,85 @@ def _generate_token(
 # ---------------------------------------------------------------------------
 # Endpoints — all require authentication
 # ---------------------------------------------------------------------------
+
+
+@router.post("/session-token", response_model=LiveKitTokenResponse)
+async def get_session_scoped_token(
+    body: "SessionTokenRequest",
+    user: User | None = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Role-scoped LiveKit token for a presentation session (Phase 2).
+
+    The role is resolved EXCLUSIVELY from the server-side participant row —
+    never from any client-supplied field. Identity is forced server-side.
+    Guests authenticate with the guest_token issued at join time.
+    """
+    _require_livekit()
+    from app.models.presentation import PresentationParticipant, PresentationSession
+
+    # Resolve the session and its server-generated room name.
+    session_row = await db.get(PresentationSession, body.session_id)
+    if session_row is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
+    session_room_name = session_row.room_name
+    # Token TTL: guests and attendees get a short token (≤ 4 h) so a revoked
+    # or ended session cannot be re-entered with a stale token.
+    ttl = 3600  # 1 hour, clamped ≤ 4 h by design
+
+    participant: PresentationParticipant | None = None
+    if body.participant_id is not None and body.guest_token:
+        row = await db.get(PresentationParticipant, body.participant_id)
+        if row is not None and row.session_id == body.session_id and row.guest_token_hash:
+            import hashlib
+            supplied_hash = hashlib.sha256(body.guest_token.encode()).hexdigest()
+            if hmac.compare_digest(supplied_hash, row.guest_token_hash) and row.left_at is None:
+                participant = row
+    elif user is not None:
+        participant = (await db.execute(
+            select(PresentationParticipant)
+            .where(PresentationParticipant.session_id == body.session_id)
+            .where(PresentationParticipant.user_id == user.id)
+        )).scalar_one_or_none()
+
+    if participant is None:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an active participant of this session")
+    if session_row.pres_state == "completed":
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This session has ended")
+
+    identity = (
+        f"user_{participant.user_id}" if participant.user_id is not None
+        else f"guest_{participant.id}"
+    )
+    # Grants by server-side role: presenter/co-presenter may publish audio +
+    # data; attendees subscribe always, publish only when the session lets
+    # attendees ask voice questions (Phase 0D security design).
+    if participant.role in ("presenter", "co_presenter"):
+        grants = VideoGrants(room=session_room_name, room_join=True, can_publish=True,
+                             can_subscribe=True, can_publish_data=True,
+                             can_update_own_metadata=True)
+    else:
+        grants = VideoGrants(room=session_room_name, room_join=True, can_publish=False,
+                             can_subscribe=True, can_publish_data=False)
+
+    settings = get_settings()
+    # Room pinned to the session's server-generated room name; TTL clamped
+    # short (guests ≤ 4 h) and identity/display name never client-controlled.
+    token = (
+        AccessToken(api_key=settings.LIVEKIT_API_KEY, api_secret=settings.LIVEKIT_API_SECRET)
+        .with_identity(identity)
+        .with_name(_clean_name(participant.display_name) or "Participant")
+        .with_ttl(timedelta(seconds=ttl))
+        .with_grants(grants)
+    )
+    return LiveKitTokenResponse(
+        token=token.to_jwt(),
+        url=settings.LIVEKIT_URL,
+        room_name=session_room_name,
+        identity=identity,
+        name=participant.display_name,
+        expires_in=ttl,
+    )
 
 
 @router.post("/token", response_model=LiveKitTokenResponse)

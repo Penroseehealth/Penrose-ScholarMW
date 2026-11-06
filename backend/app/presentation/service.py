@@ -34,8 +34,6 @@ from app.retrieval.orchestrator import search
 log = logging.getLogger(__name__)
 
 _log_lock = threading.Lock()
-_store: dict[str, dict] = {}
-_store_lock = threading.Lock()
 
 # ---------------------------------------------------------------------------
 # Source hierarchy helpers
@@ -267,27 +265,6 @@ def _contrast_ratio(fg: str, bg: str) -> float:
     if l1 < l2:
         l1, l2 = l2, l1
     return (l1 + 0.05) / (l2 + 0.05)
-
-
-# ---------------------------------------------------------------------------
-# In-memory store
-# ---------------------------------------------------------------------------
-
-
-@dataclass
-class EngineStore:
-    records: dict = field(default_factory=dict)
-
-    def put(self, presentation_id: str, data: dict) -> None:
-        with _store_lock:
-            self.records[presentation_id] = data
-
-    def get(self, presentation_id: str) -> dict | None:
-        with _store_lock:
-            return self.records.get(presentation_id)
-
-
-_engine = EngineStore()
 
 
 # ---------------------------------------------------------------------------

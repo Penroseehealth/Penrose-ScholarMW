@@ -57,6 +57,12 @@ class PenroseTtsService {
   /// players set this to false and request [voiceId] explicitly.
   bool useNarrationVoice = true;
 
+  /// Voice-lock gate (Phase 5): during a live presentation session the AI
+  /// audio owner is tracked by the backend voice lease; when the agent owns
+  /// it, browser TTS must stay silent so the two AI voices never overlap.
+  /// Presenters/humans are never gated — they always have priority.
+  String? sessionVoiceOwner; // 'agent' | 'client' | null (no live session)
+
   /// The backend's automatic voice id, resolved to the default trained clone.
   static const String narrationVoiceId = 'default';
 
@@ -83,6 +89,7 @@ class PenroseTtsService {
   /// every sentence. Supports interruption via VoiceSessionManager.
   Future<void> speak(String text, {String lang = 'en-US', double speed = 1.0}) async {
     if (text.isEmpty || !isAvailable) return;
+    if (sessionVoiceOwner == 'agent') return; // agent owns AI audio in this session
 
     stop();
     _segments = _segmentText(text);

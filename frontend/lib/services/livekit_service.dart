@@ -123,3 +123,58 @@ class LiveKitService {
     _refreshTimer?.cancel();
   }
 }
+
+
+// ---------------------------------------------------------------------------
+// Presentation-session runtime (Phase 5)
+// ---------------------------------------------------------------------------
+
+/// Session-scoped token response (role resolved server-side).
+class SessionTokenResult {
+  final String token;
+  final String url;
+  final String roomName;
+  final String identity;
+  const SessionTokenResult({
+    required this.token,
+    required this.url,
+    required this.roomName,
+    required this.identity,
+  });
+  factory SessionTokenResult.fromJson(Map<String, dynamic> json) =>
+      SessionTokenResult(
+        token: json['token'] as String,
+        url: json['url'] as String,
+        roomName: json['room_name'] as String,
+        identity: json['identity'] as String,
+      );
+}
+
+extension PresentationSessionLiveKit on LiveKitService {
+  /// Request a role-scoped token bound to a presentation session.
+  ///
+  /// Named users send nothing but the session id — the backend resolves
+  /// role/identity/room from the participant record. Guests additionally
+  /// present the participant id + guest token issued at join time.
+  Future<SessionTokenResult?> requestSessionToken({
+    required String sessionId,
+    int? participantId,
+    String? guestToken,
+  }) async {
+    try {
+      final body = <String, dynamic>{'session_id': sessionId};
+      if (participantId != null) body['participant_id'] = participantId;
+      if (guestToken != null) body['guest_token'] = guestToken;
+      final response = await _api.post('/livekit/session-token', body: body);
+      if (response.statusCode == 200) {
+        return SessionTokenResult.fromJson(
+            jsonDecode(response.body) as Map<String, dynamic>);
+      }
+      debugPrint('session token failed: ${response.statusCode}');
+      return null;
+    } catch (e) {
+      debugPrint('session token error: $e');
+      return null;
+    }
+  }
+}
