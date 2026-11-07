@@ -133,10 +133,7 @@ class PenroseTtsService {
           'delivery_style': deliveryStyle,
           'scenario': scenario,
           'mode': mode,
-          if (useNarrationVoice)
-            'voice_id': narrationVoiceId
-          else if (voiceId != null)
-            'voice_id': voiceId,
+          if (useNarrationVoice) 'voice_id': narrationVoiceId else if (voiceId != null) 'voice_id': voiceId,
         },
       );
       if (response.statusCode != 200) return false;

@@ -278,8 +278,8 @@ class _TextToSpeechPlayerState extends State<TextToSpeechPlayer> {
         body: {
           'text': text,
           'speed': _speed,
-          'voice_id': (widget.useNarrationVoice ? 'default' : (widget.voiceId ?? VoiceCatalogService.defaultVoiceId))
-              .trim(),
+          'voice_id':
+              (widget.useNarrationVoice ? 'default' : (widget.voiceId ?? VoiceCatalogService.defaultVoiceId)).trim(),
           'language': 'en',
           'scenario': _scenario,
           'delivery_style': _deliveryStyle,
