@@ -1,4 +1,4 @@
-"""Core engine for the AI Lecture Presentation Builder.
+﻿"""Core engine for the AI Lecture Presentation Builder.
 
 Implements the content-priority / source hierarchy, syllabus alignment,
 AI outline + slide generation, speaker notes, citations, quality reporting,
@@ -285,8 +285,8 @@ def _split_objectives(syllabus: str) -> list[str]:
         line = line.strip()
         if not line:
             continue
-        if re.match(r"^[(-]?\s*\d+[.)]", line) or line.startswith(("-", "•", "*", "✓")):
-            clean = re.sub(r"^[(-]?\s*\d+[.)]\s*|^[-•*✓]\s*", "", line).strip()
+        if re.match(r"^[(-]?\s*\d+[.)]", line) or line.startswith(("-", "â€¢", "*", "âœ“")):
+            clean = re.sub(r"^[(-]?\s*\d+[.)]\s*|^[-â€¢*âœ“]\s*", "", line).strip()
             if len(clean) > 8:
                 objectives.append(clean)
     if not objectives:
@@ -351,7 +351,7 @@ def _choose_subject(course: str, course_code: str, subjects: list) -> object | N
 async def load_seeded_syllabus(db, config) -> str:
     """Auto-load the most aligned syllabus content from the seeded DB.
 
-    Syllabus is the authoritative default source — the lecturer must never be
+    Syllabus is the authoritative default source â€” the lecturer must never be
     forced to upload it. We scan the seeded SyllabusSubject(s), pick the one
     matching the course, and extract the topics/subtopics/learning objectives
     that align with the chosen topic & subtopic.
@@ -388,7 +388,7 @@ async def load_seeded_syllabus(db, config) -> str:
         log.exception("Failed to load syllabus topics")
         return ""
     if not topics:
-        return f"[SUBJECT] {subject.name} (seeded syllabus — no aligned topics found)\n{subject.description or ''}"
+        return f"[SUBJECT] {subject.name} (seeded syllabus â€” no aligned topics found)\n{subject.description or ''}"
 
     needles = [_norm(t) for t in _topic_names(config) + _subtopic_names(config)]
     selected_topic_ids = set(getattr(config, "topic_ids", []) or [])
@@ -420,7 +420,7 @@ async def load_seeded_syllabus(db, config) -> str:
         selected = topics[:5]
 
     chunks: list[str] = [
-        f"[SYLLABUS] {subject.name} — {subject.description or ''}".strip()
+        f"[SYLLABUS] {subject.name} â€” {subject.description or ''}".strip()
     ]
     for t in selected[:8]:
         chunk = [f"TOPIC: {t.title}"]
@@ -589,7 +589,7 @@ async def build_outline(config, vault_docs: list[dict], db=None) -> dict:
     sections = _sections_for(config)
 
     system = (
-        "You are Penrose ScholarMW, an academic presentation designer for Malawi "
+        "You are Aminiology EduTech, an academic presentation designer for Malawi "
         "secondary-school and university lecturers. You turn authoritative source "
         "material into a precise teaching outline. NEVER invent syllabus content, "
         "references, statistics or learning outcomes. Only derive from the provided "
@@ -607,7 +607,7 @@ async def build_outline(config, vault_docs: list[dict], db=None) -> dict:
     user = (
         "Source material (respect this priority: syllabus > lecturer notes > "
         "uploaded materials > vault docs).\n\n"
-        f"{sources['merged'] or '(No source text provided — produce a minimal outline, clearly generic.)'}"
+        f"{sources['merged'] or '(No source text provided â€” produce a minimal outline, clearly generic.)'}"
     )
 
     schema_hint = (
@@ -695,7 +695,7 @@ async def generate_slides(
     sources = await collect_sources(config, vault_docs or [], db)
 
     system = (
-        "You are Penrose ScholarMW, an academic slide writer. Convert the given "
+        "You are Aminiology EduTech, an academic slide writer. Convert the given "
         "outline + source material into concise, high-quality teaching slides.\n\n"
         "RULES:\n"
         "- Each slide has ONE main teaching purpose.\n"
@@ -719,7 +719,7 @@ async def generate_slides(
     )
 
     outline_lines = "\n".join(
-        f"{s['id']}: {s['title']} — objective: {s.get('learning_objective') or objective_text}"
+        f"{s['id']}: {s['title']} â€” objective: {s.get('learning_objective') or objective_text}"
         for s in outline_items
     )
 
@@ -731,7 +731,7 @@ async def generate_slides(
         f"LEARNING OBJECTIVES: {objective_text}\n\n"
         f"OUTLINE:\n{outline_lines}\n\n"
         f"SOURCE MATERIAL (priority ordered):\n"
-        f"{sources['merged'] or '(no source provided — generic outline only)'}"
+        f"{sources['merged'] or '(no source provided â€” generic outline only)'}"
     )
 
     schema_hint = (
@@ -796,7 +796,7 @@ async def regenerate_slide(
     )
 
     system = (
-        "You are Penrose ScholarMW, an academic slide writer. Rewrite ONLY the given "
+        "You are Aminiology EduTech, an academic slide writer. Rewrite ONLY the given "
         "slide based on the source material. Keep it concise (max 5 bullets), preserve "
         "terminology, never invent citations or content not in the source. Put expansion "
         "in speaker_notes. Respect source priority: syllabus > notes > uploaded > vault."
@@ -846,13 +846,13 @@ async def regenerate_notes(
         f"{s['id']}: {s['title']}: {' | '.join(s.get('bullets') or [])}" for s in slides
     )
     system = (
-        "You are Penrose ScholarMW. Write expanded, helpful speaker notes for a single "
+        "You are Aminiology EduTech. Write expanded, helpful speaker notes for a single "
         "slide: lecturer talking points, definitions, teaching tips, likely misconceptions, "
         "and questions to ask students. Ground everything in the shown slide + source. "
         "Never invent citations or facts not present."
     )
     user = (
-        f"SLIDE: {target['id']} — {target.get('title')}\n"
+        f"SLIDE: {target['id']} â€” {target.get('title')}\n"
         f"BULLETS: {' | '.join(target.get('bullets') or [])}\n"
         f"LECTURER REQUEST: {prompt or '(comprehensive but concise teaching notes)'}\n\n"
         f"SOURCE MATERIAL:\n{sources['merged'] or '(none)'}\n\n"
@@ -921,7 +921,7 @@ def compute_quality_report(slides: list[dict], config) -> dict:
     ]
     if dense:
         warnings.append(
-            f"{dense} slide(s) exceed text-density recommendations — consider splitting or moving detail to speaker notes."
+            f"{dense} slide(s) exceed text-density recommendations â€” consider splitting or moving detail to speaker notes."
         )
     if citation_pct < 100:
         warnings.append(
@@ -1056,7 +1056,7 @@ def build_pptx(config, slides: list[dict]) -> bytes:
         p = tf.paragraphs[0]
         p.alignment = PP_ALIGN.LEFT
         r = p.add_run()
-        r.text = f"{config.course_code or config.course} • {config.topic}"
+        r.text = f"{config.course_code or config.course} â€¢ {config.topic}"
         r.font.size = Pt(9)
         r.font.name = body_font
         r.font.color.rgb = accent
@@ -1085,7 +1085,7 @@ def build_pptx(config, slides: list[dict]) -> bytes:
             [
                 (
                     (config.course or "Course")
-                    + (f"  •  {config.course_code}" if config.course_code else ""),
+                    + (f"  â€¢  {config.course_code}" if config.course_code else ""),
                     {"size": 20, "color": accent, "bold": True},
                 )
             ],
@@ -1115,7 +1115,7 @@ def build_pptx(config, slides: list[dict]) -> bytes:
                 [((config.subtopic or ""), {"size": 22, "color": accent})],
                 align=PP_ALIGN.LEFT,
             )
-        lines = " • ".join(
+        lines = " â€¢ ".join(
             x
             for x in [
                 config.lecturer,
@@ -1169,8 +1169,8 @@ def build_pptx(config, slides: list[dict]) -> bytes:
             if s.get("learning_objective")
         ]
         objectives = [o for o in objectives if o][:6]
-        bullets = [f"•  {o}" for o in objectives] or [
-            "•  (Objectives derived during outline review.)"
+        bullets = [f"â€¢  {o}" for o in objectives] or [
+            "â€¢  (Objectives derived during outline review.)"
         ]
         _add_textbox(
             slide,
@@ -1203,7 +1203,7 @@ def build_pptx(config, slides: list[dict]) -> bytes:
         items = list(bullets)[: config.max_bullets]
         runs = [
             (
-                "•  " + b if not b.startswith("•") else b,
+                "â€¢  " + b if not b.startswith("â€¢") else b,
                 {"size": config.body_size, "color": text_c},
             )
             for b in items
@@ -1291,7 +1291,7 @@ def build_pptx(config, slides: list[dict]) -> bytes:
             0.9,
             [(s["title"] or "Summary", {"size": 34, "bold": True, "color": accent})],
         )
-        bullets = s.get("bullets") or ["•  Key takeaways."]
+        bullets = s.get("bullets") or ["â€¢  Key takeaways."]
         _add_textbox(
             slide,
             left,
@@ -1300,7 +1300,7 @@ def build_pptx(config, slides: list[dict]) -> bytes:
             4.6,
             [
                 (
-                    "•  " + b if not b.startswith("•") else b,
+                    "â€¢  " + b if not b.startswith("â€¢") else b,
                     {"size": 22, "color": text_c},
                 )
                 for b in bullets[:6]

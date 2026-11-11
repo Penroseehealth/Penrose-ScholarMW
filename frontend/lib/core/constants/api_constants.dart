@@ -8,5 +8,5 @@ String get apiBaseUrl {
   return '/api/v1';
 }
 
-const String appName = 'Penrose ScholarMw';
+const String appName = 'Aminiology EduTech';
 const String appTagline = 'Learn. Teach. Research. Advance.';

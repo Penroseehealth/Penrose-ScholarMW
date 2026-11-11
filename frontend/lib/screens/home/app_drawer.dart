@@ -355,7 +355,7 @@ class AppDrawer extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('LOG OUT?'),
-        content: const Text('Are you sure you want to sign out of Penrose ScholarMw?'),
+        content: const Text('Are you sure you want to sign out of Aminiology EduTech?'),
         actions: [
           TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
           TextButton(

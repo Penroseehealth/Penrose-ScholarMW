@@ -1,4 +1,4 @@
-"""Local dev proxy for Penrose ScholarMW web build.
+﻿"""Local dev proxy for Aminiology EduTech web build.
 
 Serves the Flutter web release from frontend/build/web and forwards any
 /api/* request to the FastAPI backend on port 8000. Lets us hand the user a
@@ -97,7 +97,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
         # Local dev: never hand back a stale biology_lab page. no-store stops new
         # entries (the old cache was already purged from disk), so every load is
-        # fresh without Clear-Site-Data — which Chrome logs to the console on
+        # fresh without Clear-Site-Data â€” which Chrome logs to the console on
         # *every* response, flooding the user's devtools.
         self.send_header("Cache-Control", "no-store")
         # Allow the app served here to call the backend on :8000 too (bonus).

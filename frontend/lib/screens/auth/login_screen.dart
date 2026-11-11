@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     const PenroseLogo(size: 104),
                     const SizedBox(height: 20),
-                    const SilverGoldTitle('Penrose ScholarMw', fontSize: 30),
+                    const SilverGoldTitle('Aminiology EduTech', fontSize: 30),
                     const SizedBox(height: 8),
                     Text(
                       'Learn. Teach. Research. Advance.',

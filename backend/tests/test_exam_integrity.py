@@ -1,4 +1,4 @@
-import pytest
+﻿import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -216,7 +216,7 @@ async def test_share_certificate(
     assert resp.status_code == 200
     data = resp.json()
     assert data["certificate_data"] is not None
-    assert data["certificate_data"]["platform"] == "Penrose ScholarMW"
+    assert data["certificate_data"]["platform"] == "Aminiology EduTech"
 
 
 @pytest.mark.asyncio

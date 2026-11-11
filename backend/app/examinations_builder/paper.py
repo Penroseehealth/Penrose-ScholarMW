@@ -39,7 +39,7 @@ __all__ = [
     "number_subquestion",
 ]
 
-# ── Constants ───────────────────────────────────────────────────────────────
+# â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 PAPER_SIZES_PT = {"A4": (595.0, 842.0), "letter": (612.0, 792.0)}
 
@@ -55,12 +55,12 @@ def _safe_int(value, default: int) -> int:
         return default
 
 
-# ── Data model ──────────────────────────────────────────────────────────────
+# â”€â”€ Data model â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 @dataclass
 class PaperOptions:
-    """Global page / typography settings (spec §26, §22–§25)."""
+    """Global page / typography settings (spec Â§26, Â§22â€“Â§25)."""
 
     paper_size: str = "A4"
     margin_points: float = 54.0
@@ -85,9 +85,9 @@ class PaperOptions:
 
 @dataclass
 class CoverData:
-    """Editable cover-page fields (spec §2, §3, §4)."""
+    """Editable cover-page fields (spec Â§2, Â§3, Â§4)."""
 
-    institution: str = "PENROSE SCHOLARMW"
+    institution: str = "Aminiology EduTech"
     logo_path: str = ""
     faculty: str = ""
     exam_name: str = "END OF TERM EXAMINATION"
@@ -130,7 +130,7 @@ class CoverData:
 
 @dataclass
 class PaperQuestion:
-    """A single editable question (spec §9–§16, §33, §35)."""
+    """A single editable question (spec Â§9â€“Â§16, Â§33, Â§35)."""
 
     id: str = ""
     question_type: str = "short_answer"
@@ -152,7 +152,7 @@ class PaperQuestion:
 
 @dataclass
 class SectionData:
-    """A named, numbered section (spec §6, §7)."""
+    """A named, numbered section (spec Â§6, Â§7)."""
 
     name: str = "SECTION"
     number: int = 1
@@ -175,11 +175,11 @@ class ConstructedPaper:
     teacher_version: bool = False
 
 
-# ── Formatting helpers ──────────────────────────────────────────────────────
+# â”€â”€ Formatting helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 def mark_text(marks: int, style: str) -> str:
-    """Render a mark annotation in the chosen style (spec §9)."""
+    """Render a mark annotation in the chosen style (spec Â§9)."""
     m = max(1, int(marks))
     return {
         "[2 marks]": f"[{m} marks]",
@@ -190,7 +190,7 @@ def mark_text(marks: int, style: str) -> str:
 
 
 def number_question(qnum: int, style: str) -> str:
-    """Render a top-level question number (spec §8)."""
+    """Render a top-level question number (spec Â§8)."""
     if style == "alpha_letter":
         return chr(ord("A") + (qnum - 1) % 26)
     if style == "subsection":
@@ -208,10 +208,10 @@ def number_subquestion(qnum: int, s_num: int, style: str) -> str:
 
 
 def lines_for_question(q: PaperQuestion, options: PaperOptions) -> int:
-    """Number of answer lines for a question (spec §11, §12, §20).
+    """Number of answer lines for a question (spec Â§11, Â§12, Â§20).
 
     Selection-based types (multiple_choice, true_false, matching) take NO answer
-    lines — a candidate ticks/selects instead of writing. Written-response types
+    lines â€” a candidate ticks/selects instead of writing. Written-response types
     scale their lines with the marks and chosen spacing:
     - ``essay`` always gets a large area (>= 8 lines).
     - ``structured`` uses fewer lines (sub-questions provide their own space).
@@ -257,7 +257,7 @@ def _underline(extra: int = 20) -> str:
     return "<u>" + "&nbsp;" * extra + "</u>"
 
 
-# ── Paper assembly ──────────────────────────────────────────────────────────
+# â”€â”€ Paper assembly â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 def _question_from_dict(q: dict) -> PaperQuestion:
@@ -283,16 +283,16 @@ def _question_from_dict(q: dict) -> PaperQuestion:
 
 def _default_sections(questions: list[PaperQuestion]) -> list[SectionData]:
     headers = {
-        "multiple_choice": "SECTION A — MULTIPLE CHOICE QUESTIONS",
-        "true_false": "SECTION A — TRUE / FALSE QUESTIONS",
-        "matching": "SECTION A — MATCHING QUESTIONS",
-        "fill_in_blank": "SECTION B — FILL IN THE BLANK QUESTIONS",
-        "short_answer": "SECTION B — SHORT ANSWER QUESTIONS",
-        "structured": "SECTION C — STRUCTURED QUESTIONS",
-        "essay": "SECTION D — ESSAY QUESTIONS",
-        "practical": "SECTION D — PRACTICAL QUESTIONS",
-        "calculation": "SECTION D — CALCULATION QUESTIONS",
-        "case_study": "SECTION D — CASE STUDY QUESTIONS",
+        "multiple_choice": "SECTION A â€” MULTIPLE CHOICE QUESTIONS",
+        "true_false": "SECTION A â€” TRUE / FALSE QUESTIONS",
+        "matching": "SECTION A â€” MATCHING QUESTIONS",
+        "fill_in_blank": "SECTION B â€” FILL IN THE BLANK QUESTIONS",
+        "short_answer": "SECTION B â€” SHORT ANSWER QUESTIONS",
+        "structured": "SECTION C â€” STRUCTURED QUESTIONS",
+        "essay": "SECTION D â€” ESSAY QUESTIONS",
+        "practical": "SECTION D â€” PRACTICAL QUESTIONS",
+        "calculation": "SECTION D â€” CALCULATION QUESTIONS",
+        "case_study": "SECTION D â€” CASE STUDY QUESTIONS",
     }
     grouped: dict[str, list[PaperQuestion]] = {}
     for q in questions:
@@ -369,7 +369,7 @@ def build_constructed_paper(
 
 
 def validate_paper(paper: ConstructedPaper) -> dict:
-    """Return section totals, grand total and warnings (spec §29)."""
+    """Return section totals, grand total and warnings (spec Â§29)."""
     section_totals: list[dict] = []
     grand_total = 0
     warnings: list[str] = []
@@ -394,7 +394,7 @@ def validate_paper(paper: ConstructedPaper) -> dict:
     }
 
 
-# ── Shared flow builders (PDF only) ─────────────────────────────────────────
+# â”€â”€ Shared flow builders (PDF only) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 def _table_flow(table: dict):
@@ -526,7 +526,7 @@ def _msce_cover_story(c: "CoverData", paper: "ConstructedPaper") -> list:
     Reserved school-logo space (top-left), EXAMINATION NO line (top-right),
     centred exam header block (exam name / subject / paper / marks), subject
     number, date + time allowed, numbered instructions, the question tick
-    table with a Total row, and a "Turn over" footer — matching the 2024
+    table with a Total row, and a "Turn over" footer â€” matching the 2024
     Marist MSCE Mock II sample layout.
     """
     from reportlab.lib import colors
@@ -675,7 +675,7 @@ def _msce_cover_story(c: "CoverData", paper: "ConstructedPaper") -> list:
     return story
 
 
-# ── PDF renderer ────────────────────────────────────────────────────────────
+# â”€â”€ PDF renderer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 def build_professional_pdf(paper: ConstructedPaper) -> io.BytesIO:
@@ -732,7 +732,7 @@ def build_professional_pdf(paper: ConstructedPaper) -> io.BytesIO:
     )  # centered body for cover meta
 
     # Page-numbering: content-relative "Page X of Y" with the cover excluded
-    # (spec §23). A two-pass build first counts content pages, then stamps
+    # (spec Â§23). A two-pass build first counts content pages, then stamps
     # the footer via the content PageTemplate on-page hook.
     cover_offset = 1 if paper.cover else 0
     footer_left = opts.footer_left
@@ -783,7 +783,7 @@ def build_professional_pdf(paper: ConstructedPaper) -> io.BytesIO:
                     f"Page {page_num} of {page_total}" + (f"   {code}" if code else ""),
                 )
                 if page_num < page_total:
-                    canvas.drawRightString(size[0] - margin, 28, "Continued/…")
+                    canvas.drawRightString(size[0] - margin, 28, "Continued/â€¦")
             else:
                 canvas.drawCentredString(
                     size[0] / 2,
@@ -793,11 +793,11 @@ def build_professional_pdf(paper: ConstructedPaper) -> io.BytesIO:
         canvas.restoreState()
 
     # reportlab mutates flowables while building, so the counting probe and the
-    # final render each construct their own fresh story (spec §23).
+    # final render each construct their own fresh story (spec Â§23).
     def build_story() -> list:
         story: list = []
 
-        # ── Cover page ────────────────────────────────────────────────────────
+        # â”€â”€ Cover page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if paper.cover and getattr(paper.cover, "style", "classic") != "msce":
             c = paper.cover
             if c.logo_path and c.show_logo and os.path.exists(c.logo_path):
@@ -868,7 +868,7 @@ def build_professional_pdf(paper: ConstructedPaper) -> io.BytesIO:
             story.append(NextPageTemplate("content"))
             story.append(PageBreak())
 
-        # ── Content pages ────────────────────────────────────────────────────
+        # â”€â”€ Content pages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if opts.show_header and opts.header_lines:
             story.append(
                 Paragraph(
@@ -929,7 +929,7 @@ def build_professional_pdf(paper: ConstructedPaper) -> io.BytesIO:
         )
         templates = [PageTemplate(id="content", frames=[content_frame])]
 
-    # Pass 1 — learn the total content-page count (cover excluded).
+    # Pass 1 â€” learn the total content-page count (cover excluded).
     counter = {"pages": 0}
 
     def _count_on_page(_canvas, _doc_):
@@ -957,7 +957,7 @@ def build_professional_pdf(paper: ConstructedPaper) -> io.BytesIO:
     probe.build(build_story())
     total_content = counter["pages"]
 
-    # Pass 2 — real render with footer stamping using the known total.
+    # Pass 2 â€” real render with footer stamping using the known total.
     doc = BaseDocTemplate(
         buf,
         pagesize=size,
@@ -966,7 +966,7 @@ def build_professional_pdf(paper: ConstructedPaper) -> io.BytesIO:
         topMargin=margin,
         bottomMargin=margin,
         title=paper.title,
-        author="PENROSE SCHOLARMW",
+        author="Aminiology EduTech",
     )
     doc_templates = []
     for t in templates:
@@ -1085,11 +1085,11 @@ def _answer_style():
     )
 
 
-# ── DOCX renderer ───────────────────────────────────────────────────────────
+# â”€â”€ DOCX renderer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 def build_professional_docx(paper: ConstructedPaper) -> io.BytesIO:
-    """Render an editable DOCX mirroring the paper structure (spec §41)."""
+    """Render an editable DOCX mirroring the paper structure (spec Â§41)."""
     from docx import Document
     from docx.enum.text import WD_ALIGN_PARAGRAPH
     from docx.shared import Pt

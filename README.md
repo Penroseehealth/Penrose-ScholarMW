@@ -1,4 +1,4 @@
-# Penrose ScholarMW
+﻿# Aminiology EduTech
 
 **AI-Powered Academic Intelligence & Learning Platform for Malawi**
 
@@ -35,7 +35,7 @@ copy .env.example .env
 .venv\Scripts\python run.py
 ```
 
-> Always use the `.venv` interpreter — a bare `python` will not have the dependencies
+> Always use the `.venv` interpreter â€” a bare `python` will not have the dependencies
 > installed. The backend serves the compiled Flutter SPA from `frontend/build/web`, so run
 > `flutter build web --release` in `frontend/` at least once (the server will not start
 > without `frontend/build/web/main.dart.js`).
@@ -52,43 +52,43 @@ flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:8000/api/v1
 
 ```
 penrose-scholar/
-├── backend/
-│   ├── app/
-│   │   ├── auth/          # Registration, login, tokens
-│   │   ├── users/         # User profiles
-│   │   ├── courses/       # Course management, enrollment, schedule
-│   │   ├── ai_tutor/      # ScholarAI engine (tutor, coach, writer, research, assessment)
-│   │   ├── assessments/   # Assessments, questions, submissions, marking
-│   │   ├── research/      # Research projects, notes, literature search
-│   │   ├── knowledge_vault/ # Document upload and search
-│   │   ├── notifications/ # Notification system
-│   │   ├── admin/         # Admin dashboard
-│   │   ├── messaging/     # Messaging
-│   │   ├── core/          # Security, errors
-│   │   ├── config/        # Settings
-│   │   ├── database/      # SQLAlchemy engine
-│   │   ├── dependencies/  # Auth dependencies
-│   │   ├── models/        # ORM models
-│   │   └── schemas/       # Pydantic schemas
-│   └── tests/
-├── frontend/
-│   ├── lib/
-│   │   ├── core/theme/    # Design system
-│   │   ├── config/        # App config
-│   │   ├── models/        # Data models
-│   │   ├── services/      # API services
-│   │   ├── providers/     # State management
-│   │   ├── widgets/       # Reusable components
-│   │   ├── screens/
-│   │   │   ├── auth/      # Login, Register
-│   │   │   ├── student/   # Student Hub
-│   │   │   ├── lecturer/  # Lecturer Command Centre
-│   │   │   ├── ai_tutor/  # ScholarAI interface
-│   │   │   ├── research/  # Research Lab
-│   │   │   └── home/      # Shell/navigation
-│   │   └── router/        # GoRouter routing
-│   └── web/
-└── docs/
+â”œâ”€â”€ backend/
+â”‚   â”œâ”€â”€ app/
+â”‚   â”‚   â”œâ”€â”€ auth/          # Registration, login, tokens
+â”‚   â”‚   â”œâ”€â”€ users/         # User profiles
+â”‚   â”‚   â”œâ”€â”€ courses/       # Course management, enrollment, schedule
+â”‚   â”‚   â”œâ”€â”€ ai_tutor/      # ScholarAI engine (tutor, coach, writer, research, assessment)
+â”‚   â”‚   â”œâ”€â”€ assessments/   # Assessments, questions, submissions, marking
+â”‚   â”‚   â”œâ”€â”€ research/      # Research projects, notes, literature search
+â”‚   â”‚   â”œâ”€â”€ knowledge_vault/ # Document upload and search
+â”‚   â”‚   â”œâ”€â”€ notifications/ # Notification system
+â”‚   â”‚   â”œâ”€â”€ admin/         # Admin dashboard
+â”‚   â”‚   â”œâ”€â”€ messaging/     # Messaging
+â”‚   â”‚   â”œâ”€â”€ core/          # Security, errors
+â”‚   â”‚   â”œâ”€â”€ config/        # Settings
+â”‚   â”‚   â”œâ”€â”€ database/      # SQLAlchemy engine
+â”‚   â”‚   â”œâ”€â”€ dependencies/  # Auth dependencies
+â”‚   â”‚   â”œâ”€â”€ models/        # ORM models
+â”‚   â”‚   â””â”€â”€ schemas/       # Pydantic schemas
+â”‚   â””â”€â”€ tests/
+â”œâ”€â”€ frontend/
+â”‚   â”œâ”€â”€ lib/
+â”‚   â”‚   â”œâ”€â”€ core/theme/    # Design system
+â”‚   â”‚   â”œâ”€â”€ config/        # App config
+â”‚   â”‚   â”œâ”€â”€ models/        # Data models
+â”‚   â”‚   â”œâ”€â”€ services/      # API services
+â”‚   â”‚   â”œâ”€â”€ providers/     # State management
+â”‚   â”‚   â”œâ”€â”€ widgets/       # Reusable components
+â”‚   â”‚   â”œâ”€â”€ screens/
+â”‚   â”‚   â”‚   â”œâ”€â”€ auth/      # Login, Register
+â”‚   â”‚   â”‚   â”œâ”€â”€ student/   # Student Hub
+â”‚   â”‚   â”‚   â”œâ”€â”€ lecturer/  # Lecturer Command Centre
+â”‚   â”‚   â”‚   â”œâ”€â”€ ai_tutor/  # ScholarAI interface
+â”‚   â”‚   â”‚   â”œâ”€â”€ research/  # Research Lab
+â”‚   â”‚   â”‚   â””â”€â”€ home/      # Shell/navigation
+â”‚   â”‚   â””â”€â”€ router/        # GoRouter routing
+â”‚   â””â”€â”€ web/
+â””â”€â”€ docs/
 ```
 
 ## API Endpoints

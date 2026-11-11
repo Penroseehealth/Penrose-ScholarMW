@@ -1,4 +1,4 @@
-"""OCR scan & analyse endpoints — upload a scan, extract text, analyse it."""
+﻿"""OCR scan & analyse endpoints â€” upload a scan, extract text, analyse it."""
 
 from __future__ import annotations
 
@@ -48,7 +48,7 @@ async def scan_upload(
     ext = Path(filename).suffix.lower()
 
     if ext not in OCR_EXTENSIONS:
-        # Not an OCR target — try text extraction so analysis still works.
+        # Not an OCR target â€” try text extraction so analysis still works.
         text, method = await _extract_text(result.content, result.file_type, filename)
         return OcrScanResponse(
             filename=filename,
@@ -67,7 +67,7 @@ async def scan_upload(
                 word_count=_word_count(pdf_text),
                 page_count=_count_pdf_pages(result.content),
             )
-        # Scanned PDF — rasterise + OCR it.
+        # Scanned PDF â€” rasterise + OCR it.
         ocr_result = await ocr_pdf(result.content)
         if ocr_result.error:
             raise HTTPException(status_code=500, detail=ocr_result.error)
@@ -89,7 +89,7 @@ async def analyze_text(
     lang_hint = body.language or "English"
 
     system_prompt = (
-        "You are Penrose ScholarMW, an academic analysis assistant for "
+        "You are Aminiology EduTech, an academic analysis assistant for "
         "Malawi secondary-school students. You are given text extracted from "
         "an uploaded document (scanned via OCR or a textable file). Produce a "
         "clear, well-structured analysis. Keep it concise and directly grounded "

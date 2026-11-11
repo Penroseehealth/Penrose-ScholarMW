@@ -1,4 +1,4 @@
-import 'dart:math' as math;
+﻿import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
@@ -11,8 +11,8 @@ const kSilverGoldGoldBright = Color(0xFFFFE49A);
 
 /// The Penrose brand mark: the pangolin scholar mascot.
 ///
-/// One widget for every place the app shows its logo — login, the lecturer
-/// sidebar and the Voice Training Center header — so the mark, its gold rim and
+/// One widget for every place the app shows its logo â€” login, the lecturer
+/// sidebar and the Voice Training Center header â€” so the mark, its gold rim and
 /// its proportions stay identical wherever it appears.
 class PenroseLogo extends StatelessWidget {
   const PenroseLogo({
@@ -34,7 +34,7 @@ class PenroseLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
         image: true,
-        label: 'Penrose ScholarMW logo',
+        label: 'Aminiology EduTech logo',
         child: Container(
           width: size,
           height: size,
@@ -197,7 +197,7 @@ class _PenroseTrianglePainter extends CustomPainter {
   ///
   /// Each bar is an asymmetric trapezoid running beside one edge, offset toward
   /// the centroid and shifted along its edge so every bar wraps the following
-  /// corner and recedes from the previous one — producing the impossible look.
+  /// corner and recedes from the previous one â€” producing the impossible look.
   List<List<Offset>> _buildBars(
     List<Offset> verts,
     Offset centroid,

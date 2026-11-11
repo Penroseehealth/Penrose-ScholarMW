@@ -46,7 +46,7 @@ def write_glb(root, path, tex_images, scale=1.0, extras=None):
         if ch: gn['children'] = ch
         return idx
     r = emit(root, True)
-    doc = {'asset': {'version': '2.0', 'generator': 'Penrose ScholarMw microscope builder', 'extras': extras or {}}, 'scene': 0, 'scenes': [{'name': 'Scene', 'nodes': [r]}],
+    doc = {'asset': {'version': '2.0', 'generator': 'Aminiology EduTech microscope builder', 'extras': extras or {}}, 'scene': 0, 'scenes': [{'name': 'Scene', 'nodes': [r]}],
            'nodes': nodes, 'meshes': meshes, 'materials': materials, 'accessors': accs, 'bufferViews': views, 'buffers': [{'byteLength': len(buf)}]}
     if textures: doc['textures'] = textures; doc['images'] = images; doc['samplers'] = samplers
     if ext_used: doc['extensionsUsed'] = sorted(ext_used)

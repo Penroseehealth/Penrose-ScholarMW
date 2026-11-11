@@ -48,7 +48,7 @@ Future<void> _initializeStartupService(String name, Future<void> Function() init
 ///
 /// Provider startup is fire-and-forget from `create:`, so a throw inside it is
 /// reported outside Flutter's error zones. On web that becomes an uncaught
-/// JavaScript error and takes down whatever route was building — in practice
+/// JavaScript error and takes down whatever route was building â€” in practice
 /// the login screen, before the student can sign in. A failed initialisation
 /// now only leaves that provider at its defaults.
 T _started<T extends ChangeNotifier>(T provider, Future<void> Function(T) start) {
@@ -82,7 +82,7 @@ class _PenroseScholarAppState extends State<PenroseScholarApp> {
             _appRouter ??= AppRouter(auth);
             return ErrorBoundary(
               child: MaterialApp.router(
-                title: 'Penrose ScholarMw',
+                title: 'Aminiology EduTech',
                 debugShowCheckedModeBanner: false,
                 theme: AppTheme.light(),
                 darkTheme: AppTheme.dark(),

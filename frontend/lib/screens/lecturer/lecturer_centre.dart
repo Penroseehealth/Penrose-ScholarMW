@@ -101,7 +101,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
         const Color(0xFF8B5CF6)),
     _ActivityItem(Icons.edit_note_rounded, 'Updated lesson plan for MATH101', 'Calculus and Integration', '5 hours ago',
         const Color(0xFF3B82F6)),
-    _ActivityItem(Icons.grading_rounded, 'Reviewed student submissions', 'Physics Lab Report – Week 4', '1 day ago',
+    _ActivityItem(Icons.grading_rounded, 'Reviewed student submissions', 'Physics Lab Report â€“ Week 4', '1 day ago',
         const Color(0xFF10B981)),
     _ActivityItem(Icons.auto_awesome_rounded, 'Generated quiz for CHEM101', 'Organic Chemistry Basics', '1 day ago',
         const Color(0xFFF59E0B)),
@@ -110,12 +110,12 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
   ];
 
   final List<_ScheduleItem> _upcomingSchedule = [
-    _ScheduleItem(20, 'MAY', 'CS101 Lecture', 'Data Structures – Arrays', '10:00 AM – 11:30 AM', 'Lecture',
+    _ScheduleItem(20, 'MAY', 'CS101 Lecture', 'Data Structures â€“ Arrays', '10:00 AM â€“ 11:30 AM', 'Lecture',
         const Color(0xFF8B5CF6)),
-    _ScheduleItem(22, 'MAY', 'MATH101 Tutorial', 'Problem Solving Session', '2:00 PM – 3:30 PM', 'Tutorial',
+    _ScheduleItem(22, 'MAY', 'MATH101 Tutorial', 'Problem Solving Session', '2:00 PM â€“ 3:30 PM', 'Tutorial',
         const Color(0xFF3B82F6)),
     _ScheduleItem(
-        24, 'MAY', 'CHEM101 Lab', 'Organic Compounds Lab', '9:00 AM – 12:00 PM', 'Lab', const Color(0xFFF59E0B)),
+        24, 'MAY', 'CHEM101 Lab', 'Organic Compounds Lab', '9:00 AM â€“ 12:00 PM', 'Lab', const Color(0xFFF59E0B)),
     _ScheduleItem(
         26, 'MAY', 'CS101 Assignment 4', 'Due: Data Structures', '11:59 PM', 'Deadline', const Color(0xFFEF4444)),
   ];
@@ -206,7 +206,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
     );
   }
 
-  // ───────────────────────── MOBILE LAYOUT ─────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ MOBILE LAYOUT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildMobileLayout() => Column(
         children: [
@@ -215,7 +215,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
         ],
       );
 
-  // ───────────────────────── BOTTOM NAV (MOBILE) ─────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ BOTTOM NAV (MOBILE) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildBottomNav() => Container(
         decoration: BoxDecoration(
@@ -252,7 +252,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
         ),
       );
 
-  // ───────────────────────── TABLET SIDEBAR (COLLAPSED ICONS ONLY) ─────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ TABLET SIDEBAR (COLLAPSED ICONS ONLY) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildTabletSidebar() => Container(
         width: 68,
@@ -279,7 +279,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
         ),
       );
 
-  // ───────────────────────── ANIMATED DESKTOP SIDEBAR ─────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ ANIMATED DESKTOP SIDEBAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildAnimatedSidebar() => AnimatedBuilder(
         animation: _sidebarWidthAnim,
@@ -312,7 +312,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
         },
       );
 
-  // ───────────────────────── SIDEBAR LOGO ─────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ SIDEBAR LOGO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildSidebarLogoFull() => Container(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
@@ -324,7 +324,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SilverGoldTitle('Penrose ScholarMw', fontSize: 16),
+                  SilverGoldTitle('Aminiology EduTech', fontSize: 16),
                   SizedBox(height: 2),
                 ],
               ),
@@ -340,7 +340,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
         ),
       );
 
-  // ───────────────────────── SIDEBAR TOGGLE ─────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ SIDEBAR TOGGLE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildCollapseToggle() => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -367,7 +367,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
         ),
       );
 
-  // ───────────────────────── SIDEBAR NAV ITEMS ─────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ SIDEBAR NAV ITEMS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   static final _navItems = [
     _NavItem(Icons.dashboard_rounded, 'Dashboard', '/lecturer'),
@@ -462,7 +462,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
     );
   }
 
-  // ───────────────────────── SIDEBAR PROFILE ─────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ SIDEBAR PROFILE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildSidebarProfileFull() => Container(
         padding: const EdgeInsets.all(16),
@@ -505,7 +505,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
       );
 
   Widget _buildSidebarProfileCompact() => Tooltip(
-        message: 'Mr. R. Asedi – Lecturer',
+        message: 'Mr. R. Asedi â€“ Lecturer',
         waitDuration: const Duration(milliseconds: 500),
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -527,7 +527,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
         ),
       );
 
-  // ───────────────────────── TOP HEADER ─────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ TOP HEADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildTopHeader(bool isMobile, bool isTablet, {bool isDesktop = false}) => Container(
         padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24, vertical: 14),
@@ -621,7 +621,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
         ),
       );
 
-  // ───────────────────────── MAIN CONTENT ─────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ MAIN CONTENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildMainContent(bool isDesktop, bool isTablet) {
     if (_isOffline) return _buildOfflineState();
@@ -653,7 +653,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
     );
   }
 
-  // ───────────────────────── SECTION HEADER ─────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ SECTION HEADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildSectionHeader(String title, {Widget? trailing}) => Row(
         children: [
@@ -683,7 +683,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
         ],
       );
 
-  // ───────────────────────── STEM SUBJECTS SECTION ─────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ STEM SUBJECTS SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildStemSubjectsSection() => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -884,7 +884,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
     );
   }
 
-  // ───────────────────────── LANGUAGE HUBS SECTION ─────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ LANGUAGE HUBS SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildLanguageHubsSection() {
     const languageHubs = [
@@ -1008,7 +1008,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
     );
   }
 
-  // ───────────────────────── ANALYTICS OVERVIEW ─────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ ANALYTICS OVERVIEW â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildAnalyticsOverview(bool isDesktop) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1105,7 +1105,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
         ),
       );
 
-  // ───────────────────────── PRODUCTIVITY AREA ─────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ PRODUCTIVITY AREA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildProductivityArea(bool isDesktop) => isDesktop
       ? Row(
@@ -1151,7 +1151,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
                 GestureDetector(
                   onTap: () {},
                   child: const Text(
-                    'View All →',
+                    'View All â†’',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -1242,7 +1242,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
                 GestureDetector(
                   onTap: () => context.go('/calendar'),
                   child: const Text(
-                    'View Full Calendar →',
+                    'View Full Calendar â†’',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -1347,7 +1347,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
         ),
       );
 
-  // ───────────────────────── AI ASSISTANT SECTION ─────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ AI ASSISTANT SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildAiAssistantSection(bool isDesktop) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1453,7 +1453,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
         ),
       );
 
-  // ───────────────────────── SKELETON LOADER ─────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ SKELETON LOADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildSkeletonLoader() => SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -1516,7 +1516,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
         ),
       );
 
-  // ───────────────────────── EMPTY STATE ─────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ EMPTY STATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildEmptyState() => Center(
         child: Padding(
@@ -1553,7 +1553,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
         ),
       );
 
-  // ───────────────────────── ERROR STATE ─────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ ERROR STATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildErrorState() => Center(
         child: Padding(
@@ -1603,7 +1603,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
         ),
       );
 
-  // ───────────────────────── OFFLINE STATE ─────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ OFFLINE STATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildOfflineState() => Center(
         child: Padding(
@@ -1660,7 +1660,7 @@ class _LecturerCentreState extends State<LecturerCentre> with TickerProviderStat
       );
 }
 
-// ───────────────────────── DATA MODELS ─────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ DATA MODELS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _StemSubject {
   final String name;

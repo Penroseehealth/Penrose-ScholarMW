@@ -1,4 +1,4 @@
-"""Local OCR server for the Mathsdrill web module.
+﻿"""Local OCR server for the Mathsdrill web module.
 
 The mathsdrill frontend (``frontend/web/mathsdrill``) reads scanned documents
 by POSTing ``{"src": <data-url>, "mime": <type>}`` to this server:
@@ -50,7 +50,7 @@ ENGINE_IDS = ("easyocr", "paddleocr", "tesseract")
 MAX_PDF_PAGES = int(os.environ.get("MAX_PDF_PAGES", "10"))
 PDF_DPI = int(os.environ.get("PDF_DPI", "150"))
 
-app = FastAPI(title="Penrose ScholarMW OCR server")
+app = FastAPI(title="Aminiology EduTech OCR server")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

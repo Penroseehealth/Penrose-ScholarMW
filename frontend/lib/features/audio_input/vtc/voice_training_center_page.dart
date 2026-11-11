@@ -386,6 +386,34 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
     final isCompact = width < 720;
     final auth = context.watch<AuthProvider>();
 
+    // -------------------------------------------------------------------------
+    // Immersive Live Classroom bypass
+    //
+    // When the Live Classroom tab is active, the classroom fills the entire
+    // Flutter route. The PenroseHeader, VTC sidebar, mobile drawer, and
+    // ScenicBackdrop are all suppressed so the classroom gets every pixel.
+    // A discreet control strip (rendered by LiveClassroomPage) floats in the
+    // top-right corner and provides the reconnect, fullscreen, and exit actions.
+    // -------------------------------------------------------------------------
+    if (_showingLiveClassroom) {
+      return Scaffold(
+        backgroundColor: VtcPalette.appBg,
+        // No drawer, no AppBar — the classroom is fully immersive.
+        body: SafeArea(
+          // top: false so the classroom can bleed under the status bar on
+          // mobile and fill the notch area cleanly.
+          top: false,
+          child: LiveClassroomPage(
+            key: const ValueKey('live-classroom-immersive'),
+            onExit: () => _showTab('voice_training'),
+          ),
+        ),
+      );
+    }
+
+    // -------------------------------------------------------------------------
+    // Normal VTC interface (all other tabs)
+    // -------------------------------------------------------------------------
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: VtcPalette.midnight,
@@ -526,9 +554,16 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
         onOpenLibrary: () => _showTab('recorder'),
       );
 
-  /// The Live Classroom tab. The embedded classroom fills the workspace, so it
-  /// deliberately sits outside the training page's scroll view.
-  Widget _liveClassroom() => const LiveClassroomPage(key: ValueKey('live-classroom-tab'));
+  /// The Live Classroom tab.
+  ///
+  /// This builder is retained for completeness, but [build] short-circuits into
+  /// the immersive bypass before reaching this path whenever the Live Classroom
+  /// tab is active. The [onExit] callback is wired so the classroom can still
+  /// return to the Voice Training Center if the bypass is ever removed.
+  Widget _liveClassroom() => LiveClassroomPage(
+        key: const ValueKey('live-classroom-tab'),
+        onExit: () => _showTab('voice_training'),
+      );
 
   // -- mobile ----------------------------------------------------------------
 

@@ -1,4 +1,4 @@
-from contextlib import asynccontextmanager
+﻿from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -201,7 +201,7 @@ async def _seed_default_users():
 
 
 app = FastAPI(
-    title="Penrose ScholarMW API",
+    title="Aminiology EduTech API",
     description="AI-Powered Academic Intelligence & Learning Platform for Malawi",
     version="1.0.0",
     lifespan=lifespan,
@@ -224,7 +224,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Speech module domain errors (422/429/503 JSON) — registered before the SPA
+# Speech module domain errors (422/429/503 JSON) â€” registered before the SPA
 # catch-all so provider failures don't get swallowed as HTML.
 register_speech_exception_handlers(app)
 
@@ -304,7 +304,7 @@ app.include_router(diagrams_router, prefix="/api/v1")
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "Penrose ScholarMW"}
+    return {"status": "ok", "service": "Aminiology EduTech"}
 
 
 WEB_DIR = Path(__file__).resolve().parent.parent.parent / "frontend" / "build" / "web"

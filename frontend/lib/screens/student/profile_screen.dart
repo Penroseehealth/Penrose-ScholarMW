@@ -153,7 +153,7 @@ class ProfileScreen extends StatelessWidget {
               title: 'About',
               onTap: () => showAboutDialog(
                 context: context,
-                applicationName: 'Penrose ScholarMw',
+                applicationName: 'Aminiology EduTech',
                 applicationVersion: '1.0.0',
                 applicationIcon: const Icon(Icons.school_rounded, size: 48, color: AppColors.primary),
                 children: [
@@ -298,8 +298,8 @@ class _DataSaverToggleState extends State<_DataSaverToggle> {
               SnackBar(
                 content: Text(
                   v
-                      ? 'Data Saver ON — images will load lazily, auto-sync paused'
-                      : 'Data Saver OFF — full experience enabled',
+                      ? 'Data Saver ON â€” images will load lazily, auto-sync paused'
+                      : 'Data Saver OFF â€” full experience enabled',
                 ),
                 duration: const Duration(seconds: 2),
                 backgroundColor: v ? context.colors.warning : context.colors.success,

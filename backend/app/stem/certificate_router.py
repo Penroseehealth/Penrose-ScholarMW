@@ -1,4 +1,4 @@
-import json
+﻿import json
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -381,7 +381,7 @@ async def share_certificate(
         "score": cert.score,
         "issued_at": cert.issued_at.isoformat(),
         "recipient_name": current_user.full_name if current_user else "Student",
-        "platform": "Penrose ScholarMW",
+        "platform": "Aminiology EduTech",
     }
     if cert_data:
         share_data["details"] = cert_data
