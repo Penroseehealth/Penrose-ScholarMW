@@ -1,13 +1,12 @@
 import 'dart:convert';
-import 'dart:js_interop';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:web/web.dart' as web;
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 import '../../services/api_service.dart';
+import '../../services/web_browser.dart';
 import '../../widgets/shimmer_loading.dart';
 
 class AnalyticsExportScreen extends StatefulWidget {
@@ -98,13 +97,7 @@ class _AnalyticsExportScreenState extends State<AnalyticsExportScreen> {
       if (response.statusCode == 200) {
         final csvString = response.body;
         final bytes = utf8.encode(csvString);
-        final blob = web.Blob([bytes.toJS].toJS, web.BlobPropertyBag(type: 'text/csv'));
-        final url = web.URL.createObjectURL(blob);
-        web.HTMLAnchorElement()
-          ..href = url
-          ..download = '$filename.csv'
-          ..click();
-        web.URL.revokeObjectURL(url);
+        downloadBytes(bytes, '$filename.csv', 'text/csv');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

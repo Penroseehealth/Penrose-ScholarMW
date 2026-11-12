@@ -33,7 +33,9 @@ class StubChemistryLabSceneBridge implements ChemistryLabSceneBridge {
   }
 
   @override
-  void dispose() {}
+  void dispose() {
+    _events.close();
+  }
 }
 
 ChemistryLabSceneBridge createChemistryLabSceneBridge() => StubChemistryLabSceneBridge();

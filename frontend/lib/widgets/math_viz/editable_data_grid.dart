@@ -123,7 +123,8 @@ class _EditableDataGridState extends State<EditableDataGrid> {
               columnSpacing: 12,
               horizontalMargin: 12,
               headingRowHeight: 32,
-              dataRowHeight: 36,
+              dataRowMinHeight: 36,
+              dataRowMaxHeight: 36,
               headingTextStyle: const TextStyle(
                 color: Colors.white,
                 fontSize: 11,

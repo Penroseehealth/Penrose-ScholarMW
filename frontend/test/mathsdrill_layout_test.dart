@@ -16,12 +16,19 @@ class _FakeAuth extends AuthProvider {
   String get userName => 'Test Student';
 }
 
+/// The app shell runs a continuous brand animation, so pumpAndSettle never
+/// returns; pump a bounded number of frames instead, long enough for a route
+/// transition (300 ms) to finish.
+Future<void> settle(WidgetTester tester) async {
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 600));
+}
+
 /// §2 layout contract: `/mathsdrill` (+ `/progress`) are registered OUTSIDE
 /// the HomeShell shell, so the main navigation rail is not reserved while the
 /// workspace is open, and it returns automatically for every other route.
 void main() {
-  testWidgets(
-      'MathDrill routes render full-screen without HomeShell, other routes keep it',
+  testWidgets('MathDrill routes render full-screen without HomeShell, other routes keep it',
       (WidgetTester tester) async {
     tester.view.physicalSize = const Size(1280, 800);
     tester.view.devicePixelRatio = 1.0;
@@ -37,37 +44,31 @@ void main() {
         child: MaterialApp.router(routerConfig: appRouter.router),
       ),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     // MathDrill: full-screen — no HomeShell (no reserved sidebar width).
     appRouter.router.go('/mathsdrill');
-    await tester.pumpAndSettle();
-    expect(tester.takeException(), isNull,
-        reason: '/mathsdrill must build cleanly');
-    expect(find.byType(MathsdrillScreen), findsOneWidget,
-        reason: 'the workspace screen must show');
+    await settle(tester);
+    expect(tester.takeException(), isNull, reason: '/mathsdrill must build cleanly');
+    expect(find.byType(MathsdrillScreen), findsOneWidget, reason: 'the workspace screen must show');
     expect(
       find.byType(HomeShell),
       findsNothing,
-      reason:
-          'MathDrill must run outside HomeShell so no sidebar width is reserved',
+      reason: 'MathDrill must run outside HomeShell so no sidebar width is reserved',
     );
     expect(find.byIcon(Icons.arrow_back_rounded), findsWidgets,
         reason: 'a compact control must keep navigation reachable');
 
     // Progress route: same full-screen treatment.
     appRouter.router.go('/mathsdrill/progress');
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(tester.takeException(), isNull);
-    expect(find.byType(HomeShell), findsNothing,
-        reason: '/mathsdrill/progress is part of the workspace');
+    expect(find.byType(HomeShell), findsNothing, reason: '/mathsdrill/progress is part of the workspace');
 
     // Leaving MathDrill: the sidebar comes back untouched.
     appRouter.router.go('/student');
-    await tester.pumpAndSettle();
-    expect(tester.takeException(), isNull,
-        reason: 'regular routes must keep working');
-    expect(find.byType(HomeShell), findsOneWidget,
-        reason: 'HomeShell must be restored when exiting MathDrill');
+    await settle(tester);
+    expect(tester.takeException(), isNull, reason: 'regular routes must keep working');
+    expect(find.byType(HomeShell), findsOneWidget, reason: 'HomeShell must be restored when exiting MathDrill');
   });
 }

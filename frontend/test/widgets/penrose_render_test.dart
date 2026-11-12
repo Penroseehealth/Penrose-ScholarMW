@@ -21,12 +21,33 @@ void main() {
         ),
       ),
     );
+    await tester.pump();
 
     final RenderRepaintBoundary boundary = tester.renderObject<RenderRepaintBoundary>(
-      find.byType(RepaintBoundary).first,
+      find.ancestor(of: find.byType(PenroseTriangle), matching: find.byType(RepaintBoundary)).first,
     );
-    final ui.Image image = await boundary.toImage(pixelRatio: 2);
-    final ByteData? bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-    File(r'C:\Users\zispaas\AppData\Local\Temp\opencode\penrose.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+
+    // Rasterising and PNG-encoding run on the engine thread. Widget tests use a
+    // fake async clock, so these futures only complete inside runAsync - which
+    // is why the previous version hung until the 10-minute test timeout.
+    final ByteData? bytes = await tester.runAsync<ByteData?>(() async {
+      final ui.Image image = await boundary.toImage(pixelRatio: 2);
+      final ByteData? data = await image.toByteData(format: ui.ImageByteFormat.png);
+      image.dispose();
+      return data;
+    });
+
+    expect(bytes, isNotNull, reason: 'the logo must rasterise to PNG bytes');
+    final png = bytes!.buffer.asUint8List();
+    expect(png.length, greaterThan(0));
+
+    // Keep a copy in the system temp directory for manual inspection; the
+    // previous hardcoded developer path made this fail on every other machine.
+    final file = File('${Directory.systemTemp.path}${Platform.pathSeparator}penrose_triangle.png');
+    file.writeAsBytesSync(png);
+    addTearDown(() {
+      if (file.existsSync()) file.deleteSync();
+    });
+    expect(file.lengthSync(), greaterThan(0));
   });
 }

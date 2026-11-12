@@ -1,33 +1,34 @@
-import 'dart:html' as html;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+import 'web_browser.dart';
+
 class ExportService {
   static Future<void> exportTextToFile(String content, String filename) async {
     final bytes = Uint8List.fromList(content.codeUnits);
-    _downloadBytes(bytes, '$filename.txt', 'text/plain');
+    downloadBytes(bytes, '$filename.txt', 'text/plain');
   }
 
   static Future<void> exportMarkdownToFile(String content, String filename) async {
     final bytes = Uint8List.fromList(content.codeUnits);
-    _downloadBytes(bytes, '$filename.md', 'text/markdown');
+    downloadBytes(bytes, '$filename.md', 'text/markdown');
   }
 
   static Future<void> exportHtmlToFile(String htmlContent, String filename) async {
     final bytes = Uint8List.fromList(htmlContent.codeUnits);
-    _downloadBytes(bytes, '$filename.html', 'text/html');
+    downloadBytes(bytes, '$filename.html', 'text/html');
   }
 
   static Future<void> exportSvgToFile(String svgContent, String filename) async {
     final bytes = Uint8List.fromList(svgContent.codeUnits);
-    _downloadBytes(bytes, '$filename.svg', 'image/svg+xml');
+    downloadBytes(bytes, '$filename.svg', 'image/svg+xml');
   }
 
   static void exportBytesToFile(List<int> bytes, String filename, String mimeType) {
-    _downloadBytes(bytes, filename, mimeType);
+    downloadBytes(bytes, filename, mimeType);
   }
 
   static Future<void> exportWidgetToImage(GlobalKey key, String filename) async {
@@ -36,17 +37,8 @@ class ExportService {
     final image = await boundary.toImage(pixelRatio: 2.0);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     if (byteData != null) {
-      _downloadBytes(byteData.buffer.asUint8List(), '$filename.png', 'image/png');
+      downloadBytes(byteData.buffer.asUint8List(), '$filename.png', 'image/png');
     }
-  }
-
-  static void _downloadBytes(List<int> bytes, String filename, String mimeType) {
-    final blob = html.Blob([bytes], mimeType);
-    final url = html.Url.createObjectUrlFromBlob(blob);
-    html.AnchorElement(href: url)
-      ..setAttribute('download', filename)
-      ..click();
-    html.Url.revokeObjectUrl(url);
   }
 
   static String buildFormulaSheetHtml(List<Map<String, dynamic>> formulas) {

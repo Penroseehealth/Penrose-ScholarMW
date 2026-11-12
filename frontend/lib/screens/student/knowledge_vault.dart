@@ -1,16 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:js_interop';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:web/web.dart' as web;
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_colors.dart';
 import '../../services/services.dart';
+import '../../services/web_browser.dart';
 import 'vault_video_player_screen.dart';
 
 /// Pipeline states a vault document moves through after upload.
@@ -127,9 +126,7 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
 
   /// Creates a Blob URL for the video bytes and opens an inline player.
   void _openVideoPlayer(Uint8List bytes, String mime, dynamic doc) {
-    final jsArray = bytes.toJS;
-    final blob = web.Blob([jsArray].toJS, web.BlobPropertyBag(type: mime));
-    final url = web.URL.createObjectURL(blob);
+    final url = createObjectUrl(bytes, mime);
     if (!mounted) return;
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -141,19 +138,17 @@ class _KnowledgeVaultScreenState extends State<KnowledgeVaultScreen> {
     );
     // Best-effort cleanup so the blob URL does not linger indefinitely.
     Future.delayed(const Duration(minutes: 10), () {
-      web.URL.revokeObjectURL(url);
+      revokeObjectUrl(url);
     });
   }
 
   /// Opens auth-fetched bytes via a Blob URL in a new tab. Browsers render
   /// PDFs, images and common documents directly from the Blob URL.
   void _openBlobInNewTab(Uint8List bytes, String mime) {
-    final jsArray = bytes.toJS;
-    final blob = web.Blob([jsArray].toJS, web.BlobPropertyBag(type: mime));
-    final url = web.URL.createObjectURL(blob);
-    web.window.open(url, '_blank');
+    final url = createObjectUrl(bytes, mime);
+    openUrl(url);
     Future.delayed(const Duration(seconds: 30), () {
-      web.URL.revokeObjectURL(url);
+      revokeObjectUrl(url);
     });
   }
 

@@ -639,7 +639,8 @@ class _VoiceTrainingCenterPageState extends State<VoiceTrainingCenterPage> with 
                 TextComposer(controller: _composer, onChanged: (_) => setState(() {}), enabled: c.ttsConfigured),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
-                  value: c.deliveryStyle,
+                  key: ValueKey(c.deliveryStyle),
+                  initialValue: c.deliveryStyle,
                   decoration: const InputDecoration(
                     labelText: 'Delivery style',
                     border: OutlineInputBorder(),

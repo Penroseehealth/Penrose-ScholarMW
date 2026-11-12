@@ -27,20 +27,25 @@ void main() {
         builder: (context, child) => FloatingChatbot.wrap(context, child),
       ),
     );
-    await tester.pumpAndSettle();
+    // The bubble's brand mark ripples continuously, so pumpAndSettle would
+    // never return; pump a bounded number of frames instead.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
 
     expect(tester.takeException(), isNull, reason: 'mount must not throw');
 
-    await tester.tap(find.byIcon(Icons.chat_bubble_rounded));
-    await tester.pumpAndSettle();
+    await tester.tap(find.byType(FloatingChatbot));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
 
     expect(tester.takeException(), isNull, reason: 'opening the panel must not throw');
-    expect(find.text('Ask me anything about your studies.'), findsOneWidget);
+    expect(find.textContaining('Ask me anything about your studies.'), findsOneWidget);
 
     // Focus the composer: this is the path that resolves the context menu
     // through the root Overlay.
     await tester.tap(find.byType(TextField));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
     expect(tester.takeException(), isNull, reason: 'focusing the TextField must not throw');
   });
 }

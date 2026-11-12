@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:html' as html;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -9,6 +8,7 @@ import '../../core/theme/theme_colors.dart';
 import '../../models/biology_visualization.dart';
 import '../../services/biology_visualization_service.dart';
 import '../../services/export_service.dart';
+import '../../services/web_browser.dart';
 import 'visualization/diagram_renderer.dart';
 
 const Color _bioGreen = Color(0xFF10B981);
@@ -264,7 +264,7 @@ class _BiologyVisualizationScreenState extends State<BiologyVisualizationScreen>
 <style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh}</style>
 <script>window.onload=function(){window.print();}</script>
 </head><body>$svg</body></html>''';
-    html.window.open(Uri.dataFromString(doc, mimeType: 'text/html').toString(), '_blank');
+    openHtmlDocument(doc);
   }
 
   Future<void> _loadHistory() async {

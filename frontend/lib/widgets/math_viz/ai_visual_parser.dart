@@ -84,21 +84,34 @@ class AIVisualParser {
   static final RegExp _visualBlockExp = RegExp(r'<!--visual:(.*?)-->', dotAll: true);
   static final RegExp _xmlVisualExp = RegExp(r'<visual>(.*?)</visual>', dotAll: true);
 
+  /// A natural-language visual request is a short directive ("draw a triangle"),
+  /// not prose, so the fallback only applies to short responses. This keeps
+  /// ordinary answers that merely mention a shape from rendering a visual.
+  static const int _naturalLanguageLimit = 200;
+
   static List<ParsedVisual> parseFromResponse(String response) {
-    final visuals = <ParsedVisual>[];
+    // Both block syntaxes can appear in one answer, so collect them with their
+    // offsets and sort, otherwise all `<!--visual:-->` blocks would be emitted
+    // before every `<visual>` block regardless of the order in the response.
+    final specs = <(int, String)>[];
     for (final match in _visualBlockExp.allMatches(response)) {
       final spec = match.group(1)?.trim();
-      if (spec != null) {
-        final parsed = _parseSpec(spec);
-        if (parsed != null) visuals.add(parsed);
-      }
+      if (spec != null) specs.add((match.start, spec));
     }
     for (final match in _xmlVisualExp.allMatches(response)) {
       final spec = match.group(1)?.trim();
-      if (spec != null) {
-        final parsed = _parseSpec(spec);
-        if (parsed != null) visuals.add(parsed);
-      }
+      if (spec != null) specs.add((match.start, spec));
+    }
+    specs.sort((a, b) => a.$1.compareTo(b.$1));
+
+    final visuals = <ParsedVisual>[];
+    for (final (_, spec) in specs) {
+      final parsed = _parseSpec(spec);
+      if (parsed != null) visuals.add(parsed);
+    }
+    if (visuals.isEmpty && response.trim().length <= _naturalLanguageLimit) {
+      final natural = _parseNaturalLanguage(response);
+      if (natural != null) visuals.add(natural);
     }
     return visuals;
   }
@@ -112,7 +125,13 @@ class AIVisualParser {
     try {
       final map = jsonDecode(spec) as Map<String, dynamic>;
       final typeStr = map['type'] as String? ?? 'unknown';
-      final type = _parseType(typeStr);
+      final shape = map['shape'] as String? ?? map['shapeType'] as String?;
+      var type = _parseType(typeStr);
+      // The model often sends `{"type":"shape","shape":"triangle"}`; the shape
+      // field is the authoritative geometry in that case.
+      if (type == VisualType.unknown && shape != null) {
+        type = _parseType(shape);
+      }
       return ParsedVisual(
         type: type,
         rawSpec: spec,
@@ -123,7 +142,7 @@ class AIVisualParser {
         values: (map['values'] as List?)?.map((e) => (e as num).toDouble()).toList(),
         labels: (map['labels'] as List?)?.map((e) => e.toString()).toList(),
         points: (map['points'] as List?)?.map((p) => (p as List).map((e) => (e as num).toDouble()).toList()).toList(),
-        shapeType: map['shape'] as String? ?? map['shapeType'] as String?,
+        shapeType: shape,
         radius: (map['radius'] as num?)?.toDouble(),
         xMin: (map['xMin'] as num?)?.toDouble(),
         xMax: (map['xMax'] as num?)?.toDouble(),

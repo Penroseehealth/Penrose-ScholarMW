@@ -15,22 +15,27 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(home: Scaffold(body: FloatingChatbot())),
     );
-    await tester.pumpAndSettle();
-    await tester.tap(find.byIcon(Icons.chat_bubble_rounded));
-    await tester.pumpAndSettle();
+    // The bubble's brand mark ripples continuously, so pumpAndSettle would
+    // never return; pump a bounded number of frames instead.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+    await tester.tap(find.byType(FloatingChatbot));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
   }
 
   testWidgets('panel exposes the speak-replies toggle and toggles cleanly', (tester) async {
     await openPanel(tester);
 
-    // Replies start muted.
-    expect(find.byIcon(Icons.volume_off_rounded), findsOneWidget);
+    // Replies are spoken by default, so the header starts on the unmuted icon.
+    expect(find.byIcon(Icons.volume_up_rounded), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.volume_off_rounded));
-    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.volume_up_rounded));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
 
     expect(tester.takeException(), isNull, reason: 'toggling speech must not throw');
-    expect(find.byIcon(Icons.volume_up_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.volume_off_rounded), findsOneWidget);
   });
 
   testWidgets('mic control is present in the composer when supported', (tester) async {
