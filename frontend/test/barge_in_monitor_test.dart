@@ -5,6 +5,7 @@ import 'package:penrose_scholar/voice/voice_session_manager.dart';
 
 /// A recorder whose level the test drives directly.
 class _FakeRecorder implements MediaRecorderEngine {
+  @override
   int level = 0;
   bool started = false;
   bool cancelled = false;
@@ -24,7 +25,8 @@ class _FakeRecorder implements MediaRecorderEngine {
   @override
   void resume() {}
   @override
-  Future<RecordedAudio> stop() async => const RecordedAudio(bytes: [], mimeType: '');
+  Future<RecordedAudio> stop() async =>
+      const RecordedAudio(bytes: [], mimeType: '');
   @override
   void cancel() => cancelled = true;
 }
@@ -36,14 +38,14 @@ class _UnsupportedRecorder extends _FakeRecorder {
 }
 
 void main() {
-  test('sustained energy while speaking triggers a barge-in interrupt', () async {
+  test('sustained energy while speaking triggers a barge-in interrupt',
+      () async {
     final session = VoiceSessionManager()..createSession();
     final recorder = _FakeRecorder();
     final monitor = BargeInMonitor(
       session: session,
       recorder: recorder,
       threshold: 20,
-      requiredHits: 2,
       pollInterval: const Duration(milliseconds: 20),
       armDelay: Duration.zero,
     );
@@ -128,6 +130,7 @@ void main() {
     session.startSpeaking('Talking.');
     await monitor.start();
 
-    expect(monitor.isRunning, isFalse, reason: 'no mic graph means no barge-in');
+    expect(monitor.isRunning, isFalse,
+        reason: 'no mic graph means no barge-in');
   });
 }

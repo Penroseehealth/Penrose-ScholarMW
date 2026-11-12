@@ -20,7 +20,6 @@ import asyncio
 import json
 import logging
 import os
-import time
 import uuid
 from typing import Any
 
@@ -28,7 +27,7 @@ import httpx
 from livekit import rtc
 from livekit.agents import Agent, AgentSession, JobContext, tts
 
-from app.livekit.agent.worker import EdgeTTS, ScholarLLM, _build_stt, _silero_vad
+from app.livekit.agent.worker import ScholarLLM, _build_stt, _silero_vad
 
 log = logging.getLogger("scholar.presession")
 

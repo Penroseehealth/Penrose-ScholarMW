@@ -9,16 +9,14 @@ persistent event in the same transaction.
 from __future__ import annotations
 
 import hashlib
-import hmac
 import secrets
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
-from sqlalchemy import select, text, update
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.presentation import (
-    PARTICIPANT_ROLES,
     END_REASONS,
     Presentation,
     PresentationInstruction,
@@ -26,12 +24,13 @@ from app.models.presentation import (
     PresentationQuestion,
     PresentationSession,
 )
-from app.presentation_session import primitives, state_machine as sm
+from app.presentation_session import primitives
+from app.presentation_session import state_machine as sm
 from app.presentation_session.state_machine import (
+    AI_AWAITING,
     AI_IDLE,
     AI_LISTENING,
     AI_RESPONDING,
-    AI_SUSPENDED,
     PRES_COMPLETED,
     PRES_IDLE,
     PRES_LIVE,

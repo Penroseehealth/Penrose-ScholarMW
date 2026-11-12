@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.engine import get_db
@@ -225,12 +226,13 @@ class SlideCommandRequest(BaseModel):
 async def slide_command(session_id: str, body: SlideCommandRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     """Live slide commands from the presenter cockpit (Phase 5). Roles are
     resolved from the participant row — attendees get 403."""
-    from app.models.presentation import PresentationParticipant
     from sqlalchemy import select as _select
+
+    from app.models.presentation import PresentationParticipant
     from app.presentation_session import slides as slide_ops
 
     try:
-        session_row = await sessions.get_session_or_404(db, session_id)
+        await sessions.get_session_or_404(db, session_id)
     except SessionError as e:
         raise _http(e)
     participant = (await db.execute(
@@ -293,7 +295,8 @@ async def record_consent(session_id: str, body: ConsentStartRequest, user: User 
     from datetime import datetime, timezone
 
     from app.models.presentation import (
-        PresentationParticipant, PresentationRecordingConsent,
+        PresentationParticipant,
+        PresentationRecordingConsent,
     )
 
     try:

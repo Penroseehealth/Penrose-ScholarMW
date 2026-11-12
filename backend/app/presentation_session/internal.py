@@ -19,10 +19,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.settings import get_settings
 from app.database.engine import get_db
-from app.presentation_session import primitives, service as sessions
+from app.presentation_session import primitives
+from app.presentation_session import service as sessions
 from app.presentation_session.service import SessionError
-
-
 
 # --- sync plumbing for the clone service (Phase 4) ---------------------------
 
@@ -41,7 +40,6 @@ def _get_sync_engine():
 
 
 from sqlalchemy.orm import sessionmaker  # noqa: E402
-
 
 # Command permission model (single source of truth for the data-channel
 # relay; mirrored by the HTTP endpoints' own checks).
@@ -90,8 +88,11 @@ async def agent_context(session_id: str, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=e.status_code, detail=e.detail)
 
     from sqlalchemy import select
+
     from app.models.presentation import (
-        PresentationInstruction, PresentationSlide, PresentationTranscriptEvent,
+        PresentationInstruction,
+        PresentationSlide,
+        PresentationTranscriptEvent,
     )
 
     session_row = await sessions.get_session_or_404(db, session_id)
@@ -191,7 +192,6 @@ async def _participant_by_identity(
     db: AsyncSession, session_id: str, identity: str
 ):
     """Resolve a LiveKit identity to the trusted participant row."""
-    from sqlalchemy import select as _select
 
     from app.models.presentation import PresentationParticipant
 
@@ -307,14 +307,9 @@ async def agent_clone_tts(session_id: str, body: CloneTtsRequest, db: AsyncSessi
     # the VTC's threadpool endpoints). Open an independent sync session here —
     # reusing the async one would deadlock — and run the synthesis in a worker
     # thread exactly like the existing speech endpoints do.
-    import base64
 
     from starlette.concurrency import run_in_threadpool
 
-    from sqlalchemy.orm import sessionmaker
-    from sqlalchemy import create_engine as _create_engine
-
-    from app.config.settings import get_settings as _gs
     from app.speech.clone_service import VoiceCloneService
     from app.speech.repository import VoiceModelRepository
 

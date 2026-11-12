@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -34,7 +32,8 @@ class TypewriterRenderer extends StatefulWidget {
   State<TypewriterRenderer> createState() => _TypewriterRendererState();
 }
 
-class _TypewriterRendererState extends State<TypewriterRenderer> with SingleTickerProviderStateMixin {
+class _TypewriterRendererState extends State<TypewriterRenderer>
+    with SingleTickerProviderStateMixin {
   static const double _baseRate = 28; // slower, more natural typing
   static const double _maxRate = 120; // gentle acceleration if streaming fast
   static const double _backlogFull = 200;
@@ -66,7 +65,8 @@ class _TypewriterRendererState extends State<TypewriterRenderer> with SingleTick
     super.didUpdateWidget(oldWidget);
     if (oldWidget.content == widget.content) return;
 
-    final restarted = !widget.content.startsWith(_source) || widget.content.length < _source.length;
+    final restarted = !widget.content.startsWith(_source) ||
+        widget.content.length < _source.length;
     _source = widget.content;
 
     if (!widget.animate) {
@@ -93,7 +93,8 @@ class _TypewriterRendererState extends State<TypewriterRenderer> with SingleTick
   }
 
   void _onTick(Duration elapsed) {
-    final dt = _last == Duration.zero ? 0.016 : (elapsed - _last).inMicroseconds / 1e6;
+    final dt =
+        _last == Duration.zero ? 0.016 : (elapsed - _last).inMicroseconds / 1e6;
     _last = elapsed;
 
     final target = widget.content.length;
@@ -178,10 +179,14 @@ class _TypewriterRendererState extends State<TypewriterRenderer> with SingleTick
 
   @override
   Widget build(BuildContext context) {
-    final shown = _revealed >= widget.content.length ? widget.content : widget.content.substring(0, _revealed);
+    final shown = _revealed >= widget.content.length
+        ? widget.content
+        : widget.content.substring(0, _revealed);
     return StemText(
       shown,
-      style: widget.style ?? TextStyle(color: context.colors.textPrimary, fontSize: 14, height: 1.6),
+      style: widget.style ??
+          TextStyle(
+              color: context.colors.textPrimary, fontSize: 14, height: 1.6),
       selectable: true,
     );
   }

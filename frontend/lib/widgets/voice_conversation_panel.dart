@@ -25,7 +25,8 @@ class VoiceConversationPanel extends StatefulWidget {
   State<VoiceConversationPanel> createState() => _VoiceConversationPanelState();
 }
 
-class _VoiceConversationPanelState extends State<VoiceConversationPanel> with SingleTickerProviderStateMixin {
+class _VoiceConversationPanelState extends State<VoiceConversationPanel>
+    with SingleTickerProviderStateMixin {
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -217,7 +218,9 @@ class _VoiceConversationPanelState extends State<VoiceConversationPanel> with Si
               boxShadow: isActive
                   ? [
                       BoxShadow(
-                        color: (state == VoiceEngineState.speaking ? Colors.green : AppColors.primary)
+                        color: (state == VoiceEngineState.speaking
+                                ? Colors.green
+                                : AppColors.primary)
                             .withValues(alpha: 0.4),
                         blurRadius: 24,
                         spreadRadius: 4,
@@ -265,7 +268,8 @@ class _VoiceConversationPanelState extends State<VoiceConversationPanel> with Si
 
         // Main mic button
         _controlButton(
-          icon: session.isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
+          icon:
+              session.isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
           color: session.isListening ? context.colors.error : AppColors.primary,
           isLarge: true,
           onTap: () => widget.engine.toggleListening(),
@@ -310,37 +314,36 @@ class _VoiceConversationPanelState extends State<VoiceConversationPanel> with Si
     );
   }
 
-  Widget _buildModeSelector(VoiceSessionManager session) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: VoiceConversationMode.values.map((mode) {
-        final labels = {
-          VoiceConversationMode.pushToTalk: 'Push to Talk',
-          VoiceConversationMode.handsFree: 'Hands Free',
-          VoiceConversationMode.continuous: 'Continuous',
-        };
-        final isSelected = session.mode == mode;
+  Widget _buildModeSelector(VoiceSessionManager session) => Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: VoiceConversationMode.values.map((mode) {
+          final labels = {
+            VoiceConversationMode.pushToTalk: 'Push to Talk',
+            VoiceConversationMode.handsFree: 'Hands Free',
+            VoiceConversationMode.continuous: 'Continuous',
+          };
+          final isSelected = session.mode == mode;
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: ChoiceChip(
-            label: Text(
-              labels[mode] ?? '',
-              style: TextStyle(
-                fontSize: 11,
-                color: isSelected ? Colors.white : context.colors.textSecondary,
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: ChoiceChip(
+              label: Text(
+                labels[mode] ?? '',
+                style: TextStyle(
+                  fontSize: 11,
+                  color:
+                      isSelected ? Colors.white : context.colors.textSecondary,
+                ),
               ),
+              selected: isSelected,
+              selectedColor: AppColors.primary,
+              backgroundColor: context.colors.surfaceElevated,
+              side: BorderSide(
+                color: isSelected ? AppColors.primary : context.colors.border,
+              ),
+              onSelected: (_) => session.setMode(mode),
             ),
-            selected: isSelected,
-            selectedColor: AppColors.primary,
-            backgroundColor: context.colors.surfaceElevated,
-            side: BorderSide(
-              color: isSelected ? AppColors.primary : context.colors.border,
-            ),
-            onSelected: (_) => session.setMode(mode),
-          ),
-        );
-      }).toList(),
-    );
-  }
+          );
+        }).toList(),
+      );
 }

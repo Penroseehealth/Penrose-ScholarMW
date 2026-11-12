@@ -10,7 +10,6 @@ void main() {
       kind: 'neuron',
       app: 'neuron',
       title: 'Neuron (Nerve Cell)',
-      background: 'white',
       structures: const [
         'dendrites',
         'soma',
@@ -27,7 +26,8 @@ void main() {
       ].map((e) => StructureSpec(id: e, name: e, kind: 'component')).toList(),
     );
     final svg = NeuronDiagramRenderer.render(spec);
-    File(r'C:\Users\AMINIL~1\AppData\Local\Temp\opencode\neuron_out.svg').writeAsStringSync(svg);
+    File(r'C:\Users\AMINIL~1\AppData\Local\Temp\opencode\neuron_out.svg')
+        .writeAsStringSync(svg);
     // ignore: avoid_print
     print('LEN=${svg.length}');
   });

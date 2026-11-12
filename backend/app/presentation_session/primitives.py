@@ -15,8 +15,7 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import text, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.presentation import PresentationSession, PresentationSessionEvent
-
+from app.models.presentation import PresentationSession
 
 # ---------------------------------------------------------------------------
 # Transactional event sequencing with idempotency
@@ -64,7 +63,7 @@ async def record_event(
             "matched": True,
         }
 
-    result = await db.execute(
+    await db.execute(
         text(
             "INSERT INTO presentation_session_events "
             "(session_id, seq, event_key, event_type, actor_role, actor_user_id, "

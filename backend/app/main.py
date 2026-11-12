@@ -40,8 +40,8 @@ from app.ocr.router import router as ocr_router
 from app.physics.router import router as phys_syllabus_router
 from app.practical.router import router as practical_router
 from app.presentation.router import router as presentation_router
-from app.presentation_session.router import router as presentation_session_router
 from app.presentation_session.internal import router as presentation_internal_router
+from app.presentation_session.router import router as presentation_session_router
 from app.research.router import router as research_router
 from app.retrieval.router import router as retrieval_router
 from app.smart_notifications.router import router as smart_notifications_router

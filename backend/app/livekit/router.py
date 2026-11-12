@@ -6,13 +6,11 @@ The LiveKit API secret NEVER leaves the backend.
 
 from __future__ import annotations
 
+import hmac
 import logging
 from datetime import timedelta
 
-import hmac
-
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi import Depends as _Dep
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -150,6 +148,8 @@ async def get_session_scoped_token(
     Guests authenticate with the guest_token issued at join time.
     """
     _require_livekit()
+    from livekit.api import AccessToken, VideoGrants
+
     from app.models.presentation import PresentationParticipant, PresentationSession
 
     # Resolve the session and its server-generated room name.
