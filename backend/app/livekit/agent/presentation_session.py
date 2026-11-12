@@ -62,7 +62,9 @@ async def _internal_call(
     url = f"{internal_base_url()}{path}"
     try:
         async with httpx.AsyncClient(timeout=timeout) as client:
-            resp = await client.request(method, url, json=json_body, headers=internal_headers())
+            resp = await client.request(
+                method, url, json=json_body, headers=internal_headers()
+            )
     except httpx.HTTPError as e:
         raise InternalApiError(503, f"internal API unreachable: {e}") from e
     if resp.status_code >= 400:
@@ -107,8 +109,12 @@ class CloneTTS(tts.TTS):
 
 
 class CloneChunkedStream(tts.ChunkedStream):
-    def __init__(self, tts_instance: CloneTTS, *, input_text: str, conn_options: Any) -> None:
-        super().__init__(tts=tts_instance, input_text=input_text, conn_options=conn_options)
+    def __init__(
+        self, tts_instance: CloneTTS, *, input_text: str, conn_options: Any
+    ) -> None:
+        super().__init__(
+            tts=tts_instance, input_text=input_text, conn_options=conn_options
+        )
         self._clone: CloneTTS = tts_instance
 
     async def _run(self, output_emitter: tts.AudioEmitter) -> None:
@@ -120,17 +126,25 @@ class CloneChunkedStream(tts.ChunkedStream):
                 timeout=300.0,  # CPU synthesis can take minutes (Phase 0A)
             )
         except InternalApiError as e:
-            log.warning("clone TTS failed (%s %s); falling back to EdgeTTS", e.status_code, e.detail)
+            log.warning(
+                "clone TTS failed (%s %s); falling back to EdgeTTS",
+                e.status_code,
+                e.detail,
+            )
             await output_emitter.initialize(
-                request_id=uuid.uuid4().hex, sample_rate=24000,
-                num_channels=1, mime_type="audio/mpeg",
+                request_id=uuid.uuid4().hex,
+                sample_rate=24000,
+                num_channels=1,
+                mime_type="audio/mpeg",
             )
             # The fallback is DISCLOSED: a persistent event lets the presenter
             # cockpit show the banner (retry / continue / disable).
             self._fallback_reason = e.detail
             import edge_tts
 
-            communicate = edge_tts.Communicate(self.input_text, "en-US-EmmaMultilingualNeural")
+            communicate = edge_tts.Communicate(
+                self.input_text, "en-US-EmmaMultilingualNeural"
+            )
             async for msg in communicate.stream():
                 if msg["type"] == "audio":
                     output_emitter.push(msg["data"])
@@ -175,7 +189,8 @@ class SessionRuntime:
     async def _try_acquire_lease(self) -> bool:
         try:
             result = await _internal_call(
-                "POST", f"/internal/presentation-sessions/{self.session_id}/voice-lease",
+                "POST",
+                f"/internal/presentation-sessions/{self.session_id}/voice-lease",
                 json_body={"action": "acquire", "owner": "agent"},
             )
         except InternalApiError as e:
@@ -193,7 +208,8 @@ class SessionRuntime:
                 return
             try:
                 ok = await _internal_call(
-                    "POST", f"/internal/presentation-sessions/{self.session_id}/voice-lease",
+                    "POST",
+                    f"/internal/presentation-sessions/{self.session_id}/voice-lease",
                     json_body={"action": "renew", "token": self.lease_token},
                 )
                 if not ok.get("renewed"):
@@ -214,11 +230,17 @@ class SessionRuntime:
         self._cancelled.clear()
         self._renew_task = asyncio.create_task(self._renew_loop())
         await self._internal_call(
-            "POST", f"/internal/presentation-sessions/{self.session_id}/events",
-            json_body={"event_type": "ai_response_started", "persistence": "persistent",
-                       "payload": {"owner": "agent"}},
+            "POST",
+            f"/internal/presentation-sessions/{self.session_id}/events",
+            json_body={
+                "event_type": "ai_response_started",
+                "persistence": "persistent",
+                "payload": {"owner": "agent"},
+            },
         )
-        await self.broadcast({"type": "ai_response_started", "sid": self.session_id, "owner": "agent"})
+        await self.broadcast(
+            {"type": "ai_response_started", "sid": self.session_id, "owner": "agent"}
+        )
         return True
 
     async def stop_audio(self) -> None:
@@ -232,16 +254,21 @@ class SessionRuntime:
         if self.lease_token:
             try:
                 await _internal_call(
-                    "POST", f"/internal/presentation-sessions/{self.session_id}/voice-lease",
+                    "POST",
+                    f"/internal/presentation-sessions/{self.session_id}/voice-lease",
                     json_body={"action": "release", "token": self.lease_token},
                 )
             except InternalApiError:
                 pass
             self.lease_token = None
         await self._internal_call(
-            "POST", f"/internal/presentation-sessions/{self.session_id}/events",
-            json_body={"event_type": "ai_response_ended", "persistence": "persistent",
-                       "payload": {"reason": "cancelled_or_done"}},
+            "POST",
+            f"/internal/presentation-sessions/{self.session_id}/events",
+            json_body={
+                "event_type": "ai_response_ended",
+                "persistence": "persistent",
+                "payload": {"reason": "cancelled_or_done"},
+            },
         )
         await self.broadcast({"type": "ai_response_ended", "sid": self.session_id})
 
@@ -258,41 +285,67 @@ class SessionRuntime:
         endpoint (role re-verified server-side), then broadcast the outcome."""
         try:
             result = await _internal_call(
-                "POST", f"/internal/presentation-sessions/{self.session_id}/command",
+                "POST",
+                f"/internal/presentation-sessions/{self.session_id}/command",
                 json_body={"identity": sender_identity, "action": action, "params": {}},
             )
         except InternalApiError as e:
             # 403 = unauthorized: already audited server-side; echo the state.
             if e.status_code == 403:
-                await self.broadcast({"type": "command_rejected", "sid": self.session_id,
-                                      "action": action, "identity": sender_identity})
+                await self.broadcast(
+                    {
+                        "type": "command_rejected",
+                        "sid": self.session_id,
+                        "action": action,
+                        "identity": sender_identity,
+                    }
+                )
             log.info("command %s rejected: %s", action, e.detail)
             return
         if action in ("interrupt", "takeover"):
             # The DB lease is already cancelled by the command handler; stop
             # our audio immediately (playhandle + frames) and emit the state.
             await self.stop_audio()
-        await self.broadcast({
-            "type": "session_state", "sid": self.session_id,
-            "pres_state": result.get("pres_state"), "ai_state": result.get("ai_state"),
-        })
+        await self.broadcast(
+            {
+                "type": "session_state",
+                "sid": self.session_id,
+                "pres_state": result.get("pres_state"),
+                "ai_state": result.get("ai_state"),
+            }
+        )
         if action.startswith(("goto_slide", "add_slide", "delete_slide", "reorder")):
-            await self.broadcast({"type": "slide_changed", "sid": self.session_id,
-                                  "index": result.get("index"), "title": result.get("title")})
+            await self.broadcast(
+                {
+                    "type": "slide_changed",
+                    "sid": self.session_id,
+                    "index": result.get("index"),
+                    "title": result.get("title"),
+                }
+            )
 
-    async def handle_message(self, data: bytes, participant: rtc.RemoteParticipant) -> None:
+    async def handle_message(
+        self, data: bytes, participant: rtc.RemoteParticipant
+    ) -> None:
         try:
             message = json.loads(data.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError):
             return
         mtype = message.get("type")
         if mtype == "command":
-            await self.handle_command(participant.identity or "", str(message.get("action", "")))
+            await self.handle_command(
+                participant.identity or "", str(message.get("action", ""))
+            )
         elif mtype == "hand":
             # Raised hands are relayed for everyone; moderation happens via
             # the HTTP API. No privileged effect here.
-            await self.broadcast({"type": "hand_raised", "sid": self.session_id,
-                                  "identity": participant.identity})
+            await self.broadcast(
+                {
+                    "type": "hand_raised",
+                    "sid": self.session_id,
+                    "identity": participant.identity,
+                }
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -335,7 +388,9 @@ async def run_presentation_session(ctx: JobContext) -> None:
     )
 
     tts_impl = CloneTTS(session_id=session_id)  # EdgeTTS is the fallback inside
-    session = AgentSession(stt=_build_stt(), llm=ScholarLLM(), tts=tts_impl, vad=_silero_vad())
+    session = AgentSession(
+        stt=_build_stt(), llm=ScholarLLM(), tts=tts_impl, vad=_silero_vad()
+    )
     agent = Agent(instructions=instructions)
 
     @room.on("data_received")
@@ -356,12 +411,18 @@ async def run_presentation_session(ctx: JobContext) -> None:
                 if not text:
                     continue
                 await _internal_call(
-                    "POST", f"/internal/presentation-sessions/{session_id}/events",
-                    json_body={"event_type": "transcript_final", "persistence": "persistent",
-                               "payload": {"source": "attendee", "text": text}},
+                    "POST",
+                    f"/internal/presentation-sessions/{session_id}/events",
+                    json_body={
+                        "event_type": "transcript_final",
+                        "persistence": "persistent",
+                        "payload": {"source": "attendee", "text": text},
+                    },
                 )
-                await runtime.broadcast({"type": "stt_final", "sid": session_id,
-                                         "text": text}, reliable=False)
+                await runtime.broadcast(
+                    {"type": "stt_final", "sid": session_id, "text": text},
+                    reliable=False,
+                )
 
     async def _feed_track(track: rtc.Track) -> None:
         stream = rtc.AudioStream(track, sample_rate=16000)
@@ -377,7 +438,9 @@ async def run_presentation_session(ctx: JobContext) -> None:
     def _subscribe(track: rtc.Track, participant: rtc.RemoteParticipant) -> None:
         if track.kind != rtc.TrackKind.KIND_AUDIO:
             return
-        task = asyncio.create_task(_feed_track(track), name=f"feed-{participant.identity}")
+        task = asyncio.create_task(
+            _feed_track(track), name=f"feed-{participant.identity}"
+        )
         feeder_tasks.add(task)
         task.add_done_callback(feeder_tasks.discard)
 

@@ -19,12 +19,20 @@ from app.presentation_session.service import SessionError
 ALLOWED_ACTIONS = ("goto_slide", "add_slide", "delete_slide", "reorder")
 
 
-async def _slides_of(db: AsyncSession, session_id: str, presentation_id: str) -> list[PresentationSlide]:
-    return list((await db.execute(
-        select(PresentationSlide)
-        .where(PresentationSlide.presentation_id == presentation_id)
-        .order_by(PresentationSlide.position)
-    )).scalars().all())
+async def _slides_of(
+    db: AsyncSession, session_id: str, presentation_id: str
+) -> list[PresentationSlide]:
+    return list(
+        (
+            await db.execute(
+                select(PresentationSlide)
+                .where(PresentationSlide.presentation_id == presentation_id)
+                .order_by(PresentationSlide.position)
+            )
+        )
+        .scalars()
+        .all()
+    )
 
 
 async def apply_command(
@@ -67,15 +75,24 @@ async def apply_command(
         else:
             position = 0
         fields = deck_repo._slide_row_fields(new_slide)
-        db.add(PresentationSlide(presentation_id=session.presentation_id, position=position, **fields))
+        db.add(
+            PresentationSlide(
+                presentation_id=session.presentation_id, position=position, **fields
+            )
+        )
         await db.flush()
         slides = await _slides_of(db, session_id, session.presentation_id)
-        new_index = slides.index(next(s for s in slides if s.slide_id == new_slide["id"]))
+        new_index = slides.index(
+            next(s for s in slides if s.slide_id == new_slide["id"])
+        )
     elif action == "reorder":
         slide_id = str(params.get("slide_id", ""))
         to_index = int(params.get("to_index", 0))
         ok = await deck_repo.move_slide(
-            db, presentation_id=session.presentation_id, slide_id=slide_id, to_index=to_index
+            db,
+            presentation_id=session.presentation_id,
+            slide_id=slide_id,
+            to_index=to_index,
         )
         if not ok:
             raise SessionError(404, "Slide or deck not found")
@@ -92,8 +109,11 @@ async def apply_command(
         "action": action,
     }
     await primitives.record_event(
-        db, session_id=session_id, event_type="slide_changed",
-        payload=payload, actor_role=participant.role,
+        db,
+        session_id=session_id,
+        event_type="slide_changed",
+        payload=payload,
+        actor_role=participant.role,
         actor_user_id=participant.user_id,
     )
     await db.commit()

@@ -156,7 +156,11 @@ async def list_presentations(db: AsyncSession, owner_id: int) -> list[dict]:
         .order_by(Presentation.updated_at.desc())
     )
     return [
-        {"id": p.id, "title": p.title, "updated_at": p.updated_at.isoformat() if p.updated_at else None}
+        {
+            "id": p.id,
+            "title": p.title,
+            "updated_at": p.updated_at.isoformat() if p.updated_at else None,
+        }
         for p in result.scalars().all()
     ]
 
@@ -193,9 +197,7 @@ async def move_slide(
     elif to_index == len(slides) - 1:
         new_position = slides[-1].position + POSITION_STEP
     else:
-        new_position = (
-            slides[to_index - 1].position + slides[to_index].position
-        ) // 2
+        new_position = (slides[to_index - 1].position + slides[to_index].position) // 2
         if new_position in (slides[to_index - 1].position, slides[to_index].position):
             # Neighbouring positions have collapsed to adjacent integers
             # (renormalization is due); fall back to a gap-preserving move.
@@ -207,7 +209,9 @@ async def move_slide(
     return True
 
 
-async def slide_positions(db: AsyncSession, presentation_id: str) -> list[tuple[str, int]]:
+async def slide_positions(
+    db: AsyncSession, presentation_id: str
+) -> list[tuple[str, int]]:
     """Ordered (slide_id, position) pairs — the assertion surface for the
     ordering tests and the session slide-synchronizer."""
     result = await db.execute(

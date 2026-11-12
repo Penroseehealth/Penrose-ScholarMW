@@ -89,13 +89,17 @@ class PresentationSlide(Base):
     # renormalization compacts positions when the gap decays (Phase 2).
     position: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     slide_id: Mapped[str] = mapped_column(String(64), nullable=False)
-    slide_type: Mapped[str] = mapped_column(String(50), nullable=False, default="content")
+    slide_type: Mapped[str] = mapped_column(
+        String(50), nullable=False, default="content"
+    )
     title: Mapped[str] = mapped_column(String(255), nullable=False, default="")
     bullets_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     body: Mapped[str | None] = mapped_column(Text, nullable=True)
     speaker_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     citation: Mapped[str | None] = mapped_column(Text, nullable=True)
-    layout: Mapped[str] = mapped_column(String(50), nullable=False, default="title_and_content")
+    layout: Mapped[str] = mapped_column(
+        String(50), nullable=False, default="title_and_content"
+    )
     learning_objective: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     presentation: Mapped["Presentation"] = relationship(back_populates="slides")
@@ -139,7 +143,9 @@ class PresentationSession(Base):
 
     pres_state: Mapped[str] = mapped_column(String(20), nullable=False, default="idle")
     ai_state: Mapped[str] = mapped_column(String(20), nullable=False, default="idle")
-    ai_policy: Mapped[str] = mapped_column(String(20), nullable=False, default="approval")
+    ai_policy: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="approval"
+    )
 
     # Voice arbitration (Phase 0D §5): one owner at a time, leased with expiry.
     voice_owner: Mapped[str] = mapped_column(String(10), nullable=False, default="none")
@@ -160,17 +166,29 @@ class PresentationSession(Base):
         DateTime(timezone=True), nullable=True
     )
     grace_period_s: Mapped[int] = mapped_column(Integer, nullable=False, default=180)
-    reconnect_window_s: Mapped[int] = mapped_column(Integer, nullable=False, default=3600)
+    reconnect_window_s: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=3600
+    )
 
     # Recording (Phase 6, v1): presenter-side capture only; the artifact is a
     # row in the existing system-audio recordings storage.
-    recording_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    recording_recording_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    recording_active: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False
+    )
+    recording_recording_id: Mapped[str | None] = mapped_column(
+        String(64), nullable=True
+    )
 
-    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    started_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    ended_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     end_reason: Mapped[str | None] = mapped_column(String(20), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow
+    )
 
     participants: Mapped[list["PresentationParticipant"]] = relationship(
         back_populates="session", cascade="all, delete-orphan"
@@ -191,12 +209,18 @@ class PresentationParticipant(Base):
     user_id: Mapped[int | None] = mapped_column(
         ForeignKey("users.id"), nullable=True, index=True
     )
-    display_name: Mapped[str] = mapped_column(String(128), nullable=False, default="Guest")
+    display_name: Mapped[str] = mapped_column(
+        String(128), nullable=False, default="Guest"
+    )
     role: Mapped[str] = mapped_column(String(20), nullable=False, default="attendee")
     # Hash of the guest join token; revocation = presence check at join time.
     guest_token_hash: Mapped[str | None] = mapped_column(String(128), nullable=True)
-    joined_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
-    left_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    joined_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow
+    )
+    left_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     reconnected_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
     session: Mapped["PresentationSession"] = relationship(back_populates="participants")
@@ -211,7 +235,14 @@ class PresentationParticipant(Base):
 # Moderation: audience questions
 # ---------------------------------------------------------------------------
 
-QUESTION_STATUSES = ("raised", "approved", "deferred", "rejected", "answered", "unanswered")
+QUESTION_STATUSES = (
+    "raised",
+    "approved",
+    "deferred",
+    "rejected",
+    "answered",
+    "unanswered",
+)
 
 
 class PresentationQuestion(Base):
@@ -228,7 +259,9 @@ class PresentationQuestion(Base):
     text: Mapped[str] = mapped_column(Text, nullable=False)
     # Voice questions reference the existing system-audio recordings storage.
     audio_recording_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
-    status: Mapped[str] = mapped_column(String(20), nullable=False, default="raised", index=True)
+    status: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="raised", index=True
+    )
     ai_answered: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     answer_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     # Duplicate prevention: same participant raising the same question inside
@@ -238,13 +271,19 @@ class PresentationQuestion(Base):
     decided_by: Mapped[int | None] = mapped_column(
         ForeignKey("users.id"), nullable=True
     )
-    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, index=True)
+    decided_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, index=True
+    )
 
     __table_args__ = (
         Index("ix_questions_session_status", "session_id", "status"),
         UniqueConstraint(
-            "session_id", "participant_id", "idempotency_key",
+            "session_id",
+            "participant_id",
+            "idempotency_key",
             name="uq_question_idempotency",
         ),
     )
@@ -262,14 +301,16 @@ class PresentationInstruction(Base):
     session_id: Mapped[str] = mapped_column(
         ForeignKey("presentation_sessions.id", ondelete="CASCADE"), nullable=False
     )
-    presenter_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id"), nullable=False
-    )
+    presenter_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     kind: Mapped[str] = mapped_column(String(20), nullable=False, default="correction")
     target_slide_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     text: Mapped[str] = mapped_column(Text, nullable=False)
-    applied_to_context: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, index=True)
+    applied_to_context: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, index=True
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -292,11 +333,11 @@ class PresentationTranscriptEvent(Base):
     text: Mapped[str] = mapped_column(Text, nullable=False)
     started_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     ended_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
-
-    __table_args__ = (
-        Index("ix_transcript_session_time", "session_id", "created_at"),
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow
     )
+
+    __table_args__ = (Index("ix_transcript_session_time", "session_id", "created_at"),)
 
 
 class PresentationSessionEvent(Base):
@@ -314,14 +355,20 @@ class PresentationSessionEvent(Base):
     # a no-op, never a duplicate action.
     event_key: Mapped[str] = mapped_column(String(64), nullable=False)
     event_type: Mapped[str] = mapped_column(String(50), nullable=False)
-    actor_role: Mapped[str] = mapped_column(String(20), nullable=False, default="system")
+    actor_role: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="system"
+    )
     actor_user_id: Mapped[int | None] = mapped_column(
         ForeignKey("users.id"), nullable=True
     )
     # persistent events are replayed after reconnect; ephemeral ones are not.
-    persistence: Mapped[str] = mapped_column(String(12), nullable=False, default="persistent")
+    persistence: Mapped[str] = mapped_column(
+        String(12), nullable=False, default="persistent"
+    )
     payload_json: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, index=True
+    )
 
     __table_args__ = (
         UniqueConstraint("session_id", "seq", name="uq_event_session_seq"),
@@ -349,14 +396,22 @@ class PresentationRecordingConsent(Base):
         ForeignKey("presentation_participants.id"), nullable=False
     )
     decision: Mapped[str] = mapped_column(String(12), nullable=False)
-    scope: Mapped[str] = mapped_column(String(20), nullable=False, default="session_audio")
-    granted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    withdrawn_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    scope: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="session_audio"
+    )
+    granted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    withdrawn_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     # Append-only chain: withdrawal inserts a NEW row pointing at the decision
     # it supersedes; no row is ever updated or deleted.
     prev_record_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     recorded_by_endpoint: Mapped[str | None] = mapped_column(String(80), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow
+    )
 
     __table_args__ = (
         Index("ix_consents_session_participant", "session_id", "participant_id"),

@@ -303,7 +303,11 @@ async def regenerate_notes_endpoint(
         raise HTTPException(status_code=404, detail="Presentation not found")
     try:
         new_notes = await engine.regenerate_notes(
-            BuilderConfig(**rec["config"]), body.slide_id, body.prompt, rec["slides"], db
+            BuilderConfig(**rec["config"]),
+            body.slide_id,
+            body.prompt,
+            rec["slides"],
+            db,
         )
         return {"speaker_notes": new_notes}
     except Exception as e:

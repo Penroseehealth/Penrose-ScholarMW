@@ -31,7 +31,9 @@ def _http(e: SessionError) -> HTTPException:
 
 class SessionCreateRequest(BaseModel):
     presentation_id: str
-    ai_policy: str = Field(default="approval", pattern="^(auto|approval|presenter_only)$")
+    ai_policy: str = Field(
+        default="approval", pattern="^(auto|approval|presenter_only)$"
+    )
 
 
 class JoinRequest(BaseModel):
@@ -71,15 +73,28 @@ class ParticipantRemoveRequest(BaseModel):
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_session(body: SessionCreateRequest, user: User = Depends(require_lecturer), db: AsyncSession = Depends(get_db)):
+async def create_session(
+    body: SessionCreateRequest,
+    user: User = Depends(require_lecturer),
+    db: AsyncSession = Depends(get_db),
+):
     try:
-        return await sessions.create_session(db, presenter=user, presentation_id=body.presentation_id, ai_policy=body.ai_policy)
+        return await sessions.create_session(
+            db,
+            presenter=user,
+            presentation_id=body.presentation_id,
+            ai_policy=body.ai_policy,
+        )
     except SessionError as e:
         raise _http(e)
 
 
 @router.get("/{session_id}")
-async def get_session(session_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def get_session(
+    session_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     try:
         view = await sessions.session_view(db, session_id)
     except SessionError as e:
@@ -92,9 +107,15 @@ async def get_session(session_id: str, user: User = Depends(get_current_user), d
 
 
 @router.post("/{session_id}/start")
-async def start(session_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def start(
+    session_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     try:
-        session = await sessions.start_session(db, session_id=session_id, user_id=user.id)
+        session = await sessions.start_session(
+            db, session_id=session_id, user_id=user.id
+        )
         await db.commit()
         return {"pres_state": session.pres_state, "ai_state": session.ai_state}
     except SessionError as e:
@@ -102,9 +123,15 @@ async def start(session_id: str, user: User = Depends(get_current_user), db: Asy
 
 
 @router.post("/{session_id}/pause")
-async def pause(session_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def pause(
+    session_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     try:
-        session = await sessions.pause_session(db, session_id=session_id, user_id=user.id)
+        session = await sessions.pause_session(
+            db, session_id=session_id, user_id=user.id
+        )
         await db.commit()
         return {"pres_state": session.pres_state, "ai_state": session.ai_state}
     except SessionError as e:
@@ -112,9 +139,15 @@ async def pause(session_id: str, user: User = Depends(get_current_user), db: Asy
 
 
 @router.post("/{session_id}/resume")
-async def resume(session_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def resume(
+    session_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     try:
-        session = await sessions.resume_session(db, session_id=session_id, user_id=user.id)
+        session = await sessions.resume_session(
+            db, session_id=session_id, user_id=user.id
+        )
         await db.commit()
         return {"pres_state": session.pres_state, "ai_state": session.ai_state}
     except SessionError as e:
@@ -122,9 +155,15 @@ async def resume(session_id: str, user: User = Depends(get_current_user), db: As
 
 
 @router.post("/{session_id}/end")
-async def end(session_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def end(
+    session_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     try:
-        session = await sessions.complete_session(db, session_id=session_id, user_id=user.id)
+        session = await sessions.complete_session(
+            db, session_id=session_id, user_id=user.id
+        )
         await db.commit()
         return {"pres_state": session.pres_state, "end_reason": session.end_reason}
     except SessionError as e:
@@ -132,17 +171,29 @@ async def end(session_id: str, user: User = Depends(get_current_user), db: Async
 
 
 @router.post("/{session_id}/interrupt")
-async def interrupt(session_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def interrupt(
+    session_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     try:
-        return await sessions.interrupt_session(db, session_id=session_id, user_id=user.id)
+        return await sessions.interrupt_session(
+            db, session_id=session_id, user_id=user.id
+        )
     except SessionError as e:
         raise _http(e)
 
 
 @router.post("/{session_id}/takeover")
-async def takeover(session_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def takeover(
+    session_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     try:
-        return await sessions.takeover_session(db, session_id=session_id, user_id=user.id)
+        return await sessions.takeover_session(
+            db, session_id=session_id, user_id=user.id
+        )
     except SessionError as e:
         raise _http(e)
 
@@ -151,10 +202,20 @@ async def takeover(session_id: str, user: User = Depends(get_current_user), db: 
 
 
 @router.post("/join")
-async def join(body: JoinRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def join(
+    body: JoinRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     """Named-user join. Guest join (no account) uses the /join-guest route."""
     try:
-        return await sessions.join_session(db, session_id=body.session_id, join_code=body.join_code, user=user, display_name=body.display_name)
+        return await sessions.join_session(
+            db,
+            session_id=body.session_id,
+            join_code=body.join_code,
+            user=user,
+            display_name=body.display_name,
+        )
     except SessionError as e:
         raise _http(e)
 
@@ -163,22 +224,42 @@ async def join(body: JoinRequest, user: User = Depends(get_current_user), db: As
 async def join_guest(body: JoinRequest, db: AsyncSession = Depends(get_db)):
     """Anonymous join with a join code and display name — no account."""
     try:
-        return await sessions.join_session(db, session_id=body.session_id, join_code=body.join_code, user=None, display_name=body.display_name)
+        return await sessions.join_session(
+            db,
+            session_id=body.session_id,
+            join_code=body.join_code,
+            user=None,
+            display_name=body.display_name,
+        )
     except SessionError as e:
         raise _http(e)
 
 
 @router.post("/{session_id}/participants/remove")
-async def remove_participant(session_id: str, body: ParticipantRemoveRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def remove_participant(
+    session_id: str,
+    body: ParticipantRemoveRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     try:
-        removed = await sessions.remove_participant(db, session_id=session_id, participant_id=body.participant_id, user_id=user.id)
+        removed = await sessions.remove_participant(
+            db,
+            session_id=session_id,
+            participant_id=body.participant_id,
+            user_id=user.id,
+        )
         return {"removed": removed}
     except SessionError as e:
         raise _http(e)
 
 
 @router.post("/{session_id}/heartbeat")
-async def heartbeat(session_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def heartbeat(
+    session_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     try:
         return await sessions.heartbeat(db, session_id=session_id, user_id=user.id)
     except SessionError as e:
@@ -189,13 +270,18 @@ async def heartbeat(session_id: str, user: User = Depends(get_current_user), db:
 
 
 @router.post("/{session_id}/questions", status_code=status.HTTP_201_CREATED)
-async def raise_question(session_id: str, body: QuestionRequest, db: AsyncSession = Depends(get_db)):
+async def raise_question(
+    session_id: str, body: QuestionRequest, db: AsyncSession = Depends(get_db)
+):
     """Attendee question submission (guests included — participant_id is the
     registration handle; the service checks active membership)."""
     try:
         return await sessions.raise_question(
-            db, session_id=session_id, participant_id=body.participant_id,
-            text_q=body.text, source=body.source,
+            db,
+            session_id=session_id,
+            participant_id=body.participant_id,
+            text_q=body.text,
+            source=body.source,
             audio_recording_id=body.audio_recording_id,
             idempotency_key=body.idempotency_key,
         )
@@ -204,11 +290,21 @@ async def raise_question(session_id: str, body: QuestionRequest, db: AsyncSessio
 
 
 @router.post("/{session_id}/questions/{question_id}/moderate")
-async def moderate(session_id: str, question_id: int, body: ModerationRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def moderate(
+    session_id: str,
+    question_id: int,
+    body: ModerationRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     try:
         return await sessions.moderate_question(
-            db, session_id=session_id, question_id=question_id,
-            decision=body.decision, user_id=user.id, answer_text=body.answer_text,
+            db,
+            session_id=session_id,
+            question_id=question_id,
+            decision=body.decision,
+            user_id=user.id,
+            answer_text=body.answer_text,
         )
     except SessionError as e:
         raise _http(e)
@@ -223,7 +319,12 @@ class SlideCommandRequest(BaseModel):
 
 
 @router.post("/{session_id}/command")
-async def slide_command(session_id: str, body: SlideCommandRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def slide_command(
+    session_id: str,
+    body: SlideCommandRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     """Live slide commands from the presenter cockpit (Phase 5). Roles are
     resolved from the participant row — attendees get 403."""
     from sqlalchemy import select as _select
@@ -235,17 +336,22 @@ async def slide_command(session_id: str, body: SlideCommandRequest, user: User =
         await sessions.get_session_or_404(db, session_id)
     except SessionError as e:
         raise _http(e)
-    participant = (await db.execute(
-        _select(PresentationParticipant)
-        .where(PresentationParticipant.session_id == session_id)
-        .where(PresentationParticipant.user_id == user.id)
-    )).scalar_one_or_none()
+    participant = (
+        await db.execute(
+            _select(PresentationParticipant)
+            .where(PresentationParticipant.session_id == session_id)
+            .where(PresentationParticipant.user_id == user.id)
+        )
+    ).scalar_one_or_none()
     if participant is None:
         raise _http(SessionError(403, "Not an active participant of this session"))
     try:
         return await slide_ops.apply_command(
-            db, session_id=session_id, action=body.action,
-            params=body.params, participant=participant,
+            db,
+            session_id=session_id,
+            action=body.action,
+            params=body.params,
+            participant=participant,
         )
     except SessionError as e:
         raise _http(e)
@@ -255,20 +361,36 @@ async def slide_command(session_id: str, body: SlideCommandRequest, user: User =
 
 
 @router.patch("/{session_id}/ai-policy")
-async def set_policy(session_id: str, body: PolicyRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def set_policy(
+    session_id: str,
+    body: PolicyRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     try:
-        session = await sessions.set_ai_policy(db, session_id=session_id, policy=body.ai_policy, user_id=user.id)
+        session = await sessions.set_ai_policy(
+            db, session_id=session_id, policy=body.ai_policy, user_id=user.id
+        )
         return {"ai_policy": session.ai_policy}
     except SessionError as e:
         raise _http(e)
 
 
 @router.post("/{session_id}/instructions", status_code=status.HTTP_201_CREATED)
-async def add_instruction(session_id: str, body: InstructionRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def add_instruction(
+    session_id: str,
+    body: InstructionRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     try:
         return await sessions.add_instruction(
-            db, session_id=session_id, user_id=user.id,
-            text_i=body.text, kind=body.kind, target_slide_id=body.target_slide_id,
+            db,
+            session_id=session_id,
+            user_id=user.id,
+            text_i=body.text,
+            kind=body.kind,
+            target_slide_id=body.target_slide_id,
         )
     except SessionError as e:
         raise _http(e)
@@ -289,7 +411,12 @@ class ConsentStartRequest(BaseModel):
 
 
 @router.post("/{session_id}/recording-consents", status_code=201)
-async def record_consent(session_id: str, body: ConsentStartRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def record_consent(
+    session_id: str,
+    body: ConsentStartRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     """Append a consent decision (granted/denied/withdrawn) for a participant.
     Withdrawal inserts a NEW row — history is never overwritten."""
     from datetime import datetime, timezone
@@ -306,19 +433,29 @@ async def record_consent(session_id: str, body: ConsentStartRequest, user: User 
     participant = await db.get(PresentationParticipant, body.participant_id)
     if participant is None or participant.session_id != session_id:
         raise _http(SessionError(404, "Participant not found in this session"))
-    latest = (await db.execute(
-        select(PresentationRecordingConsent)
-        .where(PresentationRecordingConsent.session_id == session_id)
-        .where(PresentationRecordingConsent.participant_id == body.participant_id)
-        .order_by(PresentationRecordingConsent.id.desc())
-    )).scalars().first()
+    latest = (
+        (
+            await db.execute(
+                select(PresentationRecordingConsent)
+                .where(PresentationRecordingConsent.session_id == session_id)
+                .where(
+                    PresentationRecordingConsent.participant_id == body.participant_id
+                )
+                .order_by(PresentationRecordingConsent.id.desc())
+            )
+        )
+        .scalars()
+        .first()
+    )
     row = PresentationRecordingConsent(
         session_id=session_id,
         participant_id=body.participant_id,
         decision=body.decision,
         scope=body.scope,
         granted_at=datetime.now(timezone.utc) if body.decision == "granted" else None,
-        withdrawn_at=datetime.now(timezone.utc) if body.decision == "withdrawn" else None,
+        withdrawn_at=datetime.now(timezone.utc)
+        if body.decision == "withdrawn"
+        else None,
         prev_record_id=latest.id if latest else None,
         recorded_by_endpoint="/presentation-sessions/recording-consents",
     )
@@ -328,29 +465,50 @@ async def record_consent(session_id: str, body: ConsentStartRequest, user: User 
 
 
 @router.get("/{session_id}/recording-consents")
-async def consent_ledger(session_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def consent_ledger(
+    session_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     from app.models.presentation import PresentationRecordingConsent
 
     try:
         await sessions.get_session_or_404(db, session_id)
     except SessionError as e:
         raise _http(e)
-    rows = (await db.execute(
-        select(PresentationRecordingConsent)
-        .where(PresentationRecordingConsent.session_id == session_id)
-        .order_by(PresentationRecordingConsent.id)
-    )).scalars().all()
-    return {"consents": [
-        {"id": r.id, "participant_id": r.participant_id, "decision": r.decision,
-         "scope": r.scope, "granted_at": r.granted_at.isoformat() if r.granted_at else None,
-         "withdrawn_at": r.withdrawn_at.isoformat() if r.withdrawn_at else None,
-         "prev_record_id": r.prev_record_id}
-        for r in rows
-    ]}
+    rows = (
+        (
+            await db.execute(
+                select(PresentationRecordingConsent)
+                .where(PresentationRecordingConsent.session_id == session_id)
+                .order_by(PresentationRecordingConsent.id)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    return {
+        "consents": [
+            {
+                "id": r.id,
+                "participant_id": r.participant_id,
+                "decision": r.decision,
+                "scope": r.scope,
+                "granted_at": r.granted_at.isoformat() if r.granted_at else None,
+                "withdrawn_at": r.withdrawn_at.isoformat() if r.withdrawn_at else None,
+                "prev_record_id": r.prev_record_id,
+            }
+            for r in rows
+        ]
+    }
 
 
 @router.get("/{session_id}/artifacts")
-async def session_artifacts(session_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def session_artifacts(
+    session_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     """Post-session artifacts: transcript + unanswered/answered questions."""
     from app.presentation_session import artifacts as art
 
@@ -361,7 +519,11 @@ async def session_artifacts(session_id: str, user: User = Depends(get_current_us
 
 
 @router.post("/{session_id}/artifacts/summary")
-async def session_summary(session_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def session_summary(
+    session_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     from app.presentation_session import artifacts as art
 
     try:
@@ -371,7 +533,11 @@ async def session_summary(session_id: str, user: User = Depends(get_current_user
 
 
 @router.post("/{session_id}/artifacts/quiz")
-async def session_quiz(session_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def session_quiz(
+    session_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     from app.presentation_session import artifacts as art
 
     try:
@@ -381,7 +547,12 @@ async def session_quiz(session_id: str, user: User = Depends(get_current_user), 
 
 
 @router.get("/{session_id}/events")
-async def replay_events(session_id: str, after_seq: int = 0, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def replay_events(
+    session_id: str,
+    after_seq: int = 0,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     """Persistent-event replay for reconnecting clients (approved 0D §4:
     ephemeral events are never replayed)."""
     try:
@@ -390,5 +561,7 @@ async def replay_events(session_id: str, after_seq: int = 0, user: User = Depend
         raise _http(e)
     from app.presentation_session import primitives
 
-    events = await primitives.replay_events(db, session_id=session_id, after_seq=after_seq)
+    events = await primitives.replay_events(
+        db, session_id=session_id, after_seq=after_seq
+    )
     return {"events": events, "after_seq": after_seq}

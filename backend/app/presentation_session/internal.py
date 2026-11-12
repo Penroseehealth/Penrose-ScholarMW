@@ -43,21 +43,33 @@ from sqlalchemy.orm import sessionmaker  # noqa: E402
 
 # Command permission model (single source of truth for the data-channel
 # relay; mirrored by the HTTP endpoints' own checks).
-COMMAND_PRESENTER_ONLY = frozenset({"pause", "resume", "end", "goto_slide", "add_slide", "delete_slide", "reorder"})
+COMMAND_PRESENTER_ONLY = frozenset(
+    {"pause", "resume", "end", "goto_slide", "add_slide", "delete_slide", "reorder"}
+)
 COMMAND_BOTH_ROLES = frozenset({"interrupt", "takeover"})
 
 
-router = APIRouter(prefix="/internal/presentation-sessions", tags=["Presentation Sessions — Internal", "internal"])
+router = APIRouter(
+    prefix="/internal/presentation-sessions",
+    tags=["Presentation Sessions — Internal", "internal"],
+)
 
 
 def require_internal_token(authorization: str = Header(default="")) -> None:
     """Bearer INTERNAL_TOKEN check with constant-time comparison."""
-    expected = os.getenv("INTERNAL_TOKEN") or getattr(get_settings(), "INTERNAL_TOKEN", "")
+    expected = os.getenv("INTERNAL_TOKEN") or getattr(
+        get_settings(), "INTERNAL_TOKEN", ""
+    )
     if not expected:
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Internal API not configured")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Internal API not configured",
+        )
     supplied = authorization.removeprefix("Bearer ").strip()
     if not supplied or not hmac.compare_digest(supplied, expected):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid internal token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid internal token"
+        )
 
 
 class AgentEventRequest(BaseModel):
@@ -96,38 +108,79 @@ async def agent_context(session_id: str, db: AsyncSession = Depends(get_db)):
     )
 
     session_row = await sessions.get_session_or_404(db, session_id)
-    slides = (await db.execute(
-        select(PresentationSlide)
-        .where(PresentationSlide.presentation_id == session_row.presentation_id)
-        .order_by(PresentationSlide.position)
-    )).scalars().all()
-    corrections = (await db.execute(
-        select(PresentationInstruction)
-        .where(PresentationInstruction.session_id == session_id)
-        .order_by(PresentationInstruction.created_at)
-    )).scalars().all()
-    transcript_tail = (await db.execute(
-        select(PresentationTranscriptEvent)
-        .where(PresentationTranscriptEvent.session_id == session_id)
-        .order_by(PresentationTranscriptEvent.created_at.desc())
-        .limit(20)
-    )).scalars().all()
+    slides = (
+        (
+            await db.execute(
+                select(PresentationSlide)
+                .where(PresentationSlide.presentation_id == session_row.presentation_id)
+                .order_by(PresentationSlide.position)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    corrections = (
+        (
+            await db.execute(
+                select(PresentationInstruction)
+                .where(PresentationInstruction.session_id == session_id)
+                .order_by(PresentationInstruction.created_at)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    transcript_tail = (
+        (
+            await db.execute(
+                select(PresentationTranscriptEvent)
+                .where(PresentationTranscriptEvent.session_id == session_id)
+                .order_by(PresentationTranscriptEvent.created_at.desc())
+                .limit(20)
+            )
+        )
+        .scalars()
+        .all()
+    )
 
     return {
-        "session": {k: view[k] for k in ("session_id", "pres_state", "ai_state", "ai_policy", "voice_owner")},
+        "session": {
+            k: view[k]
+            for k in (
+                "session_id",
+                "pres_state",
+                "ai_state",
+                "ai_policy",
+                "voice_owner",
+            )
+        },
         "slides": [
-            {"id": s.slide_id, "position": s.position, "title": s.title,
-             "bullets": s.bullets_json, "body": s.body, "speaker_notes": s.speaker_notes,
-             "learning_objective": s.learning_objective}
+            {
+                "id": s.slide_id,
+                "position": s.position,
+                "title": s.title,
+                "bullets": s.bullets_json,
+                "body": s.body,
+                "speaker_notes": s.speaker_notes,
+                "learning_objective": s.learning_objective,
+            }
             for s in slides
         ],
-        "corrections": [{"kind": c.kind, "text": c.text, "target_slide_id": c.target_slide_id} for c in corrections],
-        "transcript_tail": [{"speaker": t.speaker_label, "text": t.text} for t in reversed(transcript_tail)],
+        "corrections": [
+            {"kind": c.kind, "text": c.text, "target_slide_id": c.target_slide_id}
+            for c in corrections
+        ],
+        "transcript_tail": [
+            {"speaker": t.speaker_label, "text": t.text}
+            for t in reversed(transcript_tail)
+        ],
     }
 
 
 @router.post("/{session_id}/events", dependencies=[Depends(require_internal_token)])
-async def agent_event(session_id: str, body: AgentEventRequest, db: AsyncSession = Depends(get_db)):
+async def agent_event(
+    session_id: str, body: AgentEventRequest, db: AsyncSession = Depends(get_db)
+):
     """Agent-originated events (transcript, ai_response_started/ended,
     narration_fallback...). Sequence and idempotency handled by primitives."""
     try:
@@ -135,32 +188,54 @@ async def agent_event(session_id: str, body: AgentEventRequest, db: AsyncSession
     except SessionError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail)
     result = await primitives.record_event(
-        db, session_id=session_id, event_type=body.event_type,
-        event_key=body.event_key, payload=body.payload,
-        actor_role="system", persistence=body.persistence,
+        db,
+        session_id=session_id,
+        event_type=body.event_type,
+        event_key=body.event_key,
+        payload=body.payload,
+        actor_role="system",
+        persistence=body.persistence,
     )
     return result
 
 
-@router.post("/{session_id}/voice-lease", dependencies=[Depends(require_internal_token)])
-async def voice_lease(session_id: str, body: VoiceLeaseRequest, db: AsyncSession = Depends(get_db)):
+@router.post(
+    "/{session_id}/voice-lease", dependencies=[Depends(require_internal_token)]
+)
+async def voice_lease(
+    session_id: str, body: VoiceLeaseRequest, db: AsyncSession = Depends(get_db)
+):
     try:
         await sessions.get_session_or_404(db, session_id)
     except SessionError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail)
     if body.action == "acquire":
-        return await primitives.acquire_voice_lease(db, session_id=session_id, owner=body.owner or "agent")
+        return await primitives.acquire_voice_lease(
+            db, session_id=session_id, owner=body.owner or "agent"
+        )
     if body.action == "renew":
         if not body.token:
             raise HTTPException(status_code=422, detail="token required for renew")
-        return {"renewed": await primitives.renew_voice_lease(db, session_id=session_id, token=body.token)}
+        return {
+            "renewed": await primitives.renew_voice_lease(
+                db, session_id=session_id, token=body.token
+            )
+        }
     if body.action == "release":
         if not body.token:
             raise HTTPException(status_code=422, detail="token required for release")
-        return {"released": await primitives.release_voice_lease(db, session_id=session_id, token=body.token)}
+        return {
+            "released": await primitives.release_voice_lease(
+                db, session_id=session_id, token=body.token
+            )
+        }
     if body.action == "cancel":
-        return {"cancelled": await primitives.cancel_voice_lease(db, session_id=session_id)}
-    raise HTTPException(status_code=422, detail="action must be acquire|renew|release|cancel")
+        return {
+            "cancelled": await primitives.cancel_voice_lease(db, session_id=session_id)
+        }
+    raise HTTPException(
+        status_code=422, detail="action must be acquire|renew|release|cancel"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -175,8 +250,8 @@ async def voice_lease(session_id: str, body: VoiceLeaseRequest, db: AsyncSession
 
 
 class AgentCommandRequest(BaseModel):
-    identity: str          # LiveKit identity of the sender (verified server-side)
-    action: str            # pause | resume | interrupt | takeover | goto_slide | add_slide | delete_slide | reorder | end
+    identity: str  # LiveKit identity of the sender (verified server-side)
+    action: str  # pause | resume | interrupt | takeover | goto_slide | add_slide | delete_slide | reorder | end
     params: dict | None = None
 
 
@@ -188,9 +263,7 @@ class CloneTtsResponse(BaseModel):
     display_name: str = ""
 
 
-async def _participant_by_identity(
-    db: AsyncSession, session_id: str, identity: str
-):
+async def _participant_by_identity(db: AsyncSession, session_id: str, identity: str):
     """Resolve a LiveKit identity to the trusted participant row."""
 
     from app.models.presentation import PresentationParticipant
@@ -210,7 +283,11 @@ async def _participant_by_identity(
         row = row[0] if row else None
     else:
         return None
-    if row is None or getattr(row, "session_id", None) != session_id or getattr(row, "left_at", None) is not None:
+    if (
+        row is None
+        or getattr(row, "session_id", None) != session_id
+        or getattr(row, "left_at", None) is not None
+    ):
         return None
     return row
 
@@ -228,7 +305,9 @@ async def _db_execute_participant(db: AsyncSession, session_id: str, user_id: in
 
 
 @router.post("/{session_id}/command", dependencies=[Depends(require_internal_token)])
-async def agent_command(session_id: str, body: AgentCommandRequest, db: AsyncSession = Depends(get_db)):
+async def agent_command(
+    session_id: str, body: AgentCommandRequest, db: AsyncSession = Depends(get_db)
+):
     """Execute a presenter/co-presenter command arriving from the LiveKit
     data channel. Roles are resolved server-side; unauthorized senders get a
     403 and a security_rejected audit event."""
@@ -240,23 +319,40 @@ async def agent_command(session_id: str, body: AgentCommandRequest, db: AsyncSes
     participant = await _participant_by_identity(db, session_id, body.identity)
     if participant is None:
         await primitives.record_event(
-            db, session_id=session_id, event_type="security_rejected",
-            payload={"identity": body.identity, "action": body.action, "reason": "unknown_participant"},
+            db,
+            session_id=session_id,
+            event_type="security_rejected",
+            payload={
+                "identity": body.identity,
+                "action": body.action,
+                "reason": "unknown_participant",
+            },
             actor_role="system",
         )
         await db.commit()
         raise HTTPException(status_code=403, detail="Unknown or inactive participant")
 
-    if body.action in COMMAND_BOTH_ROLES and participant.role not in ("presenter", "co_presenter"):
+    if body.action in COMMAND_BOTH_ROLES and participant.role not in (
+        "presenter",
+        "co_presenter",
+    ):
         allowed = False
     elif body.action in COMMAND_PRESENTER_ONLY and participant.role != "presenter":
         allowed = False
     else:
-        allowed = body.action in COMMAND_BOTH_ROLES or body.action in COMMAND_PRESENTER_ONLY
+        allowed = (
+            body.action in COMMAND_BOTH_ROLES or body.action in COMMAND_PRESENTER_ONLY
+        )
     if not allowed:
         await primitives.record_event(
-            db, session_id=session_id, event_type="security_rejected",
-            payload={"identity": body.identity, "action": body.action, "role": participant.role},
+            db,
+            session_id=session_id,
+            event_type="security_rejected",
+            payload={
+                "identity": body.identity,
+                "action": body.action,
+                "role": participant.role,
+            },
             actor_role="system",
         )
         await db.commit()
@@ -265,21 +361,39 @@ async def agent_command(session_id: str, body: AgentCommandRequest, db: AsyncSes
     params = body.params or {}
     try:
         if body.action == "pause":
-            s = await sessions.pause_session(db, session_id=session_id, user_id=participant.user_id or -1)
+            s = await sessions.pause_session(
+                db, session_id=session_id, user_id=participant.user_id or -1
+            )
         elif body.action == "resume":
-            s = await sessions.resume_session(db, session_id=session_id, user_id=participant.user_id or -1)
+            s = await sessions.resume_session(
+                db, session_id=session_id, user_id=participant.user_id or -1
+            )
         elif body.action == "interrupt":
-            return await sessions.interrupt_session(db, session_id=session_id, user_id=participant.user_id or -1)
+            return await sessions.interrupt_session(
+                db, session_id=session_id, user_id=participant.user_id or -1
+            )
         elif body.action == "takeover":
-            return await sessions.takeover_session(db, session_id=session_id, user_id=participant.user_id or -1)
+            return await sessions.takeover_session(
+                db, session_id=session_id, user_id=participant.user_id or -1
+            )
         elif body.action == "end":
-            s = await sessions.complete_session(db, session_id=session_id, user_id=participant.user_id or -1)
+            s = await sessions.complete_session(
+                db, session_id=session_id, user_id=participant.user_id or -1
+            )
         elif body.action in ("goto_slide", "add_slide", "delete_slide", "reorder"):
             from app.presentation_session import slides as slide_ops
 
-            return await slide_ops.apply_command(db, session_id=session_id, action=body.action, params=params, participant=participant)
+            return await slide_ops.apply_command(
+                db,
+                session_id=session_id,
+                action=body.action,
+                params=params,
+                participant=participant,
+            )
         else:
-            raise HTTPException(status_code=422, detail=f"Unsupported action {body.action}")
+            raise HTTPException(
+                status_code=422, detail=f"Unsupported action {body.action}"
+            )
     except SessionError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail)
     await db.commit()
@@ -296,8 +410,14 @@ async def agent_command(session_id: str, body: AgentCommandRequest, db: AsyncSes
 # ---------------------------------------------------------------------------
 
 
-@router.post("/{session_id}/tts-clone", response_model=CloneTtsResponse, dependencies=[Depends(require_internal_token)])
-async def agent_clone_tts(session_id: str, body: CloneTtsRequest, db: AsyncSession = Depends(get_db)):
+@router.post(
+    "/{session_id}/tts-clone",
+    response_model=CloneTtsResponse,
+    dependencies=[Depends(require_internal_token)],
+)
+async def agent_clone_tts(
+    session_id: str, body: CloneTtsRequest, db: AsyncSession = Depends(get_db)
+):
     try:
         await sessions.get_session_or_404(db, session_id)
     except SessionError as e:
@@ -335,7 +455,9 @@ async def agent_clone_tts(session_id: str, body: CloneTtsRequest, db: AsyncSessi
         raise HTTPException(status_code=503, detail=f"clone unavailable: {e}")
 
     if outcome is None:
-        raise HTTPException(status_code=503, detail="No ready trained clone is available")
+        raise HTTPException(
+            status_code=503, detail="No ready trained clone is available"
+        )
     voice_id, envelope = outcome
     audio_b64 = envelope.get("audio_base64") or ""
     if not audio_b64:

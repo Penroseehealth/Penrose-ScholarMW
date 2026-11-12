@@ -1,4 +1,4 @@
-﻿"""OCR scan & analyse endpoints â€” upload a scan, extract text, analyse it."""
+"""OCR scan & analyse endpoints â€” upload a scan, extract text, analyse it."""
 
 from __future__ import annotations
 

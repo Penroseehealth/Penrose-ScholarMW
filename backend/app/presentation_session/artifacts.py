@@ -22,11 +22,17 @@ from app.presentation_session.service import SessionError
 
 async def transcript(db: AsyncSession, session_id: str) -> list[dict]:
     """Full ordered transcript with speaker attribution."""
-    rows = (await db.execute(
-        select(PresentationTranscriptEvent)
-        .where(PresentationTranscriptEvent.session_id == session_id)
-        .order_by(PresentationTranscriptEvent.created_at)
-    )).scalars().all()
+    rows = (
+        (
+            await db.execute(
+                select(PresentationTranscriptEvent)
+                .where(PresentationTranscriptEvent.session_id == session_id)
+                .order_by(PresentationTranscriptEvent.created_at)
+            )
+        )
+        .scalars()
+        .all()
+    )
     return [
         {
             "speaker": r.speaker_label or r.source,
@@ -38,14 +44,26 @@ async def transcript(db: AsyncSession, session_id: str) -> list[dict]:
     ]
 
 
-async def _question_lists(db: AsyncSession, session_id: str) -> tuple[list[str], list[str]]:
-    rows = (await db.execute(
-        select(PresentationQuestion).where(
-            PresentationQuestion.session_id == session_id
+async def _question_lists(
+    db: AsyncSession, session_id: str
+) -> tuple[list[str], list[str]]:
+    rows = (
+        (
+            await db.execute(
+                select(PresentationQuestion).where(
+                    PresentationQuestion.session_id == session_id
+                )
+            )
         )
-    )).scalars().all()
-    unanswered = [q.text for q in rows if q.status in ("unanswered", "raised", "deferred")]
-    answered = [f"Q: {q.text}\nA: {q.answer_text or ''}" for q in rows if q.status == "answered"]
+        .scalars()
+        .all()
+    )
+    unanswered = [
+        q.text for q in rows if q.status in ("unanswered", "raised", "deferred")
+    ]
+    answered = [
+        f"Q: {q.text}\nA: {q.answer_text or ''}" for q in rows if q.status == "answered"
+    ]
     return unanswered, answered
 
 
@@ -56,11 +74,17 @@ async def summary(db: AsyncSession, session_id: str) -> str:
         raise SessionError(404, "Session not found")
     events = await transcript(db, session_id)
     _, answered = await _question_lists(db, session_id)
-    corrections = (await db.execute(
-        select(PresentationInstruction)
-        .where(PresentationInstruction.session_id == session_id)
-        .order_by(PresentationInstruction.created_at)
-    )).scalars().all()
+    corrections = (
+        (
+            await db.execute(
+                select(PresentationInstruction)
+                .where(PresentationInstruction.session_id == session_id)
+                .order_by(PresentationInstruction.created_at)
+            )
+        )
+        .scalars()
+        .all()
+    )
 
     lines = [f"{e['speaker']}: {e['text']}" for e in events[:80]]
     prompt = (
@@ -90,7 +114,10 @@ async def quiz(db: AsyncSession, session_id: str, *, count: int = 5) -> list[dic
         "No markdown fences.\n\nTRANSCRIPT:\n" + "\n".join(lines)
     )
     raw = await call_ai_text(
-        [{"role": "user", "content": prompt}], max_tokens=1200, temperature=0.4, timeout=90.0
+        [{"role": "user", "content": prompt}],
+        max_tokens=1200,
+        temperature=0.4,
+        timeout=90.0,
     )
     try:
         parsed = json.loads(raw)
@@ -100,7 +127,7 @@ async def quiz(db: AsyncSession, session_id: str, *, count: int = 5) -> list[dic
         pass
     # One fenced-block retry before giving up (never fabricate a quiz).
     try:
-        cleaned = raw[raw.index("["): raw.rindex("]") + 1]
+        cleaned = raw[raw.index("[") : raw.rindex("]") + 1]
         parsed = json.loads(cleaned)
         return [q for q in parsed if isinstance(q, dict) and q.get("question")]
     except (ValueError, json.JSONDecodeError):

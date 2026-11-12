@@ -1,4 +1,4 @@
-﻿"""Asymptote-backed scientific diagram generation for Aminiology EduTech."""
+"""Asymptote-backed scientific diagram generation for Aminiology EduTech."""
 
 from .orchestrator import build_lesson_assets, classify_lesson_need
 from .router import router

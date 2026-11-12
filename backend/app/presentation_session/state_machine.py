@@ -76,7 +76,9 @@ class TransitionResult:
 
 def check_pres_transition(current: str, target: str) -> TransitionResult:
     if target not in PRES_TRANSITIONS.get(current, set()):
-        return TransitionResult(False, f"presentation state {current} cannot become {target}")
+        return TransitionResult(
+            False, f"presentation state {current} cannot become {target}"
+        )
     return TransitionResult(True, pres_state=target)
 
 

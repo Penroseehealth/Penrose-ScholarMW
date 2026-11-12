@@ -121,7 +121,9 @@ async def replay_events(
                 "event_key": row.event_key,
                 "event_type": row.event_type,
                 "payload": payload,
-                "created_at": row.created_at.isoformat() if hasattr(row.created_at, "isoformat") else row.created_at,
+                "created_at": row.created_at.isoformat()
+                if hasattr(row.created_at, "isoformat")
+                else row.created_at,
             }
         )
     return events
@@ -165,7 +167,10 @@ async def acquire_voice_lease(
         )
     )
     await db.commit()
-    return {"acquired": result.rowcount == 1, "token": token if result.rowcount == 1 else None}
+    return {
+        "acquired": result.rowcount == 1,
+        "token": token if result.rowcount == 1 else None,
+    }
 
 
 async def renew_voice_lease(
@@ -219,13 +224,15 @@ async def cancel_voice_lease(
 
 async def voice_lease_owner(db: AsyncSession, session_id: str) -> str:
     """Effective owner right now: 'none' when the lease has expired."""
-    row = (await db.execute(
-        text(
-            "SELECT voice_owner, voice_lease_expires_at FROM presentation_sessions "
-            "WHERE id = :sid"
-        ),
-        {"sid": session_id},
-    )).first()
+    row = (
+        await db.execute(
+            text(
+                "SELECT voice_owner, voice_lease_expires_at FROM presentation_sessions "
+                "WHERE id = :sid"
+            ),
+            {"sid": session_id},
+        )
+    ).first()
     if row is None:
         return "none"
     owner, expires_at = row.voice_owner, row.voice_lease_expires_at

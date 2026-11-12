@@ -1,4 +1,4 @@
-﻿"""Core engine for the AI Lecture Presentation Builder.
+"""Core engine for the AI Lecture Presentation Builder.
 
 Implements the content-priority / source hierarchy, syllabus alignment,
 AI outline + slide generation, speaker notes, citations, quality reporting,
@@ -284,7 +284,9 @@ def _split_objectives(syllabus: str) -> list[str]:
         line = line.strip()
         if not line:
             continue
-        if re.match(r"^[(-]?\s*\d+[.)]", line) or line.startswith(("-", "â€¢", "*", "âœ“")):
+        if re.match(r"^[(-]?\s*\d+[.)]", line) or line.startswith(
+            ("-", "â€¢", "*", "âœ“")
+        ):
             clean = re.sub(r"^[(-]?\s*\d+[.)]\s*|^[-â€¢*âœ“]\s*", "", line).strip()
             if len(clean) > 8:
                 objectives.append(clean)
